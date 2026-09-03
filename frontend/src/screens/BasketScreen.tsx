@@ -127,6 +127,25 @@ export function BasketScreen() {
         </Card>
       )}
 
+      {result && result.basket_dependencies.length > 0 && (
+        <Card title="Зависимости набора" hint="Решения, которые осмысленны только в паре.">
+          {result.basket_dependencies.map((item, index) => (
+            <div key={index} style={{ marginBottom: 10 }}>
+              <Callout tone="info">
+                <strong>
+                  {item.a_name} → {item.b_name}
+                </strong>{' '}
+                <Badge tone="info">{item.conflict_label}</Badge>
+                <div style={{ marginTop: 6 }}>{item.description}</div>
+                <div style={{ marginTop: 6 }}>
+                  <strong>Что делать:</strong> {item.resolution}
+                </div>
+              </Callout>
+            </div>
+          ))}
+        </Card>
+      )}
+
       {result && result.basket_synergies.length > 0 && (
         <Card title="Усиливающие сочетания" hint="Решения, которые выгодно применять совместно.">
           {result.basket_synergies.map((item, index) => (
@@ -142,11 +161,14 @@ export function BasketScreen() {
         </Card>
       )}
 
-      {result && result.basket_conflicts.length === 0 && result.basket_synergies.length === 0 && (
-        <Callout tone="ok" title="Совместимость набора">
-          В выбранном наборе не обнаружено конфликтов и незакрытых зависимостей.
-        </Callout>
-      )}
+      {result &&
+        result.basket_conflicts.length === 0 &&
+        result.basket_dependencies.length === 0 &&
+        result.basket_synergies.length === 0 && (
+          <Callout tone="ok" title="Совместимость набора">
+            В выбранном наборе не обнаружено конфликтов и незакрытых зависимостей.
+          </Callout>
+        )}
 
       {openMethod && <MethodCard method={openMethod} onClose={() => setOpenCode(null)} />}
     </>

@@ -80,10 +80,22 @@ def hardware_gpu(db: Session) -> list[HardwareGPU]:
 
 
 def method_links(db: Session, method_id: int) -> list[MethodEngineLink]:
-    """Опубликованные связи метода с инструментами движков."""
-    return list(
-        db.scalars(_published(MethodEngineLink).where(MethodEngineLink.method_id == method_id))
+    """Опубликованные связи метода с инструментами движков.
+
+    Связь считается published, но ссылается на снятый с публикации инструмент —
+    такая связь в публичный ответ не попадает, иначе пользователь увидит
+    рекомендацию использовать удалённый инструмент.
+    """
+    published_tool_ids = select(EngineTool.id).where(
+        EngineTool.status == PUBLISHED,
+        EngineTool.engine_id.in_(select(Engine.id).where(Engine.status == PUBLISHED)),
     )
+    stmt = (
+        _published(MethodEngineLink)
+        .where(MethodEngineLink.method_id == method_id)
+        .where(MethodEngineLink.tool_id.in_(published_tool_ids))
+    )
+    return list(db.scalars(stmt))
 
 
 def published_snapshot_counts(db: Session) -> dict[str, int]:

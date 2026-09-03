@@ -310,6 +310,8 @@ export interface HardwareEstimate {
   caveats: string[];
   required_hw_features: string[];
   exceeds_catalog: boolean;
+  /** Явный список невыполненных обязательных ограничений (пределы памяти, RT). */
+  unmet_limits: string[];
 }
 
 export interface SimilarGame {
@@ -325,10 +327,14 @@ export interface RecommendationResult {
   excluded: Recommendation[];
   load_profile: LoadProfile;
   basket_conflicts: BasketConflict[];
+  /** Закрытые зависимости: решения, осмысленные только в паре. */
+  basket_dependencies: BasketConflict[];
   basket_synergies: BasketConflict[];
   hardware: HardwareEstimate | null;
   similar_games: SimilarGame[];
   meta: Record<string, unknown>;
+  /** Отпечаток входа, для которого выполнен расчёт (присваивается backend). */
+  input_key: string;
 }
 
 export interface ValidationIssue {

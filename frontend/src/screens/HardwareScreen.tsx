@@ -1,5 +1,5 @@
 /** Экран 9. Ориентировочный минимальный класс оборудования (раздел 5 плана). */
-import { useStore } from '../store';
+import { useEnsureResult, useStore } from '../store';
 import { Badge, Callout, Card, Empty, Loading, Metric, SourceLink } from '../components/ui';
 import type { HardwareCPU, HardwareGPU } from '../types';
 
@@ -75,6 +75,8 @@ function GpuSpec({ gpu }: { gpu: HardwareGPU }) {
 export function HardwareScreen() {
   const { result, calculating } = useStore();
 
+  useEnsureResult();
+
   if (calculating) return <Loading text="Расчёт аппаратной оценки…" />;
 
   if (!result || !result.hardware) {
@@ -105,6 +107,21 @@ export function HardwareScreen() {
             <Callout tone="danger" title="Требования превышают каталог">
               Рассчитанная нагрузка выше самых производительных записей базы. Снизьте целевые
               показатели, пересмотрите набор решений или масштаб мира.
+            </Callout>
+          </div>
+        )}
+
+        {hw.unmet_limits.length > 0 && (
+          <div style={{ marginTop: 12 }}>
+            <Callout tone="danger" title="Заданные пределы не выполнены">
+              <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+                {hw.unmet_limits.map((limit) => (
+                  <li key={limit}>{limit}</li>
+                ))}
+              </ul>
+              <div style={{ marginTop: 8 }}>
+                Конфигурация ниже приведена как ориентир: в заданный бюджет она не укладывается.
+              </div>
             </Callout>
           </div>
         )}

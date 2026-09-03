@@ -455,6 +455,10 @@ class HardwareEstimateOut(BaseModel):
     caveats: list[str]
     required_hw_features: list[str]
     exceeds_catalog: bool
+    # Явный список невыполненных обязательных ограничений: пределы памяти и
+    # обязательные аппаратные возможности. Раньше они растворялись в caveats,
+    # и интерфейс показывал конфигурацию как подходящую.
+    unmet_limits: list[str] = Field(default_factory=list)
 
 
 class SimilarGameOut(BaseModel):

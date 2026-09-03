@@ -1,6 +1,6 @@
 /** Экран 10. Похожие игры: сверка проекта с подтверждёнными примерами. */
 import { useMemo } from 'react';
-import { useStore } from '../store';
+import { useEnsureResult, useStore } from '../store';
 import { Badge, Callout, Card, Empty, Loading, SourceLink } from '../components/ui';
 import type { GameExample, SimilarGame } from '../types';
 
@@ -117,6 +117,8 @@ function ExampleCard({
 
 export function SimilarGamesScreen() {
   const { result, catalog, calculating } = useStore();
+
+  useEnsureResult();
 
   const methodNames = useMemo(() => {
     const map: Record<string, string> = {};

@@ -154,24 +154,22 @@ def seed_examples(db: Session) -> int:
 
 
 def seed_hardware(db: Session) -> int:
-    payload = _load_json("hardware.json")
-    if not isinstance(payload, dict):
+    #: Внимание: переменная цикла не должна называться `payload` — она затеняет
+    #: загруженный JSON, и второй цикл начинает перебирать поля последнего
+    #: процессора вместо списка видеокарт. Из-за этого каталог GPU оставался
+    #: пустым, хотя наполнение выполнялось без ошибок.
+    data = _load_json("hardware.json")
+    if not isinstance(data, dict):
         return 0
     count = 0
-    for row in payload.get("cpu", []):
-        if not row.get("model"):
-            continue
-        payload = {k: v for k, v in row.items() if hasattr(HardwareCPU, k)}
-        payload.setdefault("status", PUBLISHED)
-        _, created = _upsert(db, HardwareCPU, "model", payload)
-        count += int(created)
-    for row in payload.get("gpu", []):
-        if not row.get("model"):
-            continue
-        payload = {k: v for k, v in row.items() if hasattr(HardwareGPU, k)}
-        payload.setdefault("status", PUBLISHED)
-        _, created = _upsert(db, HardwareGPU, "model", payload)
-        count += int(created)
+    for model_cls, section in ((HardwareCPU, "cpu"), (HardwareGPU, "gpu")):
+        for row in data.get(section, []):
+            if not row.get("model"):
+                continue
+            fields = {k: v for k, v in row.items() if hasattr(model_cls, k)}
+            fields.setdefault("status", PUBLISHED)
+            _, created = _upsert(db, model_cls, "model", fields)
+            count += int(created)
     db.flush()
     return count
 

@@ -1,6 +1,6 @@
 /** Экран 4. Вкладки вариантов реализации функций. */
 import { useEffect, useMemo, useState } from 'react';
-import { useStore } from '../store';
+import { useEnsureResult, useStore } from '../store';
 import { RecommendationList } from '../components/RecommendationList';
 import { Badge, Callout, Card, Empty, Loading, Tabs } from '../components/ui';
 
@@ -20,9 +20,9 @@ export function SolutionsScreen({ onCompare }: { onCompare: (codes: string[]) =>
   const functionName = (code: string | null) =>
     catalog.functions.find((fn) => fn.code === code)?.name ?? 'Общие методы';
 
-  useEffect(() => {
-    if (!result && !calculating) void calculate();
-  }, [result, calculating, calculate]);
+  // Результат сбрасывается при любом изменении профиля или корзины, поэтому
+  // пересчёт запускается здесь: на экране всегда данные текущего входа.
+  useEnsureResult();
 
   const recommendations = result?.recommendations ?? [];
 

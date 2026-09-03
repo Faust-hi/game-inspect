@@ -6,11 +6,11 @@
 """
 from __future__ import annotations
 
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .. import repositories
 from ..models.entities import HardwareCPU, HardwareGPU
-from ..models.enums import Level3, Scale
+from ..models.enums import Scale
 from ..schemas.catalog import HardwareEstimateOut, ProjectProfile
 from . import serializers
 
@@ -50,11 +50,10 @@ GPU_CALIBRATION = 0.18
 CPU_CALIBRATION = 0.26
 
 
-def _level(value: str | None, default: float = 0.55) -> float:
-    try:
-        return Level3(value).numeric if value else default
-    except ValueError:
-        return default
+def _supports_ray_tracing(gpu: HardwareGPU) -> bool:
+    """Проверяет наличие аппаратной трассировки лучей по признакам каталога."""
+    features = [str(f).lower() for f in (gpu.hw_features or [])]
+    return any("ray tracing" in f or "rt core" in f or "rtx" in f for f in features)
 
 
 def _resolution_factor(value: str) -> float:
@@ -123,8 +122,10 @@ def estimate_hardware(
     ram_gb = max(4.0, round(ram_gb, 1))
 
     # --- Подбор референсной конфигурации ---------------------------------
-    gpus = list(db.scalars(select(HardwareGPU).order_by(HardwareGPU.raster_score)))
-    cpus = list(db.scalars(select(HardwareCPU).order_by(HardwareCPU.multi_thread_score)))
+    # Только опубликованные записи: снятое с публикации оборудование не должно
+    # попадать в оценку.
+    gpus = sorted(repositories.hardware_gpu(db), key=lambda g: g.raster_score)
+    cpus = sorted(repositories.hardware_cpu(db), key=lambda c: c.multi_thread_score)
 
     required_rt = any(
         "Hardware Ray Tracing" in (m.requires_hw_features or []) for m in methods
@@ -133,34 +134,69 @@ def estimate_hardware(
         feature for m in methods for feature in (m.requires_hw_features or [])
     })
 
-    def pick_gpu(pool: list[HardwareGPU], index: float) -> HardwareGPU | None:
-        candidates = [g for g in pool if g.raster_score >= index]
-        if required_rt:
-            rt_pool = [
-                g for g in candidates
-                if any("ray tracing" in f.lower() or "rt cores" in f.lower() or "ray tracing" in f.lower()
-                       for f in (g.hw_features or []))
-            ]
-            if not rt_pool:
-                caveats.append(
-                    "Выбранные решения требуют аппаратной трассировки лучей: видеокарта подбирается "
-                    "с учётом этого требования, но стоимость RT-эффектов оценить заранее нельзя."
-                )
-            else:
-                candidates = rt_pool
-        if not candidates:
-            return None
-        # Из подходящих выбираем наиболее скромную по классу и производительности.
-        return min(candidates, key=lambda g: (g.perf_class, g.raster_score))
+    # Заданные пользователем пределы памяти — обязательные ограничения, а не
+    # справочные числа. Нарушение фиксируется отдельно: молча вернуть
+    # конфигурацию, не входящую в бюджет, значит ввести пользователя в заблуждение.
+    unmet: list[str] = []
+    if profile.vram_limit_gb is not None and vram_gb > profile.vram_limit_gb:
+        unmet.append(
+            f"Требуется {vram_gb:.1f} ГБ видеопамяти при заданном пределе "
+            f"{profile.vram_limit_gb:.1f} ГБ."
+        )
+    if profile.ram_limit_gb is not None and ram_gb > profile.ram_limit_gb:
+        unmet.append(
+            f"Требуется {ram_gb:.1f} ГБ оперативной памяти при заданном пределе "
+            f"{profile.ram_limit_gb:.1f} ГБ."
+        )
 
-    reference_gpu = pick_gpu(gpus, gpu_index)
+    def pick_gpu(pool: list[HardwareGPU], index: float) -> tuple[HardwareGPU | None, bool]:
+        """Выбрать видеокарту. Второй элемент — признак «требование не выполнено».
+
+        Аппаратная трассировка лучей — обязательная возможность, а не пожелание:
+        если выбранные решения её требуют, видеокарта без RT не подходит ни при
+        какой производительности. Раньше в такой ситуации подбиралась обычная
+        карта с предупреждением, хотя интерфейс утверждает обратное.
+        """
+        if required_rt:
+            pool = [g for g in pool if _supports_ray_tracing(g)]
+            if not pool:
+                return None, True
+        # Предел видеопамяти отсекает карты, в которые проект не помещается.
+        if profile.vram_limit_gb is not None:
+            fitted = [g for g in pool if g.vram_gb >= vram_gb]
+            if fitted:
+                pool = fitted
+        candidates = [g for g in pool if g.raster_score >= index]
+        if not candidates:
+            return None, False
+        # Из подходящих выбираем наиболее скромную по классу и производительности.
+        return min(candidates, key=lambda g: (g.perf_class, g.raster_score)), False
+
+    reference_gpu, rt_missing = pick_gpu(gpus, gpu_index)
     exceeds = False
     if reference_gpu is None:
         exceeds = True
+        if rt_missing:
+            caveats.append(
+                "Выбранные решения требуют аппаратной трассировки лучей, но в базе нет ни одной "
+                "подходящей видеокарты: оценка выполнена по производительности без учёта этого "
+                "требования и не является применимой."
+            )
+        elif not gpus:
+            caveats.append("В базе нет опубликованных записей о видеокартах: оценка не выполнена.")
+        else:
+            caveats.append(
+                "Требуемая производительность GPU превышает возможности самого быстрого "
+                "оборудования в базе: необходимо снизить целевые показатели или изменить набор решений."
+            )
+        # Показываем максимально близкую запись как ориентир, но помечаем,
+        # что конфигурация не покрывает требования.
         reference_gpu = max(gpus, key=lambda g: g.raster_score) if gpus else None
-        caveats.append(
-            "Требуемая производительность превышает возможности самого быстрого оборудования в базе: "
-            "необходимо снизить целевые показатели или изменить набор решений."
+    elif profile.vram_limit_gb is not None and reference_gpu.vram_gb < vram_gb:
+        unmet.append(
+            f"Видеокарта {reference_gpu.model} имеет {reference_gpu.vram_gb:g} ГБ видеопамяти "
+            f"при требуемых {vram_gb:.1f} ГБ: в базе нет карты, одновременно достаточно "
+            "производительной и укладывающейся в предел."
         )
 
     def pick_cpu(pool: list[HardwareCPU], index: float) -> HardwareCPU | None:
@@ -170,11 +206,15 @@ def estimate_hardware(
         return min(candidates, key=lambda c: (c.perf_class, c.multi_thread_score))
 
     reference_cpu = pick_cpu(cpus, cpu_index)
-    if reference_cpu is None and cpus:
-        reference_cpu = max(cpus, key=lambda c: c.multi_thread_score)
-        caveats.append(
-            "Требуемая производительность CPU превышает самую производительную запись базы."
-        )
+    if reference_cpu is None:
+        exceeds = True
+        if cpus:
+            reference_cpu = max(cpus, key=lambda c: c.multi_thread_score)
+            caveats.append(
+                "Требуемая производительность CPU превышает самую производительную запись базы."
+            )
+        else:
+            caveats.append("В базе нет опубликованных записей о процессорах: оценка не выполнена.")
 
     # Альтернативы: ближайшие по производительности, но более современные.
     alt_gpus = sorted(
@@ -207,6 +247,15 @@ def estimate_hardware(
     if not methods:
         confidence -= 0.1
         caveats.append("Корзина решений пуста: оценка выполнена по базовому профилю проекта.")
+    if unmet:
+        # Заданный бюджет памяти не выполняется: конфигурация приведена как
+        # ориентир, но называть её подходящей нельзя.
+        confidence -= 0.12 * len(unmet)
+        caveats.extend(unmet)
+        caveats.append(
+            "Заданные ограничения не выполнены: необходимо пересмотреть бюджет памяти, "
+            "целевые показатели качества или набор решений."
+        )
     confidence = round(max(0.15, min(0.95, confidence)), 2)
 
     if confidence >= 0.75:
@@ -242,4 +291,5 @@ def estimate_hardware(
         caveats=caveats,
         required_hw_features=required_hw,
         exceeds_catalog=exceeds,
+        unmet_limits=unmet,
     )

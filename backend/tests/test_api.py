@@ -1,6 +1,8 @@
 """Тесты HTTP-интерфейса: каталоги, расчёт, администрирование."""
 from __future__ import annotations
 
+import itertools
+
 import pytest
 
 
@@ -100,15 +102,39 @@ def test_recommendations_respect_selected_functions(client, profile):
 
 
 def test_priority_changes_ranking(client, profile):
-    quality = dict(profile, priority="quality")
-    cost = dict(profile, priority="cost")
-    a = client.post("/api/recommend", json={"profile": quality, "basket": []}).json()
-    b = client.post("/api/recommend", json={"profile": cost, "basket": []}).json()
-    order_a = [item["method_code"] for item in a["recommendations"]]
-    order_b = [item["method_code"] for item in b["recommendations"]]
-    assert set(order_a) == set(order_b)
-    # Допустимо совпадение порядка, но набор весов должен отличаться.
-    assert a["meta"]["weights"] != b["meta"]["weights"]
+    """Приоритет переставляет решения, а не только меняет веса в ответе.
+
+    Проверка одного лишь различия словаря весов проходит и тогда, когда
+    приоритет вообще не влияет на результат. Требуется именно изменение порядка:
+    веса попадают в матрицу TOPSIS, и это должно быть видно в ранжировании.
+    """
+    # Набор функций подбирается так, чтобы альтернативы различались по нескольким
+    # критериям одновременно: иначе порядок может совпасть у части приоритетов.
+    base = dict(
+        profile,
+        functions=["open_world_streaming", "dynamic_global_illumination", "crowd_simulation"],
+    )
+    orders: dict[str, list[str]] = {}
+    weights: dict[str, dict] = {}
+    for priority in ("balanced", "performance", "quality", "cost"):
+        data = client.post(
+            "/api/recommend", json={"profile": dict(base, priority=priority), "basket": []}
+        ).json()
+        orders[priority] = [item["method_code"] for item in data["recommendations"]]
+        weights[priority] = data["meta"]["weights"]
+        assert data["meta"]["priority"] == priority
+
+    assert len(orders["balanced"]) > 1, "нужно хотя бы две альтернативы для сравнения"
+    # Состав допустимых решений от приоритета не зависит — только их порядок:
+    # применимость определяется правилами, а не весами.
+    for priority, order in orders.items():
+        assert set(order) == set(orders["balanced"]), f"приоритет {priority} изменил состав решений"
+    for first, second in itertools.combinations(orders, 2):
+        assert orders[first] != orders[second], (
+            f"приоритеты «{first}» и «{second}» дали одинаковый порядок: "
+            "приоритет не влияет на результат"
+        )
+    assert len({tuple(sorted(w.items())) for w in weights.values()}) == len(weights)
 
 
 def test_excluded_solutions_explain_reason(client):
@@ -206,8 +232,11 @@ def test_hardware_estimate_is_cautious(client, profile):
     assert data["reference_gpu"] and data["reference_cpu"]
     assert data["caveats"], "Оценка должна сопровождаться оговорками"
     assert any("ориентировочным" in text for text in data["caveats"])
-    # Система не обещает конкретный FPS.
-    assert "fps" not in data or True
+    # Система не обещает конкретный FPS: в ответе нет обещанного показателя,
+    # а уверенность оценки всегда ниже единицы.
+    assert "guaranteed_fps" not in data and "fps" not in data
+    assert 0.0 < data["confidence"] < 1.0
+    assert data["confidence_label"] in {"низкая", "средняя", "повышенная"}
 
 
 def test_hardware_estimate_scales_with_resolution(client, profile):
@@ -306,25 +335,95 @@ def test_admin_overview_and_validation(client):
     assert data["issues_by_severity"]["error"] == 0
 
 
+def test_new_material_is_created_as_draft(client):
+    """Новый материал всегда черновик, даже если в запросе передан статус.
+
+    Раньше модель по умолчанию создавала запись сразу опубликованной, и материал
+    без источника попадал в публичные рекомендации в обход проверок.
+    """
+    payload = {
+        "code": "tmp_draft_method", "name": "Черновой метод", "summary": "Тест",
+        "status": "published",
+    }
+    created = client.post("/api/admin/methods", json=payload,
+                          headers={"x-admin-token": "admin"}).json()
+    assert created["created"] is True
+    assert created["status"] == "draft", created
+
+    # И в публичном каталоге его быть не должно.
+    assert client.get("/api/catalog/methods").status_code == 200
+    listed = {m["code"] for m in client.get("/api/catalog/methods").json()}
+    assert "tmp_draft_method" not in listed
+    assert client.get("/api/catalog/methods/tmp_draft_method").status_code == 404
+
+
 def test_admin_cannot_publish_without_source(client):
+    """Публикация без источника запрещена по всем путям."""
     payload = {"code": "tmp_test_method", "name": "Временный метод", "summary": "Тест"}
     created = client.post("/api/admin/methods", json=payload,
                           headers={"x-admin-token": "admin"}).json()
     assert created["created"] is True
 
+    # Прямой переход «черновик → опубликовано» запрещён жизненным циклом.
     denied = client.patch("/api/admin/methods/tmp_test_method/status", json={"status": "published"},
                           headers={"x-admin-token": "admin"})
-    assert denied.status_code == 400
+    assert denied.status_code == 409, denied.text
 
-    client.delete("/api/admin/methods/tmp_test_method", headers={"x-admin-token": "admin"})
+    # Через «проверено» публикация без источника тоже не проходит.
+    assert client.patch("/api/admin/methods/tmp_test_method/status", json={"status": "reviewed"},
+                        headers={"x-admin-token": "admin"}).status_code == 200
+    denied = client.patch("/api/admin/methods/tmp_test_method/status", json={"status": "published"},
+                          headers={"x-admin-token": "admin"})
+    assert denied.status_code == 422, denied.text
+    body = denied.json()
+    assert "источник" in body.get("details", [""])[0].lower() or "источник" in str(body).lower()
+
+
+def test_admin_publication_requires_valid_url(client):
+    """Ссылка-источник должна быть http(s): остальные схемы не принимаются.
+
+    Проверка стоит на двух уровнях — на входной модели и на публикации, —
+    потому что запись может попасть в базу и через импорт, минуя модель.
+    """
+    # Уровень 1: административная модель не принимает ссылку не http(s).
+    response = client.post("/api/admin/methods", json={
+        "code": "tmp_bad_url", "name": "Метод с плохой ссылкой",
+        "source_url": "javascript:alert(1)", "source_title": "Источник",
+    }, headers={"x-admin-token": "admin"})
+    assert response.status_code == 422, response.text
+
+    # Уровень 2: импорт — отдельный путь записи, проверка должна быть и там.
+    imported = client.post(
+        "/api/admin/import/methods",
+        files={"file": ("m.json", __import__("json").dumps([{
+            "code": "tmp_bad_url", "name": "Метод с плохой ссылкой",
+            "source_url": "ftp://example.org/x", "source_title": "Источник",
+        }]), "application/json")},
+        headers={"x-admin-token": "admin"},
+    )
+    assert imported.status_code == 422, imported.text
+    assert "http" in str(imported.json()).lower()
+
+    # Запись с некорректной ссылкой не должна появиться даже в виде черновика.
+    codes = {m["code"] for m in client.get(
+        "/api/admin/methods", headers={"x-admin-token": "admin"}).json()}
+    assert "tmp_bad_url" not in codes
 
 
 def test_admin_status_workflow(client):
+    """Жизненный цикл: черновик → проверено → опубликовано → снято с публикации."""
     payload = {
         "code": "tmp_workflow_method", "name": "Метод для проверки статусов",
         "source_url": "https://example.org/source", "source_title": "Пример источника",
     }
     client.post("/api/admin/methods", json=payload, headers={"x-admin-token": "admin"})
+    # Связь с инструментом обязательна: иначе пользователь не узнает, чем
+    # реализовать решение в своём проекте.
+    tool_code = client.get("/api/catalog/engines").json()[0]["tools"][0]["code"]
+    assert client.post("/api/admin/links", json={
+        "method_code": "tmp_workflow_method", "tool_code": tool_code, "relation_type": "direct",
+    }, headers={"x-admin-token": "admin"}).status_code == 200
+
     for status in ("draft", "reviewed", "published"):
         response = client.patch(
             f"/api/admin/methods/tmp_workflow_method/status",
@@ -332,7 +431,62 @@ def test_admin_status_workflow(client):
         )
         assert response.status_code == 200, response.text
         assert response.json()["status"] == status
-    client.delete("/api/admin/methods/tmp_workflow_method", headers={"x-admin-token": "admin"})
+
+    # Обратный переход «опубликовано → проверено» — снятие с публикации.
+    response = client.patch("/api/admin/methods/tmp_workflow_method/status",
+                            json={"status": "reviewed"}, headers={"x-admin-token": "admin"})
+    assert response.status_code == 200, response.text
+    assert client.get("/api/catalog/methods/tmp_workflow_method").status_code == 404
+
+    # «Проверено → черновик» допустимо, «черновик → опубликовано» — нет.
+    client.patch("/api/admin/methods/tmp_workflow_method/status", json={"status": "draft"},
+                 headers={"x-admin-token": "admin"})
+    assert client.patch("/api/admin/methods/tmp_workflow_method/status", json={"status": "published"},
+                        headers={"x-admin-token": "admin"}).status_code == 409
+
+
+def test_publication_requires_engine_link(client):
+    """Метод без связи с инструментом движка опубликовать нельзя."""
+    client.post("/api/admin/methods", json={
+        "code": "tmp_linkless", "name": "Метод без связи",
+        "source_url": "https://example.org/x", "source_title": "Источник",
+    }, headers={"x-admin-token": "admin"})
+    client.patch("/api/admin/methods/tmp_linkless/status", json={"status": "reviewed"},
+                 headers={"x-admin-token": "admin"})
+    response = client.patch("/api/admin/methods/tmp_linkless/status", json={"status": "published"},
+                            headers={"x-admin-token": "admin"})
+    assert response.status_code == 422, response.text
+    details = " ".join(response.json()["error"]["details"]).lower()
+    assert "связ" in details or "инструмент" in details
+
+    # После появления связи публикация проходит.
+    tool_code = client.get("/api/catalog/engines").json()[0]["tools"][0]["code"]
+    client.post("/api/admin/links", json={
+        "method_code": "tmp_linkless", "tool_code": tool_code, "relation_type": "partial",
+    }, headers={"x-admin-token": "admin"})
+    response = client.patch("/api/admin/methods/tmp_linkless/status", json={"status": "published"},
+                            headers={"x-admin-token": "admin"})
+    assert response.status_code == 200, response.text
+
+
+def test_publication_log_records_transitions(client):
+    """Журнал публикаций фиксирует, кто и когда перевёл запись в новый статус."""
+    client.post("/api/admin/methods", json={
+        "code": "tmp_logged_method", "name": "Метод с журналом",
+        "source_url": "https://example.org/x", "source_title": "Источник",
+    }, headers={"x-admin-token": "admin"})
+    client.patch("/api/admin/methods/tmp_logged_method/status",
+                 json={"status": "reviewed", "comment": "проверено"},
+                 headers={"x-admin-token": "admin"})
+
+    log = client.get("/api/admin/publication-log", headers={"x-admin-token": "admin"}).json()
+    entries = [row for row in log if row["entity_code"] == "tmp_logged_method"]
+    assert entries, "переход не попал в журнал публикаций"
+    assert entries[0]["from_status"] == "draft"
+    assert entries[0]["to_status"] == "reviewed"
+    assert entries[0]["comment"] == "проверено"
+    assert entries[0]["actor"]
+    assert entries[0]["created_at"]
 
 
 def test_admin_import_json(client):

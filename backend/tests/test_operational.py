@@ -48,8 +48,12 @@ def test_error_response_contains_request_id(client):
     assert "request_id" in response.json()
 
 
-def test_internal_error_does_not_leak_details(monkeypatch):
-    """Клиент получает код ошибки, но не текст исключения."""
+def test_internal_error_does_not_leak_details(client, monkeypatch, caplog):
+    """Клиент получает код ошибки, но не текст исключения.
+
+    Подробности не передаются ни при какой конфигурации: предыдущая версия
+    добавляла их в ответ, когда `ENVIRONMENT` отличался от `production`.
+    """
     from fastapi.testclient import TestClient
 
     from app.api import recommend as recommend_api
@@ -62,11 +66,16 @@ def test_internal_error_does_not_leak_details(monkeypatch):
     # raise_server_exceptions=False — иначе тестовый клиент выбросит исключение
     # сам и обработчик приложения не будет задействован.
     with TestClient(app, raise_server_exceptions=False) as failing_client:
-        response = failing_client.post("/api/recommend", json={"profile": {}, "basket": []})
+        with caplog.at_level("ERROR"):
+            response = failing_client.post("/api/recommend", json={"profile": {}, "basket": []})
     assert response.status_code == 500
     body = response.json()
     assert body["error_id"]
     assert "секретные подробности" not in str(body)
+    assert "detail" not in body
+    # Зато подробности сохранены в журнале: по error_id их найдёт разработчик.
+    assert "секретные подробности" in caplog.text
+    assert body["error_id"] in caplog.text
 
 
 # ---------------------------------------------------------------------------

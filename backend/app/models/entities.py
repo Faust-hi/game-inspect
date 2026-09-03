@@ -12,6 +12,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
 from ..models.enums import Status
+from ..timeutil import utcnow
 
 PUBLISHED = Status.PUBLISHED.value
 DRAFT = Status.DRAFT.value
@@ -24,7 +25,12 @@ STATUS_CHECK = CheckConstraint(
 
 
 def _now() -> dt.datetime:
-    return dt.datetime.now(dt.timezone.utc)
+    """Текущий момент для колонок `created_at` / `updated_at`.
+
+    Значение «наивное» и находится в UTC: колонка объявлена без сведений о
+    часовом поясе, и при чтении база отдаёт время именно в таком виде.
+    """
+    return utcnow()
 
 
 class GameFunction(Base):

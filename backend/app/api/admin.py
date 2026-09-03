@@ -21,7 +21,7 @@ from ..models.entities import (
 )
 from ..models.enums import Status
 from ..schemas.catalog import BasketRequest
-from .. import repositories
+from .. import repositories, timeutil
 from ..seed import seeder
 from ..services import publication
 from ..services.security import enforce_rate_limit, token_matches
@@ -216,9 +216,18 @@ def set_method_status(code: str, payload: StatusIn, db: Session = Depends(get_db
     if rejection:
         raise HTTPException(409, rejection)
 
+    # Повторная установка текущего статуса: ничего не меняем и не пишем в журнал.
+    if obj.status == payload.status:
+        return {"code": obj.code, "status": obj.status, "previous_status": obj.status}
+
     if payload.status == Status.PUBLISHED.value:
+        # Считаются только опубликованные связи: черновая связь не делает метод
+        # пригодным к публикации, потому что пользователь её не увидит.
         has_links = db.scalar(
-            select(func.count(MethodEngineLink.id)).where(MethodEngineLink.method_id == obj.id)
+            select(func.count(MethodEngineLink.id)).where(
+                MethodEngineLink.method_id == obj.id,
+                MethodEngineLink.status == Status.PUBLISHED.value,
+            )
         ) or 0
         problems = publication.publication_problems(obj, has_links=has_links > 0)
         if problems:
@@ -293,9 +302,13 @@ def upsert_link(payload: LinkIn, db: Session = Depends(get_db), _: None = Depend
         )
     )
     if link is None:
+        # Связь — вспомогательная запись без собственного цикла проверки: она
+        # существует только в контексте метода и публикуется вместе с ним.
+        # Черновиком связь становится только при импорте, как и любой материал.
         db.add(MethodEngineLink(
             method_id=method.id, tool_id=tool.id,
             relation_type=payload.relation_type, note=payload.note, source_url=tool.docs_url,
+            status=Status.PUBLISHED.value,
         ))
     else:
         link.relation_type = payload.relation_type
@@ -500,8 +513,8 @@ def get_project(public_id: str, db: Session = Depends(get_db)):
 
     # Просроченные проекты удаляются при обращении: отдельного планировщика
     # в приложении нет, а хранить чужие данные бессрочно оснований нет.
-    age_days = (dt.datetime.now(dt.timezone.utc) - project.updated_at).days
-    if age_days > settings.PROJECT_TTL_DAYS:
+    age = timeutil.age_days(project.updated_at)
+    if age is None or age > settings.PROJECT_TTL_DAYS:
         db.delete(project)
         db.commit()
         raise HTTPException(404, "Срок хранения проекта истёк")
@@ -511,13 +524,13 @@ def get_project(public_id: str, db: Session = Depends(get_db)):
         "name": project.name,
         "profile": project.profile,
         "basket": project.basket,
-        "updated_at": project.updated_at.isoformat(),
+        "updated_at": timeutil.as_utc(project.updated_at).isoformat(),
     }
 
 
 @router.post("/purge-projects", summary="Удалить просроченные сохранённые проекты")
 def purge_projects(db: Session = Depends(get_db), _: None = Depends(require_admin)):
-    cutoff = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=settings.PROJECT_TTL_DAYS)
+    cutoff = timeutil.utcnow() - dt.timedelta(days=settings.PROJECT_TTL_DAYS)
     deleted = db.query(Project).filter(Project.updated_at < cutoff).delete()
     db.commit()
     return {"deleted": deleted, "ttl_days": settings.PROJECT_TTL_DAYS}

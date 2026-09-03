@@ -19,13 +19,11 @@
 """
 from __future__ import annotations
 
-import datetime as dt
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .. import repositories
-from ..models.entities import Method
+from .. import repositories, timeutil
+from ..models.entities import Engine, EngineTool, Method, MethodEngineLink
 from ..models.enums import (
     CalcMode, ConflictType, DevStage, LateCost, RelationType, SolutionLevel,
 )
@@ -139,9 +137,11 @@ def detect_risks(
     basket_codes: list[str],
     methods_by_code: dict[str, Method],
     conflicts: dict[str, list[str]] | None = None,
+    engines: list | None = None,
 ) -> list[RiskOut]:
     risks: list[RiskOut] = []
     conflicts = conflicts or {}
+    engines = engines or []
     stage_order = DevStage(profile.stage).order if profile.stage in {s.value for s in DevStage} else 2
 
     def add(code: str, title: str, severity: str, description: str, advice: str) -> None:
@@ -238,6 +238,26 @@ def detect_risks(
                 "Запланировать прототип до принятия окончательного решения.",
             )
 
+    # Версия движка вне перечня проверенных.
+    #
+    # Поле собиралось анкетой, но ни на что не влияло. Ничего не изобретаем:
+    # версия не меняет ранжирование, но если её нет в списке известных для
+    # движка, применимость инструментов требует проверки — об этом и сообщаем.
+    version = (getattr(profile, "engine_version", "") or "").strip()
+    if version:
+        engine = next((e for e in engines if e.code == profile.engine), None)
+        known = [str(v).lower() for v in (getattr(engine, "versions", None) or [])]
+        if engine is not None and known and version.lower() not in known:
+            add(
+                "unknown_engine_version", "Версия движка не входит в перечень проверенных",
+                "medium",
+                f"Указана версия «{version}», тогда как в базе для {engine.name} известны: "
+                f"{', '.join(str(v) for v in engine.versions)}. Применимость инструментов "
+                "проверялась на других версиях.",
+                "Проверить применимость выбранных решений на указанной версии "
+                "или выбрать версию из перечня.",
+            )
+
     # Конфликты внутри корзины.
     conflicting = [
         c for c in basket_codes
@@ -283,6 +303,7 @@ def detect_risks(
 # ---------------------------------------------------------------------------
 def build_recommendations(db: Session, profile, basket_codes: list[str]) -> RecommendationResult:
     conflicts = conflict_map(db)
+    engines = repositories.engines(db)
 
     # Публичный снимок: функции, методы, примеры и оборудование — только
     # опубликованные записи. Корзина тоже фильтруется: неопубликованный метод
@@ -293,7 +314,7 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
     examples = repositories.examples(db)
     basket_methods = repositories.methods_by_codes(db, basket_codes)
 
-    calculated_at = dt.datetime.now(dt.timezone.utc).isoformat()
+    calculated_at = timeutil.utcnow_iso()
 
     # 3. Кандидаты: методы для выбранных функций.
     selected = set(profile.functions)
@@ -334,7 +355,7 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
         )
         return RecommendationResult(
             profile=profile,
-            risks=detect_risks(profile, basket_codes, methods_by_code, conflicts),
+            risks=detect_risks(profile, basket_codes, methods_by_code, conflicts, engines),
             recommendations=[],
             excluded=excluded,
             load_profile=aggregate_load(basket_methods, profile),
@@ -414,7 +435,7 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
 
     return RecommendationResult(
         profile=profile,
-        risks=detect_risks(profile, basket_codes, methods_by_code, conflicts),
+        risks=detect_risks(profile, basket_codes, methods_by_code, conflicts, engines),
         recommendations=recommendations,
         excluded=excluded,
         load_profile=load_profile,
@@ -563,8 +584,8 @@ def _build_recommendation(
     for condition in applicability.conditions:
         reasons.append("Условие: " + condition)
 
-    # 8. Аналоги в выбранном движке.
-    links = [link_out(db, l) for l in method.engine_links]
+    # 8. Аналоги в выбранном движке. Только опубликованные связи и инструменты.
+    links = [link_out(db, l) for l in repositories.method_links(db, method.id)]
     links.sort(key=lambda l: (
         0 if l.engine_code == profile.engine else 1,
         RELATION_PRIORITY.index(l.relation_type) if l.relation_type in RELATION_PRIORITY else 99,

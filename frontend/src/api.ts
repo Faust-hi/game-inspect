@@ -18,6 +18,67 @@ import type {
 
 const BASE = '/api';
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** Приводит элемент массива `details` к тексту: «поле: сообщение». */
+function detailToText(item: unknown): string {
+  if (typeof item === 'string') return item;
+  if (isRecord(item)) {
+    // Поле приходит как «body.profile.name»: пользователю понятнее без служебного префикса.
+    const field = typeof item.field === 'string' ? item.field.replace(/^body\./, '') : '';
+    const message = typeof item.message === 'string' ? item.message : '';
+    if (field && message) return `${field}: ${message}`;
+    return message || field;
+  }
+  return String(item);
+}
+
+/**
+ * Разбирает ответ об ошибке.
+ *
+ * Backend отвечает единым форматом `{error, details, request_id}`, но часть
+ * ошибок приходит от самого FastAPI в виде `{detail}`. Раньше клиент искал
+ * только `detail` и при расхождении formats показывал «Ошибка 422» вместо
+ * текста, поэтому разбираются оба варианта.
+ */
+export function parseApiError(payload: unknown, status: number): ApiRequestError {
+  const record = isRecord(payload) ? payload : {};
+  const rawMessage =
+    typeof record.error === 'string'
+      ? record.error
+      : typeof record.detail === 'string'
+        ? record.detail
+        : null;
+  const details = Array.isArray(record.details)
+    ? record.details.map(detailToText).filter(Boolean)
+    : [];
+  const requestId = typeof record.request_id === 'string' ? record.request_id : null;
+  return new ApiRequestError(rawMessage ?? `Ошибка ${status}`, status, details, requestId);
+}
+
+/** Ошибка запроса с сохранением разобранных подробностей. */
+export class ApiRequestError extends Error {
+  readonly status: number;
+  readonly details: string[];
+  readonly requestId: string | null;
+
+  constructor(message: string, status: number, details: string[], requestId: string | null) {
+    const suffix =
+      details.length > 0
+        ? `: ${details.slice(0, 5).join('; ')}`
+        : requestId && status >= 500
+          ? ` (код обращения ${requestId})`
+          : '';
+    super(message + suffix);
+    this.name = 'ApiRequestError';
+    this.status = status;
+    this.details = details;
+    this.requestId = requestId;
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${BASE}${path}`, {
     ...init,
@@ -27,14 +88,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     },
   });
   if (!response.ok) {
-    let detail = `Ошибка ${response.status}`;
+    let payload: unknown = null;
     try {
-      const payload = await response.json();
-      detail = payload?.detail ?? detail;
+      payload = await response.json();
     } catch {
-      /* ответ без тела — оставляем сообщение по умолчанию */
+      /* ответ без тела — остаётся сообщение по коду состояния */
     }
-    throw new Error(detail);
+    throw parseApiError(payload, response.status);
   }
   return (await response.json()) as T;
 }
@@ -52,10 +112,11 @@ export const api = {
   examples: () => request<GameExample[]>('/catalog/examples'),
   hardware: () => request<{ cpu: HardwareCPU[]; gpu: HardwareGPU[] }>('/catalog/hardware'),
 
-  recommend: (profile: ProjectProfile, basket: string[]) =>
+  recommend: (profile: ProjectProfile, basket: string[], signal?: AbortSignal) =>
     request<RecommendationResult>('/recommend', {
       method: 'POST',
       body: JSON.stringify({ profile, basket }),
+      signal,
     }),
 
   loadProfile: (profile: ProjectProfile, basket: string[]) =>
@@ -107,14 +168,13 @@ async function adminRequest<T>(path: string, init?: RequestInit): Promise<T> {
     headers: { ...adminHeaders(), ...(init?.headers ?? {}) },
   });
   if (!response.ok) {
-    let detail = `Ошибка ${response.status}`;
+    let payload: unknown = null;
     try {
-      const payload = await response.json();
-      detail = payload?.detail ?? detail;
+      payload = await response.json();
     } catch {
       /* ответ без тела */
     }
-    throw new Error(detail);
+    throw parseApiError(payload, response.status);
   }
   return (await response.json()) as T;
 }
@@ -142,7 +202,13 @@ export const adminApi = {
       body: form,
     });
     if (!response.ok) {
-      throw new Error(`Ошибка импорта: ${response.status}`);
+      let payload: unknown = null;
+      try {
+        payload = await response.json();
+      } catch {
+        /* ответ без тела */
+      }
+      throw parseApiError(payload, response.status);
     }
     return (await response.json()) as { entity: string; created: number; updated: number; skipped: number };
   },

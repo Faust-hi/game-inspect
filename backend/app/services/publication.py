@@ -79,12 +79,16 @@ def can_transition(current: str | None, target: str) -> bool:
 
 
 def transition_error(current: str | None, target: str) -> str | None:
-    """Текст отказа на недопустимый переход либо None, если переход разрешён."""
+    """Текст отказа на недопустимый переход либо None, если переход разрешён.
+
+    Повторная установка уже установленного статуса — не ошибка, а пустая
+    операция: запрещать её значит ломать повторные запросы и идемпотентность.
+    """
     current = current or Status.DRAFT.value
     if target not in {s.value for s in Status}:
         return f"Недопустимый статус: {target}"
     if target == current:
-        return f"Запись уже находится в статусе «{_status_label(target)}»"
+        return None
     if not can_transition(current, target):
         allowed = ", ".join(sorted(_status_label(s) for s in allowed_targets(current)))
         return (
@@ -184,7 +188,15 @@ def publication_problems(obj: Any, *, has_links: bool = True) -> list[str]:
 
 
 def _columns_of(obj: Any) -> dict[str, Any]:
-    return {c.name: getattr(obj, c.name) for c in obj.__table__.columns}
+    """Поля записи для проверки диапазонов.
+
+    Для ORM-объекта берутся описанные колонки, для любого другого объекта —
+    его атрибуты: функция должна работать и с ещё не сохранённой моделью.
+    """
+    table = getattr(obj, "__table__", None)
+    if table is not None:
+        return {c.name: getattr(obj, c.name) for c in table.columns}
+    return dict(vars(obj))
 
 
 def describe_transition(obj: Any, target: str, *, actor: str = "admin") -> dict[str, Any]:

@@ -1,6 +1,6 @@
 /** Экран 8. Сводный профиль нагрузки выбранного набора решений. */
 import { useMemo } from 'react';
-import { useStore } from '../store';
+import { useEnsureResult, useStore } from '../store';
 import { Badge, Callout, Card, Empty, Loading } from '../components/ui';
 import type { LoadProfile, Method } from '../types';
 
@@ -53,6 +53,8 @@ function impactsOf(method: Method): Record<string, number> {
 
 export function LoadProfileScreen() {
   const { result, basket, catalog, calculating } = useStore();
+
+  useEnsureResult();
 
   const methodsByCode = useMemo(() => {
     const map: Record<string, Method> = {};

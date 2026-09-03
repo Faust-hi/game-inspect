@@ -1,6 +1,6 @@
 /** Экран 11. Итоговый план проекта. Одновременно является печатной формой отчёта. */
 import { useMemo } from 'react';
-import { useStore } from '../store';
+import { useEnsureResult, useStore } from '../store';
 import {
   Badge,
   Callout,
@@ -58,6 +58,8 @@ interface Props {
 
 export function PlanScreen({ onExportJson, onExportPdf }: Props) {
   const { profile, basket, result, catalog, calculating } = useStore();
+
+  useEnsureResult();
 
   const methodsByCode = useMemo(() => {
     const map: Record<string, Method> = {};
@@ -217,8 +219,13 @@ export function PlanScreen({ onExportJson, onExportPdf }: Props) {
         ))}
       </Card>
 
-      {(result.basket_conflicts.length > 0 || result.basket_synergies.length > 0) && (
-        <Card title="Совместимость набора">
+      {(result.basket_conflicts.length > 0 ||
+        result.basket_dependencies.length > 0 ||
+        result.basket_synergies.length > 0) && (
+        <Card
+          title="Совместимость набора"
+          hint="Конфликты требуют выбора одной из альтернатив, зависимости — сохранения обоих решений."
+        >
           {result.basket_conflicts.map((item, index) => (
             <div key={`c-${index}`} style={{ marginBottom: 10 }}>
               <Callout tone={item.severity >= 3 ? 'danger' : 'warn'}>
@@ -226,6 +233,18 @@ export function PlanScreen({ onExportJson, onExportPdf }: Props) {
                   {item.a_name} ↔ {item.b_name}
                 </strong>{' '}
                 <Badge tone={item.severity >= 3 ? 'danger' : 'warn'}>{item.conflict_label}</Badge>
+                <div style={{ marginTop: 6 }}>{item.description}</div>
+                <div style={{ marginTop: 6 }}>Что делать: {item.resolution}</div>
+              </Callout>
+            </div>
+          ))}
+          {result.basket_dependencies.map((item, index) => (
+            <div key={`d-${index}`} style={{ marginBottom: 10 }}>
+              <Callout tone="info">
+                <strong>
+                  {item.a_name} → {item.b_name}
+                </strong>{' '}
+                <Badge tone="info">зависимость</Badge>
                 <div style={{ marginTop: 6 }}>{item.description}</div>
                 <div style={{ marginTop: 6 }}>Что делать: {item.resolution}</div>
               </Callout>

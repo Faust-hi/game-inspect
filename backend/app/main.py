@@ -51,13 +51,46 @@ def _check_configuration() -> None:
         )
 
 
+def _migration_state() -> str:
+    """Состояние схемы относительно миграций Alembic.
+
+    Возвращает «применены», «не применены» или «нет миграций». База, созданная
+    `create_all` до появления миграций, содержит таблицы, но не содержит отметки
+    ревизии: такая база не должна молча считаться мигрированной, иначе следующая
+    миграция попытается создать уже существующие таблицы.
+    """
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(engine)
+    tables = set(inspector.get_table_names())
+    if not tables or "alembic_version" not in tables:
+        return "не применены" if tables else "нет таблиц"
+    try:
+        with engine.connect() as connection:
+            revision = connection.execute(text("SELECT version_num FROM alembic_version")).scalar()
+    except Exception:  # noqa: BLE001 — такая база тоже считается немигрированной
+        return "не применены"
+    return f"применены (ревизия {revision})" if revision else "не применены"
+
+
 def _bootstrap() -> None:
     _check_configuration()
 
+    state = _migration_state()
     if settings.is_production:
-        # В эксплуатации схемой управляют миграции Alembic; create_all страхует
-        # только свежие развёртывания и не затрагивает существующие таблицы.
-        logger.info("Эксплуатационный режим: схемой управляют миграции Alembic")
+        # В эксплуатации схемой управляют миграции Alembic (каталог backend/alembic).
+        # create_all запускается и здесь, но он только создаёт отсутствующие
+        # таблицы и не заменяет миграции: для существующей базы, созданной до
+        # появления миграций, требуется `alembic stamp head`.
+        logger.info("Эксплуатационный режим. Миграции: %s", state)
+        if state == "не применены":
+            logger.warning(
+                "База содержит таблицы, но не имеет отметки ревизии Alembic. "
+                "Выполните «alembic stamp head», если схема уже соответствует "
+                "текущей ревизии, иначе следующая миграция не будет применена."
+            )
+    else:
+        logger.info("Состояние миграций: %s", state)
 
     Base.metadata.create_all(bind=engine)
     if not settings.AUTO_SEED:
@@ -115,17 +148,24 @@ def _register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception):
-        """Необработанное исключение: подробности в журнал, клиенту код для связи."""
+        """Необработанное исключение: подробности в журнал, клиенту код для связи.
+
+        Текст исключения в ответ не попадает никогда — даже вне промышленной
+        среды. Раньше подробности добавлялись, когда `ENVIRONMENT` не был равен
+        `production`; одной забытой переменной окружения достаточно, чтобы
+        клиент увидел трассировку, пути к файлам и содержимое запроса.
+        Разработчик тот же текст найдёт в журнале по `error_id`.
+        """
         error_id = uuid.uuid4().hex[:12]
         logger.exception("Необработанное исключение %s при обработке %s", error_id, request.url.path)
-        content = {
-            "error": "Внутренняя ошибка сервиса",
-            "error_id": error_id,
-            "request_id": request.headers.get("x-request-id"),
-        }
-        if not settings.is_production:
-            content["detail"] = f"{type(exc).__name__}: {exc}"
-        return JSONResponse(status_code=500, content=content)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "Внутренняя ошибка сервиса",
+                "error_id": error_id,
+                "request_id": request.headers.get("x-request-id"),
+            },
+        )
 
 
 def _register_middleware(app: FastAPI) -> None:
