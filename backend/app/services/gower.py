@@ -18,6 +18,33 @@ from ..schemas.catalog import ProjectProfile
 LEVEL_TO_NUMBER = {"low": 0.25, "medium": 0.55, "high": 0.9, "small": 0.25, "large": 0.9, "very_large": 1.0}
 SCALE_TO_NUMBER = {"small": 0.25, "medium": 0.55, "large": 0.8, "very_large": 1.0}
 
+
+def canonical_engine(value: str | None) -> str | None:
+    """Приводит название движка к семейству.
+
+    Проект хранит движок как «unreal», а пример игры — как «Unreal Engine 5.1».
+    Для расстояния Гауэра это разные категории, и совпадение не засчитывается,
+    хотя технически игры сравнимы. Канонизация сводит оба значения к «unreal».
+
+    Собственные движки сводятся к «custom»: сравнивать конкретные названия
+    бессмысленно, а общий признак «свой движок» сопоставим.
+    """
+    if not value:
+        return None
+    text = value.strip().lower()
+    if not text:
+        return None
+    if "unreal" in text:
+        return "unreal"
+    if "unity" in text:
+        return "unity"
+    if "godot" in text:
+        return "godot"
+    for marker in ("source", "cryengine", "id tech", "anvil", "decima", "fox", "havok"):
+        if marker in text:
+            return "custom"
+    return "custom"
+
 # Признак: (тип, вес, размах)
 FEATURES: dict[str, tuple[str, float, float]] = {
     "format": ("categorical", 1.0, 1.0),
@@ -62,7 +89,7 @@ def project_vector(profile: ProjectProfile) -> dict[str, object]:
         "target_resolution": _resolution_number(profile.target_resolution),
         "multiplayer": profile.multiplayer,
         "player_count": float(max(1, profile.player_count)),
-        "engine": profile.engine,
+        "engine": canonical_engine(profile.engine),
         "features": set(profile.functions),
     }
 
@@ -79,7 +106,7 @@ def example_vector(example: GameExample) -> dict[str, object]:
         "target_resolution": _resolution_number(example.target_resolution),
         "multiplayer": bool(example.multiplayer),
         "player_count": float(max(1, example.player_count)),
-        "engine": example.engine.lower(),
+        "engine": canonical_engine(example.engine),
         "features": set(example.features or []),
     }
 
@@ -117,14 +144,27 @@ def gower_distance(a: dict[str, object], b: dict[str, object]) -> GowerResult:
     return GowerResult(distance=distance, similarity=1.0 - distance, comparable_weight=weight_sum)
 
 
-def find_similar(profile: ProjectProfile, examples: list[GameExample], top_n: int = 5) -> list[tuple[GameExample, float, list[str]]]:
-    """Вернуть наиболее похожие игры и совпавшие с рекомендациями техники."""
+def find_similar(
+    profile: ProjectProfile,
+    examples: list[GameExample],
+    top_n: int = 5,
+    basket: list[str] | None = None,
+) -> list[tuple[GameExample, float, list[str]]]:
+    """Вернуть наиболее похожие игры и совпавшие с выбранными решениями техники.
+
+    Раньше совпадения искались как пересечение `optimizations_used` примера с
+    `profile.functions` — кодами игровых функций. Это разные множества: в
+    `optimizations_used` лежат коды методов оптимизации, в функциях — коды
+    игровых возможностей. Пересечение было случайным и совпадало у двух игр из
+    пятнадцати. Сравнивать нужно с корзиной выбранных решений.
+    """
     pv = project_vector(profile)
+    basket_codes = set(basket or [])
     scored: list[tuple[GameExample, float, list[str]]] = []
     for example in examples:
         ev = example_vector(example)
         result = gower_distance(pv, ev)
-        matching = sorted(set(example.optimizations_used or []) & set(profile.functions or []))
+        matching = sorted(set(example.optimizations_used or []) & basket_codes)
         scored.append((example, round(result.similarity, 4), matching))
     scored.sort(key=lambda item: (-item[1], item[0].title))
     return scored[:top_n]

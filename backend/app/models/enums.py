@@ -201,6 +201,60 @@ class Scale(str, Enum):
         }[self.value]
 
 
+class Resolution(str, Enum):
+    """Целевое разрешение rendering."""
+
+    R_720P = "720p"
+    R_768P = "768p"
+    R_900P = "900p"
+    R_1080P = "1080p"
+    R_1200P = "1200p"
+    R_1440P = "1440p"
+    R_1600P = "1600p"
+    R_2160P = "2160p"
+    R_4K = "4k"
+
+    @property
+    def label(self) -> str:
+        return {
+            "720p": "720p", "768p": "768p", "900p": "900p",
+            "1080p": "1080p (Full HD)", "1200p": "1200p",
+            "1440p": "1440p (2K)", "1600p": "1600p",
+            "2160p": "2160p (4K)", "4k": "4K",
+        }[self.value]
+
+
+class Quality(str, Enum):
+    """Целевой уровень графического качества."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    ULTRA = "ultra"
+
+    @property
+    def label(self) -> str:
+        return {"low": "низкое", "medium": "среднее", "high": "высокое", "ultra": "ультра"}[self.value]
+
+
+class EngineCode(str, Enum):
+    """Код игрового движка, поддерживаемый базой знаний."""
+
+    UNREAL = "unreal"
+    UNITY = "unity"
+    GODOT = "godot"
+    CUSTOM = "custom"
+
+    @property
+    def label(self) -> str:
+        return {
+            "unreal": "Unreal Engine",
+            "unity": "Unity",
+            "godot": "Godot",
+            "custom": "Собственный движок",
+        }[self.value]
+
+
 class Level3(str, Enum):
     """Качественный уровень: низкий / средний / высокий."""
 

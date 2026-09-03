@@ -24,14 +24,49 @@ class Criterion:
     weight: float = 1.0
 
 
-def topsis(matrix: list[list[float]], criteria: list[Criterion]) -> list[float]:
+@dataclass(frozen=True)
+class TopsisResult:
+    """Результат TOPSIS вместе с признаком вырожденности.
+
+    `comparable=False` означает, что относительное сравнение невозможно: метода
+    хватает на одну альтернативу или все альтернативы одинаковы. В этом случае
+    `scores` содержит нейтральное значение и его нельзя выдавать за оценку
+    качества — иначе единственный применимый вариант получает 0.0 и попадает
+    в разряд «не рекомендуется» только из-за того, что сравнивать его не с чем.
+    """
+
+    scores: list[float]
+    comparable: bool
+    reason: str = ""
+
+    def __iter__(self):
+        return iter(self.scores)
+
+
+#: Значение, которое получает альтернатива при невозможности сравнения.
+NEUTRAL_SCORE = 0.5
+
+
+def topsis(matrix: list[list[float]], criteria: list[Criterion]) -> TopsisResult:
     """Вернуть коэффициент близости для каждой альтернативы (0..1, больше — лучше)."""
     n = len(matrix)
     if n == 0:
-        return []
+        return TopsisResult(scores=[], comparable=False, reason="нет альтернатив")
     m = len(criteria)
     if m == 0:
-        return [1.0] * n
+        return TopsisResult(scores=[NEUTRAL_SCORE] * n, comparable=False, reason="нет критериев")
+    if n == 1:
+        return TopsisResult(
+            scores=[NEUTRAL_SCORE],
+            comparable=False,
+            reason="одна альтернатива: сравнивать не с чем",
+        )
+    if _all_rows_equal(matrix):
+        return TopsisResult(
+            scores=[NEUTRAL_SCORE] * n,
+            comparable=False,
+            reason="альтернативы не различаются по критериям",
+        )
 
     # 1-2. Векторная нормализация.
     norms: list[float] = []
@@ -65,8 +100,13 @@ def topsis(matrix: list[list[float]], criteria: list[Criterion]) -> list[float]:
         d_plus = sqrt(sum((weighted[i][j] - best[j]) ** 2 for j in range(m)))
         d_minus = sqrt(sum((weighted[i][j] - worst[j]) ** 2 for j in range(m)))
         total = d_plus + d_minus
-        scores.append(0.0 if total == 0 else d_minus / total)
-    return scores
+        scores.append(NEUTRAL_SCORE if total == 0 else d_minus / total)
+    return TopsisResult(scores=scores, comparable=True)
+
+
+def _all_rows_equal(matrix: list[list[float]]) -> bool:
+    first = matrix[0]
+    return all(row == first for row in matrix[1:])
 
 
 def criterion_matrix_rows(matrix: list[list[float]], criteria: list[Criterion]) -> list[list[dict]]:
@@ -75,6 +115,9 @@ def criterion_matrix_rows(matrix: list[list[float]], criteria: list[Criterion]) 
     if n == 0:
         return []
     m = len(criteria)
+    # При одной альтернативе векторная нормализация даёт ±1 для любого ненулевого
+    # значения: сравнивать не с чем, поэтому показывается исходное значение.
+    single = n == 1
     norms = [
         sqrt(sum(matrix[i][j] ** 2 for i in range(n))) if sum(matrix[i][j] ** 2 for i in range(n)) > 0 else 0.0
         for j in range(m)
@@ -83,7 +126,7 @@ def criterion_matrix_rows(matrix: list[list[float]], criteria: list[Criterion]) 
     for i in range(n):
         row = []
         for j in range(m):
-            normalized = matrix[i][j] / norms[j] if norms[j] > 0 else 0.0
+            normalized = matrix[i][j] if single else (matrix[i][j] / norms[j] if norms[j] > 0 else 0.0)
             row.append({
                 "key": criteria[j].key,
                 "label": criteria[j].label,

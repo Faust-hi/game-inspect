@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import csv
+import datetime as dt
 import io
+import logging
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, File, Header, HTTPException, Request, UploadFile
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Query, Request, UploadFile
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -15,12 +17,17 @@ from ..config import settings
 from ..database import get_db
 from ..models.entities import (
     Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU,
-    Method, MethodEngineLink, Project, ValidationIssue,
+    Method, MethodEngineLink, Project, PublicationLog, ValidationIssue,
 )
+from ..models.enums import Status
 from ..schemas.catalog import BasketRequest
+from .. import repositories
 from ..seed import seeder
+from ..services import publication
 from ..services.security import enforce_rate_limit, token_matches
 from .catalog import method_to_out
+
+logger = logging.getLogger("gamedev_dss.admin")
 
 router = APIRouter(prefix="/admin", tags=["Администрирование"])
 
@@ -58,6 +65,7 @@ def overview(db: Session = Depends(get_db), _: None = Depends(require_admin)):
         "projects": db.scalar(select(func.count(Project.id))),
     }
     issues = db.scalars(select(ValidationIssue).order_by(ValidationIssue.severity)).all()
+    counts["published"] = repositories.published_snapshot_counts(db)
     return {
         "counts": counts,
         "issues": [
@@ -87,50 +95,65 @@ def run_seed(db: Session = Depends(get_db), _: None = Depends(require_admin)):
 # Работа с методами
 # ---------------------------------------------------------------------------
 class MethodIn(BaseModel):
-    code: str
-    name: str
+    """Поля метода, доступные администратору.
+
+    Ограничения заданы не для удобства, а потому что значения попадают прямо в
+    матрицу TOPSIS: влияние 999 или достоверность вне 0..1 делают несравнимыми
+    все остальные записи.
+    """
+
+    code: str = Field(min_length=1, max_length=64, pattern=r"^[A-Za-z0-9_.-]+$")
+    name: str = Field(min_length=1, max_length=200)
     kind: str = "optimization"
     function_code: str | None = None
-    summary: str = ""
+    summary: str = Field(default="", max_length=1000)
     description: str = ""
     problem: str = ""
     level: str = "algorithm"
     recommended_stage: str = "prototype"
     late_cost: str = "medium"
     calc_mode: str = "realtime"
-    impact_cpu: int = 0
-    impact_gpu: int = 0
-    impact_ram: int = 0
-    impact_vram: int = 0
-    impact_disk: int = 0
-    impact_network: int = 0
-    quality_impact: int = 0
-    concept_impact: int = 0
-    performance_gain: float = 0.5
-    implementation_cost: int = 3
-    complexity: int = 3
-    confidence: float = 0.7
+    impact_cpu: int = Field(default=0, ge=-3, le=3)
+    impact_gpu: int = Field(default=0, ge=-3, le=3)
+    impact_ram: int = Field(default=0, ge=-3, le=3)
+    impact_vram: int = Field(default=0, ge=-3, le=3)
+    impact_disk: int = Field(default=0, ge=-3, le=3)
+    impact_network: int = Field(default=0, ge=-3, le=3)
+    quality_impact: int = Field(default=0, ge=-2, le=2)
+    concept_impact: int = Field(default=0, ge=-2, le=0)
+    performance_gain: float = Field(default=0.5, ge=0.0, le=1.0)
+    implementation_cost: int = Field(default=3, ge=1, le=5)
+    complexity: int = Field(default=3, ge=1, le=5)
+    confidence: float = Field(default=0.7, ge=0.0, le=1.0)
     requires_prototype: bool = False
-    applicable_formats: list[str] = Field(default_factory=list)
-    applicable_world_types: list[str] = Field(default_factory=list)
-    applicable_engines: list[str] = Field(default_factory=list)
-    applicable_platforms: list[str] = Field(default_factory=list)
-    requires_features: list[str] = Field(default_factory=list)
-    requires_hw_features: list[str] = Field(default_factory=list)
-    requires_conditions: list[str] = Field(default_factory=list)
+    applicable_formats: list[str] = Field(default_factory=list, max_length=8)
+    applicable_world_types: list[str] = Field(default_factory=list, max_length=12)
+    applicable_engines: list[str] = Field(default_factory=list, max_length=12)
+    applicable_platforms: list[str] = Field(default_factory=list, max_length=16)
+    requires_features: list[str] = Field(default_factory=list, max_length=24)
+    requires_hw_features: list[str] = Field(default_factory=list, max_length=16)
+    requires_conditions: list[str] = Field(default_factory=list, max_length=24)
     min_scale: str | None = None
-    pros: list[str] = Field(default_factory=list)
-    cons: list[str] = Field(default_factory=list)
-    limitations: list[str] = Field(default_factory=list)
+    pros: list[str] = Field(default_factory=list, max_length=24)
+    cons: list[str] = Field(default_factory=list, max_length=24)
+    limitations: list[str] = Field(default_factory=list, max_length=24)
     verification_method: str = ""
-    verification_tools: list[str] = Field(default_factory=list)
-    source_title: str = ""
-    source_url: str = ""
-    source_date: str = ""
+    verification_tools: list[str] = Field(default_factory=list, max_length=24)
+    source_title: str = Field(default="", max_length=300)
+    source_url: str = Field(default="", max_length=600)
+    source_date: str = Field(default="", max_length=20)
+
+    @field_validator("source_url")
+    @classmethod
+    def _url_scheme(cls, v: str) -> str:
+        if v and not publication.is_valid_url(v):
+            raise ValueError("ссылка на источник должна начинаться с http:// или https://")
+        return v
 
 
 class StatusIn(BaseModel):
     status: str
+    comment: str = ""
 
 
 @router.get("/methods", summary="Список методов со всеми статусами")
@@ -141,37 +164,101 @@ def admin_methods(db: Session = Depends(get_db), _: None = Depends(require_admin
 
 @router.post("/methods", summary="Добавить или обновить метод")
 def upsert_method(payload: MethodIn, db: Session = Depends(get_db), _: None = Depends(require_admin)):
+    """Новая запись всегда создаётся черновиком.
+
+    Раньше запись получала статус по умолчанию из модели — «опубликовано», —
+    то есть непроверенный материал сразу попадал в публичные рекомендации.
+    """
     data = payload.model_dump()
     function_code = data.pop("function_code", None)
     if function_code:
         fn = db.scalar(select(GameFunction).where(GameFunction.code == function_code))
         if fn:
             data["function_id"] = fn.id
+
+    problems = publication.record_problems(Method, data)
+    if problems:
+        raise HTTPException(422, {"error": "Запись отклонена", "details": publication.deduplicate(problems)})
+
     obj = db.scalar(select(Method).where(Method.code == payload.code))
     if obj is None:
+        data["status"] = Status.DRAFT.value
         obj = Method(**data)
         db.add(obj)
         created = True
     else:
+        # Редактирование не меняет статус: запись остаётся там, где была.
+        data.pop("status", None)
         for key, value in data.items():
             setattr(obj, key, value)
         created = False
-    db.commit()
+    try:
+        db.commit()
+    except Exception:  # noqa: BLE001 — нарушение ограничения БД
+        db.rollback()
+        logger.exception("Не удалось сохранить метод %s", payload.code)
+        raise HTTPException(409, "Запись не сохранена: нарушено ограничение базы данных")
     return {"created": created, "code": obj.code, "status": obj.status}
 
 
 @router.patch("/methods/{code}/status", summary="Изменить статус записи (черновик → проверено → опубликовано)")
 def set_method_status(code: str, payload: StatusIn, db: Session = Depends(get_db), _: None = Depends(require_admin)):
-    if payload.status not in ("draft", "reviewed", "published"):
-        raise HTTPException(400, "Недопустимый статус")
+    """Изменение статуса с соблюдением жизненного цикла.
+
+    Публикация — не просто запись значения: проверяется допустимость перехода,
+    наличие источника, диапазоны оценок и связи с инструментами движков.
+    """
     obj = db.scalar(select(Method).where(Method.code == code))
     if not obj:
         raise HTTPException(404, "Метод не найден")
-    if payload.status == "published" and not obj.source_url:
-        raise HTTPException(400, "Публикация невозможна: у записи отсутствует источник")
+
+    rejection = publication.transition_error(obj.status, payload.status)
+    if rejection:
+        raise HTTPException(409, rejection)
+
+    if payload.status == Status.PUBLISHED.value:
+        has_links = db.scalar(
+            select(func.count(MethodEngineLink.id)).where(MethodEngineLink.method_id == obj.id)
+        ) or 0
+        problems = publication.publication_problems(obj, has_links=has_links > 0)
+        if problems:
+            raise HTTPException(
+                422,
+                {"error": "Публикация невозможна", "details": publication.deduplicate(problems)},
+            )
+
+    previous = obj.status
     obj.status = payload.status
+    db.add(PublicationLog(
+        entity=Method.__tablename__, entity_code=obj.code,
+        from_status=previous, to_status=payload.status,
+        actor="admin", comment=payload.comment,
+    ))
     db.commit()
-    return {"code": obj.code, "status": obj.status}
+    return {"code": obj.code, "status": obj.status, "previous_status": previous}
+
+
+@router.get("/publication-log", summary="Журнал изменений статусов")
+def publication_log(
+    limit: int = Query(50, ge=1, le=500),
+    db: Session = Depends(get_db),
+    _: None = Depends(require_admin),
+):
+    rows = db.scalars(
+        select(PublicationLog).order_by(PublicationLog.created_at.desc()).limit(limit)
+    ).all()
+    return [
+        {
+            "entity": row.entity,
+            "entity_code": row.entity_code,
+            "from_status": row.from_status,
+            "to_status": row.to_status,
+            "actor": row.actor,
+            "comment": row.comment,
+            "created_at": row.created_at.isoformat(),
+        }
+        for row in rows
+    ]
 
 
 @router.delete("/methods/{code}", summary="Удалить метод")
@@ -253,6 +340,54 @@ def _coerce(model, row: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def _read_rows(raw: bytes, filename: str | None, entity: str) -> list[dict[str, Any]]:
+    """Разобрать импортируемый файл. Ошибка формата отклоняет весь импорт."""
+    if filename and filename.lower().endswith(".json"):
+        payload = json_loads(raw)
+        rows = payload.get(entity, []) if isinstance(payload, dict) else payload
+    else:
+        rows = list(csv.DictReader(io.StringIO(raw.decode("utf-8-sig"))))
+    if not isinstance(rows, list):
+        raise HTTPException(400, "Ожидался список записей")
+    if len(rows) > settings.IMPORT_MAX_ROWS:
+        raise HTTPException(
+            413,
+            f"Слишком много записей: {len(rows)}. Предел — {settings.IMPORT_MAX_ROWS}.",
+        )
+    for row in rows:
+        if not isinstance(row, dict):
+            raise HTTPException(400, "Каждая запись должна быть объектом")
+    return rows
+
+
+def _validate_rows(model, rows: list[dict[str, Any]], key_field: str) -> list[str]:
+    """Проверить все строки до первой записи в базу.
+
+    Возвращает список найденных нарушений. Проверка выполняется заранее, чтобы
+    частично некорректный файл не оставлял в базе половину изменений.
+    """
+    problems: list[str] = []
+    seen: set[str] = set()
+    for index, row in enumerate(rows, start=1):
+        key = str(row.get(key_field) or "").strip()
+        if not key:
+            problems.append(f"Строка {index}: не указан ключ «{key_field}».")
+            continue
+        if key in seen:
+            problems.append(f"Строка {index}: ключ «{key}» повторяется внутри файла.")
+        seen.add(key)
+        try:
+            data = _coerce(model, row)
+        except (TypeError, ValueError) as exc:
+            problems.append(f"Строка {index} ({key}): значение не распознано — {exc}.")
+            continue
+        problems.extend(
+            f"Строка {index} ({key}): {message}"
+            for message in publication.record_problems(model, data)
+        )
+    return problems
+
+
 @router.post("/import/{entity}", summary="Импорт записей из CSV или JSON")
 async def import_entity(
     entity: str,
@@ -263,37 +398,64 @@ async def import_entity(
     model = SUPPORTED_IMPORT.get(entity)
     if model is None:
         raise HTTPException(400, f"Неподдерживаемая сущность: {entity}")
-    raw = await file.read()
-    rows: list[dict[str, Any]] = []
-    if file.filename and file.filename.lower().endswith(".json"):
-        payload = json_loads(raw)
-        if isinstance(payload, dict):
-            rows = payload.get(entity, [])
-        else:
-            rows = payload
-    else:
-        text = raw.decode("utf-8-sig")
-        rows = list(csv.DictReader(io.StringIO(text)))
+
+    raw = await _read_upload(file)
+    rows = _read_rows(raw, file.filename, entity)
 
     key_field = "code" if hasattr(model, "code") else ("model" if hasattr(model, "model") else "title")
-    created = updated = skipped = 0
-    for row in rows:
-        if not row.get(key_field):
-            skipped += 1
-            continue
-        data = _coerce(model, row)
-        obj = db.scalar(select(model).where(getattr(model, key_field) == data[key_field]))
-        if obj is None:
-            db.add(model(**data))
-            created += 1
-        else:
-            for key, value in data.items():
-                setattr(obj, key, value)
-            updated += 1
-    db.commit()
+    problems = _validate_rows(model, rows, key_field)
+    if problems:
+        # Ни одна запись не записана: файл отклонён целиком.
+        raise HTTPException(
+            422,
+            {"error": "Импорт отклонён: файл содержит некорректные данные", "details": problems[:50]},
+        )
+
+    created = updated = 0
+    try:
+        for row in rows:
+            data = _coerce(model, row)
+            if "status" not in data:
+                data["status"] = Status.DRAFT.value
+            obj = db.scalar(select(model).where(getattr(model, key_field) == data[key_field]))
+            if obj is None:
+                db.add(model(**data))
+                created += 1
+            else:
+                # Публикация через импорт запрещена: статус меняется только
+                # через явный переход в административном разделе.
+                data.pop("status", None)
+                for key, value in data.items():
+                    setattr(obj, key, value)
+                updated += 1
+        db.commit()
+    except Exception:  # noqa: BLE001 — импорт либо применяется целиком, либо нет
+        db.rollback()
+        logger.exception("Импорт %s отменён, транзакция откачена", entity)
+        raise HTTPException(500, "Импорт не выполнен: изменения отменены")
+
     seeder.validate_knowledge_base(db)
     db.commit()
-    return {"entity": entity, "created": created, "updated": updated, "skipped": skipped}
+    return {"entity": entity, "created": created, "updated": updated, "skipped": 0}
+
+
+async def _read_upload(file: UploadFile) -> bytes:
+    """Прочитать файл с ограничением размера, не загружая его целиком в память."""
+    limit = settings.IMPORT_MAX_BYTES
+    chunks: list[bytes] = []
+    total = 0
+    while True:
+        chunk = await file.read(64 * 1024)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > limit:
+            raise HTTPException(
+                413,
+                f"Файл больше допустимого размера {limit // (1024 * 1024)} МБ.",
+            )
+        chunks.append(chunk)
+    return b"".join(chunks)
 
 
 def json_loads(raw: bytes):
@@ -308,24 +470,42 @@ projects_router = APIRouter(prefix="/projects", tags=["Проекты"])
 
 
 @projects_router.post("", summary="Сохранить проект и результат расчёта")
-def save_project(payload: BasketRequest, db: Session = Depends(get_db)):
-    public_id = uuid.uuid4().hex[:12]
+def save_project(payload: BasketRequest, request: Request, db: Session = Depends(get_db)):
+    """Сохранение проекта доступно всем, поэтому оно ограничено по частоте.
+
+    Идентификатор случайный и длинный, но endpoint остаётся публичной точкой
+    записи в базу: без ограничения он позволяет заполнить таблицу за минуты.
+    """
+    enforce_rate_limit(request, settings.PROJECTS_PER_MINUTE, "projects")
+
+    public_id = uuid.uuid4().hex[:16]
     project = Project(
         public_id=public_id,
-        name=payload.profile.name,
+        name=payload.profile.name[:200],
         profile=payload.profile.model_dump(),
-        basket=payload.basket or [],
+        basket=(payload.basket or [])[:200],
     )
     db.add(project)
     db.commit()
-    return {"public_id": public_id}
+    return {"public_id": public_id, "ttl_days": settings.PROJECT_TTL_DAYS}
 
 
 @projects_router.get("/{public_id}", summary="Загрузить сохранённый проект")
 def get_project(public_id: str, db: Session = Depends(get_db)):
+    if len(public_id) > 36 or not public_id.isalnum():
+        raise HTTPException(404, "Проект не найден")
     project = db.scalar(select(Project).where(Project.public_id == public_id))
     if not project:
         raise HTTPException(404, "Проект не найден")
+
+    # Просроченные проекты удаляются при обращении: отдельного планировщика
+    # в приложении нет, а хранить чужие данные бессрочно оснований нет.
+    age_days = (dt.datetime.now(dt.timezone.utc) - project.updated_at).days
+    if age_days > settings.PROJECT_TTL_DAYS:
+        db.delete(project)
+        db.commit()
+        raise HTTPException(404, "Срок хранения проекта истёк")
+
     return {
         "public_id": project.public_id,
         "name": project.name,
@@ -333,3 +513,11 @@ def get_project(public_id: str, db: Session = Depends(get_db)):
         "basket": project.basket,
         "updated_at": project.updated_at.isoformat(),
     }
+
+
+@router.post("/purge-projects", summary="Удалить просроченные сохранённые проекты")
+def purge_projects(db: Session = Depends(get_db), _: None = Depends(require_admin)):
+    cutoff = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=settings.PROJECT_TTL_DAYS)
+    deleted = db.query(Project).filter(Project.updated_at < cutoff).delete()
+    db.commit()
+    return {"deleted": deleted, "ttl_days": settings.PROJECT_TTL_DAYS}

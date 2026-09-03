@@ -1,9 +1,29 @@
-"""Pydantic-схемы каталогов и профиля проекта."""
+"""Pydantic-схемы каталогов и профиля проекта.
+
+Значения анкеты заданы перечислениями, а не произвольными строками, и имеют
+границы. Причина не в строгости ради строгости: значения профиля подставляются
+в формулы оценки оборудования и в матрицу TOPSIS. Отрицательное число объектов
+или допустимая сложность 999 дают результат, который выглядит как расчёт, но
+им не является.
+"""
 from __future__ import annotations
 
-from typing import Any
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+from ..models.enums import (
+    DevStage, EngineCode, GameFormat, Level3, Platform, Priority, Resolution,
+    Quality, Scale, WorldType,
+)
+
+
+def _values(enum_cls) -> list[str]:
+    return [item.value for item in enum_cls]
+
+
+#: Псевдоним для качественного уровня: везде low | medium | high.
+LevelValue = Literal["low", "medium", "high"]
 
 
 # ---------------------------------------------------------------------------
@@ -12,82 +32,176 @@ from pydantic import BaseModel, Field, field_validator
 class ProjectProfile(BaseModel):
     """Описание разрабатываемой игры, заполняемое пользователем."""
 
-    name: str = "Проект без названия"
+    name: Annotated[str, Field(min_length=1, max_length=200)] = "Проект без названия"
 
     # Формат и структура мира
-    format: str = "3D"                     # 2D | 2.5D | 3D
-    world_type: str = "open_world"         # linear | hub | arena | open_world | procedural | sandbox
-    scale: str = "large"                   # small | medium | large | very_large
+    format: Literal[tuple(_values(GameFormat))] = "3D"
+    world_type: Literal[tuple(_values(WorldType))] = "open_world"
+    scale: Literal[tuple(_values(Scale))] = "large"
 
     # Стадия и технологии
-    stage: str = "prototype"               # concept..post_release
-    engine: str = "unreal"                 # unreal | unity | godot | custom
-    engine_version: str | None = None
-    platforms: list[str] = Field(default_factory=lambda: ["pc_windows"])
+    stage: Literal[tuple(_values(DevStage))] = "prototype"
+    engine: Literal[tuple(_values(EngineCode))] = "unreal"
+    engine_version: Annotated[str | None, Field(max_length=40)] = None
+    platforms: Annotated[
+        list[Literal[tuple(_values(Platform))]], Field(min_length=1, max_length=11)
+    ] = Field(default_factory=lambda: ["pc_windows"])
 
     # Масштаб сцены
-    object_count_level: str = "medium"     # low | medium | high
-    object_count: int | None = None
-    npc_count_level: str = "medium"
-    npc_count: int | None = None
-    player_count: int = 1
+    object_count_level: LevelValue = "medium"
+    object_count: Annotated[int | None, Field(ge=0, le=100_000_000)] = None
+    npc_count_level: LevelValue = "medium"
+    npc_count: Annotated[int | None, Field(ge=0, le=10_000_000)] = None
+    player_count: Annotated[int, Field(ge=1, le=10000)] = 1
     multiplayer: bool = False
 
     # Функции
-    functions: list[str] = Field(default_factory=list)
+    functions: Annotated[list[str], Field(max_length=40)] = Field(default_factory=list)
 
     # Целевые показатели
-    target_resolution: str = "1080p"
-    target_quality: str = "high"           # low | medium | high | ultra
-    target_fps: int = 60
+    target_resolution: Literal[tuple(_values(Resolution))] = "1080p"
+    target_quality: Literal[tuple(_values(Quality))] = "high"
+    target_fps: Annotated[int, Field(ge=15, le=480)] = 60
 
     # Обязательные ограничения
-    ram_limit_gb: float | None = None
-    vram_limit_gb: float | None = None
-    size_limit_gb: float | None = None
-    deadline_weeks: int | None = None
-    complexity_tolerance: int | None = None   # 1..5
+    ram_limit_gb: Annotated[float | None, Field(gt=0, le=512)] = None
+    vram_limit_gb: Annotated[float | None, Field(gt=0, le=256)] = None
+    size_limit_gb: Annotated[float | None, Field(gt=0, le=4096)] = None
+    deadline_weeks: Annotated[int | None, Field(ge=0, le=1040)] = None
+    complexity_tolerance: Annotated[int | None, Field(ge=1, le=5)] = None
 
     # Приоритет при ранжировании
-    priority: str = "balanced"             # quality | performance | cost | balanced
+    priority: Literal[tuple(_values(Priority))] = "balanced"
 
     # Проектные бюджеты (качественные уровни)
-    cpu_budget: str | None = None          # low | medium | high
-    gpu_budget: str | None = None
-    ram_budget: str | None = None
-    vram_budget: str | None = None
-    geometry_detail: str | None = None
-    texture_quality: str | None = None
-    view_distance: str | None = None
-    lighting_complexity: str | None = None
-    physics_complexity: str | None = None
-    simulation_complexity: str | None = None
-    npc_update_rate: str | None = None
-    network_update_rate: str | None = None
+    cpu_budget: LevelValue | None = None
+    gpu_budget: LevelValue | None = None
+    ram_budget: LevelValue | None = None
+    vram_budget: LevelValue | None = None
+    geometry_detail: LevelValue | None = None
+    texture_quality: LevelValue | None = None
+    view_distance: LevelValue | None = None
+    lighting_complexity: LevelValue | None = None
+    physics_complexity: LevelValue | None = None
+    simulation_complexity: LevelValue | None = None
+    npc_update_rate: LevelValue | None = None
+    network_update_rate: LevelValue | None = None
 
-    @field_validator("target_fps")
+    @field_validator("name")
     @classmethod
-    def _fps(cls, v: int) -> int:
-        return max(15, min(480, int(v)))
+    def _name_not_blank(cls, v: str) -> str:
+        value = (v or "").strip()
+        if not value:
+            raise ValueError("название проекта не может быть пустым")
+        return value
 
     @field_validator("functions", mode="before")
     @classmethod
-    def _uniq(cls, v):
+    def _clean_functions(cls, v):
+        """Убирает пустые значения и повторы, сохраняя порядок."""
         if not v:
             return []
+        if not isinstance(v, list):
+            raise ValueError("список функций должен быть массивом")
         seen, out = set(), []
         for item in v:
-            if item not in seen:
-                seen.add(item)
-                out.append(item)
+            code = str(item).strip()
+            if not code or code in seen:
+                continue
+            seen.add(code)
+            out.append(code)
         return out
+
+    @model_validator(mode="after")
+    def _consistent_counts(self):
+        """Точное число и качественный уровень не должны противоречить друг другу.
+
+        Если пользователь указал 5 000 000 объектов и уровень «низкий», расчёт
+        получает два взаимоисключающих входа. Уточняем уровень по числу.
+        """
+        for field, level_field in (("object_count", "object_count_level"),
+                                   ("npc_count", "npc_count_level")):
+            value = getattr(self, field)
+            if value is None:
+                continue
+            derived = _level_from_count(value, field)
+            if derived is not None:
+                setattr(self, level_field, derived)
+        return self
+
+    @property
+    def object_count_effective(self) -> float:
+        """Численная оценка числа объектов: точное значение или уровень."""
+        return _effective_count(self.object_count, self.object_count_level, "object_count")
+
+    @property
+    def npc_count_effective(self) -> float:
+        return _effective_count(self.npc_count, self.npc_count_level, "npc_count")
+
+
+#: Пороговые значения, по которым точное число переводится в качественный уровень.
+_COUNT_BOUNDS: dict[str, tuple[int, int]] = {
+    "object_count": (5_000, 100_000),       # ниже — немного, выше — много
+    "npc_count": (50, 1_000),
+}
+
+#: Численная оценка уровня, когда точное значение не указано.
+_LEVEL_FALLBACK: dict[str, float] = {"low": 0.25, "medium": 0.55, "high": 0.9}
+
+
+def _level_from_count(value: int | None, field: str) -> str | None:
+    if value is None:
+        return None
+    low, high = _COUNT_BOUNDS[field]
+    if value < low:
+        return "low"
+    if value > high:
+        return "high"
+    return "medium"
+
+
+def _effective_count(value: int | None, level: str, field: str) -> float:
+    """Приводит «число или уровень» к одной числовой шкале 0..1.
+
+    Точное число переводится логарифмически: разница между 1 000 и 10 000
+    объектов заметна, а между 1 000 000 и 1 010 000 — нет. Шкала совпадает с
+    численной оценкой уровня, поэтому уровень и число взаимозаменяемы, а
+    указанное число действительно влияет на результат.
+    """
+    if value is None or value <= 0:
+        return _LEVEL_FALLBACK.get(level, 0.55)
+    import math
+
+    low, high = _COUNT_BOUNDS[field]
+    # «Низкий» и «высокий» уровни — за пределами этой логарифмической шкалы.
+    span_low, span_high = max(1.0, low / 10.0), high * 10.0
+    ratio = (math.log10(float(value)) - math.log10(span_low)) / (
+        math.log10(span_high) - math.log10(span_low)
+    )
+    return max(0.0, min(1.0, ratio))
 
 
 class BasketRequest(BaseModel):
     """Профиль проекта и выбранные решения («корзина проекта»)."""
 
     profile: ProjectProfile
-    basket: list[str] = Field(default_factory=list)
+    basket: Annotated[list[str], Field(max_length=200)] = Field(default_factory=list)
+
+    @field_validator("basket", mode="before")
+    @classmethod
+    def _clean_basket(cls, v):
+        if not v:
+            return []
+        if not isinstance(v, list):
+            raise ValueError("корзина должна быть массивом кодов")
+        seen, out = set(), []
+        for item in v:
+            code = str(item).strip()
+            if not code or code in seen:
+                continue
+            seen.add(code)
+            out.append(code)
+        return out
 
 
 # ---------------------------------------------------------------------------
@@ -350,13 +464,42 @@ class SimilarGameOut(BaseModel):
 
 
 class RecommendationResult(BaseModel):
+    """Результат расчёта.
+
+    Поле `input_key` — отпечаток профиля и корзины. Клиент сравнивает его со
+    своим текущим состоянием и понимает, что результат получен именно для тех
+    данных, которые сейчас на экране, а не для предыдущих.
+    """
+
     profile: ProjectProfile
     risks: list[RiskOut]
     recommendations: list[RecommendationOut]
     excluded: list[RecommendationOut]
     load_profile: LoadProfileOut
-    basket_conflicts: list[BasketConflictOut]
-    basket_synergies: list[BasketConflictOut]
+    basket_conflicts: list[BasketConflictOut] = Field(default_factory=list)
+    basket_dependencies: list[BasketConflictOut] = Field(default_factory=list)
+    basket_synergies: list[BasketConflictOut] = Field(default_factory=list)
     hardware: HardwareEstimateOut | None = None
     similar_games: list[SimilarGameOut] = Field(default_factory=list)
     meta: dict[str, Any] = Field(default_factory=dict)
+    input_key: str = ""
+
+    @model_validator(mode="after")
+    def _fill_input_key(self):
+        if not self.input_key:
+            object.__setattr__(self, "input_key", input_fingerprint(self.profile, []))
+        return self
+
+
+def input_fingerprint(profile: ProjectProfile, basket: list[str]) -> str:
+    """Устойчивый отпечаток входа: одинаковым данным — одинаковый ключ."""
+    import hashlib
+    import json
+
+    payload = json.dumps(
+        {"profile": profile.model_dump(mode="json"), "basket": sorted(basket or [])},
+        sort_keys=True,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:32]

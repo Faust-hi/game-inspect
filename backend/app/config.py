@@ -62,6 +62,20 @@ class Settings(BaseSettings):
     # Заголовок HSTS. Включать только при работе по HTTPS.
     SECURITY_HSTS_ENABLED: bool = False
 
+    # Адреса прокси, которым можно доверять заголовок X-Forwarded-For.
+    # Пустой список — заголовок игнорируется: иначе любой клиент может
+    # подменить свой адрес и обойти ограничение частоты запросов.
+    TRUSTED_PROXIES: str = ""
+
+    # Предельный размер импортируемого файла (байт). Ограничение защищает
+    # от исчерпания памяти и диска одним запросом администратора.
+    IMPORT_MAX_BYTES: int = 5 * 1024 * 1024
+    IMPORT_MAX_ROWS: int = 5000
+
+    # Срок хранения публично сохранённых проектов (дни).
+    PROJECT_TTL_DAYS: int = 90
+    PROJECTS_PER_MINUTE: int = 20
+
     @property
     def is_production(self) -> bool:
         return self.ENVIRONMENT.strip().lower() == "production"
@@ -73,6 +87,10 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
+
+    @property
+    def trusted_proxies_list(self) -> list[str]:
+        return [p.strip() for p in self.TRUSTED_PROXIES.split(",") if p.strip()]
 
     @property
     def uses_default_admin_token(self) -> bool:

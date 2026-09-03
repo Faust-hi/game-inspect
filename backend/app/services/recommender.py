@@ -10,24 +10,39 @@
 7. формирование объяснения каждой рекомендации;
 8. показ общих методов и их аналогов в выбранном движке;
 9. предупреждение о конфликтах и возможном изменении концепции.
+
+Важное разделение: **применимость** решения определяется экспертными правилами
+(жёсткие ограничения проекта), а **порядок** — методом TOPSIS. Коэффициент
+близости относителен по своей природе: при одной альтернативе он не несёт
+информации о качестве, поэтому текстовая пометка «рекомендуется» из него
+напрямую не выводится.
 """
 from __future__ import annotations
+
+import datetime as dt
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models.entities import (
-    Conflict, Engine, EngineTool, GameExample, GameFunction, Method, MethodEngineLink,
-)
+from .. import repositories
+from ..models.entities import Method
 from ..models.enums import (
-    CalcMode, ConflictType, DevStage, LateCost, Level3, RelationType, SolutionLevel,
+    CalcMode, ConflictType, DevStage, LateCost, RelationType, SolutionLevel,
 )
 from ..schemas.catalog import (
     BasketConflictOut, CriterionScore, LoadProfileOut, MethodEngineLinkOut,
-    RecommendationOut, RecommendationResult, RiskOut, SimilarGameOut,
+    RecommendationOut, RecommendationResult, RiskOut, SimilarGameOut, input_fingerprint,
 )
 from . import gower, hardware, rules, serializers
 from .topsis import Criterion, criterion_matrix_rows, topsis
+
+#: Версия алгоритма. Меняется при любом изменении формул, весов или правил
+#: отбора: по ней можно понять, какой версией получен сохранённый результат.
+ALGORITHM_VERSION = "2.0.0"
+
+#: Версия набора данных. Меняется при обновлении базы знаний, влияющем на
+#: ранжирование (пересчёт индексов оборудования, пересмотр оценок эффекта).
+DATASET_VERSION = "mvp-1.1"
 
 # Веса критериев в зависимости от приоритета пользователя.
 WEIGHT_PROFILES: dict[str, dict[str, float]] = {
@@ -56,8 +71,12 @@ WEIGHT_PROFILES: dict[str, dict[str, float]] = {
 FLAG_LABELS = {
     "recommended": "рекомендуется",
     "conditional": "применимо при условиях",
+    "lower_priority": "уступает другим вариантам",
+    "single_option": "единственный применимый вариант",
+    "comparison_limited": "сравнение ограничено",
     "implement_now": "желательно внедрить сейчас",
     "late_difficult": "позднее внедрение затруднено",
+    "late_blocked": "внедрение на этой стадии практически закрыто",
     "needs_prototyping": "требует прототипирования",
     "may_reduce_quality": "может снизить качество",
     "may_change_concept": "может изменить концепцию",
@@ -99,8 +118,30 @@ def _label(enum_cls, value: str, default: str = "") -> str:
 # ---------------------------------------------------------------------------
 # 1-2. Анализ проекта и выявление рисков
 # ---------------------------------------------------------------------------
-def detect_risks(profile, basket_codes: list[str], methods_by_code: dict[str, Method]) -> list[RiskOut]:
+def conflict_map(db: Session) -> dict[str, list[str]]:
+    """Карта конфликтующих пар, построенная для конкретного запроса.
+
+    Раньше карта хранилась в глобальной переменной и перезаполнялась на каждый
+    запрос. При параллельной обработке два запроса видели чужую карту: результат
+    зависел от порядка выполнения. Карта строится локально и передаётся явно.
+    """
+    mapping: dict[str, list[str]] = {}
+    for row in repositories.conflicts(db):
+        if row.conflict_type != ConflictType.CONFLICT.value:
+            continue
+        mapping.setdefault(row.a_code, []).append(row.b_code)
+        mapping.setdefault(row.b_code, []).append(row.a_code)
+    return mapping
+
+
+def detect_risks(
+    profile,
+    basket_codes: list[str],
+    methods_by_code: dict[str, Method],
+    conflicts: dict[str, list[str]] | None = None,
+) -> list[RiskOut]:
     risks: list[RiskOut] = []
+    conflicts = conflicts or {}
     stage_order = DevStage(profile.stage).order if profile.stage in {s.value for s in DevStage} else 2
 
     def add(code: str, title: str, severity: str, description: str, advice: str) -> None:
@@ -200,7 +241,7 @@ def detect_risks(profile, basket_codes: list[str], methods_by_code: dict[str, Me
     # Конфликты внутри корзины.
     conflicting = [
         c for c in basket_codes
-        if any(code in basket_codes for code in _conflict_partners(c))
+        if any(code in basket_codes for code in conflicts.get(c, []))
     ]
     if conflicting:
         add(
@@ -210,34 +251,49 @@ def detect_risks(profile, basket_codes: list[str], methods_by_code: dict[str, Me
             "Проверить раздел совместимости набора и выбрать одну из альтернатив.",
         )
 
+    # Срок разработки против стоимости выбранных решений.
+    if profile.deadline_weeks:
+        heavy = [
+            code for code in basket_codes
+            if methods_by_code.get(code) and methods_by_code[code].implementation_cost >= 4
+        ]
+        if heavy and profile.deadline_weeks < 4 * len(heavy):
+            add(
+                "deadline_pressure", "Срок разработки не покрывает выбранные решения",
+                "high",
+                f"До релиза {profile.deadline_weeks} недель, при этом {len(heavy)} выбранных "
+                "решений относятся к трудоёмким. Внедрение всего набора за этот срок маловероятно.",
+                "Оставить в плане только решения, которые можно внедрить в срок, "
+                "остальные перенести в этап поддержки.",
+            )
+        elif heavy:
+            add(
+                "deadline_pressure", "Часть решений трудоёмка относительно срока",
+                "medium",
+                f"До релиза {profile.deadline_weeks} недель, {len(heavy)} выбранных решений "
+                "требуют существенных затрат на внедрение.",
+                "Проверить, что трудоёмкие решения запланированы на ранние этапы.",
+            )
+
     return risks
-
-
-def _conflict_partners(code: str) -> list[str]:
-    return _CONFLICT_MAP.get(code, [])
-
-
-_CONFLICT_MAP: dict[str, list[str]] = {}
-
-
-def _build_conflict_map(db: Session) -> None:
-    _CONFLICT_MAP.clear()
-    for row in db.scalars(select(Conflict)):
-        if row.conflict_type != "conflict":
-            continue
-        _CONFLICT_MAP.setdefault(row.a_code, []).append(row.b_code)
-        _CONFLICT_MAP.setdefault(row.b_code, []).append(row.a_code)
 
 
 # ---------------------------------------------------------------------------
 # 3-8. Подбор, фильтрация и ранжирование
 # ---------------------------------------------------------------------------
 def build_recommendations(db: Session, profile, basket_codes: list[str]) -> RecommendationResult:
-    _build_conflict_map(db)
+    conflicts = conflict_map(db)
 
-    functions = {f.code: f for f in db.scalars(select(GameFunction))}
-    all_methods = list(db.scalars(select(Method).where(Method.status == "published")))
+    # Публичный снимок: функции, методы, примеры и оборудование — только
+    # опубликованные записи. Корзина тоже фильтруется: неопубликованный метод
+    # не должен попадать в расчёт даже по прямому коду.
+    functions = {f.code: f for f in repositories.functions(db)}
+    all_methods = repositories.methods(db)
     methods_by_code = {m.code: m for m in all_methods}
+    examples = repositories.examples(db)
+    basket_methods = repositories.methods_by_codes(db, basket_codes)
+
+    calculated_at = dt.datetime.now(dt.timezone.utc).isoformat()
 
     # 3. Кандидаты: методы для выбранных функций.
     selected = set(profile.functions)
@@ -263,32 +319,34 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
         # Ни одно решение не прошло фильтр обязательных ограничений. Профиль
         # нагрузки, похожие игры и аппаратная оценка всё равно возвращаются:
         # пользователю важно видеть причины исключения и ориентир по железу.
-        basket_methods = [methods_by_code[c] for c in basket_codes if c in methods_by_code]
-        examples = list(db.scalars(select(GameExample).where(GameExample.status == "published")))
         similar = [
             SimilarGameOut(
                 example=serializers.example_out(ex),
                 similarity=sim,
                 matching_optimizations=match,
             )
-            for ex, sim, match in gower.find_similar(profile, examples, top_n=5)
+            for ex, sim, match in gower.find_similar(
+                profile, examples, top_n=5, basket=[m.code for m in basket_methods]
+            )
         ]
+        basket_conflicts, basket_dependencies, basket_synergies = basket_compatibility(
+            db, basket_codes, methods_by_code
+        )
         return RecommendationResult(
             profile=profile,
-            risks=detect_risks(profile, basket_codes, methods_by_code),
+            risks=detect_risks(profile, basket_codes, methods_by_code, conflicts),
             recommendations=[],
             excluded=excluded,
             load_profile=aggregate_load(basket_methods, profile),
-            basket_conflicts=basket_compatibility(db, basket_codes, methods_by_code)[0],
-            basket_synergies=basket_compatibility(db, basket_codes, methods_by_code)[1],
+            basket_conflicts=basket_conflicts,
+            basket_dependencies=basket_dependencies,
+            basket_synergies=basket_synergies,
             hardware=hardware.estimate_hardware(db, profile, basket_methods, similar_examples=len(similar)),
             similar_games=similar,
-            meta={
-                "candidates": len(candidates),
-                "applicable": 0,
-                "excluded": len(excluded),
-                "note": "Ни одно решение не прошло проверку обязательных ограничений проекта.",
-            },
+            input_key=input_fingerprint(profile, [m.code for m in basket_methods]),
+            meta=_meta(profile, weights={}, candidates=len(candidates), applicable=0,
+                       excluded=len(excluded), calculated_at=calculated_at,
+                       note="Ни одно решение не прошло проверку обязательных ограничений проекта."),
         )
 
     # 6. Матрица решений и TOPSIS.
@@ -319,76 +377,141 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
             float(method.confidence),
         ])
 
-    scores = topsis(matrix, criteria)
+    result = topsis(matrix, criteria)
+    scores = result.scores
     rows = criterion_matrix_rows(matrix, criteria)
 
     # Сортировка: по убыванию коэффициента близости, при равенстве — по коду (воспроизводимость).
     order = sorted(range(len(evaluated)), key=lambda i: (-scores[i], evaluated[i][0].code))
+    total = len(evaluated)
 
     recommendations: list[RecommendationOut] = []
     for rank, idx in enumerate(order, start=1):
         method, applicability = evaluated[idx]
-        score = scores[idx]
         recommendations.append(_build_recommendation(
-            db, method, functions, applicability, score, rank, rows[idx], profile, basket_codes
+            db, method, functions, applicability, scores[idx], rank, total, rows[idx],
+            profile, basket_codes, comparable=result.comparable, compare_reason=result.reason,
         ))
 
     # 9. Профиль нагрузки и совместимость корзины.
-    basket_methods = [methods_by_code[c] for c in basket_codes if c in methods_by_code]
     load_profile = aggregate_load(basket_methods, profile)
-    basket_conflicts, basket_synergies = basket_compatibility(db, basket_codes, methods_by_code)
+    basket_conflicts, basket_dependencies, basket_synergies = basket_compatibility(
+        db, basket_codes, methods_by_code
+    )
 
     # Похожие игры и аппаратная оценка.
-    examples = list(db.scalars(select(GameExample).where(GameExample.status == "published")))
     similar = [
         SimilarGameOut(
             example=serializers.example_out(ex),
             similarity=sim,
             matching_optimizations=match,
         )
-        for ex, sim, match in gower.find_similar(profile, examples, top_n=5)
+        for ex, sim, match in gower.find_similar(
+            profile, examples, top_n=5, basket=[m.code for m in basket_methods]
+        )
     ]
     hw = hardware.estimate_hardware(db, profile, basket_methods, similar_examples=len(similar))
 
     return RecommendationResult(
         profile=profile,
-        risks=detect_risks(profile, basket_codes, methods_by_code),
+        risks=detect_risks(profile, basket_codes, methods_by_code, conflicts),
         recommendations=recommendations,
         excluded=excluded,
         load_profile=load_profile,
         basket_conflicts=basket_conflicts,
+        basket_dependencies=basket_dependencies,
         basket_synergies=basket_synergies,
         hardware=hw,
         similar_games=similar,
-        meta={
-            "candidates": len(candidates),
-            "applicable": len(evaluated),
-            "excluded": len(excluded),
-            "algorithm": "TOPSIS (векторная нормализация, евклидово расстояние)",
-            "weights": weights,
-            "priority": profile.priority,
-        },
+        input_key=input_fingerprint(profile, [m.code for m in basket_methods]),
+        meta=_meta(
+            profile, weights=weights, candidates=len(candidates), applicable=len(evaluated),
+            excluded=len(excluded), calculated_at=calculated_at,
+            comparable=result.comparable,
+            compare_reason=result.reason or None,
+            note=(
+                "Сравнение решений ограничено: " + result.reason
+                if not result.comparable else None
+            ),
+        ),
     )
+
+
+def _meta(
+    profile,
+    *,
+    weights: dict[str, float],
+    candidates: int,
+    applicable: int,
+    excluded: int,
+    calculated_at: str,
+    comparable: bool = True,
+    compare_reason: str | None = None,
+    note: str | None = None,
+) -> dict:
+    """Служебные сведения о расчёте.
+
+    Версия алгоритма, версия набора данных, веса и время расчёта сохраняются
+    вместе с результатом: без них нельзя объяснить, почему два сохранённых
+    расчёта для одного профиля различаются.
+    """
+    meta: dict = {
+        "candidates": candidates,
+        "applicable": applicable,
+        "excluded": excluded,
+        "algorithm": "TOPSIS (векторная нормализация, евклидово расстояние)",
+        "algorithm_version": ALGORITHM_VERSION,
+        "dataset_version": DATASET_VERSION,
+        "weights": weights,
+        "priority": profile.priority,
+        "calculated_at": calculated_at,
+        "comparable": comparable,
+    }
+    if compare_reason:
+        meta["compare_reason"] = compare_reason
+    if note:
+        meta["note"] = note
+    return meta
 
 
 def _build_recommendation(
     db: Session, method: Method, functions: dict, applicability: rules.Applicability,
-    score: float, rank: int, criteria_rows: list[dict], profile, basket_codes: list[str],
+    score: float, rank: int, total: int, criteria_rows: list[dict], profile,
+    basket_codes: list[str], *, comparable: bool = True, compare_reason: str = "",
 ) -> RecommendationOut:
     flags: list[str] = []
 
-    if score >= 0.55:
-        flags.append("recommended")
-    elif score >= 0.42:
-        flags.append("conditional")
-    else:
-        flags.append("not_recommended")
-
+    # --- Абсолютная оценка: прошло ли решение обязательные ограничения -------
+    # Метод сюда попадает только применимым, поэтому «не рекомендуется» здесь
+    # возможно лишь по абсолютному признаку — окно внедрения закрыто стадией.
     stage_order = DevStage(profile.stage).order if profile.stage in {s.value for s in DevStage} else 2
     method_stage = DevStage(method.recommended_stage).order if method.recommended_stage in {s.value for s in DevStage} else 2
+    late_blocked = (
+        method.late_cost == "critical"
+        and applicability.stage_pressure >= 1.0
+        and stage_order > method_stage
+    )
+    if late_blocked:
+        flags.append("not_recommended")
+        flags.append("late_blocked")
+
+    # --- Относительная оценка: место среди прочих допустимых решений --------
+    if comparable:
+        share = rank / max(1, total)
+        if share <= 1 / 3:
+            flags.append("recommended")
+        elif share <= 2 / 3:
+            flags.append("conditional")
+        else:
+            flags.append("lower_priority")
+    else:
+        # Единственный или неразличимый набор: относительного порядка нет,
+        # и утверждать «не рекомендуется» было бы неправдой.
+        flags.append("single_option" if total == 1 else "comparison_limited")
+
     if stage_order <= method_stage:
         flags.append("implement_now")
-    if method.late_cost in ("high", "critical") and applicability.stage_pressure > 0:
+    if method.late_cost in ("high", "critical") and applicability.stage_pressure > 0 and not late_blocked:
         flags.append("late_difficult")
     if method.requires_prototype or method.confidence < 0.7:
         flags.append("needs_prototyping")
@@ -401,6 +524,16 @@ def _build_recommendation(
     reasons.append(
         f"Ожидаемый эффект: {method.performance_gain:.0%} — {_gain_text(method.performance_gain)}."
     )
+    if comparable:
+        reasons.append(
+            f"Место {rank} из {total} допустимых решений; коэффициент близости {score:.2f}."
+        )
+    else:
+        reasons.append(
+            "Относительное сравнение невозможно: "
+            f"{compare_reason or 'альтернативы не различаются'}. "
+            "Решение применимо к проекту, но оценено без сопоставления с другими."
+        )
     reasons.append(
         f"Уровень решения: {_label(SolutionLevel, method.level)}; рекомендуемая стадия — "
         f"{_label(DevStage, method.recommended_stage)}."
@@ -563,44 +696,64 @@ def aggregate_load(methods: list[Method], profile) -> LoadProfileOut:
     )
 
 
-def basket_compatibility(db: Session, basket_codes: list[str], methods_by_code: dict[str, Method]) -> tuple[list, list]:
-    """Проверить корзину на конфликты, зависимости и усиления."""
+def basket_compatibility(
+    db: Session, basket_codes: list[str], methods_by_code: dict[str, Method]
+) -> tuple[list[BasketConflictOut], list[BasketConflictOut], list[BasketConflictOut]]:
+    """Проверить корзину и вернуть три самостоятельные категории связей.
+
+    Раньше всё, что не является конфликтом, попадало в «усиления». Из-за этого
+    закрытая зависимость, при которой одно решение просто не работает без
+    другого, показывалась как «усиливающее сочетание» — то есть как достоинство
+    набора. Категории разделены: конфликты, зависимости, усиления.
+    """
     conflicts: list[BasketConflictOut] = []
+    dependencies: list[BasketConflictOut] = []
     synergies: list[BasketConflictOut] = []
     basket = set(basket_codes)
-    for row in db.scalars(select(Conflict)):
-        if row.a_code in basket and row.b_code in basket:
-            a = methods_by_code.get(row.a_code)
-            b = methods_by_code.get(row.b_code)
-            item = BasketConflictOut(
-                a_code=row.a_code, a_name=a.name if a else row.a_code,
-                b_code=row.b_code, b_name=b.name if b else row.b_code,
-                conflict_type=row.conflict_type,
-                conflict_label=_label(ConflictType, row.conflict_type),
-                severity=row.severity,
-                description=row.description,
-                resolution=row.resolution,
-            )
-            if row.conflict_type == "conflict":
-                conflicts.append(item)
-            else:
-                synergies.append(item)
 
-        # Зависимость, не закрытая корзиной.
-        elif row.conflict_type == "dependency" and row.a_code in basket and row.b_code not in basket:
-            a = methods_by_code.get(row.a_code)
-            b = methods_by_code.get(row.b_code)
-            if b is not None:
-                conflicts.append(BasketConflictOut(
-                    a_code=row.a_code, a_name=a.name if a else row.a_code,
-                    b_code=row.b_code, b_name=b.name if b else row.b_code,
-                    conflict_type="unmet_dependency",
-                    conflict_label="незакрытая зависимость",
-                    severity=row.severity,
-                    description=f"Решение «{a.name if a else row.a_code}» требует «{b.name}»: {row.description}",
-                    resolution=f"Добавить «{b.name}» в корзину или отказаться от «{a.name if a else row.a_code}».",
+    def item(row, conflict_type: str, label: str, description: str, resolution: str) -> BasketConflictOut:
+        a = methods_by_code.get(row.a_code)
+        b = methods_by_code.get(row.b_code)
+        return BasketConflictOut(
+            a_code=row.a_code, a_name=a.name if a else row.a_code,
+            b_code=row.b_code, b_name=b.name if b else row.b_code,
+            conflict_type=conflict_type, conflict_label=label,
+            severity=row.severity, description=description, resolution=resolution,
+        )
+
+    for row in repositories.conflicts(db):
+        pair_in_basket = row.a_code in basket and row.b_code in basket
+        if row.conflict_type == ConflictType.CONFLICT.value:
+            if pair_in_basket:
+                conflicts.append(item(
+                    row, row.conflict_type, _label(ConflictType, row.conflict_type),
+                    row.description, row.resolution,
+                ))
+        elif row.conflict_type == ConflictType.DEPENDENCY.value:
+            if pair_in_basket:
+                dependencies.append(item(
+                    row, "dependency", _label(ConflictType, row.conflict_type),
+                    row.description or "Одно решение опирается на другое.",
+                    row.resolution or "Сохранять оба решения в плане.",
+                ))
+            elif row.a_code in basket and row.b_code not in basket:
+                # Зависимость не закрыта: решение в корзине не сработает в одиночку.
+                b = methods_by_code.get(row.b_code)
+                if b is not None:
+                    conflicts.append(item(
+                        row, "unmet_dependency", "незакрытая зависимость",
+                        f"Решение «{methods_by_code.get(row.a_code).name if methods_by_code.get(row.a_code) else row.a_code}» "
+                        f"требует «{b.name}»: {row.description}",
+                        f"Добавить «{b.name}» в корзину или отказаться от решения «{row.a_code}».",
+                    ))
+        elif row.conflict_type == ConflictType.SYNERGY.value:
+            if pair_in_basket:
+                synergies.append(item(
+                    row, row.conflict_type, _label(ConflictType, row.conflict_type),
+                    row.description, row.resolution,
                 ))
 
     conflicts.sort(key=lambda c: -c.severity)
+    dependencies.sort(key=lambda c: -c.severity)
     synergies.sort(key=lambda c: -c.severity)
-    return conflicts, synergies
+    return conflicts, dependencies, synergies

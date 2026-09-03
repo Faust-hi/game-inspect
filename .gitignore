@@ -1,0 +1,40 @@
+# Виртуальные окружения и зависимости
+.venv/
+venv/
+env/
+node_modules/
+
+# Сборка frontend
+frontend/dist/
+frontend/*.tsbuildinfo
+*.tsbuildinfo
+
+# Базы данных: файлы появляются при запуске и не должны попадать в репозиторий
+*.db
+*.sqlite
+*.sqlite3
+backend/gamedev_dss.db
+backend/test_gamedev_dss.db
+
+# Кэши инструментов
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Логи и локальные настройки
+*.log
+logs/
+.env
+backend/.env
+
+# Служебные файлы редакторов и ОС
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

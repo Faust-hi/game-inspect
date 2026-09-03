@@ -93,8 +93,11 @@ def estimate_hardware(
     fps = _fps_factor(profile.target_fps)
     quality = QUALITY_FACTOR.get(profile.target_quality, 1.0)
     scale = _largest_impact(profile)
-    obj = 0.85 + 0.35 * _level(profile.object_count_level)
-    npc = 0.85 + 0.35 * _level(profile.npc_count_level)
+    # Точное число объектов и NPC участвует в расчёте напрямую, а не только
+    # через качественный уровень: иначе изменение числа с 1 000 до 1 000 000
+    # не влияло бы на результат, но повышало бы «уверенность» оценки.
+    obj = 0.85 + 0.35 * profile.object_count_effective
+    npc = 0.85 + 0.35 * profile.npc_count_effective
     content = scale * obj * npc
 
     feature_gpu = 1.0 + sum(FEATURE_GPU_LOAD.get(f, 0.05) for f in profile.functions)
@@ -116,7 +119,7 @@ def estimate_hardware(
     # --- Оценка памяти ----------------------------------------------------
     vram_gb = 1.4 + 2.0 * res + 2.4 * (quality - 0.7) + 1.2 * (content - 1.0) + vram_method
     vram_gb = max(1.5, round(vram_gb, 1))
-    ram_gb = 4.0 + 4.0 * content + 2.0 * _level(profile.object_count_level) + ram_method
+    ram_gb = 4.0 + 4.0 * content + 2.0 * profile.object_count_effective + ram_method
     ram_gb = max(4.0, round(ram_gb, 1))
 
     # --- Подбор референсной конфигурации ---------------------------------

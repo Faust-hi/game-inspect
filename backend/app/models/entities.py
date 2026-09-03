@@ -4,10 +4,23 @@ from __future__ import annotations
 import datetime as dt
 from typing import Any
 
-from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import (
+    JSON, Boolean, CheckConstraint, DateTime, Float, ForeignKey, Integer, String, Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
+from ..models.enums import Status
+
+PUBLISHED = Status.PUBLISHED.value
+DRAFT = Status.DRAFT.value
+
+#: Ограничение статуса. Дублируется в БД, чтобы ни один запрос в обход
+#: приложения не мог записать произвольное значение.
+STATUS_CHECK = CheckConstraint(
+    "status in ('draft', 'reviewed', 'published')", name="ck_status_values",
+)
 
 
 def _now() -> dt.datetime:
@@ -18,7 +31,10 @@ class GameFunction(Base):
     """Игровая функция — что именно должно работать в игре."""
 
     __tablename__ = "game_functions"
-    __table_args__ = (UniqueConstraint("code", name="uq_game_functions_code"),)
+    __table_args__ = (
+        UniqueConstraint("code", name="uq_game_functions_code"),
+        STATUS_CHECK,
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     code: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
@@ -28,7 +44,7 @@ class GameFunction(Base):
     formats: Mapped[list[str]] = mapped_column(JSON, default=list)          # 2D / 2.5D / 3D
     typical_world_types: Mapped[list[str]] = mapped_column(JSON, default=list)
     sort_order: Mapped[int] = mapped_column(Integer, default=100)
-    status: Mapped[str] = mapped_column(String(20), default="published", index=True)
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
     source_title: Mapped[str] = mapped_column(String(300), default="")
     source_url: Mapped[str] = mapped_column(String(600), default="")
     source_date: Mapped[str] = mapped_column(String(20), default="")
@@ -41,7 +57,24 @@ class Method(Base):
     """Вариант реализации функции или общий метод оптимизации."""
 
     __tablename__ = "methods"
-    __table_args__ = (UniqueConstraint("code", name="uq_methods_code"),)
+    __table_args__ = (
+        UniqueConstraint("code", name="uq_methods_code"),
+        STATUS_CHECK,
+        # Оценки вне этих границ делают запись несравнимой с остальными
+        # и искажают TOPSIS, поэтому диапазоны закреплены в схеме.
+        CheckConstraint("performance_gain between 0.0 and 1.0", name="ck_methods_gain"),
+        CheckConstraint("confidence between 0.0 and 1.0", name="ck_methods_confidence"),
+        CheckConstraint("implementation_cost between 1 and 5", name="ck_methods_cost"),
+        CheckConstraint("complexity between 1 and 5", name="ck_methods_complexity"),
+        CheckConstraint("quality_impact between -2 and 2", name="ck_methods_quality"),
+        CheckConstraint("concept_impact between -2 and 0", name="ck_methods_concept"),
+        CheckConstraint("impact_cpu between -3 and 3", name="ck_methods_impact_cpu"),
+        CheckConstraint("impact_gpu between -3 and 3", name="ck_methods_impact_gpu"),
+        CheckConstraint("impact_ram between -3 and 3", name="ck_methods_impact_ram"),
+        CheckConstraint("impact_vram between -3 and 3", name="ck_methods_impact_vram"),
+        CheckConstraint("impact_disk between -3 and 3", name="ck_methods_impact_disk"),
+        CheckConstraint("impact_network between -3 and 3", name="ck_methods_impact_network"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     code: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
@@ -95,7 +128,7 @@ class Method(Base):
     verification_method: Mapped[str] = mapped_column(Text, default="")
     verification_tools: Mapped[list[str]] = mapped_column(JSON, default=list)
 
-    status: Mapped[str] = mapped_column(String(20), default="published", index=True)
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
     source_title: Mapped[str] = mapped_column(String(300), default="")
     source_url: Mapped[str] = mapped_column(String(600), default="")
     source_date: Mapped[str] = mapped_column(String(20), default="")
@@ -109,7 +142,7 @@ class Engine(Base):
     """Игровой движок."""
 
     __tablename__ = "engines"
-    __table_args__ = (UniqueConstraint("code", name="uq_engines_code"),)
+    __table_args__ = (UniqueConstraint("code", name="uq_engines_code"), STATUS_CHECK)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     code: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
@@ -119,7 +152,7 @@ class Engine(Base):
     supported_formats: Mapped[list[str]] = mapped_column(JSON, default=list)
     notes: Mapped[str] = mapped_column(Text, default="")
     docs_url: Mapped[str] = mapped_column(String(600), default="")
-    status: Mapped[str] = mapped_column(String(20), default="published")
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
     tools: Mapped[list["EngineTool"]] = relationship(back_populates="engine", cascade="all, delete-orphan")
@@ -129,7 +162,7 @@ class EngineTool(Base):
     """Инструмент / подсистема игрового движка."""
 
     __tablename__ = "engine_tools"
-    __table_args__ = (UniqueConstraint("code", name="uq_engine_tools_code"),)
+    __table_args__ = (UniqueConstraint("code", name="uq_engine_tools_code"), STATUS_CHECK)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     code: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
@@ -139,7 +172,7 @@ class EngineTool(Base):
     description: Mapped[str] = mapped_column(Text, default="")
     tool_type: Mapped[str] = mapped_column(String(40), default="runtime")  # runtime | editor | profiler | build
     docs_url: Mapped[str] = mapped_column(String(600), default="")
-    status: Mapped[str] = mapped_column(String(20), default="published")
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
     engine: Mapped["Engine"] = relationship(back_populates="tools")
@@ -150,7 +183,7 @@ class MethodEngineLink(Base):
     """Связь общего метода с конкретным инструментом движка."""
 
     __tablename__ = "method_engine_links"
-    __table_args__ = (UniqueConstraint("method_id", "tool_id", name="uq_method_tool"),)
+    __table_args__ = (UniqueConstraint("method_id", "tool_id", name="uq_method_tool"), STATUS_CHECK)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     method_id: Mapped[int] = mapped_column(ForeignKey("methods.id"), nullable=False)
@@ -158,7 +191,7 @@ class MethodEngineLink(Base):
     relation_type: Mapped[str] = mapped_column(String(20), default="direct")
     note: Mapped[str] = mapped_column(Text, default="")
     source_url: Mapped[str] = mapped_column(String(600), default="")
-    status: Mapped[str] = mapped_column(String(20), default="published")
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
     method: Mapped["Method"] = relationship(back_populates="engine_links")
@@ -169,7 +202,12 @@ class Conflict(Base):
     """Конфликт, зависимость или усиление между методами."""
 
     __tablename__ = "conflicts"
-    __table_args__ = (UniqueConstraint("a_code", "b_code", "conflict_type", name="uq_conflict_pair"),)
+    __table_args__ = (
+        UniqueConstraint("a_code", "b_code", "conflict_type", name="uq_conflict_pair"),
+        STATUS_CHECK,
+        CheckConstraint("severity between 1 and 3", name="ck_conflicts_severity"),
+        CheckConstraint("a_code <> b_code", name="ck_conflicts_distinct"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     a_code: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
@@ -178,7 +216,7 @@ class Conflict(Base):
     severity: Mapped[int] = mapped_column(Integer, default=2)  # 1..3
     description: Mapped[str] = mapped_column(Text, default="")
     resolution: Mapped[str] = mapped_column(Text, default="")
-    status: Mapped[str] = mapped_column(String(20), default="published")
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     source_url: Mapped[str] = mapped_column(String(600), default="")
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
@@ -187,7 +225,7 @@ class GameExample(Base):
     """Реальный пример использования в вышедшей игре."""
 
     __tablename__ = "game_examples"
-    __table_args__ = (UniqueConstraint("title", name="uq_game_examples_title"),)
+    __table_args__ = (UniqueConstraint("title", name="uq_game_examples_title"), STATUS_CHECK)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(200), nullable=False)
@@ -212,13 +250,19 @@ class GameExample(Base):
     source_url: Mapped[str] = mapped_column(String(600), default="")
     source_date: Mapped[str] = mapped_column(String(20), default="")
     verified_by: Mapped[str] = mapped_column(String(30), default="dev_blog")
-    status: Mapped[str] = mapped_column(String(20), default="published", index=True)
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
 
 class HardwareCPU(Base):
     __tablename__ = "hardware_cpu"
-    __table_args__ = (UniqueConstraint("model", name="uq_hw_cpu_model"),)
+    __table_args__ = (
+        UniqueConstraint("model", name="uq_hw_cpu_model"),
+        STATUS_CHECK,
+        CheckConstraint("single_thread_score between 0.0 and 1.0", name="ck_cpu_single"),
+        CheckConstraint("multi_thread_score between 0.0 and 1.0", name="ck_cpu_multi"),
+        CheckConstraint("perf_class between 1 and 5", name="ck_cpu_class"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     vendor: Mapped[str] = mapped_column(String(40), default="")
@@ -240,13 +284,19 @@ class HardwareCPU(Base):
     source_title: Mapped[str] = mapped_column(String(300), default="")
     source_url: Mapped[str] = mapped_column(String(600), default="")
     source_date: Mapped[str] = mapped_column(String(20), default="")
-    status: Mapped[str] = mapped_column(String(20), default="published")
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
 
 class HardwareGPU(Base):
     __tablename__ = "hardware_gpu"
-    __table_args__ = (UniqueConstraint("model", name="uq_hw_gpu_model"),)
+    __table_args__ = (
+        UniqueConstraint("model", name="uq_hw_gpu_model"),
+        STATUS_CHECK,
+        CheckConstraint("raster_score between 0.0 and 1.0", name="ck_gpu_raster"),
+        CheckConstraint("rt_score between 0.0 and 1.0", name="ck_gpu_rt"),
+        CheckConstraint("perf_class between 1 and 5", name="ck_gpu_class"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     vendor: Mapped[str] = mapped_column(String(40), default="")
@@ -268,7 +318,7 @@ class HardwareGPU(Base):
     source_title: Mapped[str] = mapped_column(String(300), default="")
     source_url: Mapped[str] = mapped_column(String(600), default="")
     source_date: Mapped[str] = mapped_column(String(20), default="")
-    status: Mapped[str] = mapped_column(String(20), default="published")
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
 
@@ -285,6 +335,25 @@ class Project(Base):
     result: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+
+class PublicationLog(Base):
+    """Журнал изменений статуса записей базы знаний.
+
+    Публикация меняет то, что видят все пользователи. Без журнала невозможно
+    ответить на вопрос, кто и когда вывел запись в публичный каталог.
+    """
+
+    __tablename__ = "publication_log"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    entity: Mapped[str] = mapped_column(String(60), default="", index=True)
+    entity_code: Mapped[str] = mapped_column(String(120), default="", index=True)
+    from_status: Mapped[str] = mapped_column(String(20), default="")
+    to_status: Mapped[str] = mapped_column(String(20), default="")
+    actor: Mapped[str] = mapped_column(String(80), default="")
+    comment: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
 class ValidationIssue(Base):

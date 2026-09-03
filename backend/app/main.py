@@ -16,7 +16,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -26,6 +26,7 @@ from .database import SessionLocal, engine
 from .logging_setup import configure_logging, log_event
 from .models.entities import Base
 from .seed import seeder
+from .staticfiles_safe import safe_static_path
 
 configure_logging()
 logger = logging.getLogger("gamedev_dss")
@@ -260,22 +261,39 @@ def create_app() -> FastAPI:
     app.include_router(admin.projects_router, prefix=prefix)
     _register_health(app)
 
+    if not settings.is_production:
+        # Документация доступна по обоим адресам: /docs (адрес самого FastAPI)
+        # и /api/docs (адрес, указанный в README и start.bat).
+        @app.get("/api/docs", include_in_schema=False)
+        def api_docs_redirect():
+            return RedirectResponse(url="/docs", status_code=307)
+
+        @app.get("/api/redoc", include_in_schema=False)
+        def api_redoc_redirect():
+            return RedirectResponse(url="/redoc", status_code=307)
+
     # Статическая раздача собранного frontend (если сборка выполнена).
+    # Путь из URL никогда не склеивается с каталогом сборки напрямую: он
+    # проходит через safe_static_path, которая отвергает выход за пределы
+    # каталога, абсолютные пути и закодированные сегменты «..».
     if FRONTEND_DIST.exists():
         assets = FRONTEND_DIST / "assets"
         if assets.exists():
             app.mount("/assets", StaticFiles(directory=str(assets)), name="assets")
 
+        spa_index = FRONTEND_DIST / "index.html"
+
+        def _spa_response(full_path: str):
+            candidate = safe_static_path(FRONTEND_DIST, full_path)
+            return FileResponse(candidate if candidate is not None else spa_index)
+
         @app.get("/", include_in_schema=False)
         def index():
-            return FileResponse(FRONTEND_DIST / "index.html")
+            return FileResponse(spa_index)
 
         @app.get("/{full_path:path}", include_in_schema=False)
         def spa(full_path: str):
-            candidate = FRONTEND_DIST / full_path
-            if candidate.is_file():
-                return FileResponse(candidate)
-            return FileResponse(FRONTEND_DIST / "index.html")
+            return _spa_response(full_path)
     else:
 
         @app.get("/", tags=["Служебное"])

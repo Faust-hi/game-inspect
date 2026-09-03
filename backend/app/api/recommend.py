@@ -2,12 +2,11 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .. import repositories
 from ..config import settings
 from ..database import get_db
-from ..models.entities import GameExample, Method
 from ..schemas.catalog import (
     BasketRequest, LoadProfileOut, RecommendationResult, SimilarGameOut,
 )
@@ -31,28 +30,32 @@ def recommend(payload: BasketRequest, request: Request, db: Session = Depends(ge
 @router.post("/load-profile", response_model=LoadProfileOut, summary="Пересчитать сводный профиль нагрузки корзины")
 def load_profile(payload: BasketRequest, request: Request, db: Session = Depends(get_db)):
     _limit(request)
-    methods = list(db.scalars(select(Method).where(Method.code.in_(payload.basket or []))).all())
+    methods = repositories.methods_by_codes(db, payload.basket or [])
     return recommender.aggregate_load(methods, payload.profile)
 
 
 @router.post("/similar-games", response_model=list[SimilarGameOut], summary="Поиск похожих игр (расстояние Гауэра)")
 def similar_games(payload: BasketRequest, request: Request, db: Session = Depends(get_db)):
     _limit(request)
-    examples = list(db.scalars(select(GameExample).where(GameExample.status == "published")).all())
+    examples = repositories.examples(db)
     return [
         SimilarGameOut(
             example=serializers.example_out(ex),
             similarity=sim,
             matching_optimizations=match,
         )
-        for ex, sim, match in gower.find_similar(payload.profile, examples, top_n=6)
+        # Корзина передаётся в поиск: совпадения ищутся по выбранным решениям,
+        # а не по функциям профиля — это разные множества кодов.
+        for ex, sim, match in gower.find_similar(
+            payload.profile, examples, top_n=6, basket=payload.basket or []
+        )
     ]
 
 
 @router.post("/hardware-estimate", summary="Оценка референсного минимального класса оборудования")
 def hardware_estimate(payload: BasketRequest, request: Request, db: Session = Depends(get_db)):
     _limit(request)
-    methods = list(db.scalars(select(Method).where(Method.code.in_(payload.basket or []))).all())
-    examples = list(db.scalars(select(GameExample).where(GameExample.status == "published")).all())
-    similar = gower.find_similar(payload.profile, examples, top_n=5)
+    methods = repositories.methods_by_codes(db, payload.basket or [])
+    examples = repositories.examples(db)
+    similar = gower.find_similar(payload.profile, examples, top_n=5, basket=payload.basket or [])
     return hardware.estimate_hardware(db, payload.profile, methods, similar_examples=len(similar))

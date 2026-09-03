@@ -1,14 +1,18 @@
-"""Публичные каталоги базы знаний."""
+"""Публичные каталоги базы знаний.
+
+Все выборки идут через слой `repositories`, который возвращает только
+опубликованный снимок. Ни один публичный маршрут не обращается к ORM напрямую:
+иначе достаточно забыть условие по статусу в одном месте, и черновик станет
+доступен всем пользователям.
+"""
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session
 
+from .. import repositories
 from ..database import get_db
-from ..models.entities import (
-    Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU, Method,
-)
+from ..models.entities import Method
 from ..models.enums import (
     CalcMode, ConflictType, DevStage, GameFormat, LateCost, Level3, MethodKind,
     Platform, Priority, RelationType, Scale, SolutionLevel, Status, WorldType,
@@ -24,6 +28,9 @@ router = APIRouter(prefix="/catalog", tags=["Каталоги"])
 
 
 def method_to_out(db: Session, m: Method, with_links: bool = True) -> MethodOut:
+    # Для административного раздела связи берутся напрямую, для публичного —
+    # только опубликованные: черновик связи не должен появляться в карточке.
+    links = m.engine_links if with_links else []
     return MethodOut(
         code=m.code, name=m.name, kind=m.kind,
         function_code=m.function.code if m.function else None,
@@ -50,15 +57,21 @@ def method_to_out(db: Session, m: Method, with_links: bool = True) -> MethodOut:
         verification_method=m.verification_method,
         verification_tools=m.verification_tools or [],
         status=m.status, source_title=m.source_title, source_url=m.source_url,
-        engine_links=[link_out(db, l) for l in m.engine_links] if with_links else [],
+        engine_links=[link_out(db, l) for l in links],
     )
+
+
+def method_to_out_public(db: Session, m: Method, with_links: bool = True) -> MethodOut:
+    """Публичное представление: только опубликованные связи с движками."""
+    links = repositories.method_links(db, m.id) if with_links else []
+    out = method_to_out(db, m, with_links=False)
+    out.engine_links = [link_out(db, link) for link in links]
+    return out
 
 
 @router.get("/functions", response_model=list[GameFunctionOut], summary="Каталог игровых функций")
 def list_functions(db: Session = Depends(get_db)):
-    rows = db.scalars(
-        select(GameFunction).where(GameFunction.status == "published").order_by(GameFunction.sort_order)
-    ).all()
+    rows = repositories.functions(db)
     return [
         GameFunctionOut(
             code=f.code, name=f.name, description=f.description, category=f.category,
@@ -76,34 +89,34 @@ def list_methods(
     engine: str | None = Query(None, description="Код движка для фильтрации по наличию аналога"),
     db: Session = Depends(get_db),
 ):
-    stmt = select(Method).options(selectinload(Method.engine_links)).where(Method.status == "published")
-    rows = list(db.scalars(stmt).all())
+    rows = repositories.methods(db)
     out = []
     for m in rows:
         if function and (not m.function or m.function.code != function):
             continue
         if kind and m.kind != kind:
             continue
-        if engine:
-            codes = {db.get(EngineTool, l.tool_id).engine.code for l in m.engine_links if db.get(EngineTool, l.tool_id)}
-            if engine not in codes:
-                continue
-        out.append(method_to_out(db, m))
+        method = method_to_out_public(db, m)
+        if engine and not any(link.engine_code == engine for link in method.engine_links):
+            continue
+        out.append(method)
     out.sort(key=lambda x: x.name)
     return out
 
 
 @router.get("/methods/{code}", response_model=MethodOut, summary="Карточка метода")
 def get_method(code: str, db: Session = Depends(get_db)):
-    m = db.scalar(select(Method).where(Method.code == code))
+    """Черновик и запись на проверке недоступны: для публичного каталога их нет."""
+    m = repositories.method(db, code)
     if not m:
-        raise HTTPException(404, "Метод не найден")
-    return method_to_out(db, m)
+        raise HTTPException(404, "Метод не найден или не опубликован")
+    return method_to_out_public(db, m)
 
 
 @router.get("/engines", response_model=list[EngineOut], summary="Каталог игровых движков и их инструментов")
 def list_engines(db: Session = Depends(get_db)):
-    rows = db.scalars(select(Engine).options(selectinload(Engine.tools))).all()
+    rows = repositories.engines(db)
+    published_tools = {t.code for t in repositories.engine_tools(db)}
     return [
         EngineOut(
             code=e.code, name=e.name, vendor=e.vendor, versions=e.versions or [],
@@ -114,6 +127,7 @@ def list_engines(db: Session = Depends(get_db)):
                     tool_type=t.tool_type, docs_url=t.docs_url,
                 )
                 for t in sorted(e.tools, key=lambda x: (x.subsystem, x.name))
+                if t.code in published_tools
             ],
         )
         for e in rows
@@ -122,7 +136,7 @@ def list_engines(db: Session = Depends(get_db)):
 
 @router.get("/conflicts", response_model=list[ConflictOut], summary="Конфликты, зависимости и усиления")
 def list_conflicts(db: Session = Depends(get_db)):
-    rows = db.scalars(select(Conflict)).all()
+    rows = repositories.conflicts(db)
     return [
         ConflictOut(
             a_code=c.a_code, b_code=c.b_code, conflict_type=c.conflict_type,
@@ -135,17 +149,14 @@ def list_conflicts(db: Session = Depends(get_db)):
 
 @router.get("/examples", response_model=list[GameExampleOut], summary="Подтверждённые примеры игр")
 def list_examples(db: Session = Depends(get_db)):
-    rows = db.scalars(select(GameExample).where(GameExample.status == "published").order_by(GameExample.title)).all()
-    return [serializers.example_out(e) for e in rows]
+    return [serializers.example_out(e) for e in repositories.examples(db)]
 
 
 @router.get("/hardware", summary="Каталог оборудования")
 def list_hardware(db: Session = Depends(get_db)):
-    cpus = db.scalars(select(HardwareCPU).order_by(HardwareCPU.multi_thread_score.desc())).all()
-    gpus = db.scalars(select(HardwareGPU).order_by(HardwareGPU.raster_score.desc())).all()
     return {
-        "cpu": [serializers.cpu_out(c) for c in cpus],
-        "gpu": [serializers.gpu_out(g) for g in gpus],
+        "cpu": [serializers.cpu_out(c) for c in repositories.hardware_cpu(db)],
+        "gpu": [serializers.gpu_out(g) for g in repositories.hardware_gpu(db)],
     }
 
 

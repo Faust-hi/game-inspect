@@ -3,6 +3,10 @@
 Операция идемпотентна: существующие записи обновляются, новые добавляются.
 Данные по оборудованию и примерам игр читаются из JSON-файлов (каталог seed/data),
 что позволяет обновлять их без изменения кода.
+
+Статус записей задаётся явно. По модели новый материал по умолчанию получает
+«черновик», поэтому заполнение обязано указывать «опубликовано» — иначе база
+окажется наполненной, но пустой для публичных каталогов.
 """
 from __future__ import annotations
 
@@ -15,9 +19,12 @@ from sqlalchemy.orm import Session
 from ..config import DATA_DIR
 from ..models.entities import (
     Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU,
-    Method, MethodEngineLink, ValidationIssue,
+    Method, MethodEngineLink, PublicationLog, ValidationIssue,
 )
+from ..models.enums import Status
 from . import engines_data, functions_data, methods_data
+
+PUBLISHED = Status.PUBLISHED.value
 
 
 def _load_json(name: str) -> list[dict]:
@@ -42,6 +49,7 @@ def seed_functions(db: Session) -> dict[str, GameFunction]:
     out: dict[str, GameFunction] = {}
     for data in functions_data.with_sources():
         payload = {k: v for k, v in data.items() if hasattr(GameFunction, k)}
+        payload.setdefault("status", PUBLISHED)
         obj, _ = _upsert(db, GameFunction, "code", payload)
         out[obj.code] = obj
     db.flush()
@@ -54,6 +62,7 @@ def seed_methods(db: Session, functions: dict[str, GameFunction]) -> dict[str, M
     for data in methods:
         function_code = data.pop("function_code", None)
         payload = {k: v for k, v in data.items() if hasattr(Method, k) and k != "links"}
+        payload.setdefault("status", PUBLISHED)
         if function_code and function_code in functions:
             payload["function_id"] = functions[function_code].id
         obj, _ = _upsert(db, Method, "code", payload)
@@ -65,7 +74,7 @@ def seed_methods(db: Session, functions: dict[str, GameFunction]) -> dict[str, M
 def seed_engines(db: Session) -> dict[str, Engine]:
     out: dict[str, Engine] = {}
     for data in engines_data.ENGINES:
-        obj, _ = _upsert(db, Engine, "code", dict(data))
+        obj, _ = _upsert(db, Engine, "code", {**data, "status": PUBLISHED})
         out[obj.code] = obj
     db.flush()
     return out
@@ -76,6 +85,7 @@ def seed_engine_tools(db: Session, engines: dict[str, Engine]) -> dict[str, Engi
     for data in engines_data.ENGINE_TOOLS:
         engine_code = data.pop("engine_code", None)
         payload = {k: v for k, v in data.items() if hasattr(EngineTool, k)}
+        payload.setdefault("status", PUBLISHED)
         if engine_code in engines:
             payload["engine_id"] = engines[engine_code].id
         obj, _ = _upsert(db, EngineTool, "code", payload)
@@ -104,10 +114,12 @@ def seed_method_links(db: Session, methods: dict[str, Method], tools: dict[str, 
                 exists.relation_type = relation
                 exists.note = note
                 exists.source_url = tool.docs_url
+                exists.status = PUBLISHED
             else:
                 db.add(MethodEngineLink(
                     method_id=method.id, tool_id=tool.id,
                     relation_type=relation, note=note, source_url=tool.docs_url,
+                    status=PUBLISHED,
                 ))
                 count += 1
     db.flush()
@@ -118,7 +130,9 @@ def seed_conflicts(db: Session) -> int:
     _, conflicts = methods_data.with_sources()
     count = 0
     for data in conflicts:
-        obj, created = _upsert(db, Conflict, "a_code", {k: v for k, v in data.items() if hasattr(Conflict, k)})
+        payload = {k: v for k, v in data.items() if hasattr(Conflict, k)}
+        payload.setdefault("status", PUBLISHED)
+        obj, created = _upsert(db, Conflict, "a_code", payload)
         if created:
             count += 1
     db.flush()
@@ -130,7 +144,9 @@ def seed_examples(db: Session) -> int:
     for data in _load_json("game_examples.json"):
         if not data.get("source_url"):
             continue
-        obj, created = _upsert(db, GameExample, "title", {k: v for k, v in data.items() if hasattr(GameExample, k)})
+        payload = {k: v for k, v in data.items() if hasattr(GameExample, k)}
+        payload.setdefault("status", PUBLISHED)
+        obj, created = _upsert(db, GameExample, "title", payload)
         if created:
             count += 1
     db.flush()
@@ -145,12 +161,16 @@ def seed_hardware(db: Session) -> int:
     for row in payload.get("cpu", []):
         if not row.get("model"):
             continue
-        _, created = _upsert(db, HardwareCPU, "model", {k: v for k, v in row.items() if hasattr(HardwareCPU, k)})
+        payload = {k: v for k, v in row.items() if hasattr(HardwareCPU, k)}
+        payload.setdefault("status", PUBLISHED)
+        _, created = _upsert(db, HardwareCPU, "model", payload)
         count += int(created)
     for row in payload.get("gpu", []):
         if not row.get("model"):
             continue
-        _, created = _upsert(db, HardwareGPU, "model", {k: v for k, v in row.items() if hasattr(HardwareGPU, k)})
+        payload = {k: v for k, v in row.items() if hasattr(HardwareGPU, k)}
+        payload.setdefault("status", PUBLISHED)
+        _, created = _upsert(db, HardwareGPU, "model", payload)
         count += int(created)
     db.flush()
     return count

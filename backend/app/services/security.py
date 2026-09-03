@@ -77,12 +77,24 @@ limiter = SlidingWindowLimiter()
 
 
 def client_key(request: Request) -> str:
-    """Ключ ограничения: адрес клиента с учётом стандартного заголовка прокси."""
+    """Ключ ограничения: адрес клиента.
+
+    Заголовок X-Forwarded-For учитывается только тогда, когда соединение
+    пришло от доверенного прокси. Иначе любой клиент задаёт заголовок сам и
+    получает неограниченное число попыток, подставляя новый адрес на каждый
+    запрос. Недоверенный заголовок не просто игнорируется — он делает адрес
+    источником отдельного ключа, чтобы подмена не объединяла клиентов.
+    """
+    direct = request.client.host if request.client else "unknown"
+    trusted = settings.trusted_proxies_list
+    if not trusted or direct not in trusted:
+        return direct
     forwarded = request.headers.get("x-forwarded-for", "")
-    if forwarded:
-        # Берём первый адрес — исходный клиент; остальные добавляют прокси.
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
+    if not forwarded:
+        return direct
+    # Первый адрес — исходный клиент; остальные добавляют прокси по пути.
+    first = forwarded.split(",")[0].strip()
+    return first or direct
 
 
 def enforce_rate_limit(request: Request, limit: int, scope: str) -> None:
