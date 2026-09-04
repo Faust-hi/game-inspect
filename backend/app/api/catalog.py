@@ -28,7 +28,34 @@ from ..services.serializers import link_out
 router = APIRouter(prefix="/catalog", tags=["Каталоги"])
 
 
-def method_to_out(db: Session, m: Method, with_links: bool = True) -> MethodOut:
+def _used_in_projects(db: Session, method_code: str) -> list[str]:
+    """Проекты каталога, где решение применено.
+
+    Производное поле без новой таблицы: связь «метод — проект» уже лежит в
+    `GameExample.optimizations_used` кодами методов. Считается только по
+    опубликованному срезу, чтобы черновики Трека 2 не попадали в карточку.
+    """
+    titles = []
+    for example in repositories.examples(db):
+        if method_code in (example.optimizations_used or []):
+            titles.append(example.title)
+    return sorted(titles)
+
+
+def used_in_map(db: Session) -> dict[str, list[str]]:
+    """Карта «код метода — проекты-применители» одним проходом по примерам."""
+    mapping: dict[str, list[str]] = {}
+    for example in repositories.examples(db):
+        for code in example.optimizations_used or []:
+            mapping.setdefault(code, []).append(example.title)
+    for titles in mapping.values():
+        titles.sort()
+    return mapping
+
+
+def method_to_out(
+    db: Session, m: Method, with_links: bool = True, used_in: list[str] | None = None,
+) -> MethodOut:
     # Для административного раздела связи берутся напрямую, для публичного —
     # только опубликованные: черновик связи не должен появляться в карточке.
     links = m.engine_links if with_links else []
@@ -57,16 +84,24 @@ def method_to_out(db: Session, m: Method, with_links: bool = True) -> MethodOut:
         requires_conditions=m.requires_conditions or [],
         verification_method=m.verification_method,
         verification_tools=m.verification_tools or [],
+        application_steps=m.application_steps or [],
+        used_in_projects=used_in if used_in is not None else [],
         status=m.status, source_title=m.source_title, source_url=m.source_url,
         engine_links=[link_out(db, l) for l in links],
     )
 
 
-def method_to_out_public(db: Session, m: Method, with_links: bool = True) -> MethodOut:
+def method_to_out_public(
+    db: Session, m: Method, with_links: bool = True, used_in: list[str] | None = None,
+) -> MethodOut:
     """Публичное представление: только опубликованные связи с движками."""
     links = repositories.method_links(db, m.id) if with_links else []
     out = method_to_out(db, m, with_links=False)
     out.engine_links = [link_out(db, link) for link in links]
+    if used_in is not None:
+        out.used_in_projects = used_in
+    else:
+        out.used_in_projects = _used_in_projects(db, m.code)
     return out
 
 
@@ -91,13 +126,15 @@ def list_methods(
     db: Session = Depends(get_db),
 ):
     rows = repositories.methods(db)
+    # Один проход по примерам на весь список вместо запроса на каждый метод.
+    mapping = used_in_map(db)
     out = []
     for m in rows:
         if function and (not m.function or m.function.code != function):
             continue
         if kind and m.kind != kind:
             continue
-        method = method_to_out_public(db, m)
+        method = method_to_out_public(db, m, used_in=mapping.get(m.code, []))
         if engine and not any(link.engine_code == engine for link in method.engine_links):
             continue
         out.append(method)

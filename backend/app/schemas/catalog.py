@@ -291,6 +291,8 @@ class MethodOut(BaseModel):
     requires_conditions: list[str]
     verification_method: str
     verification_tools: list[str]
+    application_steps: list[str] = Field(default_factory=list)
+    used_in_projects: list[str] = Field(default_factory=list)
     status: str
     source_title: str
     source_url: str

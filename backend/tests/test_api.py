@@ -62,6 +62,28 @@ def test_method_card_contains_classification(client):
     assert card["level_label"]
 
 
+def test_method_card_contains_application_steps_and_projects(client):
+    """Паспорт метода: алгоритм применения и проекты-применители."""
+    card = client.get("/api/catalog/methods/deterministic_lockstep").json()
+    assert isinstance(card["application_steps"], list) and len(card["application_steps"]) >= 5
+    assert "Factorio" in card["used_in_projects"]
+
+    card = client.get("/api/catalog/methods/world_partition_streaming").json()
+    assert "Fortnite Chapter 4 (UE5)" in card["used_in_projects"]
+
+
+def test_track2_drafts_stay_out_of_public_catalog(client):
+    """Трек 2 (фуроры для отчёта) — черновики: не влияют на рекомендации."""
+    public_titles = {item["title"] for item in client.get("/api/catalog/examples").json()}
+    assert "Tetris" not in public_titles
+    assert "Fortnite Chapter 4 (UE5)" in public_titles
+
+    # Черновики живут в базе (видны в сводке), но не в публичном срезе.
+    overview = client.get("/api/admin/overview").json()
+    assert overview["counts"]["game_examples"] >= 160
+    assert len(public_titles) < overview["counts"]["game_examples"]
+
+
 # ---------------------------------------------------------------------------
 # Расчёт рекомендаций
 # ---------------------------------------------------------------------------

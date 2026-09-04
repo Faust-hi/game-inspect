@@ -360,6 +360,42 @@ SOURCES: dict[str, dict[str, str]] = {
         "url": "https://en.wikipedia.org/wiki/Volumetric_rendering",
         "date": "2025-01-01",
     },
+    # --- Альтернативные методы Треков 1–2 (ключи из исследований) -----------
+    "UNITY_SHADERLOAD": {
+        "title": "Unity Manual: Optimizing Shader Load Time",
+        "url": "https://docs.unity3d.com/Manual/ShaderLoadTimeOptimization.html",
+        "date": "2025-01-01",
+    },
+    "HUNT_AUDIO": {
+        "title": "Hunt: Showdown — Audio readability, realism and consistency",
+        "url": "https://www.huntshowdown.com/news/hunt-audio-readability-realism-and-consistency",
+        "date": "2024-01-01",
+    },
+    "DOOM_ETERNAL": {
+        "title": "Rendering the Hellscape of Doom Eternal (SIGGRAPH 2020)",
+        "url": "https://advances.realtimerendering.com/s2020/RenderingDoomEternal.pdf",
+        "date": "2020-08-25",
+    },
+    "GAFFER_TIMESTEP": {
+        "title": "Fix Your Timestep! (Gaffer on Games)",
+        "url": "https://gafferongames.com/post/fix_your_timestep/",
+        "date": "2025-01-01",
+    },
+    "DF_ITTakesTWO": {
+        "title": "It Takes Two tech analysis (Digital Foundry)",
+        "url": "https://www.digitalfoundry.net/articles/digitalfoundry-2021-it-takes-two-tech-analysis",
+        "date": "2021-03-27",
+    },
+    "COENEN_DOOM": {
+        "title": "Doom Eternal graphics study (Simon Coenen)",
+        "url": "https://www.simoncoenen.com/blog/programming/graphics/DoomEternalStudy",
+        "date": "2024-01-01",
+    },
+    "RIOT_TICK": {
+        "title": "Valorant 128-tick servers (Riot Engineering)",
+        "url": "https://technology.riotgames.com/news/valorants-128-tick-servers",
+        "date": "2020-04-16",
+    },
 }
 
 

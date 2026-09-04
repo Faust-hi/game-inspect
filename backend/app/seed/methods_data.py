@@ -38,6 +38,7 @@ _DEFAULTS: dict = {
     "min_scale": None,
     "pros": [], "cons": [], "limitations": [],
     "verification_method": "", "verification_tools": [],
+    "application_steps": [],
     "source_key": None,
 }
 
@@ -1127,6 +1128,17 @@ FORMAT_OVERRIDES: dict[str, list[str]] = {
     "deferred_forward_plus_choice": ["3D", "2.5D"],
     "volumetric_half_resolution": ["3D", "2.5D"],
     "depth_prepass_early_z": ["3D", "2.5D"],
+    # Альтернативные методы: рендерные — 3D/2.5D, процессные — все форматы.
+    "hiz_software_occlusion": ["3D", "2.5D"],
+    "bindless_uber_shaders": ["3D"],
+    "destruction_geometry_cache": ["3D"],
+    "ml_frame_generation": ["3D", "2.5D"],
+    "splitscreen_render_budget": ["3D", "2.5D"],
+    "audio_occlusion_propagation": ["3D", "2.5D", "2D"],
+    "pso_precaching_warmup": ["3D", "2.5D", "2D"],
+    "deterministic_lockstep": ["3D", "2.5D", "2D"],
+    "tickrate_budgeting": ["3D", "2.5D", "2D"],
+    "quality_tier_scalability": ["3D", "2.5D", "2D"],
 }
 
 # ---------------------------------------------------------------------------
@@ -1156,6 +1168,9 @@ CONCEPT_IMPACT_OVERRIDES: dict[str, int] = {
     "lightmap_2d_baking": -1,          # статичные источники нельзя перемещать
     "skeletal_2d_deform": -1,          # меняет стиль анимации
     "crowd_2d_instancing": -1,         # требует однотипности агентов
+    "deterministic_lockstep": -1,      # диктует логику, RNG и общий тик
+    "splitscreen_render_budget": -1,   # делит экран и режет информацию
+    "destruction_geometry_cache": -1,  # запечённое нельзя менять интерактивно
 }
 
 # ---------------------------------------------------------------------------
@@ -1397,9 +1412,299 @@ EXTRA_METHODS: list[dict] = [
       pros=["Заметно снижает перерисовку", "Не требует изменения контента"],
       cons=["Дополнительный проход геометрии стоит времени"],
       limitations=["Эффект минимален при малой перерисовке"],
-      verification_method="Замер заполнения (overdraw) в режиме визуализации перерисовки.",
+      verification_method="Замер overdraw в режиме визуализации перерисовки.",
       verification_tools=["Unreal Insights", "Unity Profiler", "Профилировщик Godot"],
       source_key="WIKI_HSR"),
+
+    # =====================================================================
+    # Альтернативные методы из исследований Треков 1–2: дополняют, а не
+    # дублируют каталог. У каждого — полный паспорт: проблема, паспорт влияния,
+    # алгоритм применения по шагам, проверка, источник, проекты (через примеры).
+    # =====================================================================
+    M("hiz_software_occlusion", "Программное отсечение по Hi-Z",
+      None,
+      summary="Невидимая геометрия отсекается до растеризации: строится пирамида глубины "
+              "(Hi-Z), AABB объектов тестируются против неё, видимые складываются "
+              "в indirect-буфер отрисовки.",
+      description="Альтернатива аппаратному occlusion query и GPU-culling: упрощённая сцена "
+                  "растеризуется в буфер глубины (часто кадр прошлого кадра), из него строится "
+                  "mip-цепочка максимумов глубины. Тест бокса объекта против цепочки дёшев и "
+                  "убирает целые инстансы до вершинного шейдера. Эталон — DOOM Eternal: "
+                  "в кадре десятки миллионов треугольников, рисуется малая видимая часть.",
+      problem="Невидимая геометрия проходит вершинные шейдеры и создаёт overdraw впустую.",
+      level="algorithm", recommended_stage="prototype", late_cost="medium",
+      impact_cpu=1, impact_gpu=-2,
+      performance_gain=0.6, implementation_cost=3, complexity=4, confidence=0.75,
+      applicable_formats=["3D", "2.5D"],
+      pros=["Снимает и вершинную нагрузку, и overdraw", "Не требует RT-ядер"],
+      cons=["Построение Hi-Z стоит CPU/compute каждый кадр", "Мелкие окклюдеры бесполезны"],
+      limitations=["Требует retained-сцены и indirect-отрисовки", "Динамические окклюдеры обновляют пирамиду"],
+      application_steps=[
+          "Отрендерить упрощённую глубину (низкополигональные прокси или кадр N-1).",
+          "Построить Hi-Z mip-цепочку максимумов глубины.",
+          "Протестировать AABB инстансов против цепочки на CPU или в compute.",
+          "Сложить прошедшие в indirect draw buffer.",
+          "Отрендерить только видимые; сверить overdraw до и после.",
+      ],
+      verification_method="Сравнение overdraw и числа вызовов отрисовки до и после; захват кадра.",
+      verification_tools=["RenderDoc", "Unreal Insights", "PIX"],
+      source_key="WIKI_HSR"),
+
+    M("pso_precaching_warmup", "Предкомпиляция и прогрев PSO",
+      None,
+      summary="Шейдерные конвейеры (PSO) собираются заранее и прогреваются до геймплея, "
+              "а не в первом кадре с новым материалом — исчезает shader stutter.",
+      description="Главный враг PC-релиза на UE5: заезд в новую World Partition-зону собирает "
+                  "сотни PSO и роняет кадры. Решение — коллекция PSO (автосбор телеметрией "
+                  "или ручной прогон), сохранение кэша, загрузка при старте и смене зоны, "
+                  "асинхронная компиляция с приоритетом видимых зон. Не даёт FPS, даёт гладкость.",
+      problem="Первая встреча с материалом останавливает кадр на компиляцию шейдера.",
+      level="production", recommended_stage="prototype", late_cost="high",
+      impact_cpu=1, impact_disk=1,
+      performance_gain=0.45, implementation_cost=3, complexity=3, confidence=0.85,
+      applicable_formats=["3D", "2.5D", "2D"],
+      pros=["Убирает главный hitch PC-версий", "Дешёвая относительно рефакторинга"],
+      cons=["Увеличивает время первого запуска и размер кэша", "Кэш инвалидируется драйвером"],
+      limitations=["Не лечит плохую оптимизацию сцены", "Требует прогона всего контента"],
+      application_steps=[
+          "Включить сбор PSO-коллекции (телеметрия игроков или ручной прогон зон).",
+          "Сохранить precache в поставку и проверить его размер.",
+          "Грузить кэш при старте и перед стримингом новой зоны.",
+          "Включить асинхронную компиляцию с приоритетом видимых зон.",
+          "Замерить hitch-метрику: кадры дольше 50 мс при первом обходе контента.",
+      ],
+      verification_method="Hitch-детект при первом обходе мира; трассировка загрузки и компиляции.",
+      verification_tools=["Unreal Insights", "PIX"],
+      source_key="UNITY_SHADERLOAD"),
+
+    M("audio_occlusion_propagation", "Аудио-окклюзия лучами и HRTF",
+      None,
+      summary="Слышимость считается по геометрии: луч от источника к слушателю даёт "
+              "заглушение по материалу, отдельно сухая и влажная составляющие, "
+              "позиционирование — HRTF.",
+      description="Звук как второй глаз (Hunt: Showdown): каждый эмиттер шлёт луч, плотность "
+                  "материала из таблицы поверхностей даёт obstruction 0..1, single-ray считает "
+                  "только dry, multi-ray отдельно dry и wet (occlusion). Дальние источники "
+                  "считаются асинхронно, ближние — синхронно. Выстрел слышно за сотни метров "
+                  "с направлением и преградой.",
+      problem="Без окклюзии звук проходит сквозь стены и не даёт информации о позиции.",
+      level="algorithm", recommended_stage="production", late_cost="medium",
+      impact_cpu=1,
+      quality_impact=1,
+      performance_gain=0.3, implementation_cost=3, complexity=3, confidence=0.8,
+      applicable_formats=["3D", "2.5D", "2D"],
+      pros=["Звук становится геймплейной механикой", "Дешевле графических эффектов"],
+      cons=["Требует разметки материалов", "HRTF усреднённой головы заходит не всем"],
+      limitations=["Нужен аудио-программист и R&D микса", "Реверб легко превратить в кашу"],
+      application_steps=[
+          "Разметить материалы поверхностей плотностью (таблица типа SurfaceTypes).",
+          "Пускать луч от каждого эмиттера к слушателю, считать obstruction 0..1.",
+          "Разделить dry (прямой) и wet (отражённый) тракты.",
+          "Настроить аттенюацию по мощности источника и forced-окклюзию для подземелий.",
+          "Проверить слепым тестом: дистанция слышимости и направление без картинки.",
+      ],
+      verification_method="Отладочная отрисовка лучей и затухания; слепой тест слышимости.",
+      verification_tools=["CryAudio Debug", "Wwise Profiler"],
+      source_key="HUNT_AUDIO"),
+
+    M("destruction_geometry_cache", "Запечённые кэши разрушений",
+      None,
+      summary="Сложная анимация разрушений и органики симулируется офлайн и воспроизводится "
+              "как поток вершинных кэшей — дешевле, чем считать скининг и физику в рантайме.",
+      description="Альтернатива realtime-фрактуре: симуляция в Houdini запекается в Alembic-кэш, "
+                  "сжимается с lookahead, стримится чанками и декомпрессится в рантайме. "
+                  "Эталон — DOOM Eternal: органика, тентакли, ткань и катсцены идут кэшами. "
+                  "Цена — память и невозможность интерактивно изменить запечённое.",
+      problem="Скининг и симуляция сложной органики не укладываются в бюджет кадра.",
+      level="production", recommended_stage="production", late_cost="medium",
+      impact_cpu=-2, impact_ram=1, impact_vram=1, impact_disk=2,
+      performance_gain=0.65, implementation_cost=4, complexity=4, confidence=0.7,
+      requires_prototype=True,
+      applicable_formats=["3D"],
+      pros=["Сложнейшая анимация за фиксированную цену", "Детерминированный результат"],
+      cons=["Гигабайты кэшей", "Нет интерактивности внутри кэша"],
+      limitations=["Требуется Houdini-конвейер", "Вдаль нужен LOD кэша"],
+      application_steps=[
+          "Симулировать разрушение офлайн и зафиксировать lookdev.",
+          "Запечь Alembic-кэш и сжать с lookahead-компрессией.",
+          "Нарезать кэш чанками под стриминг уровня.",
+          "Настроить декомпрессию в рантайме и бюджет памяти.",
+          "Сверить ms playback против ms симуляции на эталонной сцене.",
+      ],
+      verification_method="Сравнение времени симуляции и воспроизведения; контроль размера кэша на диске.",
+      verification_tools=["Unreal Insights"],
+      source_key="DOOM_ETERNAL"),
+
+    M("deterministic_lockstep", "Детерминированный lockstep",
+      None,
+      summary="По сети шлются только инпуты, симулируют все клиенты идентично: fixed-point, "
+              "seeded RNG, контрольные суммы десинка. Состояние не передаётся вообще.",
+      description="Рецепт RTS и файтингов на тонких каналах (StarCraft, Factorio): запрет float "
+                  "и wall-clock в симуляции, фиксированный порядок итераций, детерминированный "
+                  "рандом, input delay с turn buckets, rolling checksum. Трафик — сотни байт в "
+                  "секунду вместо состояния сотен юнитов. Альтернатива снапшотам и предикту. "
+                  "Цена — тотальная дисциплина кода и общий тик.",
+      problem="Синхронизация состояния сотен сущностей не влезает в канал и CPU.",
+      level="architecture", recommended_stage="preproduction", late_cost="critical",
+      impact_cpu=1, impact_network=-2,
+      performance_gain=0.7, implementation_cost=4, complexity=5, confidence=0.85,
+      requires_prototype=True,
+      applicable_formats=["3D", "2.5D", "2D"],
+      pros=["Минимальный трафик", "Реплей — килобайты сида и команд", "Кроссплей проще"],
+      cons=["Самый медленный ПК тормозит всех", "Нет rejoin без снапшота", "Любой десинк — вылет"],
+      limitations=["P2P светит всю карту (maphack)", "Мультитред только read-only"],
+      application_steps=[
+          "Запретить float и wall-clock в симуляции, перейти на fixed-point.",
+          "Зафиксировать порядок итераций и seeded RNG.",
+          "Ввести input delay и turn buckets под пинг.",
+          "Добавить rolling checksum каждого тика и детект десинка.",
+          "Прогнать demo дважды и сравнить checksum побайтово.",
+      ],
+      verification_method="Двойной прогон реплея с побайтовым сравнением; CRC каждого тика.",
+      verification_tools=["Unreal Insights"],
+      source_key="GAFFER_TIMESTEP"),
+
+    M("quality_tier_scalability", "Тиры качества и scalability-группы",
+      None,
+      summary="Графика нарезается тирами (Low..Ultra) с per-platform overrides и адаптивным "
+              "переключением по FPS и температуре — один билд покрывает бюджетник и флагман.",
+      description="Процесс, а не эффект: замер min-spec, нарезка тиров (разрешение, тени, MSAA, "
+                  "LOD bias, async upload, качество текстур), переопределения под платформы, "
+                  "adaptive cap при росте variance (рваные 35-55 лучше зафиксировать на 30). "
+                  "Проектировать под sustained 55-70% пика: троттлинг приходит через 2-5 минут, "
+                  "а не на замере первой минуты.",
+      problem="Один конфиг графики либо тормозит на слабом, либо не использует сильное железо.",
+      level="setting", recommended_stage="prototype", late_cost="medium",
+      performance_gain=0.5, implementation_cost=2, complexity=2, confidence=0.9,
+      applicable_formats=["3D", "2.5D", "2D"],
+      pros=["Один билд на весь рынок", "Дешёвое внедрение", "Лечит троттлинг"],
+      cons=["Требует device farm", "Комбинаторика тиров и платформ"],
+      limitations=["Не заменяет оптимизацию сцены", "Арт-дирекшн должен заложить запас"],
+      application_steps=[
+          "Замерить min-spec и sustained-перф (не пик первой минуты).",
+          "Нарезать тиры: разрешение, тени, MSAA, дистанции, LOD bias, текстуры.",
+          "Задать per-platform overrides и adaptive cap по variance.",
+          "Прогнать 3 тира устройств по 15+ минут с термозамером.",
+          "Зафиксировать дефолтный тир под каждую платформу.",
+      ],
+      verification_method="Прогон на трёх тирах устройств от 15 минут; frametime-гистограммы.",
+      verification_tools=["Unity Profiler", "Snapdragon Profiler"],
+      source_key="UNITY_QUALITY"),
+
+    M("ml_frame_generation", "ML-генерация кадров",
+      None,
+      summary="Синтез промежуточных кадров между реальными: воспринимаемый FPS растёт, "
+              "реальный инпут-лаг — тоже. Допустима только от стабильных 60+ базовых.",
+      description="Пара к апскейлу, не замена оптимизации: генератор дорисовывает кадры, "
+                  "Reflex/XeLL обязателен, motion blur режется вдвое, в меню, кат-переходах "
+                  "и competitive — выключена. Без Quality/Performance-режимов апскейла 4K Ultra "
+                  "неиграбельна даже на топ-картах. Артефакты — shimmer на заборах и госты частиц.",
+      problem="Апскейла не хватает до целевого FPS, а снижать настройки уже некуда.",
+      level="setting", recommended_stage="production", late_cost="low",
+      impact_gpu=1, impact_vram=1,
+      quality_impact=-1,
+      performance_gain=0.6, implementation_cost=2, complexity=2, confidence=0.75,
+      requires_conditions=["Базовый FPS не ниже 60", "Не для competitive и меню"],
+      applicable_formats=["3D", "2.5D"],
+      pros=["Удвоение воспринимаемого FPS", "Спасает RT-режимы"],
+      cons=["+лаг ввода", "Артефакты на тонкой динамике", "VRAM под буферы истории"],
+      limitations=["Требует vendor-железо", "Не спасает неиграбельный base"],
+      application_steps=[
+          "Добиться стабильных 60+ базовых без генерации.",
+          "Включить генерацию только в геймплее, выключить в меню и катсценах.",
+          "Включить Reflex/XeLL и уполовинить motion blur.",
+          "Проверить ICAT на статике и pan-through-fence.",
+          "Замерить FrameView latency до и после.",
+      ],
+      verification_method="ICAT-сравнение и FrameView-замер задержки; slowed-video на shimmer.",
+      verification_tools=["RenderDoc", "Nsight Graphics"],
+      source_key="WIKI_DLSS"),
+
+    M("splitscreen_render_budget", "Бюджетирование split-screen",
+      None,
+      summary="Два вьюпорта — двойные draw calls, тени и render targets: отдельные пресеты "
+              "на 2p/3p, общие пост-эффекты, кастомный culling на две камеры.",
+      description="Кооп на одном экране умножает нагрузку: 2x shadow cascades, 2x targets в VRAM. "
+                  "Эталон — It Takes Two: агрессивные LOD и HLOD, половина пост-эффектов общая, "
+                  "на 3p — один каскад, без vegetation и motion blur, скрытие detail-объектов. "
+                  "Просесть нельзя ни в одной половине.",
+      problem="Split-screen удваивает нагрузку, а бюджеты посчитаны на один вьюпорт.",
+      level="production", recommended_stage="prototype", late_cost="high",
+      impact_gpu=2, impact_ram=1, impact_vram=1,
+      concept_impact=-1,
+      performance_gain=0.5, implementation_cost=3, complexity=3, confidence=0.8,
+      applicable_formats=["3D", "2.5D"],
+      pros=["Кооп-фишка без онлайна", "Дисциплинирует бюджеты всей игры"],
+      cons=["2x нагрузка на слабом железе", "Половина экрана — половина информации"],
+      limitations=["На base-консолях только 30fps", "Требует отдельных пресетов"],
+      application_steps=[
+          "Посчитать 2x/3x нагрузку: draws, тени, targets.",
+          "Завести отдельные пресеты на 2p и 3p (каскады, vegetation, blur).",
+          "Сделать пост-эффекты общими, culling — на две камеры.",
+          "Спрятать detail-объекты и refraction на дополнительных вью.",
+          "Прогнать stat unit отдельно по каждому вьюпорту.",
+      ],
+      verification_method="Замер thread-bound и времени кадра на каждый вьюпорт отдельно.",
+      verification_tools=["Unreal Insights", "RenderDoc"],
+      source_key="DF_ITTakesTWO"),
+
+    M("tickrate_budgeting", "Бюджетирование серверного тикрейта",
+      None,
+      summary="Тикрейт как деньги: 20/30/64/128 Гц напрямую конвертируются в CPU, bandwidth "
+              "и отзывчивость. Выбирается по жанру, а не по максимуму.",
+      description="Математика: 128 Гц требует ~125 КБ/с upload и в разы больше CPU, чем 64; "
+                  "20 Гц full-state при 50 мс пинга даёт лишь на 2 кадра больше, чем 60 Гц, "
+                  "ценой x3 bandwidth. Правило: 30 Гц — кооп и MMO, 64 — матчмейкинг, "
+                  "128 — только tournament. Сначала профайлить NetBroadcastTickTime, потом "
+                  "поднимать тик.",
+      problem="Высокий тикрейт поднимают вслепую и получают счёт за CPU и трафик.",
+      level="architecture", recommended_stage="preproduction", late_cost="critical",
+      impact_cpu=2, impact_network=2,
+      performance_gain=0.6, implementation_cost=3, complexity=3, confidence=0.85,
+      applicable_formats=["3D", "2.5D", "2D"],
+      pros=["Предсказуемая цена онлайна", "Отзывчивость там, где нужна"],
+      cons=["Высокий тик виден в счетах за флот", "Два баланса под два тикрейта"],
+      limitations=["Плохой канал высокий тик только ухудшает", "Rollback требует детерминизма"],
+      application_steps=[
+          "Замерить bandwidth тика и CPU симуляции на целевом онлайне.",
+          "Выбрать тик по жанру: 30 кооп, 64 матчмейкинг, 128 tournament.",
+          "Проверить upload клиентов под выбранный тик.",
+          "Прогнать tick stability p50/p99 и desync-кейсы на матч.",
+          "Зафиксировать тик до прототипа сети.",
+      ],
+      verification_method="Стабильность тика p50/p99, gunfire delay, packet loss по регионам.",
+      verification_tools=["Unreal Insights", "Unity Profiler"],
+      source_key="RIOT_TICK"),
+
+    M("bindless_uber_shaders", "Bindless-ресурсы и uber-шейдеры",
+      None,
+      summary="Весь список текстур биндится один раз с доступом по индексу, сотни пермутаций "
+              "схлопываются в few massive uber-shaders, draw calls мержатся compute-шейдером "
+              "в indirect-буфер.",
+      description="Альтернатива взрыву PSO: ~500 PSO вместо тысяч, десяток descriptor layouts, "
+                  "динамический мерж draw calls в indirect index buffer, переиспользуемый для "
+                  "depth prepass и lighting pass. Z-draw calls почти исчезают, нет wasted VS. "
+                  "Эталон — DOOM Eternal: уровни вдвое больше, ассетов на порядок больше, 60fps "
+                  "даже на base-консолях. Цена — сложность шейдерной инженерии.",
+      problem="Смены состояния и тысячи пермутаций шейдеров съедают CPU и память.",
+      level="algorithm", recommended_stage="prototype", late_cost="high",
+      impact_cpu=-2, impact_gpu=-1,
+      performance_gain=0.7, implementation_cost=4, complexity=5, confidence=0.7,
+      requires_hw_features=["Bindless Textures"],
+      applicable_formats=["3D"],
+      pros=["Исчезают function bottlenecks", "Агрессивный мерж геометрии возможен"],
+      cons=["Требует современного API и железа", "Отладка мега-шейдеров тяжела"],
+      limitations=["Мелкие indie-команды не потянут", "Инструменты захвата обязательны"],
+      application_steps=[
+          "Перевести материалы на bindless-дескрипторы с индексом.",
+          "Схлопнуть пермутации в uber-шейдеры, зафиксировать ~500 PSO.",
+          "Написать compute-мерж draw calls в indirect buffer.",
+          "Переиспользовать буфер для depth prepass и lighting pass.",
+          "Сверить число draws в захвате кадра до и после.",
+      ],
+      verification_method="Подсчёт draws и state changes в захвате кадра; дескрипторная статистика.",
+      verification_tools=["RenderDoc", "PIX"],
+      source_key="COENEN_DOOM"),
 ]
 
 EXTRA_LINKS: dict[str, dict[str, tuple[str, str, str]]] = {
@@ -1509,6 +1814,39 @@ EXTRA_CONFLICTS: list[dict] = [
                        "агентов одним батчем.",
         "resolution": "Применять совместно для сцен с большим числом 2D-агентов.",
         "source_key": "UE_SIGNIFICANCE",
+    },
+    # --- Альтернативные методы: баланс набора --------------------------------
+    {
+        "a_code": "deterministic_lockstep", "b_code": "multithreaded_physics_jobs",
+        "conflict_type": "conflict", "severity": 3,
+        "description": "Параллельные потоки ломают порядок симуляции: результат зависит от "
+                       "планировщика, lockstep расходится и даёт десинк.",
+        "resolution": "Параллелить только read-only чтения либо детерминированный планировщик.",
+        "source_key": "GAFFER_TIMESTEP",
+    },
+    {
+        "a_code": "ml_frame_generation", "b_code": "client_prediction_reconciliation",
+        "conflict_type": "conflict", "severity": 2,
+        "description": "Генерация добавляет лаг ввода, а предсказание требует мгновенной реакции: "
+                       "в competitive с FG играть нельзя.",
+        "resolution": "Не включать генерацию в competitive-режимах; Reflex обязателен.",
+        "source_key": "WIKI_DLSS",
+    },
+    {
+        "a_code": "pso_precaching_warmup", "b_code": "async_loading_pipeline",
+        "conflict_type": "synergy", "severity": 1,
+        "description": "Прогретые PSO убирают hitch, асинхронная загрузка убирает фризы: вместе "
+                       "дают гладкий стриминг без остановок кадра.",
+        "resolution": "Применять совместно для миров со стримингом.",
+        "source_key": "UNITY_SHADERLOAD",
+    },
+    {
+        "a_code": "quality_tier_scalability", "b_code": "hardware_raytraced_gi",
+        "conflict_type": "synergy", "severity": 1,
+        "description": "Тиры позволяют включать трассировку только там, где железо тянет, "
+                       "а не резать её для всех.",
+        "resolution": "Привязать RT-пресеты к верхним тирам и проверять на min-spec тира.",
+        "source_key": "UNITY_QUALITY",
     },
 ]
 
@@ -1998,6 +2336,11 @@ OPTIMIZATION_CODES = {
     "sprite_sheet_compression", "tilemap_layer_culling", "sprite_particle_atlas",
     "shadow_caster_2d_limits", "collision_layer_matrix", "post_effect_selective",
     "depth_prepass_early_z",
+    # Альтернативные методы Треков 1–2
+    "hiz_software_occlusion", "pso_precaching_warmup", "audio_occlusion_propagation",
+    "destruction_geometry_cache", "deterministic_lockstep", "quality_tier_scalability",
+    "ml_frame_generation", "splitscreen_render_budget", "tickrate_budgeting",
+    "bindless_uber_shaders",
 }
 
 
@@ -2015,10 +2358,152 @@ def all_methods() -> list[dict]:
     return out
 
 
+# ---------------------------------------------------------------------------
+# Связи Трека 1 для новых движков (CryEngine / Source / HeroEngine).
+# Только новые движки: слияние идёт по методам, поэтому существующие связи
+# unreal / unity / godot / custom не затираются (GRASP: информация — у метода).
+# Тип связи честный: direct — есть из коробки, partial/alternative — с работой
+# руками, missing — нет аналога (встроенное не абсолют).
+# ---------------------------------------------------------------------------
+TRACK1_ENGINE_LINKS: dict[str, dict[str, tuple[str, str, str]]] = {
+    "hierarchical_lod": {
+        "cryengine": ("ce_merged", "direct", "Merged Meshes и LOD-цепочки для открытого мира."),
+    },
+    "gpu_instancing_vegetation": {
+        "cryengine": ("ce_vegetation", "direct", "Инстансинг и покраска вегетации по маскам."),
+    },
+    "sdf_global_illumination": {
+        "cryengine": ("ce_svogi", "direct", "SVOGI/SVOTI: конусная трассировка по вокселям."),
+    },
+    "volumetric_half_resolution": {
+        "cryengine": ("ce_fog", "direct", "Объёмный туман и облака с половинным разрешением."),
+    },
+    "async_loading_pipeline": {
+        "cryengine": ("ce_merged", "partial", "Стриминг через merged-группы и LOD-дистанции."),
+        "source": ("s_vphysics", "missing", "Конвейера стриминга нет: BSP-хабы грузятся целиком."),
+        "heroengine": ("h_instancing", "alternative", "Вместо бесшовного стриминга — инстансинг планет."),
+    },
+    "gpu_compute_culling": {
+        "cryengine": ("ce_merged", "missing", "GPU-driven culling нет, только merged-батчи и дистанции."),
+    },
+    "cascaded_shadow_maps": {
+        "cryengine": ("ce_svogi", "partial", "Каскады есть, дальний план закрывает воксельное затенение."),
+    },
+    "fixed_timestep_physics": {
+        "source": ("s_vphysics", "direct", "Фиксированный шаг VPhysics/Rubikon с интерполяцией."),
+        "heroengine": ("h_hsl", "missing", "Фикс-тик задаётся скриптами, не движком."),
+    },
+    "physics_lod_sleeping": {
+        "source": ("s_vphysics", "direct", "Сон и пробуждение тел — базовый механизм VPhysics."),
+    },
+    "broadphase_spatial_partitioning": {
+        "source": ("s_vphysics", "partial", "Широкая фаза внутри VPhysics, без отдельного API."),
+    },
+    "network_relevancy_priority": {
+        "source": ("s_netcode", "partial", "Релевантность через PVS и дистанции, без графа зон."),
+        "heroengine": ("h_instancing", "partial", "Релевантность через инстансы и фазы вместо бесшовки."),
+        "cryengine": ("ce_audio", "missing", "Графа релевантности нет, только дистанции и LOD."),
+    },
+    "client_prediction_reconciliation": {
+        "source": ("s_netcode", "direct", "Предикт, интерполяция и компенсация задержек; в CS2 — sub-tick."),
+        "heroengine": ("h_cloud", "partial", "Предикт поверх авторитетного HeroCloud-сервера."),
+    },
+    "delta_compression_state": {
+        "source": ("s_netcode", "partial", "Дельта-снапшоты и сжатие состояния в тиках."),
+    },
+    "headless_dedicated_server": {
+        "source": ("s_netcode", "direct", "Выделенные серверы без графики — стандарт Source."),
+        "heroengine": ("h_cloud", "direct", "HeroCloud: симуляционные серверы как сервис."),
+    },
+    "world_partition_streaming": {
+        "heroengine": ("h_instancing", "alternative", "Бесшовной партиции нет: мир режется на инстансы планет."),
+    },
+    "temporal_upscaling": {
+        "source": ("s_vulkan", "missing", "Временного апскейлера нет, только MSAA и downscale."),
+        "heroengine": ("h_hsl", "missing", "Апскейлеров нет, только снижение разрешения."),
+    },
+    # --- Альтернативные методы: честные связки по движкам ------------------
+    "hiz_software_occlusion": {
+        "unreal": ("ue_nanite", "partial", "Nanite делает двухпроходное отсечение внутри, отдельного Hi-Z нет."),
+        "unity": ("u_occlusion", "partial", "Запечённая окклюзия покрывает статику, динамики — нет."),
+        "godot": ("g_occluder", "partial", "Окклюдеры расставляются вручную."),
+        "custom": ("c_render_graph", "direct", "Hi-Z проход в собственном графе рендера."),
+        "cryengine": ("ce_merged", "missing", "Отдельного Hi-Z нет, только merged-батчи и дистанции."),
+        "source": ("s_vulkan", "missing", "Программного Hi-Z нет, только areaportals."),
+        "heroengine": ("h_hsl", "missing", "Отсечение не строится, только дистанции."),
+    },
+    "pso_precaching_warmup": {
+        "unreal": ("ue_insights", "diagnostic", "Hitch-детект и контроль прогрева по Insights."),
+        "unity": ("u_profiler", "diagnostic", "Замер shader load time в Profiler."),
+        "godot": ("g_profiler", "diagnostic", "Контроль компиляции конвейеров."),
+        "custom": ("c_profiler", "direct", "Tracy-маркеры прогревов и CLI-захват."),
+        "source": ("s_vprof", "diagnostic", "Замер hitch при загрузке карт."),
+    },
+    "audio_occlusion_propagation": {
+        "cryengine": ("ce_audio", "direct", "Трассировка слышимости по геометрии и HRTF."),
+        "unreal": ("ue_chaos", "missing", "Аудио-окклюзии нет — Chaos только физика."),
+        "custom": ("c_manual", "missing", "Аудио-трассировка пишется самостоятельно."),
+        "godot": ("g_physics_server", "missing", "Лучи только для физики, не для звука."),
+        "source": ("s_vphysics", "missing", "Звуковой окклюзии нет."),
+        "heroengine": ("h_hsl", "missing", "Считается скриптами, не движком."),
+    },
+    "destruction_geometry_cache": {
+        "unreal": ("ue_chaos", "alternative", "Chaos — realtime-фрактура вместо запечённого playback."),
+        "unity": ("u_addressables", "partial", "Кэши стримятся бандлами."),
+        "godot": ("g_bg_loading", "partial", "Кэши подгружаются фоновым загрузчиком."),
+        "custom": ("c_streaming", "partial", "Кэши идут общим конвейером стриминга."),
+    },
+    "deterministic_lockstep": {
+        "source": ("s_netcode", "alternative", "Valve-модель — снапшоты и предикт, а не lockstep."),
+        "unity": ("u_netcode", "partial", "Netcode for Entities ближе к детерминизму."),
+        "godot": ("g_multiplayer", "partial", "Детерминизм собирается вручную поверх API."),
+        "custom": ("c_manual", "missing", "Фикс-точка и RNG пишутся самостоятельно."),
+        "heroengine": ("h_cloud", "alternative", "Авторитетный сим вместо lockstep."),
+    },
+    "quality_tier_scalability": {
+        "unity": ("u_quality", "direct", "Тиры качества и per-platform overrides."),
+        "unreal": ("ue_insights", "missing", "Scalability Groups настраиваются вручную."),
+        "godot": ("g_visibility", "missing", "Тиров нет, только ручные дистанции."),
+        "custom": ("c_manual", "missing", "Тиры и адаптивный cap пишутся самостоятельно."),
+    },
+    "ml_frame_generation": {
+        "unreal": ("ue_insights", "diagnostic", "Замер latency генерации."),
+        "unity": ("u_profiler", "diagnostic", "Замер latency генерации."),
+        "godot": ("g_profiler", "diagnostic", "Замер latency генерации."),
+        "custom": ("c_profiler", "diagnostic", "Замер latency через Tracy."),
+        "source": ("s_vprof", "diagnostic", "Замер pacing."),
+    },
+    "splitscreen_render_budget": {
+        "unreal": ("ue_hlod", "partial", "HLOD и proxy-LOD режут двойные draw calls."),
+        "unity": ("u_occlusion", "partial", "Окклюзия на две камеры."),
+        "godot": ("g_visibility", "partial", "Ручное управление видимостью на вью."),
+        "custom": ("c_render_graph", "alternative", "Два вью в собственном графе."),
+    },
+    "tickrate_budgeting": {
+        "source": ("s_netcode", "direct", "Тикрейт, interp и lagcomp — ядро netcode."),
+        "unity": ("u_netcode", "direct", "Тикрейт Netcode-пакетов."),
+        "godot": ("g_multiplayer", "partial", "Тик настраивается поверх API."),
+        "custom": ("c_manual", "missing", "Тик и bandwidth считаются самостоятельно."),
+        "heroengine": ("h_cloud", "partial", "Тик серверов HeroCloud."),
+    },
+    "bindless_uber_shaders": {
+        "custom": ("c_render_graph", "direct", "Bindless-дескрипторы в собственном графе."),
+        "unreal": ("ue_nanite", "alternative", "Nanite решает мерж иначе — кластерами."),
+        "unity": ("u_srp_batcher", "partial", "SRP Batcher режет смены состояний."),
+        "godot": ("g_multimesh", "missing", "Bindless нет, только MultiMesh."),
+        "source": ("s_vulkan", "partial", "Vulkan-бэкенд с дескрипторами."),
+    },
+}
+
+
 def all_links() -> dict[str, dict[str, tuple[str, str, str]]]:
     """Полный набор связей методов с инструментами движков."""
     merged: dict[str, dict[str, tuple[str, str, str]]] = {k: dict(v) for k, v in METHOD_ENGINE_LINKS.items()}
-    merged.update(EXTRA_LINKS)
+    # Глубокое слияние по методам: новый словарь не должен затирать связи
+    # других движков целиком (раньше update заменял весь метод).
+    for source in (EXTRA_LINKS, TRACK1_ENGINE_LINKS):
+        for method_code, per_engine in source.items():
+            merged.setdefault(method_code, {}).update(per_engine)
     return merged
 
 

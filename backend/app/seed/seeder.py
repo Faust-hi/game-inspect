@@ -34,6 +34,28 @@ def _load_json(name: str) -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _example_files() -> list[tuple[pathlib.Path, str]]:
+    """Файлы примеров игр со статусом по умолчанию.
+
+    Базовый файл и Трек 1 (по движкам) — опубликованный срез каталога.
+    Трек 2 (игры-фуроры для аргументации отчёта) — черновики: они живут в базе
+    для административного раздела, но не попадают в публичные рекомендации
+    (репозиторий отдаёт только опубликованное). Новый файл добавляется без
+    изменения кода (OCP), порядок детерминирован.
+    """
+    files: list[tuple[pathlib.Path, str]] = []
+    base = DATA_DIR / "game_examples.json"
+    if base.exists():
+        files.append((base, PUBLISHED))
+    track_dir = DATA_DIR / "track1"
+    if track_dir.is_dir():
+        files.extend((path, PUBLISHED) for path in sorted(track_dir.glob("*.json")))
+    track2_dir = DATA_DIR / "track2"
+    if track2_dir.is_dir():
+        files.extend((path, Status.DRAFT.value) for path in sorted(track2_dir.glob("*.json")))
+    return files
+
+
 def _upsert(db: Session, model, key: str, values: dict):
     obj = db.scalar(select(model).where(getattr(model, key) == values[key]))
     if obj is None:
@@ -141,15 +163,28 @@ def seed_conflicts(db: Session) -> int:
 
 def seed_examples(db: Session) -> int:
     count = 0
-    for data in _load_json("game_examples.json"):
-        if not data.get("source_url"):
+    for path, default_status in _example_files():
+        try:
+            rows = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
             continue
-        payload = {k: v for k, v in data.items() if hasattr(GameExample, k)}
-        payload.setdefault("status", PUBLISHED)
-        obj, created = _upsert(db, GameExample, "title", payload)
-        if created:
-            count += 1
-    db.flush()
+        if not isinstance(rows, list):
+            continue
+        for data in rows:
+            if not isinstance(data, dict) or not data.get("source_url"):
+                continue
+            payload = {k: v for k, v in data.items() if hasattr(GameExample, k)}
+            # Явный статус в файле важнее умолчания каталога: так Трек 2
+            # остаётся черновиком, даже если запись уже была опубликована.
+            if "status" not in payload:
+                payload["status"] = default_status
+            _, created = _upsert(db, GameExample, "title", payload)
+            if created:
+                count += 1
+        # Сброс после каждого файла: _upsert ищет через SELECT, а незафлашенные
+        # вставки того же title из прошлого файла он не увидит — будет дубль.
+        # Порядок файлов детерминирован, поэтому track1/* побеждает legacy.
+        db.flush()
     return count
 
 

@@ -134,6 +134,11 @@ class Method(Base):
     verification_method: Mapped[str] = mapped_column(Text, default="")
     verification_tools: Mapped[list[str]] = mapped_column(JSON, default=list)
 
+    # Алгоритм применения: упорядоченные шаги внедрения решения.
+    # Отдельно от description, чтобы карточка метода отвечала на вопрос «как
+    # внедрить», а не только «что это и зачем».
+    application_steps: Mapped[list[str]] = mapped_column(JSON, default=list)
+
     status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
     source_title: Mapped[str] = mapped_column(String(300), default="")
     source_url: Mapped[str] = mapped_column(String(600), default="")

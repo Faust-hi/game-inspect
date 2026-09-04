@@ -351,7 +351,7 @@
     "multiplayer": true,
     "player_count": 16,
     "features": ["large_scale_terrain", "procedural_vegetation", "ai_pathfinding", "particle_systems", "save_system", "multiplayer_netcode", "ui_rendering"],
-    "optimizations_used": ["job_system_multithreading", "spatial_partitioning", "fixed_timestep_physics", "physics_lod"],
+    "optimizations_used": ["job_system_multithreading", "spatial_partitioning", "fixed_timestep_physics", "physics_lod", "deterministic_lockstep"],
     "summary": "Wube профилирует реальные сейвы и оптимизирует детерминированную симуляцию под цель 60 UPS: робопорты теперь отключаются, когда им нечего делать, лампы получили режим «всегда включено», логистические роботы обновляются не каждый тик, а по «намерению движения» (не чаще раза в 20 тиков в движении и 60 тиков на месте) с отрисовкой предсказанной позиции, а карта раскрытия переведена на счётчики по чанкам с обновлением одного бакета за тик. Отдельно описана неудача: многопоточность электросети не дала выигрыша, потому что упёрлась в пропускную способность памяти.",
     "performance_outcome": "Робопорты: 1 мс → 0,025 мс на тик; многопоточные control behavior: +9,5% на боевом сейве и 14,9× на синтетическом (131 с → 8,2 с); логистические роботы: +10–25% на сейвах с большим числом ботов.",
     "source_title": "Friday Facts #421 — Optimizations 2.0 (официальный блог Factorio)",

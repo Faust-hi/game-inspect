@@ -243,6 +243,9 @@ class EngineCode(str, Enum):
     UNREAL = "unreal"
     UNITY = "unity"
     GODOT = "godot"
+    CRYENGINE = "cryengine"
+    SOURCE = "source"
+    HEROENGINE = "heroengine"
     CUSTOM = "custom"
 
     @property
@@ -251,6 +254,9 @@ class EngineCode(str, Enum):
             "unreal": "Unreal Engine",
             "unity": "Unity",
             "godot": "Godot",
+            "cryengine": "CryEngine",
+            "source": "Source / Source 2",
+            "heroengine": "HeroEngine",
             "custom": "Собственный движок",
         }[self.value]
 

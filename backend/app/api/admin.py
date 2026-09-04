@@ -24,7 +24,7 @@ from ..schemas.catalog import BasketRequest
 from .. import repositories
 from ..seed import seeder
 from ..services import publication
-from .catalog import method_to_out
+from .catalog import method_to_out, used_in_map
 
 logger = logging.getLogger("gamedev_dss.admin")
 
@@ -125,6 +125,7 @@ class MethodIn(BaseModel):
     limitations: list[str] = Field(default_factory=list, max_length=24)
     verification_method: str = ""
     verification_tools: list[str] = Field(default_factory=list, max_length=24)
+    application_steps: list[str] = Field(default_factory=list, max_length=24)
     source_title: str = Field(default="", max_length=300)
     source_url: str = Field(default="", max_length=600)
     source_date: str = Field(default="", max_length=20)
@@ -145,7 +146,8 @@ class StatusIn(BaseModel):
 @router.get("/methods", summary="Список методов со всеми статусами")
 def admin_methods(db: Session = Depends(get_db)):
     rows = db.scalars(select(Method).order_by(Method.code)).all()
-    return [method_to_out(db, m) for m in rows]
+    mapping = used_in_map(db)
+    return [method_to_out(db, m, used_in=mapping.get(m.code, [])) for m in rows]
 
 
 @router.post("/methods", summary="Добавить или обновить метод")

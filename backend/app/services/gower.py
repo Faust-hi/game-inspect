@@ -40,7 +40,16 @@ def canonical_engine(value: str | None) -> str | None:
         return "unity"
     if "godot" in text:
         return "godot"
-    for marker in ("source", "cryengine", "id tech", "anvil", "decima", "fox", "havok"):
+    # Движки Трека 1 — отдельные семейства, чтобы похожесть различала их,
+    # а не схлопывала в «custom». Остальные (id tech, anvil, decima и т.д.) —
+    # это Трек 2, они по-прежнему сводятся к «custom».
+    if "cryengine" in text or "cry engine" in text:
+        return "cryengine"
+    if "heroengine" in text or "hero engine" in text:
+        return "heroengine"
+    if "source" in text:
+        return "source"
+    for marker in ("id tech", "anvil", "decima", "fox", "havok"):
         if marker in text:
             return "custom"
     return "custom"

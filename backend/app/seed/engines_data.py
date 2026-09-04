@@ -50,11 +50,51 @@ ENGINES: list[dict] = [
                  "но контроль над производительностью полный.",
         "docs_url": "",
     },
+    {
+        # Трек 1: CryEngine — рендер растительности/дальности, SVOGI/SVOTI, туман как
+        # оптимизация. Встроенное не абсолют: KCD отказался от SVOGI в пользу запечённого.
+        "code": "cryengine",
+        "name": "CryEngine",
+        "vendor": "Crytek",
+        "versions": ["3.x", "V (5.x)"],
+        "supported_formats": ["3D"],
+        "notes": "Открытые пространства, вегетация с touch-bending, SVOGI/SVOTI, volumetric fog. "
+                 "Сильная сторона — дальность и природа; цена — CPU-потоки и ручной LOD/стриминг.",
+        "docs_url": "https://docs.cryengine.com",
+    },
+    {
+        # Трек 1: Source / Source 2 — физика как геймплей, stencil-порталы,
+        # competitive tick/interp/lagcomp, Vulkan/Rubikon в Source 2.
+        "code": "source",
+        "name": "Source / Source 2",
+        "vendor": "Valve",
+        "versions": ["Source 2004", "Source 2007 (OB)", "Source 2013", "Source 2"],
+        "supported_formats": ["3D"],
+        "notes": "Коридоры и арены, VPhysics/QPhysics со сном тел, BSP/порталы, тикрейт и "
+                 "компенсация задержек. В Source 2 — Vulkan, Rubikon, Panorama, sub-tick.",
+        "docs_url": "https://developer.valvesoftware.com/wiki/Main_Page",
+    },
+    {
+        # Трек 1: HeroEngine — MMO-стриминг и live-коллаборация. Shipped-подтверждений
+        # мало (SWTOR-форк, Faxion, Zosimos): кейсы честно помечены статусом.
+        "code": "heroengine",
+        "name": "HeroEngine",
+        "vendor": "Idea Fabrik / Laniatus",
+        "versions": ["1.x", "2.x"],
+        "supported_formats": ["3D"],
+        "notes": "MMO-платформа: HeroBlade live-edit, HeroCloud, инстансинг планет. Быстрый старт "
+                 "малой командой ценой single-thread наследия, DX9 и вендор-зависимости.",
+        "docs_url": "https://heroengine.com",
+    },
 ]
 
 
 def _tool(code: str, engine: str, name: str, subsystem: str, description: str,
-          tool_type: str = "runtime", docs_key: str | None = None) -> dict:
+          tool_type: str = "runtime", docs_key: str | None = None,
+          docs_url: str | None = None, source_title: str = "") -> dict:
+    # Прямая ссылка имеет приоритет: нужна движкам Трека 1 (CryEngine / Source /
+    # HeroEngine), чьи доки не входят в реестр SOURCES. Старые вызовы с docs_key
+    # работают как раньше — поведение для них не меняется.
     s = src(docs_key)
     return {
         "code": code,
@@ -63,8 +103,8 @@ def _tool(code: str, engine: str, name: str, subsystem: str, description: str,
         "subsystem": subsystem,
         "description": description,
         "tool_type": tool_type,
-        "docs_url": s["url"],
-        "source_title": s["title"],
+        "docs_url": docs_url if docs_url is not None else s["url"],
+        "source_title": source_title or s["title"],
     }
 
 
@@ -217,4 +257,57 @@ ENGINE_TOOLS: list[dict] = [
           "Инструментированный профилировщик с покадровой трассировкой.", "profiler"),
     _tool("c_manual", "custom", "Реализация вручную", "общее",
           "Встроенного аналога нет: решение реализуется полностью силами команды.", "runtime"),
+
+    # ---------------- CryEngine (Трек 1, минимум) ----------------
+    _tool("ce_vegetation", "cryengine", "Vegetation + Touch Bending", "рендер",
+          "Покраска вегетации по маскам, wind/detail bending на GPU, спрайты вдали.",
+          docs_url="https://docs.cryengine.com", source_title="CryEngine Docs"),
+    _tool("ce_svogi", "cryengine", "SVOGI / SVOTI", "освещение",
+          "Воксельное глобальное освещение: конусная трассировка по разреженному октодереву.",
+          docs_url="https://docs.cryengine.com", source_title="CryEngine Docs"),
+    _tool("ce_fog", "cryengine", "Volumetric Fog / Clouds", "атмосфера",
+          "Объёмный туман и облака; туман одновременно арт-приём и оптимизация дальности.",
+          docs_url="https://docs.cryengine.com", source_title="CryEngine Docs"),
+    _tool("ce_merged", "cryengine", "Merged Meshes / HLOD", "мир",
+          "Слияние статики и LOD-цепочки для снижения draw calls открытого мира.",
+          docs_url="https://docs.cryengine.com", source_title="CryEngine Docs"),
+    _tool("ce_audio", "cryengine", "CryAudio + окклюзия", "аудио",
+          "Трассировка слышимости по геометрии, HRTF, аттенюация по материалам.",
+          docs_url="https://docs.cryengine.com", source_title="CryEngine Docs"),
+
+    # ---------------- Source / Source 2 (Трек 1, минимум) ----------------
+    _tool("s_vphysics", "source", "VPhysics / Rubikon", "физика",
+          "Твёрдые тела со сном/пробуждением, substance-материалы, констрейнты; в Source 2 — Rubikon.",
+          docs_url="https://developer.valvesoftware.com/wiki/Main_Page",
+          source_title="Valve Developer Community"),
+    _tool("s_portal", "source", "Stencil-порталы / BSP", "рендер",
+          "Рекурсивный stencil-рендер порталов и BSP/PVS-отсечение коридорных сцен.",
+          docs_url="https://developer.valvesoftware.com/wiki/Main_Page",
+          source_title="Valve Developer Community"),
+    _tool("s_netcode", "source", "Tick / Interp / Lagcomp", "сеть",
+          "Тикрейт, интерполяция и компенсация задержек; в CS2 — sub-tick с меткой времени.",
+          docs_url="https://developer.valvesoftware.com/wiki/Main_Page",
+          source_title="Valve Developer Community"),
+    _tool("s_vulkan", "source", "Source 2 Vulkan-рендер", "рендер",
+          "Многопоточный Vulkan-рендер с батчингом submit и кэшем конвейеров (уроки Dota 2).",
+          docs_url="https://developer.valvesoftware.com/wiki/Main_Page",
+          source_title="Valve Developer Community"),
+    _tool("s_vprof", "source", "VProf / net_graph", "профилирование",
+          "Внутриигровой профайлер кадра и сетевой граф: тик, choke/loss, interp.",
+          docs_url="https://developer.valvesoftware.com/wiki/Main_Page",
+          source_title="Valve Developer Community"),
+
+    # ---------------- HeroEngine (Трек 1, минимум) ----------------
+    _tool("h_blade", "heroengine", "HeroBlade", "мир",
+          "Live-редактирование мира всей командой на одном дев-сервере без nightly builds.",
+          docs_url="https://heroengine.com", source_title="HeroEngine"),
+    _tool("h_cloud", "heroengine", "HeroCloud", "сеть",
+          "Хостинг, биллинг и симуляционные серверы MMO как сервис.",
+          docs_url="https://heroengine.com", source_title="HeroEngine"),
+    _tool("h_instancing", "heroengine", "Инстансинг планет / шардинг", "сеть",
+          "Копии зон и фаззинг вместо бесшовности при тысячах игроков.",
+          docs_url="https://heroengine.com", source_title="HeroEngine"),
+    _tool("h_hsl", "heroengine", "HeroScript (HSL)", "скрипты",
+          "Скриптовый язык геймплея поверх C++/C# ядра.",
+          docs_url="https://heroengine.com", source_title="HeroEngine"),
 ]
