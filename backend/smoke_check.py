@@ -20,7 +20,6 @@ import urllib.error
 import urllib.request
 
 BASE_DEFAULT = "http://127.0.0.1:8000"
-ADMIN_TOKEN = "admin"
 
 # Сценарии из раздела 8 плана.
 SCENARIOS = {
@@ -67,12 +66,10 @@ def check(condition: bool, message: str) -> None:
         failures.append(message)
 
 
-def call(method: str, path: str, payload: dict | None = None, token: str | None = None):
+def call(method: str, path: str, payload: dict | None = None):
     data = json.dumps(payload).encode() if payload is not None else None
     request = urllib.request.Request(f"{args.base}{path}", data=data, method=method)
     request.add_header("Content-Type", "application/json")
-    if token:
-        request.add_header("x-admin-token", token)
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
             return response.status, json.loads(response.read() or b"{}")
@@ -180,11 +177,10 @@ def main() -> int:
         status, loaded = call("GET", f"/api/projects/{saved['public_id']}")
         check(status == 200 and loaded.get("basket") == basket, "проект не загружается")
 
-    # Административный раздел.
-    check(call("GET", "/api/admin/overview")[0] == 401, "административный раздел доступен без токена")
-    status, overview = call("GET", "/api/admin/overview", token=ADMIN_TOKEN)
+    # Административный раздел (локально открыт).
+    status, overview = call("GET", "/api/admin/overview")
     check(status == 200 and overview, "обзор административного раздела недоступен")
-    status, validation = call("POST", "/api/admin/validate", {}, token=ADMIN_TOKEN)
+    status, validation = call("POST", "/api/admin/validate", {})
     check(status == 200, "проверка целостности базы не выполнена")
     print(f"Административный раздел: записей в обзоре {len(overview)}, "
           f"замечаний целостности {validation.get('total', 0)}")

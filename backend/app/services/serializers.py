@@ -6,8 +6,39 @@
 """
 from __future__ import annotations
 
-from ..models.entities import GameExample, HardwareCPU, HardwareGPU
-from ..schemas.catalog import GameExampleOut, HardwareCPUOut, HardwareGPUOut
+from sqlalchemy.orm import Session
+
+from ..models.entities import Engine, EngineTool, GameExample, HardwareCPU, HardwareGPU, MethodEngineLink
+from ..models.enums import RelationType
+from ..schemas.catalog import GameExampleOut, HardwareCPUOut, HardwareGPUOut, MethodEngineLinkOut
+
+
+def label_of(enum_cls, value: str, default: str = "") -> str:
+    """Человекочитаемая метка значения перечисления."""
+    try:
+        return enum_cls(value).label
+    except ValueError:
+        return default
+
+
+def link_out(db: Session, link: MethodEngineLink) -> MethodEngineLinkOut:
+    """Связь метода с инструментом движка в публичном представлении."""
+    tool: EngineTool | None = db.get(EngineTool, link.tool_id)
+    engine: Engine | None = db.get(Engine, tool.engine_id) if tool else None
+    try:
+        label = RelationType(link.relation_type).label
+    except ValueError:
+        label = link.relation_type
+    return MethodEngineLinkOut(
+        engine_code=engine.code if engine else "",
+        engine_name=engine.name if engine else "",
+        tool_code=tool.code if tool else "",
+        tool_name=tool.name if tool else "",
+        relation_type=link.relation_type,
+        relation_label=label,
+        note=link.note,
+        docs_url=tool.docs_url if tool else "",
+    )
 
 
 def example_out(example: GameExample) -> GameExampleOut:

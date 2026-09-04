@@ -1,6 +1,7 @@
 /** Экран 4. Вкладки вариантов реализации функций. */
 import { useEffect, useMemo, useState } from 'react';
 import { useEnsureResult, useStore } from '../store';
+import { methodsByCode as buildMethodMap } from '../catalogUtils';
 import { RecommendationList } from '../components/RecommendationList';
 import { Badge, Callout, Card, Empty, Loading, Tabs } from '../components/ui';
 
@@ -9,10 +10,7 @@ export function SolutionsScreen({ onCompare }: { onCompare: (codes: string[]) =>
     useStore();
   const [tab, setTab] = useState<string>('');
 
-  const methodsByCode = useMemo(
-    () => Object.fromEntries(catalog.methods.map((method) => [method.code, method])),
-    [catalog.methods],
-  );
+  const methodsByCode = useMemo(() => buildMethodMap(catalog.methods), [catalog.methods]);
 
   const engineName =
     catalog.engines.find((engine) => engine.code === profile.engine)?.name ?? profile.engine;

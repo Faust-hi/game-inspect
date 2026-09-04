@@ -1,4 +1,4 @@
-"""Подключение к БД. Диалект определяется строкой подключения (SQLite / PostgreSQL)."""
+"""Подключение к локальной SQLite-базе."""
 from __future__ import annotations
 
 from sqlalchemy import create_engine, event
@@ -8,37 +8,34 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from .config import settings
 
 
-def _engine_kwargs(url: str) -> dict:
-    if url.startswith("sqlite"):
-        return {"connect_args": {"check_same_thread": False}}
-    return {"pool_pre_ping": True, "pool_size": 5, "max_overflow": 10}
+engine = create_engine(
+    settings.DATABASE_URL,
+    echo=settings.DB_ECHO,
+    future=True,
+    connect_args={"check_same_thread": False},
+)
 
 
-engine = create_engine(settings.DATABASE_URL, echo=settings.DB_ECHO, future=True, **_engine_kwargs(settings.DATABASE_URL))
+@event.listens_for(Engine, "connect")
+def _set_sqlite_pragma(dbapi_connection, _connection_record):
+    """Включает внешние ключи и WAL.
 
-
-if engine.dialect.name == "sqlite":
-
-    @event.listens_for(Engine, "connect")
-    def _set_sqlite_pragma(dbapi_connection, _connection_record):
-        """Включает внешние ключи и WAL.
-
-        SQLite по умолчанию не проверяет внешние ключи: описанные в модели
-        связи существуют только «на бумаге», и удаление родительской записи
-        оставляет осиротевшие строки. Без этого PRAGMA каскадное удаление,
-        описанное в моделях, не работает.
-        """
-        cursor = dbapi_connection.cursor()
+    SQLite по умолчанию не проверяет внешние ключи: описанные в модели
+    связи существуют только «на бумаге», и удаление родительской записи
+    оставляет осиротевшие строки. Без этого PRAGMA каскадное удаление,
+    описанное в моделях, не работает.
+    """
+    cursor = dbapi_connection.cursor()
+    try:
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.execute("PRAGMA synchronous=NORMAL")
         try:
-            cursor.execute("PRAGMA foreign_keys=ON")
-            cursor.execute("PRAGMA synchronous=NORMAL")
-            try:
-                # WAL недоступен для баз на сетевых дисках: это не повод не запускаться.
-                cursor.execute("PRAGMA journal_mode=WAL")
-            except Exception:  # noqa: BLE001 — второстепенная настройка
-                pass
-        finally:
-            cursor.close()
+            # WAL недоступен для баз на сетевых дисках: это не повод не запускаться.
+            cursor.execute("PRAGMA journal_mode=WAL")
+        except Exception:  # noqa: BLE001 — второстепенная настройка
+            pass
+    finally:
+        cursor.close()
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, expire_on_commit=False, future=True)
 

@@ -8,11 +8,9 @@ import type {
   GameFunction,
   HardwareCPU,
   HardwareGPU,
-  LoadProfile,
   Method,
   ProjectProfile,
   RecommendationResult,
-  SimilarGame,
   ValidationIssue,
 } from './types';
 
@@ -79,6 +77,17 @@ export class ApiRequestError extends Error {
   }
 }
 
+async function throwIfError(response: Response): Promise<void> {
+  if (response.ok) return;
+  let payload: unknown = null;
+  try {
+    payload = await response.json();
+  } catch {
+    /* ответ без тела — остаётся сообщение по коду состояния */
+  }
+  throw parseApiError(payload, response.status);
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${BASE}${path}`, {
     ...init,
@@ -87,15 +96,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       ...(init?.headers ?? {}),
     },
   });
-  if (!response.ok) {
-    let payload: unknown = null;
-    try {
-      payload = await response.json();
-    } catch {
-      /* ответ без тела — остаётся сообщение по коду состояния */
-    }
-    throw parseApiError(payload, response.status);
-  }
+  await throwIfError(response);
   return (await response.json()) as T;
 }
 
@@ -119,24 +120,6 @@ export const api = {
       signal,
     }),
 
-  loadProfile: (profile: ProjectProfile, basket: string[]) =>
-    request<LoadProfile>('/load-profile', {
-      method: 'POST',
-      body: JSON.stringify({ profile, basket }),
-    }),
-
-  similarGames: (profile: ProjectProfile, basket: string[]) =>
-    request<SimilarGame[]>('/similar-games', {
-      method: 'POST',
-      body: JSON.stringify({ profile, basket }),
-    }),
-
-  hardwareEstimate: (profile: ProjectProfile, basket: string[]) =>
-    request<import('./types').HardwareEstimate>('/hardware-estimate', {
-      method: 'POST',
-      body: JSON.stringify({ profile, basket }),
-    }),
-
   saveProject: (profile: ProjectProfile, basket: string[]) =>
     request<{ public_id: string }>('/projects', {
       method: 'POST',
@@ -149,33 +132,10 @@ export const api = {
     ),
 };
 
-/** Административный раздел. Токен хранится в localStorage. */
-export function adminToken(): string {
-  return localStorage.getItem('dss_admin_token') ?? '';
-}
-
-export function setAdminToken(token: string): void {
-  localStorage.setItem('dss_admin_token', token);
-}
-
-function adminHeaders(): Record<string, string> {
-  return { 'x-admin-token': adminToken() };
-}
-
+/** Административный раздел. Локальный режим: без токена. */
 async function adminRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${BASE}${path}`, {
-    ...init,
-    headers: { ...adminHeaders(), ...(init?.headers ?? {}) },
-  });
-  if (!response.ok) {
-    let payload: unknown = null;
-    try {
-      payload = await response.json();
-    } catch {
-      /* ответ без тела */
-    }
-    throw parseApiError(payload, response.status);
-  }
+  const response = await fetch(`${BASE}${path}`, init);
+  await throwIfError(response);
   return (await response.json()) as T;
 }
 
@@ -187,7 +147,7 @@ export const adminApi = {
   setStatus: (code: string, status: string) =>
     adminRequest<{ code: string; status: string }>(`/admin/methods/${code}/status`, {
       method: 'PATCH',
-      headers: { ...adminHeaders(), 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     }),
   deleteMethod: (code: string) =>
@@ -198,18 +158,9 @@ export const adminApi = {
     form.append('file', file);
     const response = await fetch(`${BASE}/admin/import/${entity}`, {
       method: 'POST',
-      headers: adminHeaders(),
       body: form,
     });
-    if (!response.ok) {
-      let payload: unknown = null;
-      try {
-        payload = await response.json();
-      } catch {
-        /* ответ без тела */
-      }
-      throw parseApiError(payload, response.status);
-    }
+    await throwIfError(response);
     return (await response.json()) as { entity: string; created: number; updated: number; skipped: number };
   },
 };

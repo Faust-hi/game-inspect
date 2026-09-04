@@ -292,25 +292,46 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const resultStale = result !== null && resultKey !== null && resultKey !== inputKey;
 
-  const value: ProjectStore = {
-    profile,
-    basket,
-    result,
-    resultKey,
-    inputKey,
-    resultStale,
-    catalog,
-    calculating,
-    calculateError,
-    updateProfile,
-    resetProfile,
-    toggleBasket,
-    setBasket,
-    clearBasket,
-    calculate,
-    reloadCatalog,
-    loadProject,
-  };
+  const value: ProjectStore = useMemo(
+    () => ({
+      profile,
+      basket,
+      result,
+      resultKey,
+      inputKey,
+      resultStale,
+      catalog,
+      calculating,
+      calculateError,
+      updateProfile,
+      resetProfile,
+      toggleBasket,
+      setBasket,
+      clearBasket,
+      calculate,
+      reloadCatalog,
+      loadProject,
+    }),
+    [
+      profile,
+      basket,
+      result,
+      resultKey,
+      inputKey,
+      resultStale,
+      catalog,
+      calculating,
+      calculateError,
+      updateProfile,
+      resetProfile,
+      toggleBasket,
+      setBasket,
+      clearBasket,
+      calculate,
+      reloadCatalog,
+      loadProject,
+    ],
+  );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

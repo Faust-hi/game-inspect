@@ -78,16 +78,8 @@ def _largest_impact(profile: ProjectProfile) -> float:
     )
 
 
-def estimate_hardware(
-    db: Session,
-    profile: ProjectProfile,
-    methods: list,
-    similar_examples: int = 0,
-) -> HardwareEstimateOut:
-    """Рассчитать ориентировочную минимальную конфигурацию."""
-    caveats: list[str] = []
-
-    # --- Коэффициенты проекта --------------------------------------------
+def _load_indices(profile: ProjectProfile, methods: list) -> dict:
+    """Нагрузочные индексы GPU/CPU и оценка памяти по профилю и решениям."""
     res = _resolution_factor(profile.target_resolution)
     fps = _fps_factor(profile.target_fps)
     quality = QUALITY_FACTOR.get(profile.target_quality, 1.0)
@@ -104,7 +96,6 @@ def estimate_hardware(
     if profile.multiplayer:
         feature_cpu += 0.15 + 0.1 * min(1.0, profile.player_count / 32)
 
-    # --- Учёт выбранных решений ------------------------------------------
     gpu_method = 1.0 + 0.06 * sum(m.impact_gpu for m in methods)
     cpu_method = 1.0 + 0.07 * sum(m.impact_cpu for m in methods)
     vram_method = 0.6 * sum(m.impact_vram for m in methods)
@@ -115,24 +106,70 @@ def estimate_hardware(
     gpu_index = GPU_CALIBRATION * res * fps * quality * content * feature_gpu * gpu_method
     cpu_index = CPU_CALIBRATION * content * feature_cpu * cpu_method * (0.6 + 0.4 * fps)
 
-    # --- Оценка памяти ----------------------------------------------------
     vram_gb = 1.4 + 2.0 * res + 2.4 * (quality - 0.7) + 1.2 * (content - 1.0) + vram_method
     vram_gb = max(1.5, round(vram_gb, 1))
     ram_gb = 4.0 + 4.0 * content + 2.0 * profile.object_count_effective + ram_method
     ram_gb = max(4.0, round(ram_gb, 1))
 
-    # --- Подбор референсной конфигурации ---------------------------------
+    required_hw = sorted({
+        feature for m in methods for feature in (m.requires_hw_features or [])
+    })
+    return {
+        "gpu_index": gpu_index, "cpu_index": cpu_index,
+        "vram_gb": vram_gb, "ram_gb": ram_gb,
+        "required_rt": any("Hardware Ray Tracing" in (m.requires_hw_features or []) for m in methods),
+        "required_hw": required_hw,
+    }
+
+
+def _pick_gpu(
+    pool: list[HardwareGPU], index: float, *, required_rt: bool,
+    vram_limit_gb: float | None, vram_gb: float,
+) -> tuple[HardwareGPU | None, bool]:
+    """Выбрать видеокарту. Второй элемент — признак «требование не выполнено».
+
+    Аппаратная трассировка лучей — обязательная возможность, а не пожелание:
+    если выбранные решения её требуют, видеокарта без RT не подходит ни при
+    какой производительности.
+    """
+    if required_rt:
+        pool = [g for g in pool if _supports_ray_tracing(g)]
+        if not pool:
+            return None, True
+    # Предел видеопамяти отсекает карты, в которые проект не помещается.
+    if vram_limit_gb is not None:
+        fitted = [g for g in pool if g.vram_gb >= vram_gb]
+        if fitted:
+            pool = fitted
+    candidates = [g for g in pool if g.raster_score >= index]
+    if not candidates:
+        return None, False
+    # Из подходящих выбираем наиболее скромную по классу и производительности.
+    return min(candidates, key=lambda g: (g.perf_class, g.raster_score)), False
+
+
+def _pick_cpu(pool: list[HardwareCPU], index: float) -> HardwareCPU | None:
+    candidates = [c for c in pool if c.multi_thread_score >= index]
+    if not candidates:
+        return None
+    return min(candidates, key=lambda c: (c.perf_class, c.multi_thread_score))
+
+
+def _alternatives(rows, reference):
+    """Альтернативы: тот же класс, но более современные записи."""
+    if reference is None:
+        return []
+    same_class = [r for r in rows if r.perf_class == reference.perf_class and r.model != reference.model]
+    return sorted(same_class, key=lambda r: r.release_year, reverse=True)[:4]
+
+
+def _pick_references(db: Session, indices: dict, profile: ProjectProfile) -> dict:
+    """Референсные CPU/GPU по опубликованному каталогу и обязательным требованиям."""
     # Только опубликованные записи: снятое с публикации оборудование не должно
     # попадать в оценку.
     gpus = sorted(repositories.hardware_gpu(db), key=lambda g: g.raster_score)
     cpus = sorted(repositories.hardware_cpu(db), key=lambda c: c.multi_thread_score)
-
-    required_rt = any(
-        "Hardware Ray Tracing" in (m.requires_hw_features or []) for m in methods
-    )
-    required_hw = sorted({
-        feature for m in methods for feature in (m.requires_hw_features or [])
-    })
+    vram_gb = indices["vram_gb"]
 
     # Заданные пользователем пределы памяти — обязательные ограничения, а не
     # справочные числа. Нарушение фиксируется отдельно: молча вернуть
@@ -143,36 +180,18 @@ def estimate_hardware(
             f"Требуется {vram_gb:.1f} ГБ видеопамяти при заданном пределе "
             f"{profile.vram_limit_gb:.1f} ГБ."
         )
+    ram_gb = indices["ram_gb"]
     if profile.ram_limit_gb is not None and ram_gb > profile.ram_limit_gb:
         unmet.append(
             f"Требуется {ram_gb:.1f} ГБ оперативной памяти при заданном пределе "
             f"{profile.ram_limit_gb:.1f} ГБ."
         )
 
-    def pick_gpu(pool: list[HardwareGPU], index: float) -> tuple[HardwareGPU | None, bool]:
-        """Выбрать видеокарту. Второй элемент — признак «требование не выполнено».
-
-        Аппаратная трассировка лучей — обязательная возможность, а не пожелание:
-        если выбранные решения её требуют, видеокарта без RT не подходит ни при
-        какой производительности. Раньше в такой ситуации подбиралась обычная
-        карта с предупреждением, хотя интерфейс утверждает обратное.
-        """
-        if required_rt:
-            pool = [g for g in pool if _supports_ray_tracing(g)]
-            if not pool:
-                return None, True
-        # Предел видеопамяти отсекает карты, в которые проект не помещается.
-        if profile.vram_limit_gb is not None:
-            fitted = [g for g in pool if g.vram_gb >= vram_gb]
-            if fitted:
-                pool = fitted
-        candidates = [g for g in pool if g.raster_score >= index]
-        if not candidates:
-            return None, False
-        # Из подходящих выбираем наиболее скромную по классу и производительности.
-        return min(candidates, key=lambda g: (g.perf_class, g.raster_score)), False
-
-    reference_gpu, rt_missing = pick_gpu(gpus, gpu_index)
+    caveats: list[str] = []
+    reference_gpu, rt_missing = _pick_gpu(
+        gpus, indices["gpu_index"], required_rt=indices["required_rt"],
+        vram_limit_gb=profile.vram_limit_gb, vram_gb=vram_gb,
+    )
     exceeds = False
     if reference_gpu is None:
         exceeds = True
@@ -199,13 +218,7 @@ def estimate_hardware(
             "производительной и укладывающейся в предел."
         )
 
-    def pick_cpu(pool: list[HardwareCPU], index: float) -> HardwareCPU | None:
-        candidates = [c for c in pool if c.multi_thread_score >= index]
-        if not candidates:
-            return None
-        return min(candidates, key=lambda c: (c.perf_class, c.multi_thread_score))
-
-    reference_cpu = pick_cpu(cpus, cpu_index)
+    reference_cpu = _pick_cpu(cpus, indices["cpu_index"])
     if reference_cpu is None:
         exceeds = True
         if cpus:
@@ -216,17 +229,17 @@ def estimate_hardware(
         else:
             caveats.append("В базе нет опубликованных записей о процессорах: оценка не выполнена.")
 
-    # Альтернативы: ближайшие по производительности, но более современные.
-    alt_gpus = sorted(
-        [g for g in gpus if reference_gpu and g.perf_class == reference_gpu.perf_class and g.model != reference_gpu.model],
-        key=lambda g: g.release_year, reverse=True,
-    )[:4]
-    alt_cpus = sorted(
-        [c for c in cpus if reference_cpu and c.perf_class == reference_cpu.perf_class and c.model != reference_cpu.model],
-        key=lambda c: c.release_year, reverse=True,
-    )[:4]
+    return {
+        "gpus": gpus, "cpus": cpus, "reference_gpu": reference_gpu,
+        "reference_cpu": reference_cpu, "alt_gpus": _alternatives(gpus, reference_gpu),
+        "alt_cpus": _alternatives(cpus, reference_cpu),
+        "exceeds": exceeds, "unmet": unmet, "caveats": caveats,
+    }
 
-    # --- Уверенность оценки ---------------------------------------------
+
+def _confidence(profile: ProjectProfile, methods: list, *, similar_examples: int, exceeds: bool, unmet: list[str]) -> tuple[float, str, list[str]]:
+    """Уверенность оценки и поясняющие оговорки."""
+    caveats: list[str] = []
     confidence = 0.85
     if profile.object_count is None:
         confidence -= 0.06
@@ -274,22 +287,41 @@ def estimate_hardware(
             "Целевые 120 FPS и выше обычно ограничиваются процессором: запас по CPU должен быть "
             "выше рассчитанного."
         )
+    return confidence, label, caveats
+
+
+def estimate_hardware(
+    db: Session,
+    profile: ProjectProfile,
+    methods: list,
+    similar_examples: int = 0,
+) -> HardwareEstimateOut:
+    """Рассчитать ориентировочную минимальную конфигурацию."""
+    indices = _load_indices(profile, methods)
+    picked = _pick_references(db, indices, profile)
+    confidence, label, confidence_caveats = _confidence(
+        profile, methods, similar_examples=similar_examples,
+        exceeds=picked["exceeds"], unmet=picked["unmet"],
+    )
+    caveats = picked["caveats"] + confidence_caveats
+    reference_gpu = picked["reference_gpu"]
+    reference_cpu = picked["reference_cpu"]
 
     return HardwareEstimateOut(
-        required_gpu_index=round(gpu_index, 4),
-        required_cpu_index=round(cpu_index, 4),
-        estimated_vram_gb=float(vram_gb),
-        estimated_ram_gb=float(ram_gb),
+        required_gpu_index=round(indices["gpu_index"], 4),
+        required_cpu_index=round(indices["cpu_index"], 4),
+        estimated_vram_gb=float(indices["vram_gb"]),
+        estimated_ram_gb=float(indices["ram_gb"]),
         gpu_class=reference_gpu.perf_class if reference_gpu else 5,
         cpu_class=reference_cpu.perf_class if reference_cpu else 5,
         reference_gpu=serializers.gpu_out(reference_gpu) if reference_gpu else None,
         reference_cpu=serializers.cpu_out(reference_cpu) if reference_cpu else None,
-        alternative_gpus=[serializers.gpu_out(g) for g in alt_gpus],
-        alternative_cpus=[serializers.cpu_out(c) for c in alt_cpus],
+        alternative_gpus=[serializers.gpu_out(g) for g in picked["alt_gpus"]],
+        alternative_cpus=[serializers.cpu_out(c) for c in picked["alt_cpus"]],
         confidence=confidence,
         confidence_label=label,
         caveats=caveats,
-        required_hw_features=required_hw,
-        exceeds_catalog=exceeds,
-        unmet_limits=unmet,
+        required_hw_features=indices["required_hw"],
+        exceeds_catalog=picked["exceeds"],
+        unmet_limits=picked["unmet"],
     )

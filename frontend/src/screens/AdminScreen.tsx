@@ -1,6 +1,6 @@
 /** Административный раздел: наполнение, проверка и публикация базы знаний (раздел 6 плана). */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { adminApi, adminToken, setAdminToken } from '../api';
+import { adminApi } from '../api';
 import { Badge, Callout, Card, Empty, Field, Loading, Metric, Select } from '../components/ui';
 import type { AdminOverview, Method, ValidationIssue } from '../types';
 
@@ -41,8 +41,6 @@ function statusTone(status: string): 'neutral' | 'info' | 'ok' {
 }
 
 export function AdminScreen() {
-  const [token, setToken] = useState(adminToken());
-  const [authorized, setAuthorized] = useState(Boolean(adminToken()));
   const [overview, setOverview] = useState<AdminOverview | null>(null);
   const [methods, setMethods] = useState<Method[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -64,20 +62,14 @@ export function AdminScreen() {
       setError((err as Error).message);
       setOverview(null);
       setMethods(null);
-      if ((err as Error).message.includes('401')) setAuthorized(false);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (authorized) void load();
-  }, [authorized, load]);
-
-  const applyToken = () => {
-    setAdminToken(token.trim());
-    setAuthorized(Boolean(token.trim()));
-  };
+    void load();
+  }, [load]);
 
   const handleValidate = async () => {
     try {
@@ -140,45 +132,16 @@ export function AdminScreen() {
     [methods],
   );
 
-  if (!authorized) {
-    return (
-      <Card
-        title="Доступ к административному разделу"
-        hint="Токен сравнивается со значением ADMIN_TOKEN на сервере. По умолчанию — admin."
-      >
-        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-          <div style={{ minWidth: 260 }}>
-            <Field label="Токен администратора">
-              <input
-                type="password"
-                value={token}
-                onChange={(event) => setToken(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') applyToken();
-                }}
-              />
-            </Field>
-          </div>
-          <button className="btn btn-primary" onClick={applyToken}>
-            Войти
-          </button>
-        </div>
-        {error && (
-          <div style={{ marginTop: 12 }}>
-            <Callout tone="danger" title="Ошибка доступа">
-              {error}
-            </Callout>
-          </div>
-        )}
-      </Card>
-    );
-  }
-
   return (
     <>
       {notice && (
         <Callout tone="info" title="Сообщение">
           {notice}
+        </Callout>
+      )}
+      {error && (
+        <Callout tone="danger" title="Ошибка загрузки">
+          {error}
         </Callout>
       )}
 

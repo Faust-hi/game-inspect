@@ -98,7 +98,12 @@ export function NumberInput({
       placeholder={placeholder}
       onChange={(e) => {
         const raw = e.target.value;
-        onChange(raw === '' ? null : Number(raw));
+        if (raw === '') {
+          onChange(null);
+          return;
+        }
+        const next = Number(raw);
+        onChange(Number.isNaN(next) ? null : next);
       }}
     />
   );

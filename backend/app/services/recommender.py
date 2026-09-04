@@ -23,15 +23,17 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .. import repositories, timeutil
-from ..models.entities import Engine, EngineTool, Method, MethodEngineLink
+from ..models.entities import Method
 from ..models.enums import (
-    CalcMode, ConflictType, DevStage, LateCost, RelationType, SolutionLevel,
+    CalcMode, ConflictType, DevStage, LateCost, SolutionLevel,
 )
 from ..schemas.catalog import (
-    BasketConflictOut, CriterionScore, LoadProfileOut, MethodEngineLinkOut,
+    BasketConflictOut, CriterionScore, LoadProfileOut,
     RecommendationOut, RecommendationResult, RiskOut, SimilarGameOut, input_fingerprint,
 )
 from . import gower, hardware, rules, serializers
+from .serializers import label_of as _label
+from .serializers import link_out
 from .topsis import Criterion, criterion_matrix_rows, topsis
 
 #: Версия алгоритма. Меняется при любом изменении формул, весов или правил
@@ -87,30 +89,11 @@ RELATION_PRIORITY = ["direct", "automation", "partial", "alternative", "compleme
 # ---------------------------------------------------------------------------
 # Вспомогательные преобразования
 # ---------------------------------------------------------------------------
-def link_out(db: Session, link: MethodEngineLink) -> MethodEngineLinkOut:
-    tool: EngineTool | None = db.get(EngineTool, link.tool_id)
-    engine: Engine | None = db.get(Engine, tool.engine_id) if tool else None
-    try:
-        label = RelationType(link.relation_type).label
-    except ValueError:
-        label = link.relation_type
-    return MethodEngineLinkOut(
-        engine_code=engine.code if engine else "",
-        engine_name=engine.name if engine else "",
-        tool_code=tool.code if tool else "",
-        tool_name=tool.name if tool else "",
-        relation_type=link.relation_type,
-        relation_label=label,
-        note=link.note,
-        docs_url=tool.docs_url if tool else "",
-    )
-
-
-def _label(enum_cls, value: str, default: str = "") -> str:
-    try:
-        return enum_cls(value).label
-    except ValueError:
-        return default
+def _function_name(functions: dict, method: Method) -> str | None:
+    """Название игровой функции метода. Один помощник вместо двух копий."""
+    if method.function and method.function.code in functions:
+        return functions.get(method.function.code).name
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -340,32 +323,20 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
         # Ни одно решение не прошло фильтр обязательных ограничений. Профиль
         # нагрузки, похожие игры и аппаратная оценка всё равно возвращаются:
         # пользователю важно видеть причины исключения и ориентир по железу.
-        similar = [
-            SimilarGameOut(
-                example=serializers.example_out(ex),
-                similarity=sim,
-                matching_optimizations=match,
-            )
-            for ex, sim, match in gower.find_similar(
-                profile, examples, top_n=5, basket=[m.code for m in basket_methods]
-            )
-        ]
-        basket_conflicts, basket_dependencies, basket_synergies = basket_compatibility(
-            db, basket_codes, methods_by_code
-        )
+        tail = _tail(db, profile, basket_methods, basket_codes, methods_by_code, conflicts, engines, examples)
         return RecommendationResult(
             profile=profile,
-            risks=detect_risks(profile, basket_codes, methods_by_code, conflicts, engines),
+            risks=tail["risks"],
             recommendations=[],
             excluded=excluded,
-            load_profile=aggregate_load(basket_methods, profile),
-            basket_conflicts=basket_conflicts,
-            basket_dependencies=basket_dependencies,
-            basket_synergies=basket_synergies,
-            hardware=hardware.estimate_hardware(db, profile, basket_methods, similar_examples=len(similar)),
-            similar_games=similar,
+            load_profile=tail["load_profile"],
+            basket_conflicts=tail["basket_conflicts"],
+            basket_dependencies=tail["basket_dependencies"],
+            basket_synergies=tail["basket_synergies"],
+            hardware=tail["hardware"],
+            similar_games=tail["similar"],
             basket_codes=basket_codes,
-            input_key=input_fingerprint(profile, [m.code for m in basket_methods]),
+            input_key=tail["input_key"],
             meta=_meta(profile, weights={}, candidates=len(candidates), applicable=0,
                        excluded=len(excluded), calculated_at=calculated_at,
                        note="Ни одно решение не прошло проверку обязательных ограничений проекта."),
@@ -412,41 +383,24 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
         method, applicability = evaluated[idx]
         recommendations.append(_build_recommendation(
             db, method, functions, applicability, scores[idx], rank, total, rows[idx],
-            profile, basket_codes, comparable=result.comparable, compare_reason=result.reason,
+            profile, comparable=result.comparable, compare_reason=result.reason,
         ))
 
-    # 9. Профиль нагрузки и совместимость корзины.
-    load_profile = aggregate_load(basket_methods, profile)
-    basket_conflicts, basket_dependencies, basket_synergies = basket_compatibility(
-        db, basket_codes, methods_by_code
-    )
-
-    # Похожие игры и аппаратная оценка.
-    similar = [
-        SimilarGameOut(
-            example=serializers.example_out(ex),
-            similarity=sim,
-            matching_optimizations=match,
-        )
-        for ex, sim, match in gower.find_similar(
-            profile, examples, top_n=5, basket=[m.code for m in basket_methods]
-        )
-    ]
-    hw = hardware.estimate_hardware(db, profile, basket_methods, similar_examples=len(similar))
+    tail = _tail(db, profile, basket_methods, basket_codes, methods_by_code, conflicts, engines, examples)
 
     return RecommendationResult(
         profile=profile,
-        risks=detect_risks(profile, basket_codes, methods_by_code, conflicts, engines),
+        risks=tail["risks"],
         recommendations=recommendations,
         excluded=excluded,
-        load_profile=load_profile,
-        basket_conflicts=basket_conflicts,
-        basket_dependencies=basket_dependencies,
-        basket_synergies=basket_synergies,
-        hardware=hw,
-        similar_games=similar,
+        load_profile=tail["load_profile"],
+        basket_conflicts=tail["basket_conflicts"],
+        basket_dependencies=tail["basket_dependencies"],
+        basket_synergies=tail["basket_synergies"],
+        hardware=tail["hardware"],
+        similar_games=tail["similar"],
         basket_codes=basket_codes,
-        input_key=input_fingerprint(profile, [m.code for m in basket_methods]),
+        input_key=tail["input_key"],
         meta=_meta(
             profile, weights=weights, candidates=len(candidates), applicable=len(evaluated),
             excluded=len(excluded), calculated_at=calculated_at,
@@ -458,6 +412,38 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
             ),
         ),
     )
+
+
+def _tail(db: Session, profile, basket_methods, basket_codes, methods_by_code, conflicts, engines, examples) -> dict:
+    """Общая хвостовая часть результата: одинакова для пустого и полного расчёта.
+
+    Раньше обе ветки `build_recommendations` собирали похожие игры,
+    совместимость корзины, нагрузку и железо каждая по-своему — правка одной
+    забывала вторую. Теперь сборка в одном месте.
+    """
+    similar = [
+        SimilarGameOut(
+            example=serializers.example_out(ex),
+            similarity=sim,
+            matching_optimizations=match,
+        )
+        for ex, sim, match in gower.find_similar(
+            profile, examples, top_n=5, basket=[m.code for m in basket_methods]
+        )
+    ]
+    basket_conflicts, basket_dependencies, basket_synergies = basket_compatibility(
+        db, basket_codes, methods_by_code
+    )
+    return {
+        "similar": similar,
+        "basket_conflicts": basket_conflicts,
+        "basket_dependencies": basket_dependencies,
+        "basket_synergies": basket_synergies,
+        "load_profile": aggregate_load(basket_methods, profile),
+        "hardware": hardware.estimate_hardware(db, profile, basket_methods, similar_examples=len(similar)),
+        "risks": detect_risks(profile, basket_codes, methods_by_code, conflicts, engines),
+        "input_key": input_fingerprint(profile, [m.code for m in basket_methods]),
+    }
 
 
 def _meta(
@@ -497,28 +483,20 @@ def _meta(
     return meta
 
 
-def _build_recommendation(
-    db: Session, method: Method, functions: dict, applicability: rules.Applicability,
-    score: float, rank: int, total: int, criteria_rows: list[dict], profile,
-    basket_codes: list[str], *, comparable: bool = True, compare_reason: str = "",
-) -> RecommendationOut:
-    flags: list[str] = []
+def _stage_order(value: str) -> int:
+    """Порядковый номер стадии; неизвестное значение — середина шкалы."""
+    return DevStage(value).order if value in {s.value for s in DevStage} else 2
 
-    # --- Абсолютная оценка: прошло ли решение обязательные ограничения -------
-    # Метод сюда попадает только применимым, поэтому «не рекомендуется» здесь
-    # возможно лишь по абсолютному признаку — окно внедрения закрыто стадией.
-    stage_order = DevStage(profile.stage).order if profile.stage in {s.value for s in DevStage} else 2
-    method_stage = DevStage(method.recommended_stage).order if method.recommended_stage in {s.value for s in DevStage} else 2
-    late_blocked = (
-        method.late_cost == "critical"
-        and applicability.stage_pressure >= 1.0
-        and stage_order > method_stage
-    )
+
+def _recommendation_flags(
+    method: Method, applicability: rules.Applicability, rank: int, total: int,
+    *, comparable: bool, stage_order: int, method_stage: int, late_blocked: bool,
+) -> list[str]:
+    """Пометки решения: абсолютные признаки + относительное место в списке."""
+    flags: list[str] = []
     if late_blocked:
         flags.append("not_recommended")
         flags.append("late_blocked")
-
-    # --- Относительная оценка: место среди прочих допустимых решений --------
     if comparable:
         share = rank / max(1, total)
         if share <= 1 / 3:
@@ -531,7 +509,6 @@ def _build_recommendation(
         # Единственный или неразличимый набор: относительного порядка нет,
         # и утверждать «не рекомендуется» было бы неправдой.
         flags.append("single_option" if total == 1 else "comparison_limited")
-
     if stage_order <= method_stage:
         flags.append("implement_now")
     if method.late_cost in ("high", "critical") and applicability.stage_pressure > 0 and not late_blocked:
@@ -542,11 +519,17 @@ def _build_recommendation(
         flags.append("may_reduce_quality")
     if method.concept_impact <= -1:
         flags.append("may_change_concept")
+    return flags
 
-    reasons: list[str] = []
-    reasons.append(
+
+def _recommendation_reasons(
+    method: Method, applicability: rules.Applicability, score: float,
+    rank: int, total: int, *, comparable: bool, compare_reason: str = "",
+) -> list[str]:
+    """Человекочитаемое объяснение рекомендации."""
+    reasons: list[str] = [
         f"Ожидаемый эффект: {method.performance_gain:.0%} — {_gain_text(method.performance_gain)}."
-    )
+    ]
     if comparable:
         reasons.append(
             f"Место {rank} из {total} допустимых решений; коэффициент близости {score:.2f}."
@@ -568,9 +551,7 @@ def _build_recommendation(
             f"Текущая стадия проекта позже рекомендованной: стоимость позднего внедрения — "
             f"{_label(LateCost, method.late_cost)}."
         )
-    reasons.append(
-        f"Способ расчёта: {_label(CalcMode, method.calc_mode)}."
-    )
+    reasons.append(f"Способ расчёта: {_label(CalcMode, method.calc_mode)}.")
     positives = _impact_text(method)
     if positives:
         reasons.append("Снижает нагрузку на: " + ", ".join(positives) + ".")
@@ -585,21 +566,50 @@ def _build_recommendation(
         reasons.append("Внимание: решение затрагивает исходную концепцию игры.")
     for condition in applicability.conditions:
         reasons.append("Условие: " + condition)
+    return reasons
 
-    # 8. Аналоги в выбранном движке. Только опубликованные связи и инструменты.
-    links = [link_out(db, l) for l in repositories.method_links(db, method.id)]
-    links.sort(key=lambda l: (
-        0 if l.engine_code == profile.engine else 1,
-        RELATION_PRIORITY.index(l.relation_type) if l.relation_type in RELATION_PRIORITY else 99,
+
+def _engine_support(db: Session, method: Method, engine_code: str):
+    """Аналог метода в выбранном движке + альтернативы из других движков."""
+    links = [link_out(db, link) for link in repositories.method_links(db, method.id)]
+    links.sort(key=lambda link: (
+        0 if link.engine_code == engine_code else 1,
+        RELATION_PRIORITY.index(link.relation_type) if link.relation_type in RELATION_PRIORITY else 99,
     ))
-    support = next((l for l in links if l.engine_code == profile.engine), None)
-    alternatives = [l for l in links if l.engine_code != profile.engine][:4]
+    support = next((link for link in links if link.engine_code == engine_code), None)
+    alternatives = [link for link in links if link.engine_code != engine_code][:4]
+    return support, alternatives
+
+
+def _build_recommendation(
+    db: Session, method: Method, functions: dict, applicability: rules.Applicability,
+    score: float, rank: int, total: int, criteria_rows: list[dict], profile,
+    *, comparable: bool = True, compare_reason: str = "",
+) -> RecommendationOut:
+    # Метод сюда попадает только применимым, поэтому «не рекомендуется» здесь
+    # возможно лишь по абсолютному признаку — окно внедрения закрыто стадией.
+    stage_order = _stage_order(profile.stage)
+    method_stage = _stage_order(method.recommended_stage)
+    late_blocked = (
+        method.late_cost == "critical"
+        and applicability.stage_pressure >= 1.0
+        and stage_order > method_stage
+    )
+    flags = _recommendation_flags(
+        method, applicability, rank, total, comparable=comparable,
+        stage_order=stage_order, method_stage=method_stage, late_blocked=late_blocked,
+    )
+    reasons = _recommendation_reasons(
+        method, applicability, score, rank, total,
+        comparable=comparable, compare_reason=compare_reason,
+    )
+    support, alternatives = _engine_support(db, method, profile.engine)
 
     return RecommendationOut(
         method_code=method.code,
         method_name=method.name,
         function_code=method.function.code if method.function else None,
-        function_name=(functions.get(method.function.code).name if method.function and method.function.code in functions else None),
+        function_name=_function_name(functions, method),
         kind=method.kind,
         score=round(score, 4),
         rank=rank,
@@ -629,7 +639,7 @@ def _build_excluded(method: Method, functions: dict, applicability: rules.Applic
         method_code=method.code,
         method_name=method.name,
         function_code=method.function.code if method.function else None,
-        function_name=(functions.get(method.function.code).name if method.function and method.function.code in functions else None),
+        function_name=_function_name(functions, method),
         kind=method.kind,
         score=0.0,
         rank=0,

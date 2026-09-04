@@ -1,9 +1,9 @@
 /** Экран 7. Корзина выбранных решений и совместимость набора. */
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useStore } from '../store';
 import { Badge, Callout, Card, Empty, ImpactGrid } from '../components/ui';
 import { MethodCard } from '../components/MethodCard';
-import { useState } from 'react';
+import { methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
 import type { Method } from '../types';
 
 export function BasketScreen() {
@@ -11,14 +11,12 @@ export function BasketScreen() {
     useStore();
   const [openCode, setOpenCode] = useState<string | null>(null);
 
-  const methodsByCode = useMemo(
-    () => Object.fromEntries(catalog.methods.map((method) => [method.code, method])),
-    [catalog.methods],
-  );
+  const methodsByCode = useMemo(() => buildMethodMap(catalog.methods), [catalog.methods]);
 
-  const selected: Method[] = basket
-    .map((code) => methodsByCode[code])
-    .filter((method): method is Method => Boolean(method));
+  const selected: Method[] = useMemo(
+    () => selectedMethods(basket, methodsByCode),
+    [basket, methodsByCode],
+  );
 
   const openMethod = openCode ? methodsByCode[openCode] : null;
 

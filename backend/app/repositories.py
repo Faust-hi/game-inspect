@@ -11,7 +11,7 @@
 """
 from __future__ import annotations
 
-from sqlalchemy import Select, select
+from sqlalchemy import Select, func, select
 from sqlalchemy.orm import Session
 
 from .models.entities import (
@@ -100,13 +100,27 @@ def method_links(db: Session, method_id: int) -> list[MethodEngineLink]:
 
 def published_snapshot_counts(db: Session) -> dict[str, int]:
     """Число опубликованных записей по сущностям — для диагностики развёртывания."""
+    from .models.entities import (
+        Conflict as _Conflict,
+        Engine as _Engine,
+        EngineTool as _EngineTool,
+        GameExample as _GameExample,
+        GameFunction as _GameFunction,
+        HardwareCPU as _HardwareCPU,
+        HardwareGPU as _HardwareGPU,
+        Method as _Method,
+    )
+
+    def _count(model) -> int:
+        return db.scalar(select(func.count(model.id)).where(model.status == PUBLISHED)) or 0
+
     return {
-        "functions": len(functions(db)),
-        "methods": len(methods(db)),
-        "engines": len(engines(db)),
-        "engine_tools": len(engine_tools(db)),
-        "conflicts": len(conflicts(db)),
-        "examples": len(examples(db)),
-        "hardware_cpu": len(hardware_cpu(db)),
-        "hardware_gpu": len(hardware_gpu(db)),
+        "functions": _count(_GameFunction),
+        "methods": _count(_Method),
+        "engines": _count(_Engine),
+        "engine_tools": _count(_EngineTool),
+        "conflicts": _count(_Conflict),
+        "examples": _count(_GameExample),
+        "hardware_cpu": _count(_HardwareCPU),
+        "hardware_gpu": _count(_HardwareGPU),
     }

@@ -1,6 +1,7 @@
 /** Экран 2. Выбор стадии разработки и проектных бюджетов. */
 import { useStore } from '../store';
 import { Callout, Card, Field, Select } from '../components/ui';
+import type { ProjectProfile } from '../types';
 
 const STAGE_ADVICE: Record<string, string> = {
   concept:
@@ -21,7 +22,7 @@ const STAGE_ADVICE: Record<string, string> = {
     'После релиза доступны оптимизации настроек и выборочные алгоритмические улучшения, не требующие изменения контента.',
 };
 
-const BUDGET_FIELDS: { key: keyof import('../types').ProjectProfile; label: string }[] = [
+const BUDGET_FIELDS: { key: keyof ProjectProfile; label: string }[] = [
   { key: 'cpu_budget', label: 'Бюджет CPU' },
   { key: 'gpu_budget', label: 'Бюджет GPU' },
   { key: 'ram_budget', label: 'Бюджет RAM' },

@@ -324,13 +324,13 @@ def test_plan_scenarios(client, name):
 # ---------------------------------------------------------------------------
 # Административный раздел
 # ---------------------------------------------------------------------------
-def test_admin_requires_token(client):
-    assert client.get("/api/admin/overview").status_code == 401
-    assert client.get("/api/admin/overview", headers={"x-admin-token": "admin"}).status_code == 200
+def test_admin_is_open_locally(client):
+    # Локальный режим: административный раздел доступен без токена.
+    assert client.get("/api/admin/overview").status_code == 200
 
 
 def test_admin_overview_and_validation(client):
-    data = client.get("/api/admin/overview", headers={"x-admin-token": "admin"}).json()
+    data = client.get("/api/admin/overview").json()
     assert data["counts"]["methods"] >= 40
     assert data["issues_by_severity"]["error"] == 0
 
@@ -345,8 +345,7 @@ def test_new_material_is_created_as_draft(client):
         "code": "tmp_draft_method", "name": "Черновой метод", "summary": "Тест",
         "status": "published",
     }
-    created = client.post("/api/admin/methods", json=payload,
-                          headers={"x-admin-token": "admin"}).json()
+    created = client.post("/api/admin/methods", json=payload).json()
     assert created["created"] is True
     assert created["status"] == "draft", created
 
@@ -360,20 +359,16 @@ def test_new_material_is_created_as_draft(client):
 def test_admin_cannot_publish_without_source(client):
     """Публикация без источника запрещена по всем путям."""
     payload = {"code": "tmp_test_method", "name": "Временный метод", "summary": "Тест"}
-    created = client.post("/api/admin/methods", json=payload,
-                          headers={"x-admin-token": "admin"}).json()
+    created = client.post("/api/admin/methods", json=payload).json()
     assert created["created"] is True
 
     # Прямой переход «черновик → опубликовано» запрещён жизненным циклом.
-    denied = client.patch("/api/admin/methods/tmp_test_method/status", json={"status": "published"},
-                          headers={"x-admin-token": "admin"})
+    denied = client.patch("/api/admin/methods/tmp_test_method/status", json={"status": "published"})
     assert denied.status_code == 409, denied.text
 
     # Через «проверено» публикация без источника тоже не проходит.
-    assert client.patch("/api/admin/methods/tmp_test_method/status", json={"status": "reviewed"},
-                        headers={"x-admin-token": "admin"}).status_code == 200
-    denied = client.patch("/api/admin/methods/tmp_test_method/status", json={"status": "published"},
-                          headers={"x-admin-token": "admin"})
+    assert client.patch("/api/admin/methods/tmp_test_method/status", json={"status": "reviewed"}).status_code == 200
+    denied = client.patch("/api/admin/methods/tmp_test_method/status", json={"status": "published"})
     assert denied.status_code == 422, denied.text
     body = denied.json()
     assert "источник" in body.get("details", [""])[0].lower() or "источник" in str(body).lower()
@@ -389,7 +384,7 @@ def test_admin_publication_requires_valid_url(client):
     response = client.post("/api/admin/methods", json={
         "code": "tmp_bad_url", "name": "Метод с плохой ссылкой",
         "source_url": "javascript:alert(1)", "source_title": "Источник",
-    }, headers={"x-admin-token": "admin"})
+    })
     assert response.status_code == 422, response.text
 
     # Уровень 2: импорт — отдельный путь записи, проверка должна быть и там.
@@ -399,14 +394,13 @@ def test_admin_publication_requires_valid_url(client):
             "code": "tmp_bad_url", "name": "Метод с плохой ссылкой",
             "source_url": "ftp://example.org/x", "source_title": "Источник",
         }]), "application/json")},
-        headers={"x-admin-token": "admin"},
     )
     assert imported.status_code == 422, imported.text
     assert "http" in str(imported.json()).lower()
 
     # Запись с некорректной ссылкой не должна появиться даже в виде черновика.
     codes = {m["code"] for m in client.get(
-        "/api/admin/methods", headers={"x-admin-token": "admin"}).json()}
+        "/api/admin/methods").json()}
     assert "tmp_bad_url" not in codes
 
 
@@ -416,33 +410,31 @@ def test_admin_status_workflow(client):
         "code": "tmp_workflow_method", "name": "Метод для проверки статусов",
         "source_url": "https://example.org/source", "source_title": "Пример источника",
     }
-    client.post("/api/admin/methods", json=payload, headers={"x-admin-token": "admin"})
+    client.post("/api/admin/methods", json=payload)
     # Связь с инструментом обязательна: иначе пользователь не узнает, чем
     # реализовать решение в своём проекте.
     tool_code = client.get("/api/catalog/engines").json()[0]["tools"][0]["code"]
     assert client.post("/api/admin/links", json={
         "method_code": "tmp_workflow_method", "tool_code": tool_code, "relation_type": "direct",
-    }, headers={"x-admin-token": "admin"}).status_code == 200
+    }).status_code == 200
 
     for status in ("draft", "reviewed", "published"):
         response = client.patch(
             f"/api/admin/methods/tmp_workflow_method/status",
-            json={"status": status}, headers={"x-admin-token": "admin"},
+            json={"status": status},
         )
         assert response.status_code == 200, response.text
         assert response.json()["status"] == status
 
     # Обратный переход «опубликовано → проверено» — снятие с публикации.
     response = client.patch("/api/admin/methods/tmp_workflow_method/status",
-                            json={"status": "reviewed"}, headers={"x-admin-token": "admin"})
+                            json={"status": "reviewed"})
     assert response.status_code == 200, response.text
     assert client.get("/api/catalog/methods/tmp_workflow_method").status_code == 404
 
     # «Проверено → черновик» допустимо, «черновик → опубликовано» — нет.
-    client.patch("/api/admin/methods/tmp_workflow_method/status", json={"status": "draft"},
-                 headers={"x-admin-token": "admin"})
-    assert client.patch("/api/admin/methods/tmp_workflow_method/status", json={"status": "published"},
-                        headers={"x-admin-token": "admin"}).status_code == 409
+    client.patch("/api/admin/methods/tmp_workflow_method/status", json={"status": "draft"})
+    assert client.patch("/api/admin/methods/tmp_workflow_method/status", json={"status": "published"}).status_code == 409
 
 
 def test_publication_requires_engine_link(client):
@@ -450,11 +442,9 @@ def test_publication_requires_engine_link(client):
     client.post("/api/admin/methods", json={
         "code": "tmp_linkless", "name": "Метод без связи",
         "source_url": "https://example.org/x", "source_title": "Источник",
-    }, headers={"x-admin-token": "admin"})
-    client.patch("/api/admin/methods/tmp_linkless/status", json={"status": "reviewed"},
-                 headers={"x-admin-token": "admin"})
-    response = client.patch("/api/admin/methods/tmp_linkless/status", json={"status": "published"},
-                            headers={"x-admin-token": "admin"})
+    })
+    client.patch("/api/admin/methods/tmp_linkless/status", json={"status": "reviewed"})
+    response = client.patch("/api/admin/methods/tmp_linkless/status", json={"status": "published"})
     assert response.status_code == 422, response.text
     details = " ".join(response.json()["error"]["details"]).lower()
     assert "связ" in details or "инструмент" in details
@@ -463,9 +453,8 @@ def test_publication_requires_engine_link(client):
     tool_code = client.get("/api/catalog/engines").json()[0]["tools"][0]["code"]
     client.post("/api/admin/links", json={
         "method_code": "tmp_linkless", "tool_code": tool_code, "relation_type": "partial",
-    }, headers={"x-admin-token": "admin"})
-    response = client.patch("/api/admin/methods/tmp_linkless/status", json={"status": "published"},
-                            headers={"x-admin-token": "admin"})
+    })
+    response = client.patch("/api/admin/methods/tmp_linkless/status", json={"status": "published"})
     assert response.status_code == 200, response.text
 
 
@@ -474,12 +463,11 @@ def test_publication_log_records_transitions(client):
     client.post("/api/admin/methods", json={
         "code": "tmp_logged_method", "name": "Метод с журналом",
         "source_url": "https://example.org/x", "source_title": "Источник",
-    }, headers={"x-admin-token": "admin"})
+    })
     client.patch("/api/admin/methods/tmp_logged_method/status",
-                 json={"status": "reviewed", "comment": "проверено"},
-                 headers={"x-admin-token": "admin"})
+                 json={"status": "reviewed", "comment": "проверено"})
 
-    log = client.get("/api/admin/publication-log", headers={"x-admin-token": "admin"}).json()
+    log = client.get("/api/admin/publication-log").json()
     entries = [row for row in log if row["entity_code"] == "tmp_logged_method"]
     assert entries, "переход не попал в журнал публикаций"
     assert entries[0]["from_status"] == "draft"
@@ -499,11 +487,10 @@ def test_admin_import_json(client):
     response = client.post(
         "/api/admin/import/methods",
         files={"file": ("methods.json", __import__("json").dumps(rows), "application/json")},
-        headers={"x-admin-token": "admin"},
     )
     assert response.status_code == 200, response.text
     assert response.json()["created"] == 1
-    client.delete("/api/admin/methods/tmp_imported", headers={"x-admin-token": "admin"})
+    client.delete("/api/admin/methods/tmp_imported")
 
 
 def test_project_save_and_load(client, profile):

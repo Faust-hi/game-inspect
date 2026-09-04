@@ -16,7 +16,7 @@ from app.models.entities import (
 from app.services import publication
 from app.services.publication import Status
 
-ADMIN = {"x-admin-token": "admin"}
+ADMIN: dict[str, str] = {}
 
 
 # ---------------------------------------------------------------------------

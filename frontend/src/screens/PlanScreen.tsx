@@ -11,6 +11,7 @@ import {
   Metric,
   SourceLink,
 } from '../components/ui';
+import { impactsOf, methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
 import type { Method } from '../types';
 
 /** Порядок внедрения: от архитектуры к настройкам. */
@@ -40,17 +41,6 @@ const SEVERITY_LABEL: Record<string, string> = {
   low: 'низкий',
 };
 
-function impactsOf(method: Method): Record<string, number> {
-  return {
-    cpu: method.impact_cpu,
-    gpu: method.impact_gpu,
-    ram: method.impact_ram,
-    vram: method.impact_vram,
-    disk: method.impact_disk,
-    network: method.impact_network,
-  };
-}
-
 interface Props {
   onExportJson: () => void;
   onExportPdf: () => void;
@@ -61,14 +51,10 @@ export function PlanScreen({ onExportJson, onExportPdf }: Props) {
 
   useEnsureResult();
 
-  const methodsByCode = useMemo(() => {
-    const map: Record<string, Method> = {};
-    for (const method of catalog.methods) map[method.code] = method;
-    return map;
-  }, [catalog.methods]);
+  const methodsByCode = useMemo(() => buildMethodMap(catalog.methods), [catalog.methods]);
 
   const selected = useMemo(
-    () => basket.map((code) => methodsByCode[code]).filter((m): m is Method => Boolean(m)),
+    () => selectedMethods(basket, methodsByCode),
     [basket, methodsByCode],
   );
 

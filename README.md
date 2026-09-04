@@ -52,17 +52,11 @@ npm run dev
 | `http://127.0.0.1:8000/api/health` | состояние сервиса |
 | `http://127.0.0.1:8000/api/docs` | интерактивная документация API (Swagger) |
 
-### Переход на PostgreSQL
-
-```bash
-DATABASE_URL=postgresql+psycopg2://user:password@localhost:5432/gamedev_dss
-```
-
 Переменные окружения можно задать в файле `backend/.env` (см. `backend/.env.example`).
 
 ### Миграции схемы
 
-Схема управляется Alembic. Новая база создаётся миграциями, а не вызовом `create_all`:
+Схема управляется Alembic:
 
 ```bash
 cd backend
@@ -70,10 +64,6 @@ cd backend
 ../.venv/Scripts/python.exe -m alembic check          # сверить модели со схемой
 ../.venv/Scripts/python.exe -m alembic revision --autogenerate -m "описание"
 ```
-
-Если база была создана до появления миграций, её нужно отметить как актуальную:
-`alembic stamp head`. При запуске backend сам сообщает в журнале, применены
-миграции или нет, — это исключает расхождение схемы и моделей в эксплуатации.
 
 ---
 
@@ -84,8 +74,8 @@ inspect-op/
 ├── backend/                  FastAPI + SQLAlchemy + Pydantic
 │   ├── alembic/              миграции схемы базы данных
 │   ├── app/
-│   │   ├── main.py           точка входа, CORS, раздача собранного frontend
-│   │   ├── config.py         настройки (БД, токен администратора, автозаполнение)
+│   │   ├── main.py           точка входа, раздача собранного frontend
+│   │   ├── config.py         настройки (БД, автозаполнение)
 │   │   ├── database.py       подключение, сессии, создание схемы
 │   │   ├── repositories.py   единственный источник опубликованного среза каталога
 │   │   ├── staticfiles_safe.py  защита от выхода за пределы каталога сборки
@@ -113,7 +103,7 @@ inspect-op/
 └── README.md
 ```
 
-Стек: **FastAPI, SQLAlchemy, Pydantic, PostgreSQL (совместимо с SQLite), React, TypeScript.**
+Стек: **FastAPI, SQLAlchemy, Pydantic, SQLite, React, TypeScript.** Работает только локально.
 Импорт каталогов поддерживается из CSV и JSON.
 
 ---
@@ -203,8 +193,7 @@ CPU/GPU и обязательной аппаратной совместимос�
 
 ## 6. Административный раздел
 
-Доступ по токену в заголовке `x-admin-token` (по умолчанию `admin`, меняется через
-переменную окружения `ADMIN_TOKEN`). Интерфейс — экран «Администрирование».
+Локальный режим: административный раздел открыт без токена. Интерфейс — экран «Администрирование».
 
 Администратор может:
 

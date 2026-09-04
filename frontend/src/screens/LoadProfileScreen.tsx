@@ -2,7 +2,8 @@
 import { useMemo } from 'react';
 import { useEnsureResult, useStore } from '../store';
 import { Badge, Callout, Card, Empty, Loading } from '../components/ui';
-import type { LoadProfile, Method } from '../types';
+import { impactsOf, methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
+import type { LoadProfile } from '../types';
 
 const RESOURCES: { key: keyof Omit<LoadProfile, 'per_resource'>; label: string }[] = [
   { key: 'cpu', label: 'CPU' },
@@ -40,30 +41,15 @@ function directionTone(direction: string): 'ok' | 'danger' | 'neutral' {
   return 'neutral';
 }
 
-function impactsOf(method: Method): Record<string, number> {
-  return {
-    cpu: method.impact_cpu,
-    gpu: method.impact_gpu,
-    ram: method.impact_ram,
-    vram: method.impact_vram,
-    disk: method.impact_disk,
-    network: method.impact_network,
-  };
-}
-
 export function LoadProfileScreen() {
   const { result, basket, catalog, calculating } = useStore();
 
   useEnsureResult();
 
-  const methodsByCode = useMemo(() => {
-    const map: Record<string, Method> = {};
-    for (const method of catalog.methods) map[method.code] = method;
-    return map;
-  }, [catalog.methods]);
+  const methodsByCode = useMemo(() => buildMethodMap(catalog.methods), [catalog.methods]);
 
   const selected = useMemo(
-    () => basket.map((code) => methodsByCode[code]).filter((m): m is Method => Boolean(m)),
+    () => selectedMethods(basket, methodsByCode),
     [basket, methodsByCode],
   );
 

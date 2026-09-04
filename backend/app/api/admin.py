@@ -2,13 +2,13 @@
 from __future__ import annotations
 
 import csv
-import datetime as dt
 import io
+import json
 import logging
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, File, Header, HTTPException, Query, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -21,36 +21,22 @@ from ..models.entities import (
 )
 from ..models.enums import Status
 from ..schemas.catalog import BasketRequest
-from .. import repositories, timeutil
+from .. import repositories
 from ..seed import seeder
 from ..services import publication
-from ..services.security import enforce_rate_limit, token_matches
 from .catalog import method_to_out
 
 logger = logging.getLogger("gamedev_dss.admin")
 
+# Локальное приложение: административный раздел открыт без токена.
 router = APIRouter(prefix="/admin", tags=["Администрирование"])
-
-
-def require_admin(
-    request: Request,
-    x_admin_token: str | None = Header(default=None),
-) -> None:
-    """Проверяет токен администратора и частоту обращений к разделу."""
-    enforce_rate_limit(request, settings.RATE_LIMIT_ADMIN_PER_MINUTE, "admin")
-    if not token_matches(x_admin_token):
-        raise HTTPException(
-            status_code=401,
-            detail="Требуется токен администратора",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
 
 
 # ---------------------------------------------------------------------------
 # Обзор и целостность
 # ---------------------------------------------------------------------------
 @router.get("/overview", summary="Сводка по наполнению базы")
-def overview(db: Session = Depends(get_db), _: None = Depends(require_admin)):
+def overview(db: Session = Depends(get_db)):
     counts = {
         "game_functions": db.scalar(select(func.count(GameFunction.id))),
         "methods": db.scalar(select(func.count(Method.id))),
@@ -80,14 +66,14 @@ def overview(db: Session = Depends(get_db), _: None = Depends(require_admin)):
 
 
 @router.post("/validate", summary="Проверить целостность базы знаний")
-def validate(db: Session = Depends(get_db), _: None = Depends(require_admin)):
+def validate(db: Session = Depends(get_db)):
     issues = seeder.validate_knowledge_base(db)
     db.commit()
     return {"issues": issues, "total": len(issues)}
 
 
 @router.post("/seed", summary="Заполнить базу демонстрационными данными")
-def run_seed(db: Session = Depends(get_db), _: None = Depends(require_admin)):
+def run_seed(db: Session = Depends(get_db)):
     return seeder.seed_all(db, validate=True)
 
 
@@ -157,13 +143,13 @@ class StatusIn(BaseModel):
 
 
 @router.get("/methods", summary="Список методов со всеми статусами")
-def admin_methods(db: Session = Depends(get_db), _: None = Depends(require_admin)):
+def admin_methods(db: Session = Depends(get_db)):
     rows = db.scalars(select(Method).order_by(Method.code)).all()
     return [method_to_out(db, m) for m in rows]
 
 
 @router.post("/methods", summary="Добавить или обновить метод")
-def upsert_method(payload: MethodIn, db: Session = Depends(get_db), _: None = Depends(require_admin)):
+def upsert_method(payload: MethodIn, db: Session = Depends(get_db)):
     """Новая запись всегда создаётся черновиком.
 
     Раньше запись получала статус по умолчанию из модели — «опубликовано», —
@@ -202,7 +188,7 @@ def upsert_method(payload: MethodIn, db: Session = Depends(get_db), _: None = De
 
 
 @router.patch("/methods/{code}/status", summary="Изменить статус записи (черновик → проверено → опубликовано)")
-def set_method_status(code: str, payload: StatusIn, db: Session = Depends(get_db), _: None = Depends(require_admin)):
+def set_method_status(code: str, payload: StatusIn, db: Session = Depends(get_db)):
     """Изменение статуса с соблюдением жизненного цикла.
 
     Публикация — не просто запись значения: проверяется допустимость перехода,
@@ -251,7 +237,6 @@ def set_method_status(code: str, payload: StatusIn, db: Session = Depends(get_db
 def publication_log(
     limit: int = Query(50, ge=1, le=500),
     db: Session = Depends(get_db),
-    _: None = Depends(require_admin),
 ):
     rows = db.scalars(
         select(PublicationLog).order_by(PublicationLog.created_at.desc()).limit(limit)
@@ -271,7 +256,7 @@ def publication_log(
 
 
 @router.delete("/methods/{code}", summary="Удалить метод")
-def delete_method(code: str, db: Session = Depends(get_db), _: None = Depends(require_admin)):
+def delete_method(code: str, db: Session = Depends(get_db)):
     obj = db.scalar(select(Method).where(Method.code == code))
     if not obj:
         raise HTTPException(404, "Метод не найден")
@@ -291,7 +276,7 @@ class LinkIn(BaseModel):
 
 
 @router.post("/links", summary="Связать метод с инструментом движка")
-def upsert_link(payload: LinkIn, db: Session = Depends(get_db), _: None = Depends(require_admin)):
+def upsert_link(payload: LinkIn, db: Session = Depends(get_db)):
     method = db.scalar(select(Method).where(Method.code == payload.method_code))
     tool = db.scalar(select(EngineTool).where(EngineTool.code == payload.tool_code))
     if not method or not tool:
@@ -406,7 +391,6 @@ async def import_entity(
     entity: str,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    _: None = Depends(require_admin),
 ):
     model = SUPPORTED_IMPORT.get(entity)
     if model is None:
@@ -472,25 +456,17 @@ async def _read_upload(file: UploadFile) -> bytes:
 
 
 def json_loads(raw: bytes):
-    import json
     return json.loads(raw.decode("utf-8-sig"))
 
 
 # ---------------------------------------------------------------------------
-# Сохранение проектов (публичный доступ по идентификатору)
+# Сохранение проектов (локальное, без срока хранения)
 # ---------------------------------------------------------------------------
 projects_router = APIRouter(prefix="/projects", tags=["Проекты"])
 
 
-@projects_router.post("", summary="Сохранить проект и результат расчёта")
-def save_project(payload: BasketRequest, request: Request, db: Session = Depends(get_db)):
-    """Сохранение проекта доступно всем, поэтому оно ограничено по частоте.
-
-    Идентификатор случайный и длинный, но endpoint остаётся публичной точкой
-    записи в базу: без ограничения он позволяет заполнить таблицу за минуты.
-    """
-    enforce_rate_limit(request, settings.PROJECTS_PER_MINUTE, "projects")
-
+@projects_router.post("", summary="Сохранить проект")
+def save_project(payload: BasketRequest, db: Session = Depends(get_db)):
     public_id = uuid.uuid4().hex[:16]
     project = Project(
         public_id=public_id,
@@ -500,7 +476,7 @@ def save_project(payload: BasketRequest, request: Request, db: Session = Depends
     )
     db.add(project)
     db.commit()
-    return {"public_id": public_id, "ttl_days": settings.PROJECT_TTL_DAYS}
+    return {"public_id": public_id}
 
 
 @projects_router.get("/{public_id}", summary="Загрузить сохранённый проект")
@@ -511,26 +487,9 @@ def get_project(public_id: str, db: Session = Depends(get_db)):
     if not project:
         raise HTTPException(404, "Проект не найден")
 
-    # Просроченные проекты удаляются при обращении: отдельного планировщика
-    # в приложении нет, а хранить чужие данные бессрочно оснований нет.
-    age = timeutil.age_days(project.updated_at)
-    if age is None or age > settings.PROJECT_TTL_DAYS:
-        db.delete(project)
-        db.commit()
-        raise HTTPException(404, "Срок хранения проекта истёк")
-
     return {
         "public_id": project.public_id,
         "name": project.name,
         "profile": project.profile,
         "basket": project.basket,
-        "updated_at": timeutil.as_utc(project.updated_at).isoformat(),
     }
-
-
-@router.post("/purge-projects", summary="Удалить просроченные сохранённые проекты")
-def purge_projects(db: Session = Depends(get_db), _: None = Depends(require_admin)):
-    cutoff = timeutil.utcnow() - dt.timedelta(days=settings.PROJECT_TTL_DAYS)
-    deleted = db.query(Project).filter(Project.updated_at < cutoff).delete()
-    db.commit()
-    return {"deleted": deleted, "ttl_days": settings.PROJECT_TTL_DAYS}

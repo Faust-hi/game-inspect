@@ -1,4 +1,5 @@
 /** Карточка метода: классификация, влияние, проверка, аналоги в движках. */
+import { impactsOf } from '../catalogUtils';
 import type { Method } from '../types';
 import { Badge, ImpactGrid, Modal, SourceLink } from './ui';
 
@@ -10,14 +11,7 @@ const LEVEL_TONE: Record<string, 'info' | 'ok' | 'warn' | 'danger' | 'neutral'> 
 };
 
 export function MethodCard({ method, onClose }: { method: Method; onClose: () => void }) {
-  const impacts: Record<string, number> = {
-    cpu: method.impact_cpu,
-    gpu: method.impact_gpu,
-    ram: method.impact_ram,
-    vram: method.impact_vram,
-    disk: method.impact_disk,
-    network: method.impact_network,
-  };
+  const impacts = impactsOf(method);
 
   return (
     <Modal

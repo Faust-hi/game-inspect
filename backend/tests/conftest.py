@@ -27,9 +27,6 @@ if not os.environ.get("DATABASE_URL"):
     os.environ["DATABASE_URL"] = f"sqlite:///{(_TMP_DB_DIR / 'test.db').as_posix()}"
 
 os.environ["AUTO_SEED"] = "false"
-# Тесты не должны зависеть от счётчиков ограничения частоты запросов.
-os.environ.setdefault("ENVIRONMENT", "test")
-os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
 
 
 @pytest.fixture(scope="session")

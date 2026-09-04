@@ -22,7 +22,8 @@ from ..schemas.catalog import (
     HardwareGPUOut, MethodOut,
 )
 from ..services import serializers
-from ..services.recommender import link_out, _label
+from ..services.serializers import label_of as _label
+from ..services.serializers import link_out
 
 router = APIRouter(prefix="/catalog", tags=["Каталоги"])
 

@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ..models.entities import Method
-from ..models.enums import DevStage, Level3, Scale
+from ..models.enums import DevStage, LateCost, Level3, Scale
 from ..schemas.catalog import ProjectProfile
 
 # Порядок стадий для сравнения «раньше / позже».
@@ -47,7 +47,10 @@ def stage_pressure(profile_stage: str, method_stage: str) -> float:
 def resource_severity(profile: ProjectProfile) -> dict[str, float]:
     """Насколько критичен дефицит каждого ресурса (0 — не критичен, 1 — критичен)."""
     mapping = {"low": 1.0, "medium": 0.5, "high": 0.2}
-    get = lambda value: mapping.get(value or "", 0.4)  # noqa: E731
+
+    def get(value: str | None) -> float:
+        return mapping.get(value or "", 0.4)
+
     return {
         "cpu": get(profile.cpu_budget),
         "gpu": get(profile.gpu_budget),
@@ -123,7 +126,10 @@ def evaluate(method: Method, profile: ProjectProfile) -> Applicability:
 
     # --- Мягкие правила --------------------------------------------------
     result.stage_pressure = stage_pressure(profile.stage, method.recommended_stage)
-    late_weight = {"low": 0.0, "medium": 0.35, "high": 0.7, "critical": 1.0}.get(method.late_cost, 0.35)
+    try:
+        late_weight = LateCost(method.late_cost).weight
+    except ValueError:
+        late_weight = 0.35
     result.late_penalty = late_weight * (0.4 + 0.6 * result.stage_pressure)
 
     for condition in method.requires_conditions or []:
