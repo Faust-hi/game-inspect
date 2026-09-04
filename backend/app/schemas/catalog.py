@@ -473,6 +473,9 @@ class RecommendationResult(BaseModel):
     Поле `input_key` — отпечаток профиля и корзины. Клиент сравнивает его со
     своим текущим состоянием и понимает, что результат получен именно для тех
     данных, которые сейчас на экране, а не для предыдущих.
+
+    Корзина включена в ответ, чтобы отпечаток был проверяемым: без неё клиент
+    не может убедиться, что результат посчитан для того же набора решений.
     """
 
     profile: ProjectProfile
@@ -486,12 +489,18 @@ class RecommendationResult(BaseModel):
     hardware: HardwareEstimateOut | None = None
     similar_games: list[SimilarGameOut] = Field(default_factory=list)
     meta: dict[str, Any] = Field(default_factory=dict)
+    basket_codes: list[str] = Field(default_factory=list)
     input_key: str = ""
 
     @model_validator(mode="after")
     def _fill_input_key(self):
+        # Ключ всегда задаётся сервисом расчёта. Здесь он заполняется только для
+        # результатов, собранных вручную, — и тогда берётся корзина из ответа,
+        # иначе отпечаток молча относился бы к пустому набору.
         if not self.input_key:
-            object.__setattr__(self, "input_key", input_fingerprint(self.profile, []))
+            object.__setattr__(
+                self, "input_key", input_fingerprint(self.profile, self.basket_codes)
+            )
         return self
 
 

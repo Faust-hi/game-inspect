@@ -1,6 +1,6 @@
 /** Корневой компонент: навигация по этапам работы, экспорт и административный раздел. */
-import { useEffect, useMemo, useState } from 'react';
-import { useStore } from './store';
+import { useMemo, useState } from 'react';
+import { useEnsureResult, useStore } from './store';
 import { api } from './api';
 import { Callout, Loading, Toast } from './components/ui';
 import { exportProjectJson, exportProjectPdf } from './export';
@@ -57,6 +57,7 @@ export function App() {
     profile,
     basket,
     result,
+    resultStale,
     catalog,
     calculating,
     calculate,
@@ -93,12 +94,7 @@ export function App() {
 
   // Экраны 8–11 строятся по результатам расчёта, поэтому при переходе на них
   // расчёт выполняется автоматически, если он ещё не был сделан.
-  useEffect(() => {
-    if (showAdmin) return;
-    if (!RESULT_STEPS.includes(step)) return;
-    if (hasResult || calculating || calculateError || !hasFunctions) return;
-    void calculate();
-  }, [step, showAdmin, hasResult, calculating, calculateError, hasFunctions, calculate]);
+  useEnsureResult(!showAdmin && hasFunctions && RESULT_STEPS.includes(step));
 
   const stepBadge = (key: StepKey): number | null => {
     if (key === 'functions') return profile.functions.length;
@@ -212,7 +208,8 @@ export function App() {
       <header className="app-header">
         <div className="brand">
           ИС оптимизации разработки игр
-          <small>{profile.name}</small>
+          {/* Фоновый пересчёт после правки анкеты должен быть заметен. */}
+          <small>{calculating ? 'расчёт…' : profile.name}</small>
         </div>
         <div className="spacer" />
         <div className="header-actions no-print">
@@ -278,6 +275,18 @@ export function App() {
                 {calculateError && (
                   <Callout tone="danger" title="Расчёт не выполнен">
                     {calculateError}
+                  </Callout>
+                )}
+                {resultStale && (
+                  <Callout tone="warn" title="Данные изменены, результат нужно обновить">
+                    Показан расчёт для предыдущих значений профиля или корзины.
+                    <button
+                      className="btn btn-primary"
+                      style={{ marginTop: 10 }}
+                      onClick={() => void calculate()}
+                    >
+                      Пересчитать
+                    </button>
                   </Callout>
                 )}
                 {renderStep()}

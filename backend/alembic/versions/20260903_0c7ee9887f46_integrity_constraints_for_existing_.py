@@ -87,12 +87,28 @@ def _existing_constraints(table: str) -> set[str]:
         return set()
 
 
+def _drop_stale_temp_table(table: str) -> None:
+    """Удаляет остаток временной таблицы от прерванной миграции.
+
+    Пересоздание таблицы в SQLite выполняется без общей транзакции, поэтому
+    прерванная миграция оставляет временную таблицу, и повторный запуск падает
+    с «table _alembic_tmp_... already exists». Остаток пуст: данные переносятся
+    в основную таблицу на последнем шаге, а сам он удаляется.
+    """
+    bind = op.get_bind()
+    temp_name = f"_alembic_tmp_{table}"[:50]
+    if temp_name not in sa.inspect(bind).get_table_names():
+        return
+    bind.exec_driver_sql(f"DROP TABLE {temp_name}")
+
+
 def upgrade() -> None:
     for table, items in CONSTRAINTS.items():
         present = _existing_constraints(table)
         missing = [(name, condition) for name, condition in items if name not in present]
         if not missing:
             continue
+        _drop_stale_temp_table(table)
         # SQLite не добавляет ограничение к существующей таблице: в пакетном
         # режиме Alembic пересоздаёт таблицу и переносит данные самостоятельно.
         with op.batch_alter_table(table) as batch:

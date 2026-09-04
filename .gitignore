@@ -15,6 +15,10 @@ frontend/*.tsbuildinfo
 *.sqlite3
 backend/gamedev_dss.db
 backend/test_gamedev_dss.db
+# Сопутствующие файлы SQLite и резервные копии, сделанные перед миграцией
+*.db-wal
+*.db-shm
+*.db.bak*
 
 # Кэши инструментов
 __pycache__/

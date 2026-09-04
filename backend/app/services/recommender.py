@@ -364,6 +364,7 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
             basket_synergies=basket_synergies,
             hardware=hardware.estimate_hardware(db, profile, basket_methods, similar_examples=len(similar)),
             similar_games=similar,
+            basket_codes=basket_codes,
             input_key=input_fingerprint(profile, [m.code for m in basket_methods]),
             meta=_meta(profile, weights={}, candidates=len(candidates), applicable=0,
                        excluded=len(excluded), calculated_at=calculated_at,
@@ -444,6 +445,7 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
         basket_synergies=basket_synergies,
         hardware=hw,
         similar_games=similar,
+        basket_codes=basket_codes,
         input_key=input_fingerprint(profile, [m.code for m in basket_methods]),
         meta=_meta(
             profile, weights=weights, candidates=len(candidates), applicable=len(evaluated),

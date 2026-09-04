@@ -165,10 +165,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const inFlight = useRef<AbortController | null>(null);
 
   const inputKey = useMemo(() => inputKeyOf(profile, basket), [profile, basket]);
-  const inputKeyRef = useRef(inputKey);
-  useEffect(() => {
-    inputKeyRef.current = inputKey;
-  }, [inputKey]);
 
   /**
    * Сбрасывает результат и отменяет выполняющийся запрос.
@@ -269,14 +265,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const controller = new AbortController();
     inFlight.current = controller;
 
-    const requestedKey = inputKeyRef.current;
+    // Ключ берётся из этой же области видимости: он заведомо соответствует
+    // данным, которые уходят в запросе. Хранить текущий ключ в ref и обновлять
+    // его в эффекте нельзя — эффекты вложенных экранов выполняются раньше
+    // эффектов провайдера и получили бы ещё не обновлённое значение, из-за чего
+    // автоматический пересчёт после правки анкеты отбрасывался бы как устаревший.
+    const requestedKey = inputKeyOf(profile, basket);
     setCalculating(true);
     setCalculateError(null);
     try {
       const next = await api.recommend(profile, basket, controller.signal);
-      // Гонка: пока выполнялся запрос, входные данные могли измениться.
-      // Медленный ответ на старые данные не должен перезаписывать новый расчёт.
-      if (inFlight.current !== controller || inputKeyRef.current !== requestedKey) return;
+      // Гонка: пока выполнялся запрос, входные данные могли измениться, и тогда
+      // `discardResult` обнулил `inFlight`. Медленный ответ на прежние данные
+      // не должен перезаписывать актуальный результат.
+      if (inFlight.current !== controller) return;
       setResult(next);
       setResultKey(requestedKey);
       setCalculating(false);
