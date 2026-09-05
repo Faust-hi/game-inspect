@@ -58,6 +58,16 @@ export function RecommendationList({
                   {item.flags.map((flag, index) => (
                     <Flag key={flag} code={flag} label={item.flag_labels[index] ?? flag} />
                   ))}
+                  {item.stability && (
+                    <span
+                      className="faint xsmall"
+                      title="Ранг при изменении каждого веса TOPSIS на ±10% по одному"
+                    >
+                      {item.stability.stable
+                        ? 'ранг устойчив к ±10% весов'
+                        : `ранг ${item.stability.rank_min}–${item.stability.rank_max} при ±10% весов`}
+                    </span>
+                  )}
                 </div>
 
                 <div style={{ display: 'flex', gap: 16, marginTop: 10, flexWrap: 'wrap' }}>

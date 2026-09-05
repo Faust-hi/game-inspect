@@ -1,0 +1,607 @@
+Look at this. Check this out. Isn't this amazing?
+0:04
+4 секунды
+We finally have something rendering. So, what you are looking at over here is Hazel. Wait, it still says 2024.1.
+0:11
+11 секунд
+And that took a while to recompile. But here we have Hazel 2025.1, which is using the new renderer, well,
+0:18
+18 секунд
+the new renderer back end I should say, which is NV RHI. And not only is all of the UI that you're seeing here, including immeue with multi- viewports,
+0:27
+27 секунд
+which just means that you can like drag off these panels and they're they dynamically make their own windows and all of that stuff is rendered using that new backend. In fact, we have our own
+0:36
+36 секунд
+custom IM GUI renderer now instead of using the kind of included example. The actual 3D scene is now also beginning to
+0:43
+43 секунды
+be rendered using all of that new technology. And I'm really really excited because it took a while to get here. Even though what you're seeing
+0:51
+51 секунда
+right now is this red clear color and all of the meshes in the scene are simply just bounding boxes. That's actually why we're seeing anything at
+1:00
+1 минута
+all. I've just got show bounding boxes on for every entity. Even though this may not look like much, believe me, it is. So, what is this video? A little bit of an update, a little bit of a devlog.
+1:10
+1 минута 10 секунд
+I don't know what you want to call it. I don't know what I'm going to call it. I just wanted to share the fact that we have kind of reached this milestone. Uh
+1:17
+1 минута 17 секунд
+it's the 1st of July. I wanted to have this entire thing done I think by the end of June if I recall correctly. So
+1:24
+1 минута 24 секунды
+that's uh yeah going well #software development. But I thought this would be a really good opportunity to talk a little bit about how I approach such a
+1:33
+1 минута 33 секунды
+mammoth task. All of the fun little quirks that we discovered along the way and also what the next steps are and when I think this will actually be done.
+1:43
+1 минута 43 секунды
+So, first and foremost, you should know that I am live streaming myself working on this in its entirety on twitch.tv/thecherno.
+1:50
+1 минута 50 секунд
+Those VODs are then trimmed and put onto YouTube onto my other channel called Cherno Unplugged. I'm also using AI to take a look at the transcript of the
+1:59
+1 минута 59 секунд
+live stream and generate this summary for it, which summarizes the gist of each stream as well as points out interesting things that happened during the stream and just makes the content a
+2:07
+2 минуты 7 секунд
+little bit easier to follow because, well, there's a lot of it. I've been really enjoying streaming all of this and interacting with you guys as well.
+2:12
+2 минуты 12 секунд
+So, I think that's something that I'm hopefully going to continue doing for pretty much all of the work that I do on Hazel. And secondly, if you would like to support the project, you can go to
+2:20
+2 минуты 20 секунд
+patreon.com/thecherno, sign up for the $10 tier, and you will get access to Hazel, all of its source code, all the development branches, including this
+2:28
+2 минуты 28 секунд
+renderer 2022 branch. You can take a look at all of the code. You can actually build and use Hazel for whatever you like, and of course, you'll be helping to support the project. So,
+2:36
+2 минуты 36 секунд
+thank you for that. So what exactly was this journey like? What were the issues?
+2:41
+2 минуты 41 секунда
+And why am I so excited about a bunch of bounding boxes? What's really going on here? So first and foremost, hazelengine.com has this little Millerote board button
+2:49
+2 минуты 49 секунд
+up here. If you go there, you'll see that there is a road map. People who watch these videos often know where I'm going with this. There's this road map
+2:56
+2 минуты 56 секунд
+to release which has Renderer 2025 over here as well as everything that we're doing to work towards a free release.
+3:03
+3 минуты 3 секунды
+Yes, that's right. The plan is to release Hazel for free. If you want more information on that, I'll link a video up there. Anyway, the first part of that
+3:10
+3 минуты 10 секунд
+kind of is this. Even though basic multiplayer, I actually made a video about this recently, which I will also link up there, kind of walking you
+3:18
+3 минуты 18 секунд
+through how that works in the first place. This is kind of almost done. This is not going to take anywhere near as much time as renderer 2025, which has
+3:26
+3 минуты 26 секунд
+been taking a while. I do still have some concerns about what we are exactly going to do with shaders. primarily there are some suggestions to use
+3:33
+3 минуты 33 секунды
+something like slang slang shader lang I don't know I'm just going to call it slang some to basically use something like slang and then from there we can
+3:41
+3 минуты 41 секунда
+compile to hlsl or to jsl or to you know dxil dxpc and spurv and whatever else we need even to metal shading language in
+3:48
+3 минуты 48 секунд
+fact slang even compiles to C++ code so it is pretty cool but whether or not we want to go there is like we need to evaluate that properly if anyone has
+3:56
+3 минуты 56 секунд
+strong opinions as to why we maybe should adopt something like slang instead of just using uh I mean GLSL can
+4:03
+4 минуты 3 секунды
+actually compile into DXIL and DXPC but not exactly directly because we basically have to first compile GLSL to spurv then from spurv to hlsl using
+4:13
+4 минуты 13 секунд
+spurvy cross and then to like dxil and dxp. So there is that intermediate step which I don't know maybe they're going to iron out at some point. Those of you
+4:21
+4 минуты 21 секунда
+who have no idea what I'm talking about I apologize I probably shouldn't spend the whole time here talking about shaders. If you want to see a video of me talking about shaders for 20 minutes,
+4:29
+4 минуты 29 секунд
+let me know in the comment section below. Anyway, the the point is that there are still some kind of pipeline quirks that I guess I need to come up
+4:37
+4 минуты 37 секунд
+with opinions and direction for. So, I'm still thinking about that. But other than that, uh we are progressing pretty well. The way that I approached this
+4:45
+4 минуты 45 секунд
+task was I first started with the UI. So the editor inside Hazel is obviously
+4:52
+4 минуты 52 секунды
+made up of two main components as far as the rendering goes. So first of all, what you are seeing over here is just a
+4:59
+4 минуты 59 секунд
+normal window. It's a window with the title, the decoration. So like the title, the windows default look and
+5:07
+5 минут 7 секунд
+feel, close button, all that stuff hidden. So it's an undecorated window which has basically this swap chain, this graphics rendering context that
+5:15
+5 минут 15 секунд
+fills it entirely. And from there, everything you see on the screen is just drawn using Vulcan in this case within
+5:23
+5 минут 23 секунды
+Hazel. So this UI that you're seeing is just a library called dear imue which we have been using since the very beginning and it is excellent. By the way, did I
+5:31
+5 минут 31 секунда
+mention we finally updated to the latest version? Finally, we were like 2 and a half years behind and then we just I did it. So we are now on basically the
+5:38
+5 минут 38 секунд
+latest imue version on the docking branch. So within this whole entire window that we are fully rendering ourselves from scratch, there's
+5:47
+5 минут 47 секунд
+obviously two main components. There's the actual UI stuff that you see here and then there's the viewport which is Hazel's kind of viewport that is in 3D
+5:56
+5 минут 56 секунд
+space. It's all technically in 3D space but the point is this is just an image that is produced by Hazel's scene renderer which we are then rendering as
+6:05
+6 минут 5 секунд
+an immie panel basically. So it's like an imgue window/ panel that has an image on it and that image is taken from a
+6:13
+6 минут 13 секунд
+frame buffer which is the render target for Hazel scene renderer which renders you know all the stuff in this scene into that image and then we display it
+6:21
+6 минут 21 секунда
+here and then of course we overlay some other UI elements like this stuff on top of that image. So those are the two main components. We have all of the UI
+6:29
+6 минут 29 секунд
+rendering and the actual Hazel rendered image. Now the Hazel rendered image over here that is the only thing that you
+6:37
+6 минут 37 секунд
+will see in the runtime. Hazel's runtime there's literally a project called Hazel runtime which is basically the application that we actually ship. So if
+6:44
+6 минут 44 секунды
+you take a look at our currently shipped games that we just made in very short game jams all of those games are Hazel's runtime application shipped. So that
+6:52
+6 минут 52 секунды
+actually doesn't include any I'm guey at all. It's just basically rendering what's in this viewport. But the editor
+7:00
+7 минут
+has these two main kind of renderable things. The UI using imgeue and then Hazel's viewport which uses Hazel's
+7:08
+7 минут 8 секунд
+scene renderer. Now when it comes to complexity, rendering UI is generally much easier
+7:15
+7 минут 15 секунд
+than rendering you know a 3D game. And so I looked at this and I was like, okay, well, let's just start first of
+7:23
+7 минут 23 секунды
+all with Hazelnut instead of the Hazel runtime because Hazelnut has all of this immue code that is fairly trivial to
+7:30
+7 минут 30 секунд
+render. Like it's not very difficult at all to render all of this UI. Now, what do I mean by not very difficult? I mean
+7:37
+7 минут 37 секунд
+the shader is extremely simple and it's a single render pass. It's just render this, please. That's it. There's no like
+7:45
+7 минут 45 секунд
+different materials. There's no different shaders. It's just as simple as here is my render pass and then I'm going to render all of this stuff. Now,
+7:53
+7 минут 53 секунды
+it's not a single draw call, but that doesn't really matter. The point is it's a single render pass. That's why I decided to start with that, which is why for the longest time, we just had a
+8:01
+8 минут 1 секунда
+blank viewport and then we were working on getting all of this UI stuff to render. Now, there were lots and lots of quirks with this. Partly also because we
+8:10
+8 минут 10 секунд
+decided to update our IMUI version 2.5 years forward. But we managed to work through all of those. And again, I have
+8:17
+8 минут 17 секунд
+live streams on my channel unplugged channel of me working on all of this. I don't think they start quite at the very beginning, but they start pretty far back. In fact, all of the live stream
+8:25
+8 минут 25 секунд
+vos related to this specific renderer 2025 project, I've put into a renderer 2025 playlist on my channel unplugged channel. So, if you actually want to see
+8:33
+8 минут 33 секунды
+the project in order, especially if you're watching this video later and I'm working on other stuff, then check out that playlist. I'll leave a link to it in description below. Now, of course,
+8:41
+8 минут 41 секунда
+before I started even seeing anything on the screen, I first had to work on the device manager, the swap chain, all of that kind of stuff, which Hazel already
+8:49
+8 минут 49 секунд
+had, except it was written in pure Vulcan, and there wasn't a really easy way for it to use different rendering backends such as DirectX 11 or 12. They
+8:59
+8 минут 59 секунд
+obviously require their own swap chain creation code and their own device creation, device management code. So I decided, let's just completely rewrite
+9:07
+9 минут 7 секунд
+the entire swap chain and we'll try and use as much NVHI as possible for things like handling frame buffers, textures, all of that kind of stuff. But we did
+9:15
+9 минут 15 секунд
+still need to use Vulcan directly in some cases because NVHI doesn't really it's not supposed to be a replacement
+9:22
+9 минут 22 секунды
+for things like the swap chain. There are still scenarios in which you need to actually use render API specific code.
+9:29
+9 минут 29 секунд
+That's normal. It's just for highle concepts like you know images, textures, you know buffers, render passes, stuff like that, pipelines. You can just use
+9:36
+9 минут 36 секунд
+nvhi to describe those things instead of having to use vulcan directly. Now the imgeue uh situation and rendering all of
+9:44
+9 минут 44 секунды
+this UI is actually where the quirks started to show themselves because if we have a look at the imgeue shader which is now written in HLSL you can see that
+9:53
+9 минут 53 секунды
+it's pretty simple. There are some Vulcan specific decorations which we had to use over here. This is based off of an existing like very simple I'm gi HLSL
+10:01
+10 минут 1 секунда
+shader but we did need to change some things namely this situation over here with the binding. And you might look at this and be like, okay, so you have a
+10:10
+10 минут 10 секунд
+texture, you have a separate sampler, it's in binding 128 for some reason in Vulcan and zero for the texture. What's
+10:18
+10 минут 18 секунд
+going on there? Why why would this not just be zero and one? What's happening?
+10:22
+10 минут 22 секунды
+And furthermore, we have this whole register situation, which is something that DirectX likes to use. Basically, without getting too deep into this, one
+10:31
+10 минут 31 секунда
+of the quirks of NVRI that we discovered was that they actually like to impose offsets for different types of inputs, I
+10:40
+10 минут 40 секунд
+guess, that go into shaders. So, in NVRI.h there is a specific Vulcan binding offsets situation which you can see
+10:49
+10 минут 49 секунд
+describes compile time settings for HLSL to spurvy register allocation and this is what they are set to. So shader resource is zero things like textures
+10:58
+10 минут 58 секунд
+sampler is 128 constant buffer is 256 and unordered access like storage buffers is 384. So these are specific
+11:06
+11 минут 6 секунд
+binding offsets that are applied and where are they applied you may ask? Well over here inside vulcan resourcebindings.cpp CPP which is a
+11:14
+11 минут 14 секунд
+Vulcan specific file obviously inside the create binding set function which is basically create descriptor set binding set descriptor set same kind of
+11:22
+11 минут 22 секунды
+situation when it goes through and people familiar with Vulcan will recognize this code but when we go through here and we actually generate this write descriptor data which is
+11:30
+11 минут 30 секунд
+basically us filling this strct of write descriptor set which we then use with a function called update descriptor sets on the device over here. A descriptor,
+11:39
+11 минут 39 секунд
+by the way, is just simply a way to basically link a binding point with an actual resource such as a buffer or a texture. So, in other words, this is how
+11:46
+11 минут 46 секунд
+we tell our shader which specific texture to use. For example, at binding point zero. So, you can see over here, for example, for a resource type of
+11:54
+11 минут 54 секунды
+sampler, it actually sets the binding point, the slot to be the register offset plus the binding slot. And that
+12:03
+12 минут 3 секунды
+goes into this function over here as the actual destination binding. So in other words, using the little table that we have over here, that means that all
+12:11
+12 минут 11 секунд
+samplers start at a binding point of 128 and go to I guess 255 as the max and then we do constant buffers, uniform
+12:18
+12 минут 18 секунд
+buffers from 256 and etc. Now why why is this the case? Well, I presume it's to provide an effective mapping between the
+12:27
+12 минут 27 секунд
+fact that HLSL and DirectX actually differentiate what the register what the kind of binding point is based on what type of resource you're actually using.
+12:39
+12 минут 39 секунд
+So you can see that the sampler has a register of S0. It's not just zero, it's S0. S for sampler. Texture has T0. If it was a storage buffer, it would have U.
+12:50
+12 минут 50 секунд
+If it was a structured buffer, a constant buffer, it would have B for buffer and then like a slot like three.
+12:56
+12 минут 56 секунд
+So obviously that means that we can have two things in effectively binding point0, but that works for DirectX
+13:04
+13 минут 4 секунды
+because it's not zero, it's s0, and it's not zero, it's t0. They're different things, but they're not in Vulcan.
+13:11
+13 минут 11 секунд
+Vulcan has no way of really processing that. It doesn't does not compute. And so the way that NV RHI kind of solves this I guess is it's like okay well
+13:19
+13 минут 19 секунд
+let's just offset all of them by like basically a reasonable number you know and then we'll just say that 0 to 127 is reserved for shader resources like
+13:26
+13 минут 26 секунд
+textures and then you know 128 to 255 will be for samplers etc. Now, here's the thing. This only really applies if you write your code in HLSL like this.
+13:38
+13 минут 38 секунд
+And this code was required for me to actually get my sampler, my separate sampler to show up over here because I
+13:46
+13 минут 46 секунд
+was trying to use a sampler for this stuff that you are looking at over here.
+13:51
+13 минут 51 секунда
+Still looks a little bit blocky cuz we're not using maps. But basically, this was just set to nearest filtering, point filtering, super sharp. No filtering at all for any of this. when I
+14:00
+14 минут
+had this set to something else like one and I was trying to bind to one because we have this offset going on and that took a little bit of time to figure out
+14:07
+14 минут 7 секунд
+and we did I'll try and link the live stream on my other channel to where that happened over there. So that is a little strange but again I think that only
+14:15
+14 минут 15 секунд
+happened because we are in HLSL land here and by the way Hazel supports both HLSL and GLSL shaders. We have shader
+14:23
+14 минут 23 секунды
+compiler shader reflection systems for both. we don't really treat them any differently at the end of the day. And obviously this HLSL stuff is still
+14:31
+14 минут 31 секунда
+compiled into SperV. The problem is that when we look at a GLSL shader such as this, I could not get this uniform
+14:39
+14 минут 39 секунд
+buffer. And this literally happened in the live stream yesterday. I could not get this uniform buffer camera to actually work. It just would not show up
+14:46
+14 минут 46 секунд
+in render do. The numbers I was getting were just all garbage. What was going on with this? It's just a simple uniform
+14:53
+14 минут 53 секунды
+buffer. It's in set one and it's in binding zero. But what was happening was because of NVHI's weird offset table
+15:01
+15 минут 1 секунда
+situation thing, this was actually landing in I think 256 because remember that's the offset for constant buffers.
+15:09
+15 минут 9 секунд
+So it was landing in 256 in some cases.
+15:11
+15 минут 11 секунд
+But what would also happen is if I tried to manually set this to 256, it would also take the binding point from here via Hazel's shader reflection system and
+15:20
+15 минут 20 секунд
+then try and add that on. And so it would be at 512 and it was just a complete mess. So what I ended up doing was just going over here and just
+15:28
+15 минут 28 секунд
+setting it back to zero. Uh now of course I could have used these constexer functions as well, but I just set it to zero. And I'm assuming this is going to
+15:37
+15 минут 37 секунд
+break things potentially for certain HLSL shaders that we might have or anyway I got to figure this out. This is work in progress. I'm just sharing it
+15:45
+15 минут 45 секунд
+with you. It's part of a devlog. I don't have a solution for this that I'm like, you know, confident in. But uh yeah,
+15:52
+15 минут 52 секунды
+that's um that's where we're at right now. And then setting this back to zero so that it would actually, you know,
+15:58
+15 минут 58 секунд
+when it creates the right descriptor set data, it would actually set the destination binding to what it would be
+16:06
+16 минут 6 секунд
+for something like here it is constant buffer. You can see it's trying to do that register offset plus binding slot, but register offset is now zero. So
+16:14
+16 минут 14 секунд
+therefore, it's really just using that binding slot. So that's definitely something we have to figure out. But obviously the uniform buff is working.
+16:20
+16 минут 20 секунд
+We're seeing uh our actual scene which means that the camera is working and inside that shader, the render 2D line shader that just draws colored lines.
+16:28
+16 минут 28 секунд
+You can see it's multiplying uh the vertex position and everything by this uniform buffer which is our camera.
+16:35
+16 минут 35 секунд
+That's probably one of the biggest quirks that I've uncovered with NVRI.
+16:38
+16 минут 38 секунд
+The other big thing is we were leaking a lot of memory, something like 300 400 meg per second or something like that.
+16:44
+16 минут 44 секунды
+And that was because that was kind of my fault. But you need to make sure you do this once per frame. And that is basically run garbage collection.
+16:53
+16 минут 53 секунды
+Because what happens is every time you open a command buffer or a command list using nvhi, it doesn't put it back into a pool where
+17:01
+17 минут 1 секунда
+you can reuse it unless you actually run garbage collection. So what's interesting is that the garbage collection, you'd think it would like clean up resources or do something. in
+17:10
+17 минут 10 секунд
+Vulcan, in the Vulcan back end, all it does is retires command buffers. It will just go to retire command buffers and it
+17:18
+17 минут 18 секунд
+will kind of have a look at I guess the command buffers that are done and put them like back into this command buffers pool. And that's important because when
+17:26
+17 минут 26 секунд
+you get or create command buffer, which is a common function that happens every time you actually open a command buffer command list for writing, you can see if
+17:33
+17 минут 33 секунды
+the pool is empty, it will keep creating new command buffers. and create command buffer will actually also create its own command pool. So lots of memory
+17:42
+17 минут 42 секунды
+allocation happening there. Whereas if the command buffers pool is not empty because you've called run garbage collection then it will actually go
+17:49
+17 минут 49 секунд
+through and uh use one of the existing ones that have been retired via maybe I should retire have been
+17:56
+17 минут 56 секунд
+retired via the run garbage collection command. So those are kind of the two main big things. Other than that it's been pretty smooth sailing. The other
+18:04
+18 минут 4 секунды
+thing I learned about during the live streams was there's actually another RHI render hardware interface render interface uh that Nvidia, you know, have
+18:12
+18 минут 12 секунд
+on their uh GitHub, which is the Nvidia render interface, NRI. And this is um very interesting. I don't know, maybe I
+18:21
+18 минут 21 секунда
+should have used this from the beginning. It's a bit lower level. It has like it kind of supports metal through Molten VK though. So it doesn't
+18:29
+18 минут 29 секунд
+really have like a metal back end but it works with Molten VK which kind of you know converts Vulcan to metal code. I
+18:37
+18 минут 37 секунд
+had a very quick look at this. As far as I understand it's a little bit more performant in the sense that it doesn't recklessly allocate memory which I've
+18:44
+18 минут 44 секунды
+been finding that NV RHI does. And so I may have to I I mean it doesn't in all aspects but I I think it does more than
+18:52
+18 минут 52 секунды
+this library. So I might have to tame NVHI a little bit. But what I like about NVHI and why ultimately I decided to
+18:59
+18 минут 59 секунд
+stick with it is because it helps with some of these highle like resource tracking barrier placement, resource usage and lifetime. Like it has some
+19:08
+19 минут 8 секунд
+higher level systems that I think we could definitely benefit from in Hazel and obviously makes my job a little bit easier in the sense that I don't have to
+19:16
+19 минут 16 секунд
+be spending all of my time engineering specifically all the rendering stuff. I can get NVHI to do a little bit more of that so that I can focus on other areas
+19:25
+19 минут 25 секунд
+in the engine that I also have to you know spend time in not just the rendering because I that's not my job just to be in the rendering all the
+19:33
+19 минут 33 секунды
+time. Strangely though I think NRI actually provides stuff like the swap chain creation code which is a little
+19:41
+19 минут 41 секунда
+bit higher level cuz it's more like application dependent and NVH doesn't because it's like well that's up to the application. So, it's a bit interesting.
+19:49
+19 минут 49 секунд
+There are some things here that I guess you'd expect to be higher level. Um, you know, it even includes like an I'm gooey renderer and then uh this stuff doesn't.
+19:57
+19 минут 57 секунд
+So, that's yeah, interesting. But, um, they both seem pretty decent. So, I don't know. I guess the other change is
+20:05
+20 минут 5 секунд
+that we now do all of this imi rendering. We actually do that all ourselves now. So, what we used to do is over here inside there is an examples directory inside the imgoy repository.
+20:16
+20 минут 16 секунд
+And then you can see there are examples for everything. So we actually used to use the Vulcan example. Uh where's JLFW
+20:23
+20 минут 23 секунды
+Vulcan? So we used to use which actually isn't in here. I just realized backends.
+20:28
+20 минут 28 секунд
+Sorry. Backends. Here it is. I'm Guey imple Vulcan. We used to use this file directly to do all of the Vulcan stuff.
+20:35
+20 минут 35 секунд
+So the rendering was actually all done using imi using their like backend example. It worked fine. I mean it it
+20:43
+20 минут 43 секунды
+supported viewports as well which is the multiple windows situation. It worked pretty well and I kind of wanted to stick with it. But with this new system,
+20:50
+20 минут 50 секунд
+it became apparent that it was a little bit difficult. Also, I didn't quite like the fact that this paired with the GLFW file cuz there was a GLFW file for IMUI
+20:58
+20 минут 58 секунд
+as well, an example. Together, they would like, you know, create their own swap chains for new windows. And it was like a lot of like very specific code
+21:07
+21 минута 7 секунд
+that ran standalone kind of on its own, segregated outside of Hazel's main rendering and window management code, which I wasn't thrilled about. So all of
+21:15
+21 минута 15 секунд
+that is now is now gone because we have our own code that renders imge gooey stuff. So we have you can see inside Hazel we have this imgeue renderer over
+21:24
+21 минута 24 секунды
+here and that actually uses inside the render function. It actually uses nvi to do all of the rendering. So we go
+21:32
+21 минута 32 секунды
+through the actual I'm guey draw lists and then you can see we're actually using I mean some of the code is actually from Hazel's render API some of the code is you know directly NVHI which
+21:41
+21 минута 41 секунда
+Hazel uses and it does all of that stuff uh itself as well as inside layer you can see that all of this stuff like I'm
+21:49
+21 минута 49 секунд
+render create window which is for creating the new kind of window on the fly if you are using multiple viewports that's all flowing through Hazel's code
+21:58
+21 минута 58 секунд
+and you can see we're actually making like you know Vulcan swap chain And that's Hazel's class. We're using Hazel's own swap chain classes and
+22:05
+22 минуты 5 секунд
+everything to actually create these windows on the fly now, which is really cool. And then you can see render window just uses the I'm GUI renderer that we have to render directly like to the swap
+22:14
+22 минуты 14 секунд
+chain of that specific window. And then swap buffers over here is just you know our Vulcan swap chain present. And that's why we have our own uh you know
+22:23
+22 минуты 23 секунды
+I'm gooey shader which again is very straightforward. But inside uh the old system it was just this it it was just
+22:30
+22 минуты 30 секунд
+the embedded spurvy data or embedded spurvy bite code I guess of those actual shaders. You can see they're actually written in text over here as a comment.
+22:38
+22 минуты 38 секунд
+Uh we were directly just using all of this stuff. So it's cool that we're kind of flowing through Hazel a little bit more now. It's a little bit more custom.
+22:43
+22 минуты 43 секунды
+It's a little bit more in our control now. Even though I did end up modifying those backend files when needed. So that's like the other I guess big change
+22:51
+22 минуты 51 секунда
+um you know with how we actually render all of this stuff. But I will say it was quite the achievement when we actually got all of these like multi- viewport
+22:59
+22 минуты 59 секунд
+panels working with no issue. There was actually a moment where I had to update my GPU drivers because every time I dragged this window out, it would like
+23:07
+23 минуты 7 секунд
+flash black for a frame and I was like, that doesn't make any sense. Why is that happening? And then I was like, maybe I should update my GPU drivers. I was
+23:15
+23 минуты 15 секунд
+using like Nvidia Studio drivers for some reason instead of like the game ready ones. So I updated to the game ready ones and uh it doesn't flash anymore. Oh, and it wasn't just
+23:23
+23 минуты 23 секунды
+flashing. It would So, when I used to drag Windows out, I'll try and find this maybe in the live stream, but when I used to drag Windows out, it would
+23:31
+23 минуты 31 секунда
+actually crash my like my computer would freeze. So, it wasn't just the black flashing, it would also freeze like and I have to reboot my computer. Um, so
+23:40
+23 минуты 40 секунд
+that's how bad it was. But obviously now it works fine. So, I don't know. Nvidia dodgy drivers maybe. Okay. Well, anyway,
+23:47
+23 минуты 47 секунд
+that is a bit of an update on what I'm working on mainly. Again, just wanted to share the fact that we have this now, which is awesome. And again, it does
+23:55
+23 минуты 55 секунд
+seem like this is nothing. But obviously, this this is just the renderer 2D, but we are actually mostly
+24:03
+24 минуты 3 секунды
+flowing through the scene renderer code anyway. It's just we're not actually rendering anything. And the fact that the render pass that does all of these
+24:11
+24 минуты 11 секунд
+2D lines is actually capable of taking in that camera uniform buffer, it's actually mostly flowing through Hazel's
+24:18
+24 минуты 18 секунд
+code. So if we have a look, this is renderer 2D and that specific line rendering segment is over here. You can see we're creating a Hazel pipeline
+24:26
+24 минуты 26 секунд
+specification. We're setting out the layout. We're creating a render pass, a Hazel render pass and setting camera as an input. So that system is all working.
+24:35
+24 минуты 35 секунд
+We're validating and baking that render pass. So that system, which is the exact same system that the scene renderer uses. So for things like, you know, well, here's like the pre-deepth pass.
+24:45
+24 минуты 45 секунд
+You can see it's using the exact same system. So all of that has been wired up now behind the scenes. And then when it comes to the actual draw call which
+24:54
+24 минуты 54 секунды
+happens inside renderer 2D end scene for the actual line pass you can see it's doing render begin render pass render geometry and end render pass. So all of
+25:03
+25 минут 3 секунды
+that is actually working and this is exactly how the 3D renderer renders the 3D scene. It's just it uses different shaders, different pipelines, different
+25:10
+25 минут 10 секунд
+inputs, different outputs, all of that stuff. So the fundamental system is working now. We just have to make sure that all the little things are actually wired up correctly and that they work.
+25:21
+25 минут 21 секунда
+But I spent a considerable amount of time recently rem like an entire live stream which I guess isn't that long.
+25:27
+25 минут 27 секунд
+That was like considerably amount of time. Sounds like a week, but it was like a few hours rewriting um this descriptor set manager, which I'm probably going to rename to like render
+25:35
+25 минут 35 секунд
+resource manager or something. Uh because now it's not descriptor set.
+25:39
+25 минут 39 секунд
+It's not Vulcan specific anymore. But going through, you know, all the uh binding layouts and basically preparing like these binding sets, descriptor sets
+25:47
+25 минут 47 секунд
+that can be used with certain frames uh you know, and certain render passes when it's time to actually render. So that's basically all done for all of our
+25:55
+25 минут 55 секунд
+resource types that we support. So, yeah, we're making good progress. Uh, I think this should definitely be done by the end of the month, but it is going to
+26:02
+26 минут 2 секунды
+require a lot of testing. Please let me know if you enjoyed this kind of video.
+26:06
+26 минут 6 секунд
+I honestly did not think I was going to make a video about this at all. I just woke up today. I was like, you know what? I'm kind of excited about this. I want to make a video. If you have any
+26:13
+26 минут 13 секунд
+follow-up questions based on what I've shown here or about Hazel in general, you want me to talk about some stuff in a chill format like this, and also definitely let me know in the comment
+26:21
+26 минут 21 секунда
+section below. Don't forget that you can help support Hazel and get access to it by going to patreon.com/thechern. Link will be in description below and I will see you guys next time. Goodbye.

@@ -1,0 +1,724 @@
+did you miss me
+I miss me well I mean like this I missed
+the series what's up guys my name is
+China welcome back to the ray tracing
+series it's been a while since the last
+episode I know hoping to get back into
+it today we're going to be talking about
+emission and emissive materials and
+we're also going to take the opportunity
+to hopefully get in and clean some stuff
+up so to put it simply emissive
+materials are simply materials that emit
+light every other kind of material we've
+been working with and I say material
+than quotes because our materials are
+really quite basic at the moment but
+nevertheless every material that we've
+talked about thus far absorbs light what
+that means is that when we have a ray
+that comes in and it hits a surface such
+as this table for example that light
+that's coming in from that like window
+behind me when it hits this table the
+table absorbs some portion of that light
+and the rest of it is reflected
+somewhere now we've touched on this
+Loosely in the past but the some way
+that it's reflected to will be
+determined by the actual kind of micro
+facet model of the surface so rougher
+surfaces will scatter more Rays kind of
+in different directions smoother
+surfaces will more or less just reflect
+acted along the normal now in an actual
+Ray Tracer it's done typically in
+Reverse so the ray comes from the camera
+which might be like our eye looking at
+this table and what we're basically
+doing is reflecting this Ray that's
+coming from the camera in some kind of
+Direction and then to kind of simulate
+the material absorbing some of that
+light we have this multiplier variable
+which we're halving every single Bounce
+That kind of simulates the absorption of
+that light because eventually that Ray
+will go out somewhere and it will hit
+the sky oh it seems very simple there's
+only two spheres so it'll get there
+rather quickly and that sky is kind of
+the light source that we have but since
+the material absorbs some portion of the
+light we kind of reduce the overall
+light power using that multiplier now we
+also have this kind of directional light
+that we created it's a little bit of a
+hack but it's just a way to provide some
+kind of direct light to our pixels as
+well essentially so to summarize what's
+happening is every time the ray hits an
+actual object I.E one of our spheres it
+loses some energy it doesn't gain energy
+and and in fact every material that we
+have that is anonymisive in the real
+world will always absorb some portion of
+light energy I'm not sure if it's like a
+hundred percent physically impossible it
+sounds like it probably should be but at
+the very least I can confidently say
+that it will never increase the light
+energy again unless it's an emissive
+material in fact that's one of the most
+important rules of a physically based
+renderer energy conservation you can't
+wind up with more energy after you hit a
+surface the light energy will always
+kind of diminish obviously it depends on
+the surface and even like the surface
+color black will absorb more than white
+white will reflect more light but even
+something like a perfectly shiny mirror
+it does lose some kind of level of
+energy that's why if you put like
+mirrors facing each other so that you
+get that kind of like infinite mirror
+Corridor as you look into all of the
+mirrored Reflections you'll notice that
+they're getting darker and darker
+because even though the mirrors are very
+very reflective they are still absorbing
+some light right so materials and
+surfaces absorb some kind of light and
+then reflect the remaining light energy
+and that makes up our scene but what if
+we had a material that actually did
+increase light energy what if the
+material itself is kind of like emissive
+and glowing that is essentially a
+material that acts as a light source I
+think it's interesting that in kind of
+renderers and not just Ray tracers but
+rasterized renderers as well we have
+these kind of different light types we
+might have a directional light a point
+light a spotlight an area light whatever
+what's interesting is that none of these
+really exist at least in that form in
+the real world like they're all
+completely fictional a directional light
+like what's a directional light it's a
+it's a light with no position it's just
+a direction that clearly cannot
+physically exist in the real world but
+what it is is a really good model to
+approximate how sunlight works and how
+the Sun works because the sun is this
+huge powerful light source that's so so
+far away that really doesn't have a
+position as long as you're in one kind
+of position and don't go too far around
+the world it's kind of like a light that
+it covers an infinitely large area and
+it only really has One Direction a point
+light is a light source that is
+infinitely small and just emits light in
+all directions like that obviously
+cannot exist because you can't have a
+light that physically has no volume or
+Surface area it's infinitely small but
+it just creates light somehow that's
+magic that's fiction over here I have a
+light it has a filament and that
+filament when current flows through it
+will actually create lice so let's think
+about this a little bit deeper this
+filament is just a normal kind of
+material right now it's just a material
+that absorbs light in this state but if
+I turn this on
+Suddenly It's emitting light right so
+here it is just absorbing light like any
+other material we've talked about thus
+far
+and then suddenly it's able to actually
+emit light now if you're in some kind of
+like game engine or maybe like a 3D
+program like blender and you wanted to
+model this you might just create a light
+like in our Ray Tracer at the moment
+you'd be like okay well I want this
+light source to be here I'll just create
+like a point light or something but my
+point really that I'm trying to drive
+home here is that this is kind of just
+an emissive material so emissive
+materials
+are basically lights and in fact I'd go
+as far as to say that basically any
+light in the real world is just an
+emissive material the reason why we have
+lights like Point lights and directional
+lights is because it's a lot simpler to
+kind of model that version of reality
+especially in rasterized graphics but in
+a ray Tracer where we are physically
+just tracing rays and actually doing
+light calculations based on physics
+essentially this actually makes a lot
+more sense and so what we're going to do
+today is jump into our code base extend
+our materials to support emission and
+then Implement that into our renderer so
+that we can actually have materials that
+emit light and in fact we can turn
+everything else off our stupid
+directional light that was just kind of
+there as a test and then our Skylight we
+can turn all that off and just rely on
+materials that emit light to light our
+scene but first before we jump in I want
+to thank brilliant.org for sponsoring
+this video brilliant.org is a fantastic
+sponsor for this series because they
+have in my opinion opinion the best math
+courses on the internet and math is
+vitally important foray tracing I would
+say like for programming in general but
+like I mean if we take a look at some of
+the code that we're writing here you
+know like the sphere intersection
+knowing things like the quadratic
+formula solving these equations and like
+what to do with like the multiple
+solutions that you might get that kind
+of stuff is really really helpful and I
+promise you that if you just take a
+moment to try and understand this stuff
+you're going to have a lot more fun with
+the code you right because you'll be
+able to understand it on a deeper level
+and thus extend it and tweak it much
+more easily the worst thing to do is
+just to try and like tweak the numbers
+until something magically works and then
+it might not work in all cases because
+you have no idea what you're doing if
+you're completely new to math start with
+Brilliance Everyday Math course it's a
+really good gentle introduction if you
+want to get deeper into the kind of
+stuff we're doing here brilliant have
+everything from algebra to linear
+algebra to even calculus which we'll
+touch on later and the reason why I say
+Berlin is one of my favorite places on
+the internet to do this kind of stuff is
+because all of their courses are really
+engaging they have these widgets that
+you can play with to actually visualize
+how everything's working that can be
+really really helpful to help you
+understand and then they'll also
+continually quiz you which in my opinion
+is vital to ensuring that you actually
+retain the information that you're
+learning and guess what they have a
+30-day free trial just go to
+brilliant.org the channel link will be
+in the description below give it a go go
+through some of these math courses and
+see if you like them and if you do
+brilliant have been nice enough to offer
+the first 200 subscribers 20 off an
+annual membership huge thank you as
+always to brilliant.org for sponsoring
+this video okay so the first thing that
+I want to do here is I basically want to
+go back into Walnut app.cpp and extend
+our kind of materials that we have here
+to actually support emission now there's
+a few different ways that we can do this
+the simplest way is probably just to
+create like a float called like emission
+or something what I'm going to do though
+is create two variables there's going to
+be an emission power and then there's
+going to be a separate Effect 3 called
+emission color and this could just be
+zero like just black to begin with but
+the reason why I'm doing this is because
+you can technically have a material that
+emits a different color to what it is
+and this kind of model allows us to do
+that and the reason why I've also split
+this up because we could obviously this
+is a vek3 it doesn't have to be between
+zero and one kind of for each component
+it could be anything is just to make the
+kind of I'm going integration a little
+bit easier because I want to treat this
+as like a color edit so we have like a
+normal color panel that we can choose a
+color but then this will kind of be a
+multiplier on top of that that will
+really just get multiplied so basically
+what I'm saying is we'll multiply these
+two together when we do the actual
+calculation and so because we're going
+to want to use it that way I'm going to
+make a glm vac 3 function here called
+get emission const and it will just
+return emission color times emission
+power okay so the next step is going to
+be back in Walnut app we're going to
+expose this stuff into I am gooey just
+so that we can play with it so we have
+over here all of our materials being
+drawn uh in terms of like our controls
+fine GUI so let's make a color edit here
+called emission color can get rid of the
+rest of this and make sure that we use
+the glm value pointer over here and then
+we'll have emission power which will
+just be afloat uh I'm not gonna so we'll
+make it from zero to FLT Max which is
+just like the max float floating point
+value if you just set a minimum I am
+gooey at least this version of I am
+gooey will not kind of it won't do
+anything at all so you have to kind of
+set both Min and Max if you actually
+wanted to enforce that kind of those
+bounds
+um and we of course don't want this to
+be negative so zero is the the lowest
+and 0.05 can be the kind of speed at
+which we change that if we actually drag
+Okay cool so that looks pretty good
+um what we can do here if we want is we
+can set some initial emission but I'm
+not going to worry about that for now
+let's add another sphere uh that is
+maybe this has a radius of one that's
+maybe like two along the X and we'll
+give it a material index of Two And so
+I'll just make another material here
+maybe we'll call it Orange sphere we'll
+set the Albedo to be quite warm maybe
+like 0.8 0.5 0.2 something like that
+hopefully that'll be a nice orange uh
+roughness I'll just leave it that and so
+what we're going to do with this guy
+which yes I need to rename to Orange
+sphere is we will actually set uh an
+emission color I'll just set it to be
+the Albedo to begin with and then
+emission power I can set to like two or
+something for now again we should be
+able to just change all of this inside
+I'm GUI like inside our actual interface
+so it's not going to matter too much
+okay so let's hit F5 we're going to see
+obviously hopefully an orange sphere but
+with no emission because we don't have a
+mission all right uh and there we go uh
+that is looking quite bright but that's
+okay for now let's go in and first of
+all just remove the directional light
+that we have so if I go to the renderer
+over here inside our per pixel function
+which of course is like the main
+function where we do everything uh these
+are kind of our light calculations so we
+have this kind of light Direction light
+intensity I'm just going to get rid of
+this and then obviously sphere color
+times equals light intensity we can get
+rid of and since vehicle is only used
+here I can just use material Albedo
+directly just to make the code a little
+bit more simple so actually removing
+code we're making this more simple let's
+hit F5 and just see the effect without
+any kind of directional light okay cool
+looks kind of cool looks very bright in
+fact looks kind of like we barely have
+any diffuse light so let's go in and
+maybe change our model a little bit
+because what we're doing here is kind of
+like a weird hybrid between diffuse and
+specular light transport and I don't
+like it
+so what I'm going to do is actually if
+we go into random and say this is Walnut
+random we have this in unit sphere
+function which really all it does is it
+generates a vect3 in kind of like a
+negative one to one range right across
+obviously three axes so X Y and Z and
+then it normalizes it which will kind of
+make the length you know 0.7 I guess of
+each component and we wind up with
+basically a vector that is in 3D space
+somewhere inside a unit sphere this is
+actually a really handy function it's
+not a great implementation because this
+will use the random number generator
+it's going to be a little bit slower
+than something we'll switch to in the
+future which will actually be something
+that we can use inside our Vulcan Ray
+tracing shaders when we get there that's
+going to be like I don't know at least
+five times faster probably than what
+we're doing here and the other problem
+is it's in a unit sphere which isn't a
+great kind of domain I guess that we
+want our random numbers to be in because
+what's happening at the moment is if a
+ray hits this what we're doing is we're
+reflecting it just by the normal and
+then the blue is is kind of the output
+right we're also kind of jittering it
+based on the roughness of the surface
+and that's kind of creating this that's
+not how diffuse light works this is
+mostly used for specular and obviously
+you'll have like the micro facet model
+and really this is like the brdf which
+is the bi-directional reflectance
+distribution function but basically what
+I'm saying is for a diffuse lighting
+calculation obviously like what we're
+trying to do is instead of setting Rays
+from the light we're sending Rays from
+the camera so if we do in fact hit this
+we have to account for the possibility
+that actually in orange light might come
+from here
+light might come from all directions it
+really will come from all directions the
+only directions that can't come in
+really is from underneath because this
+is kind of like an opaque I guess
+surface and that doesn't make any sense
+if you go into like subsurface
+scattering and bssdfs that's a different
+story but for our kind of scenario that
+can't be possible so what we kind of
+like to do is look at a hemisphere and
+just be like okay well for each path
+that we Trace let's send a random Ray
+somewhere within this hemisphere what
+I'm doing and what I'm going to propose
+we do right now is we're just going to
+use this in unit sphere function which
+technically includes all of this stuff
+but it's not really technically going to
+create a worse image or an inaccurate
+image it's just going to send out more
+rays that aren't as important that will
+kind of not contribute anything and it
+will make our rendering take longer but
+in the future when we look at important
+sampling and stuff we'll revamp this
+whole thing anyway this is just so
+complicated isn't it I'm trying to I'm
+trying to not complicate it for myself
+maybe I should explain less so uh in
+unit sphere is what we can use basically
+is what I'm saying so let's take this so
+we currently have just glm reflect Ray
+Direction which is our incoming
+Direction along that world normal as I
+mentioned uh and then we Jitter it and
+then we get kind of this output rate but
+instead what we could do is when we hit
+something so I'll just comment this out
+so we can see what it was before we can
+just set this kind of New Direction our
+new diffuse direction to be Walnut
+random in unit sphere so this will just
+pick a new random direction for us to go
+in sounds kind of stupid but let's take
+a look at the result okay so this is the
+result we're seeing like a bunch of
+light obviously reflected from
+everywhere it is kind of overall bright
+to make this a little bit better what we
+can actually do is bias it to be in the
+direction of the world normal so if we
+take this random Vector that's in the
+unit sphere but then we add the world
+normal to it right so we have the normal
+added to it and then obviously we take
+the whole thing and normalize it we're
+kind of pushing it to be in the
+direction of the world normal but it's
+still has some variance to it so to do
+that we can normalize payload.world
+normal plus this kind of random in unit
+sphere uh Jitter if you will and you can
+see what that's done it's made it ever
+so subtly different in terms of this
+kind of uh Pink I guess being reflected
+off of this uh blue sphere now there's
+still way too much light energy though
+so let's fix that at the moment we have
+these two things up here and they're
+very important we have a color and we
+have a multiplier if we look at what
+this does color we're adding kind of
+Albedo to it which is already a little
+bit wrong because we do we can't add
+anything to it the reason why we're
+doing this is because this kind of had
+to do with the directional light that we
+had coming in directional lights
+obviously add light so this kind of
+makes sense what I'm going to do just
+for clarity is I'm actually going to
+change these variables a little bit I'm
+going to rename this color to be light
+so now it kind of makes sense like when
+you see light plus equals this it tells
+you that you're actually adding light
+power and that immediately hopefully
+like kind of looks wrong right this kind
+of makes sense like we're adding a sky
+color because the sky is kind of
+supposed to be a light but this looks
+wrong so that's good multiplier okay a
+few things here first of all this is
+just a float at the moment what it
+really should be is a vect three why
+because not to get too deep into this
+but obviously like we have a spectrum of
+colors we have this kind of wavelength
+of light energy when light hits
+something materials will actually absorb
+certain wavelengths of light so if we
+look at my water bottle here this Orange
+right why is this Orange it's because
+when the light hits it it absorbs pretty
+much all of the blue light and it only
+reflects light that is kind of red and
+green of course it reflects a little bit
+of blue light but predominantly it's
+this color because when the light hits
+it this material is capable of absorbing
+certain wavelengths of light and
+reflecting other wavelengths so that we
+can actually see them so in a similar
+way it doesn't make sense for our
+multiplier to just be a float so I'm
+going to to make it of x3 we're going to
+initialize it here 2 1 same as it was
+when it was a float and this multiplier
+there's a few different names that we
+could use for it it could be like the
+color of our Ray in a way because as the
+ray bounces around and materials absorb
+certain colors we're left with whatever
+like the remaining light energy in that
+rate is I'm going to rename it to
+something called contribution and that's
+basically going to be like the amount of
+color contribution that our Ray carries
+so at the moment we're halving it but
+let's change the way that this is
+actually calculated and it's going to be
+really simple but the effect is going to
+be so dramatic we're simply going to
+stop increasing light and instead change
+our contribution to be multiplied by
+material.albedo so what are we doing
+here well remember this is starting at
+one so if we have something that's red
+what's the Albedo going to be one zero
+zero so if we multiply contribution with
+this what's happening is that these
+channels are basically being canceled
+out they're being absorbed and then this
+kind of Channel or color wavelength is
+reflecting a hundred percent of it so
+therefore we will see red light now
+notice this is times equals and as long
+as this stuff is in between zero and one
+and this starts at one we will always
+diminish we will always either diminish
+or remain exactly the same as in this
+case if we even had something slightly
+less red it would actually absorb which
+means we would progressively get darker
+that's good we shouldn't be able to add
+light unless it's a light source or an
+emissive material so by doing this with
+our little uh contribution and then
+remember so we're not adding light
+anyway we're returning a light at the
+end here but we're just kind of
+multiplying with the Albedo to get the
+contribution the only place where we add
+the light is over here and we do Sky
+color times contribution let's see what
+that looks like all right check it out
+doesn't that look cool
+this looks so dramatically different and
+this is diffuse only so no Reflections
+no specular we'll get to that later but
+what we're seeing here I think is pretty
+cool I mean if we zoom in a little bit
+you can see the pink kind of reflected
+here you can see obviously the influence
+of this blue thing up here you can see
+the shadow that's been created here this
+kind of natural ambient occlusion and it
+really is ambient occlusion here because
+this Skylight is kind of like an ambient
+light source it doesn't have a direction
+or anything like that now I also notice
+here that for some reason the emission
+the emission color is correct but the
+emission power is zero so I must have
+made a little typo yeah okay emission
+power I use metallic so this should be
+emission power let's quickly fix that up
+and so now what I would like to do is
+I'd like to actually get this kind of
+emission power and this this sphere
+that's supposed to be missive to
+actually emit light how do we do that
+that sounds pretty complicated doesn't
+it no no not at all because guess what
+we have to do all we have to do is take
+this light and it doesn't matter by the
+way if we do it first or second because
+they're not really going to be exclusive
+to each other but all we have to do is
+is take this light and just add the
+emission from it so we're generating
+light basically and again this light
+isn't really going to do much at this
+stage you could multiply this by the way
+with material Albedo so that you can
+still kind of absorb some of that but we
+won't do that for now for anonymmissive
+materials this will just add zeros or
+won't do anything but if something if
+something's emitting light we're
+actually kind of creating more light and
+so obviously that raid that contributes
+to a final pixel will have a brighter
+pixel and everything along its path will
+also contribute to that so let's hit F5
+and take a look at that we now have
+basically a light source over here now
+if you were expecting to see like you
+know a glowing a glowing sphere like
+Bloom that's not going to happen here
+because that kind of glow that's a
+post-process effect just like it is in a
+rasterized renderer we would need to
+basically Implement Bloom the same way
+because it's kind of like a camera
+effect so this actually is correct now
+to make this effect a bit more dramatic
+let's just get rid of our Skylight so
+what I'm going to do is just get rid of
+this comment it out so now the only
+place where we're actually able to
+gather light because light stars are
+zero the only place where we're able to
+gather light is if we have an emissive
+material so without that our scene would
+just be black but since we have an
+emissive material check that out how
+cool is that let's play around with this
+scene a little bit so what I'm going to
+do is just grab this sphere which is I
+think this one up here I'm going to turn
+off accumulate just so that we can play
+with these controls because I don't have
+them resetting everything let's move it
+like I don't know back kind of over here
+I'm going to make it way bigger so that
+it's kind of like a sun
+uh
+continue moving it like back here maybe
+make it even bigger and then let's hit
+accumulate now we can also play with the
+emission power if we want so two let's
+make it like 20 reset and take a look at
+that isn't that beautiful I just think
+that looks really really cool let's
+maybe fly over a little bit to here
+and if we kind of just give it some time
+to accumulate as well I'm going to leave
+this running for like two minutes or so
+and we'll see what it looks like okay so
+this is about two minutes in you can see
+it's definitely much less noisy you can
+also see the kind of light energy here
+reflecting onto the ground from this
+sphere which is pretty cool and look at
+this absolutely beautiful soft Shadow
+like just try and Achieve that in a
+rasterize surrender am I right it's so
+difficult but you it just happens
+naturally and that's one of the
+beautiful things about Ray tracing like
+did we have to implement Shadows like no
+no we don't obviously for like
+directional light sources and when we
+have basically things that aren't
+emissive if we're trying to model those
+traditional light sources we will have
+to do some kind of Ray Trace shadows and
+maybe some other algorithms they're a
+lot more simple than like Shadow maps
+and actually getting Shadow maps to look
+good in a rasterized pipeline however
+you can see that we just get these kind
+of amazing looking Shadows just for free
+and that's just the beauty of Ray
+tracing and what you could do absolutely
+is you could just make an entire scene
+with this like as I I mentioned emissive
+materials that's basically how lights
+work in the real world so there's no
+reason why you even need lights really
+like you could get away with quite a lot
+by just using this now the biggest thing
+this is missing at the moment is the
+whole specular component and obviously
+like the way that we're doing this kind
+of diffuse rendering is also not really
+100 correct and it will change depending
+on whether or not our material is
+metallic so there's a few there's still
+a ways to go in terms of physically
+based rendering but honestly I just
+think this is just beautifully simple
+like I mean if we look at the code that
+we have here like I mean this is our per
+pixel function it's like it's literally
+this
+this is basically our entire Ray Tracer
+excluding like the sphere intersection
+and you can see just how cool it is I
+mean of course we could get rid of this
+and then this is just what we're dealing
+with like it's just amazing it's amazing
+that that is really all it takes to make
+something as cool as that so I hope you
+guys enjoyed this video if you did
+please don't forget to hit like button I
+hope you're excited the ray tracing
+series is back if you are definitely
+show your support in the comments below
+don't forget to check out brilliant.org
+channel link will be in the description
+below and I will see you guys next time
+goodbye

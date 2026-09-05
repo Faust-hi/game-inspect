@@ -1,0 +1,820 @@
+We're back, but this time with protection. Hey, what's up guys? My name is TH. Welcome back to my code review series. A series in which you guys send me your code and I take a look at it.
+0:07
+7 секунд
+This time in a VM. So, today we have 23year-old developer. So, this is like more than twice the age of our previous code review. So, I'm expecting twice the
+0:15
+15 секунд
+quality. I'm a 23-year-old developer who currently has a day job working in Unreal Engine. So, I'm guessing this means like using Unreal Engine or making games with Unreal Engine or whatever
+0:24
+24 секунды
+else with Unreal Engine rather than working on Unreal Engine. As I was initially learning how to use the engine, I felt my understanding of fundamental C++ was lacking. For some reason, I felt the only reasonable
+0:33
+33 секунды
+choice to learn C++ better was to make a game engine completely from scratch with as few libraries as possible. Somehow that worked out. Currently, there are
+0:40
+40 секунд
+only two libraries in use, Glad and STB image. I love this like was to make a game engine completely from scratch and then like there are two libraries
+0:47
+47 секунд
+though. Like I mean to be fair like Glad is more of like just a loader of OpenGL functions. It's hardly like a library.
+0:54
+54 секунды
+It just makes the process of loading OpenGL functions from a DLL by name, by string, a lot easier because it just
+1:01
+1 минута 1 секунда
+does all of that for you. An STB image, yeah, I mean, for certain image formats like JPEG and PNG, especially if PNG is
+1:09
+1 минута 9 секунд
+compressed, it can be a little bit of work to decode those formats on your own. But of course, if you use image formats like BMP, that is pretty trivial. So, you could have done that.
+1:18
+1 минута 18 секунд
+But anyway, you know, the rest is low-level C++/ Windows API. I think the most interesting part of this project worth discussing is the architecture. Okay, good. So, we can focus on that.
+1:26
+1 минута 26 секунд
+There are a lot of lower level Windows APIs which need to be abstracted. Yes, I haven't been able to make all code completely platform agnostic. Again, day job, but I've hidden as much as
+1:34
+1 минута 34 секунды
+possible. The math directory also has some potentially interesting stuff for lower level optimization, something I'm not super comfortable in. So, I'm expecting like SSE stuff probably going
+1:43
+1 минута 43 секунды
+on here, but we'll see. Here is the GitHub page. Instructions for installation, as well as a GIF of a man collecting apples are in the readme.
+1:51
+1 минута 51 секунда
+Yes, this is a very important feature of a game engine. Hope you have a fun time.
+1:54
+1 минута 54 секунды
+Kind regards, Axel. Okay, cool. So, we have Greg engine. What a fantastic name.
+2:00
+2 минуты
+And yes, and here is the basket man example. Out of all the example games you could have made, Basket Man is what we get. Okay, so pretty good read me.
+2:09
+2 минуты 9 секунд
+You know, game engine utilizing open gel written in C++ setting up generate pressure files.bat, which will run pre-make, which I'm pretty familiar with, of course. Currently only supports
+2:17
+2 минуты 17 секунд
+Windows. There is no support system for Mac or Linux. pretty standard as well.
+2:21
+2 минуты 21 секунда
+Although of course, whilst it would have been a good thing to support, you know, at least something like Linux, the fact that you're doing everything yourself
+2:29
+2 минуты 29 секунд
+here with no third party libraries makes that a much more challenging task. Now, to quickly touch on this whole concept
+2:36
+2 минуты 36 секунд
+of making a game engine without any like or with minimal third party libraries, I do think that it's generally not a bad
+2:44
+2 минуты 44 секунды
+idea to do that for educational purposes. And I say for educational purposes because the problem with making game engines on your own, like the
+2:52
+2 минуты 52 секунды
+biggest problem, and I've been making my own game engines for like well over a decade for sure. And of course, I've also worked at EA on their game engines.
+3:01
+3 минуты 1 секунда
+And the biggest takeaway I would say from all of my experience on all of that is just like the sheer amount of resources required to build a game
+3:08
+3 минуты 8 секунд
+engine. And so when you decide to not use third-party libraries for things that like you know would would not
+3:17
+3 минуты 17 секунд
+negatively affect your engine or your software whatsoever. So like for example using GLFW for your like windowing and
+3:24
+3 минуты 24 секунды
+input and all of that stuff. The benefit there is that it includes basically all of the features that you need and if something's missing well just get in there and write some wind32 API code.
+3:33
+3 минуты 33 секунды
+that's it's open source you know you can do that but then it also gets you that like other platform support like Mac Linux some other ones as well you
+3:40
+3 минуты 40 секунд
+essentially get that like for free it's like work that has been done for you by not just a single person but essentially
+3:48
+3 минуты 48 секунд
+by like the open- source community JLFW is an example of a library that has lots and lots of different users right like
+3:54
+3 минуты 54 секунды
+lots of people use JLFW and so whenever there's like a bug or like something isn't supported or there's an issue those users since it's their kind best
+4:03
+4 минуты 3 секунды
+interest to fix that issue. They can just like submit pull requests back into that actual repository. And so what you're getting is this product that is
+4:11
+4 минуты 11 секунд
+tried and tested by a wide variety of different users who have vastly different problems to solve and they're all kind of using this library. You're
+4:19
+4 минуты 19 секунд
+getting all of that for free. It's such a good deal. You know what else is a good deal? Code Rabbit AI, the sponsor of this video. Guys, if you can't get me to do a code review for you, it's cool.
+4:29
+4 минуты 29 секунд
+Just get Code Rabbit to do it. Code Rabbit gives your code AIdriven contextual feedback no matter what language you're using. It integrates with GitHub or GitLab and scans your
+4:37
+4 минуты 37 секунд
+pull requests in real time as they're coming in, highlighting potential bugs and security issues, as well as just giving you general advice to improve your code. Code reviews are super
+4:46
+4 минуты 46 секунд
+important because we humans tend to miss a lot. So, getting Code Rabbit to just sit there quietly in the background checking over your code as it's coming
+4:53
+4 минуты 53 секунды
+in and having your back is really a no-brainer. It's also really great if you're learning programming. It'll help catch your mistakes and you can chat to it if you want some more information
+5:01
+5 минут 1 секунда
+like an interactive mentor. And the best thing is Code Rabbit is completely free for open-source projects or you can give it a go for your private projects with a
+5:09
+5 минут 9 секунд
+14-day free trial. Just go to code rabbit.ai. Link will be in the description below and give it a go.
+5:13
+5 минут 13 секунд
+Thank you to Code Rabbit for sponsoring this video. Okay, so back to Basket Man.
+5:17
+5 минут 17 секунд
+Let's have a look at this project as this engine this time in a VM. I have actually disabled the network for this, but otherwise like I don't know. This
+5:24
+5 минут 24 секунды
+obviously doesn't have access to my computer, so we should be kind of safe. I've cloned the repository obviously.
+5:29
+5 минут 29 секунд
+Let's go ahead and run generate project files.bat, which should probably run programs third party pre-make. So, we have like an included pre-make exe here,
+5:36
+5 минут 36 секунд
+which now I've learned to be like suspicious of, but anyway, let's run this. I don't know if it's worth actually passing all the binaries
+5:43
+5 минут 43 секунды
+through like a like virus total.com or something. Anyway, whatever. I'm in a VM, so I should be fine. So, let's uh go ahead and open up Greg Engine.solution.
+5:51
+5 минут 51 секунда
+And so that obviously generated this solution and I'm kind of interested to I guess we'll try running this first and then we'll have a look at like the architecture. Okay. So first of all I mean we can already start looking at the
+5:59
+5 минут 59 секунд
+architecture. We have this example games like directory kind of it's not really a directory but like filter or whatever up here and then we have basket man in
+6:08
+6 минут 8 секунд
+there as a separate project to Greg engine. So if we have a look you can see that Greg engine is a static library and then this of course is an actual executable. So that's already really
+6:16
+6 минут 16 секунд
+good. I think I spoke about this a while ago when people were sending me engines that had like the editor and the actual game and the runtime all like in one. I
+6:24
+6 минут 24 секунды
+still think that if you're like it depends what kind of engine you're making. Some engines are made in a way that like they're more like a framework and so you you have to write like a lot
+6:32
+6 минут 32 секунды
+of code. There's no like graphical user interface to use. Others have like a dedicated editor. If you do have a dedicated editor that in my eyes is kind
+6:39
+6 минут 39 секунд
+of like it's an application that's based off of the core engine. So it is a separate application and in that sense you would obviously want that to be like
+6:47
+6 минут 47 секунд
+another project another executable that's not your runtime. Hazel for example has like the core Hazel engine which is just a static library and then
+6:55
+6 минут 55 секунд
+it has hazelnut which is an application and .exe uses that Hazel static library and then Hazel runtime is a separate .exe a separate application that also
+7:04
+7 минут 4 секунды
+uses that Hazel core library. And Hazel runtime would in this case kind of be like the basket man project in a way.
+7:11
+7 минут 11 секунд
+It's got lots of boiler plate in there already ready to go so that you can just you know make your game and you don't have to worry about how to actually use Hazel to like play your game. But if you want to add additional C++ additional
+7:20
+7 минут 20 секунд
+whatever else you can do that obviously within that project. Okay. Anyway, and then we have what we got a bunch of stuff here. So libraries which is just
+7:28
+7 минут 28 секунд
+going to be glad. These are all filters anyway. If we press on show all files for this project then you can actually see like the directory structure a bit better. But of course we can just stick
+7:36
+7 минут 36 секунд
+to the filters. That's fine. So we got quite a lot of stuff. Gregorian engine.
+7:40
+7 минут 40 секунд
+We got quite quite a lot of stuff in here. Like if I just go alt shift O, then you can see we got like 89 files in the solution. All right, so not too bad.
+7:47
+7 минут 47 секунд
+We've got a little bit of code here that we can take a look at. And then Basket Man is going to be Let's go back to the filter view. Basket man is going to be
+7:54
+7 минут 54 секунды
+an example game. So Basket Man CP is probably the main function. Cool. Okay, so how am I going to start taking a look at this and investigating this? I'm
+8:02
+8 минут 2 секунды
+going to start with the main function, which this is like the game, right?
+8:05
+8 минут 5 секунд
+Basket man.cpp. This is our game project. I'm going to go from the point of view of like the code that is using the API of the core engine and that's
+8:13
+8 минут 13 секунд
+going to be the way that we kind of look through the code. There are lots of different ways that I read code for these code reviews obviously, but in this case since we seem to have like an actual, you know, more or less decent
+8:21
+8 минут 21 секунда
+like structure here, we can probably begin following that structure naturally. Speaking of following the structure naturally though, I would like to compile this code and actually run
+8:28
+8 минут 28 секунд
+it. So, we're just going to do a debug build over here. Oh, I need to install VS color output. That would be nice. Okay, I think these are just warnings.
+8:35
+8 минут 35 секунд
+Most of them. Yeah, they're all warnings, I think, which is fine, but warnings are something that I would definitely pay attention to, especially if you're looking for feedback. Most of
+8:43
+8 минут 43 секунды
+these are probably just yeah, conversions from like size to int. So, if we have a look at these like arbitrarily, then yeah, you can see that like components. This is a size t,
+8:51
+8 минут 51 секунда
+that's an int. So, when you do like these comparisons and whatever else, they're not strictly correct to do. So, the solution would be to just make this int a size t because that's like the proper type, I guess, to use here.
+9:00
+9 минут
+Otherwise, you'd probably have to cast like this into an int, which would be a little bit weird as well. Sorry, this comparison I mentioned this comparison.
+9:06
+9 минут 6 секунд
+This comparison is obviously fine to make. It's just typically in a for loop you would not be going through it backwards like this. In fact, that's something that we can talk about. Why
+9:13
+9 минут 13 секунд
+are we going through this vector backwards? That's not that's not good.
+9:17
+9 минут 17 секунд
+Anyway, we're getting ahead of ourselves. We got 10 errors as well.
+9:20
+9 минут 20 секунд
+Okay, I did not expect this. So, back to Cherno fixes your code. Every time that I get a code review submission that actually like compiles and runs
+9:29
+9 минут 29 секунд
+correctly out of the box, I think we should like celebrate. I think there should be like literally something that we do because it's that rare. All right.
+9:36
+9 минут 36 секунд
+Anyway, so we need to include string. I really would have thought string view would have included string, but I I guess not. I guess not. So that needs to be included. Okay, that was actually the
+9:44
+9 минут 44 секунды
+only problem. So for some reason, I guess this particular version of the compiler or this header or whatever else didn't actually include it. Maybe for axle it did actually include it in that
+9:53
+9 минут 53 секунды
+version of the compiler or whatever else and that therefore it built. I don't know. All right, let's hit F5 and run this in a VM. Okay, so yes, there is
+10:00
+10 минут
+Basket Man uh WD to to Oh, that was like Yo, why is there such a frame drop every time I pick up an apple? I mean, we're in debug, but that shouldn't matter.
+10:09
+10 минут 9 секунд
+Look, you can kind of see that every time I pick up an apple. All right, I've seen enough. I've seen enough. Okay, so how do we set this
+10:17
+10 минут 17 секунд
+up? So, in the main function, we've got this unique pointer of level, which you can see is actually a reference to Gregorian engine get make level. So,
+10:25
+10 минут 25 секунд
+this is interesting because this is actually a reference. So let's have a look at what this is doing. So this returns a reference of make level. So I'm assuming that it stores it somewhere
+10:33
+10 минут 33 секунды
+here. So it makes a new level, a new instance of this level class, stores it in the actual Gregorian engine class, and then returns a reference to that
+10:41
+10 минут 41 секунда
+over here. I I don't think I've ever seen this before. I'm just trying to think through whether or not that's fine. I don't know if I love this in
+10:50
+10 минут 50 секунд
+like a broader context. I think for your purposes, this is probably fine. But the reason why it makes me feel a little bit uneasy is because levels to me are like
+10:59
+10 минут 59 секунд
+kind of like assets, right? They're like scenes. So you have like a scene inside your engine and then that is such a complex like context of data, right?
+11:08
+11 минут 8 секунд
+Like there's lots of stuff that stem from a scene, lots of different resources, lots of behaviors, lots of like implications that it has like for
+11:16
+11 минут 16 секунд
+the rest of the engine. So in a way that's kind of what's happening. We're going into the actual engine codebase, right? Gregorian engine is inside like
+11:23
+11 минут 23 секунды
+the actual engine module. We're going into that codebase and we're like taking a reference to level because we obviously want to use it. In my mind,
+11:31
+11 минут 31 секунда
+that should kind of be like an owning reference. And the reason why is because we don't want the process of this being
+11:38
+11 минут 38 секунд
+unloaded, removed from memory to happen like within the engine itself and then like the client app is kind of stuck without it anymore, right? Because what
+11:47
+11 минут 47 секунд
+will happen is when you transition from one level to another level, like I'm assuming you would probably run this function again or something or maybe
+11:54
+11 минут 54 секунды
+you'd have like a set current level and it would actually change current level because you have a reference to this specific thing here. That would mean
+12:02
+12 минут 2 секунды
+that client side you'd immediately switch over to that other level. So, first of all, you lose whatever you were currently doing with that level, which
+12:09
+12 минут 9 секунд
+might include like, I don't know, having an instance of it so that you can save it or so that you can properly unload resources or whatever. That could even happen on a different thread. I mean,
+12:17
+12 минут 17 секунд
+we're not even going to talk about other threads because obviously this would break apart if you had many threads, but even with a single thread, you have to be really careful with the order of
+12:25
+12 минут 25 секунд
+operations because since you don't actually retain like a copy of that level, you're at the mercy of the
+12:32
+12 минут 32 секунды
+internal code of the engine like not deleting it because again, it's a unique pointer. So, there's only like one place, one thing that owns it and that's
+12:41
+12 минут 41 секунда
+it. To fix this, I would just have this be a shared pointer and I would like pass ownership onto the client as well.
+12:47
+12 минут 47 секунд
+That way, sure, the engine can switch to like some other scene, some other level, but then you still have it if you need to still access data from it if you want
+12:56
+12 минут 56 секунд
+to properly unload resources from it, all of that stuff. And it's not even about just retaining that data and not deleting it until all the users of it
+13:03
+13 минут 3 секунды
+have actually finished with it, which is what a shared pointer allows you to do.
+13:06
+13 минут 6 секунд
+It's not even that. It's also the fact that like you're not this level's not going to get switched from under you without you even knowing you know like if this was a shared pointer that you
+13:14
+13 минут 14 секунд
+retrieved like this it would be super clear when you had to like reoptain like the next level or something like that.
+13:19
+13 минут 19 секунд
+So yes we are on literally the first line of code but already there are so many like thoughts and so many like implications from the way that this is
+13:27
+13 минут 27 секунд
+actually architected. I mean even like a pointer right? So a pointer is a little bit more dangerous in this case than obviously a unique pointer reference.
+13:34
+13 минут 34 секунды
+The reason why is because what will happen is if this was just a raw pointer like this, which I guess this player over here as a game object is. The
+13:43
+13 минут 43 секунды
+reason why this is a little bit more dangerous I guess than this is because if the level does actually switch this level variable over here that's a
+13:50
+13 минут 50 секунд
+reference, it will automatically I guess point in a way. It'll reference the next level or like whatever that level changed to because it's a reference.
+13:58
+13 минут 58 секунд
+It's like literally referencing that variable that we have inside here current level. So whatever this is set to, like when you just reassign this to
+14:05
+14 минут 5 секунд
+something else, we have that here automatically. It's a reference to it.
+14:09
+14 минут 9 секунд
+This is a pointer. And a pointer is its own variable. It's just an integer. It's a memory address. I have a whole video on pointers linked up there. It's not a pointer reference. If it was a reference
+14:18
+14 минут 18 секунд
+to a pointer, then yes, it would also change. But since it's not, it's like a copy of that memory address. If something inside the engine changes it
+14:26
+14 минут 26 секунд
+to point to something else because you're making a new instance of a new level, then this is still pointing to the old level. And therefore, if you try to access it, presuming that that was
+14:34
+14 минут 34 секунды
+actually deleted, that would be like an access violation and you'd probably crash. If you wanted to mix this up a little bit where you had the functionality like it where it was safe
+14:42
+14 минут 42 секунды
+like it is with a unique pointer, but you didn't automatically switch to the next level, you could use a weak pointer. And I have a video about weak pointers up there. But anyway, um yeah,
+14:51
+14 минут 51 секунда
+just interesting. Like it's fascinating to me sometimes how much I can say about a couple lines of code. But again, it's just because there's there really is a
+14:59
+14 минут 59 секунд
+lot of depth to them. Okay, so once we have the player, we can go ahead and start adding components to it. Now, how does adding components work? So, we have
+15:06
+15 минут 6 секунд
+a component with a static assert over here that says T has to inherit from component. This is nice. It's good to have some safety usually. Oh, I mean these days, you'd probably use like a
+15:15
+15 минут 15 секунд
+concept uh in C++ to actually make that happen. I might make a video about that actually soon because that would probably be useful. But basically, you can just specify that this function has
+15:23
+15 минут 23 секунды
+certain requirements like for the template arguments instead of having to use a static assert. But static asserts are also fine. I would I would say the
+15:31
+15 минут 31 секунда
+main point of a static assert of course is just for this to not compile if this is false. Right? So in other words, if t if whatever you put in here for add
+15:38
+15 минут 38 секунд
+components such as player movement or sprite, if one of those types does not have component as a base, then this assertion will fail. We'll get a compile
+15:45
+15 минут 45 секунд
+error and we can fix that up. Okay. And then we forward a bunch of stuff into this make unique constructor. So all we're doing here is we're just constructing a component with whatever
+15:54
+15 минут 54 секунды
+arguments, whatever variable arguments we actually had over here. That just allows us to pass in the arguments like this directly into the parameters of this add component function and they
+16:02
+16 минут 2 секунды
+will get forwarded to the actual sprite constructor in this case which would obviously take in a game object owner and a string. So there's that string
+16:10
+16 минут 10 секунд
+coming in and then the owner is what this is over here. Then we're getting a raw pointer out of that component and
+16:17
+16 минут 17 секунд
+we're moving that. Okay, we're moving the unique pointer to there and then we're returning the component pointer. I don't know if I love this whole raw
+16:25
+16 минут 25 секунд
+pointer design. Like this this seems like it's very focused around raw pointers. I just worry that like that
+16:32
+16 минут 32 секунды
+all that means it's fine. Like it's fine, but all it means is that you you do have to be careful about lifetimes.
+16:38
+16 минут 38 секунд
+You do you do have to like realize that essentially you've just got references to component memory and then like it's I
+16:46
+16 минут 46 секунд
+mean it's it's kind of fixed in a way, but it also makes sense that it's fixed because these are unique pointers. So these are just like oneoff heap
+16:54
+16 минут 54 секунды
+allocations. Yeah, I think it's probably okay from like a semantics and from like a programming point of view. Meaning that I don't know I don't think you'll
+17:03
+17 минут 3 секунды
+get any apart from like things being switched out. I mean this is obviously isn't a reference. So it's very different to like what we have up here.
+17:09
+17 минут 9 секунд
+It's just the raw pointer of that and that's going to be totally fine until that unique pointer actually dies. But first of all, you don't know when the unique pointer dies. But second of all,
+17:17
+17 минут 17 секунд
+it also means that everything has to be its own unique pointer, right? Like every component here is its own little unique pointer, a tiny little fragment
+17:24
+17 минут 24 секунды
+of memory somewhere in your heap. This obviously is very very far from like a real entity component system. But I think what at least would be good to do
+17:32
+17 минут 32 секунды
+would be instead of just having like a vector of unique pointers of components.
+17:37
+17 минут 37 секунд
+You could at least have a single block of memory that contains all of the components of like a particular type. So instead of this, I would have something
+17:45
+17 минут 45 секунд
+like here are your sprites. And then obviously you wouldn't store this inside a single game object. You'd store this probably inside like your scene or
+17:53
+17 минут 53 секунды
+inside your level class. And then inside your game object, you would need to be like aware of like what components it actually has and obviously what index
+18:00
+18 минут
+inside the vector it might potentially reference. You also wouldn't want to store raw pointers to specific memory blocks or like a specific sprite within
+18:08
+18 минут 8 секунд
+this vector just because the vector can resize and then your pointer that is referencing one of those elements there would no longer be valid. Technically speaking, in more advanced systems as
+18:17
+18 минут 17 секунд
+well, instead of just having a simple index into here, you might also have like a UYU ID or some kind of identifier that might then map like it'll basically
+18:25
+18 минут 25 секунд
+give you a level of indirection and that might be important for like various memory organizational things. So, it just detaches like the actual
+18:32
+18 минут 32 секунды
+implementation details of where like a block of memory is even within like a vector and it just makes it completely arbitrary and the system under the hood can actually control that. That's
+18:41
+18 минут 41 секунда
+typically what like a real, you know, game engine would have inside its entity component system. You don't have to overengineer it maybe to that capacity.
+18:48
+18 минут 48 секунд
+But all I'm saying is that this is just such a fragmented system and such a performance intensive part of your engine that I would really uh you know I
+18:55
+18 минут 55 секунд
+I would since this is clearly like an educational project and you're you're going as far as not even to use any libraries because you want to learn more
+19:03
+19 минут 3 секунды
+about how stuff I guess works. I would spend a lot of time uh going through and trying to figure out a way to actually keep your memory close together and have
+19:11
+19 минут 11 секунд
+a system where every component inside every cuz cuz you got like you got game objects being created as unique pointers. So they're all fragmented and
+19:18
+19 минут 18 секунд
+then within them they also have pointers to like you know other components that are in random spots inside your heap. So you wind up with this situation where
+19:27
+19 минут 27 секунд
+every single piece of hot data very commonly accessed and used data that you need is just like in a random spot in
+19:34
+19 минут 34 секунды
+memory and that little like chain of like oh I got to go there, I got to go there, I got to go there to get all my data is just yeah it's very very bad for
+19:42
+19 минут 42 секунды
+performance. Okay, anyway let's get past all these components. So we go into run and that's going to run things. I want to have a look at how the window class works cuz that's that obviously supposed
+19:50
+19 минут 50 секунд
+to be like raw wind32 API stuff. So we have window here which again is a unique pointer of course and inside window we have a whole bunch of functions and yep
+19:59
+19 минут 59 секунд
+here's our wind proc function and then here's a bunch of like handles for both our instance our application instance and our window as well as some kind of
+20:07
+20 минут 7 секунд
+yeah open gel context and a device context. So this is just like standard win32 API stuff. So if we go to the CPP file I'm expecting we're going to see a
+20:14
+20 минут 14 секунд
+lot a lot of stuff like this. I I'd probably say that like if you guys have never done anything like this before where you haven't actually gone through like you know if Windows especially as a
+20:22
+20 минут 22 секунды
+game developer or someone who's interested in game engines I would say Windows is probably your like primary platform you know if you're interested in like a bit of a challenge and also to just like you know learn more about how
+20:31
+20 минут 31 секунда
+that actual operating system works. I would go ahead and try and do something like this. I think everyone should probably do this at some point in their lives once you know how this works. You
+20:40
+20 минут 40 секунд
+know I would say just use something like GFW for sure. But if you have no idea how any of this works, it's fun to have a look at it because you'll learn a lot.
+20:50
+20 минут 50 секунд
+And then also, this is exactly what GLFW does under the hood. You just look at the GLFW source code, find like the Win32 window C, I think it's called. I
+20:59
+20 минут 59 секунд
+even know the file name. It's probably not exactly that. I actually I think it is exactly that. And so this can help if you ever need to go in and like either debug something or potentially add a
+21:08
+21 минута 8 секунд
+feature that's missing or add something specialized that might not be included inside the actual library. Anyway, I'm not going to go through this in great depth. Uh, it looks pretty normal. This
+21:17
+21 минута 17 секунд
+is all just like standard Win32 boilerplate code to set up a window as well as the actual OpenGL like context for it as well. Here we have our
+21:25
+21 минута 25 секунд
+standard like win prog call back. So, this is basically our message loop that will happen. So over here when we make the window you can see we actually set
+21:32
+21 минута 32 секунды
+that function pointer over here and that just means that this will get called like whenever there are messages to send and then we have to handle that message.
+21:40
+21 минута 40 секунд
+So obviously if it's like a close message we'll just destroy the window, shut down the application. If it's you know a resize event then we want to resize the viewport etc. It's not that
+21:48
+21 минута 48 секунд
+different actually to like how JFW does it but it will JFW will just do it a little bit cleaner and it will obviously abstract it so that it works on like any
+21:55
+21 минута 55 секунд
+operating system any platform without being like specific to Windows as this code here is. Okay, cool. So we've created the window. We set the title
+22:03
+22 минуты 3 секунды
+resize viewport. This stuff is pretty boring. Running true. So we have window process messages. So that's different to okay right. So this code over here which
+22:12
+22 минуты 12 секунд
+we manually execute uh every iteration of this while loop that will actually peak the message see if there's any message for us to do. If it's quit it
+22:20
+22 минуты 20 секунд
+will just return false otherwise it will actually dispatch it and that's what's going to hit that window procedure function that we have over here and actually handle this. And in terms of
+22:28
+22 минуты 28 секунд
+the game we'll do a clear of the actual screen. We'll update and then we'll draw. Wonder why the clear happens up here. I would have thought this would be
+22:35
+22 минуты 35 секунд
+something that could actually happen inside like the drawing code or something, but I'm guessing that like this is just like the this happens for every frame no matter what level you've
+22:43
+22 минуты 43 секунды
+got loaded, but this is level specific code. So, I guess that could also make sense as well. So, current level update will probably go through all of the game objects. I'm really curious why you go
+22:52
+22 минуты 52 секунды
+through the game objects in reverse, though, because again, that's not cash friendly. I don't understand why you're going through this backwards. Like, I
+23:00
+23 минуты
+just don't get it. If this is the proper way to go through this, store it this way. But otherwise, like I guess you're trying to draw stuff maybe from back to
+23:09
+23 минуты 9 секунд
+front or something. I I I honestly don't know why this you're going through this backwards. Maybe I'll see it later. But like I Yeah, I don't understand. Okay,
+23:18
+23 минуты 18 секунд
+so we have a destroy object function which will Okay, I see. So I mean this is just not worth it though because these are all unique pointers anyway. So
+23:27
+23 минуты 27 секунд
+what this function is doing is it's basically saying that like if you have a vector, right? All right. So, here's my vector of all of my game objects in my scene, right, in my level. So, what
+23:35
+23 минуты 35 секунд
+happens is if I decide to remove this one, since this is obviously going to leave a gap here, right, unless it like reallocates the memory or like shifts everything here, it's basically saying,
+23:43
+23 минуты 43 секунды
+let me do that shift for you. So, what I'm going to do is I'm going to actually take this and I'm going to move it into the spot that used to be taken up by
+23:50
+23 минуты 50 секунд
+something else. Rewire it, tell it that its index has changed, obviously, so we can still reference it properly. And then I'm going to erase the very last element, which just means that we're
+23:59
+23 минуты 59 секунд
+going to, I guess, avoid having to fill this gap by moving every element over like that, which isn't a bad idea. But
+24:07
+24 минуты 7 секунд
+because these are just unique pointers inside game object, I don't think that will be that big of a benefit. I mean, it probably depends on how big that
+24:15
+24 минуты 15 секунд
+vector is as well. I don't know. That's kind of interesting. I haven't really seen anyone do that manually. I think it would definitely be like if these if
+24:23
+24 минуты 23 секунды
+these were stored like kind of like this. So like if they were like kind of like stack objectsish, but they were stored like not as simple pointers, but
+24:30
+24 минуты 30 секунд
+actual like data inside there, then I could see that being probably better than just like having to shift around like all the memory like in a staggered way, especially in a big vector, but with pointers like this. I don't know.
+24:40
+24 минуты 40 секунд
+But anyway, interesting. Okay. And level update will do physics 2D tick and camera 2D get update. Okay. So a couple
+24:48
+24 минуты 48 секунд
+interesting things here. So, first of all, you know, we're living in a bit of a static world here. Um, because both of these things are kind of static, but this actually has an instance because we
+24:56
+24 минуты 56 секунд
+have to call get first to then, you know, get the camera. So, I don't really know why that's a thing. If it's a singleton anyway, we could just have the
+25:05
+25 минут 5 секунд
+data be static and uh that would be fine. Kind of like how probably physics 2D is set up. Yeah. So, this is just static. So, why is this why is this
+25:13
+25 минут 13 секунд
+class all static and then camera 2D is not? I'm not sure. Either way, I probably wouldn't have either of these things be static. I think they should
+25:22
+25 минут 22 секунды
+just be just normal members probably inside your level. I feel like a level should own a physics like world, you know, and a camera as well. Camera
+25:29
+25 минут 29 секунд
+should probably just be an entity anyway. It should probably be a game object. You might have multiple cameras as well, which you might want to switch between or have like, you know, split
+25:37
+25 минут 37 секунд
+screen or whatever else. But like even with physics 2D, like I think that the physics world is going to be like a bunch of objects that you have in here.
+25:44
+25 минут 44 секунды
+So if you had it not be static, first of all, you could like start loading the next level by creating a new instance of it before this one's even done. So you could like preload stuff, but then you
+25:52
+25 минут 52 секунды
+could also like not have to manually probably remove all the objects from here when you're done with it because you just drop the whole object and then all the data inside it would disappear.
+26:02
+26 минут 2 секунды
+So interesting choice to have this like that in terms of architecture. I uh would not I would yeah just not have these things be static. You have to be
+26:10
+26 минут 10 секунд
+really careful, I think, with making things static because I like in a way I feel like for for like someone with not much experience, it's like it makes
+26:18
+26 минут 18 секунд
+things easier because it just like you don't have to think about how everything is wired together. But then I think as you get better and as you get more experience and as you start working on
+26:26
+26 минут 26 секунд
+more complicated like complex systems, you begin to realize that that wiring things together and giving it some thought, that's actually what makes it
+26:35
+26 минут 35 секунд
+simpler in the future. And that like suddenly all these things that are static, it's like making them static in a way makes them independent, you know, and suddenly nothing's tied together.
+26:43
+26 минут 43 секунды
+Everything's static. Everything's independent. And so you have to go through and chase everything up. And if everything is wired together correctly and obviously as members and blah blah
+26:51
+26 минут 51 секунда
+blah, then you have like you have code that almost writes itself because if you drop that object, well, it will drop the other object and everything below it and everything is kind of a little bit more
+27:00
+27 минут
+coherent. So in terms of architecture, yeah, I would definitely give that like some serious thought as to like okay, why are you making this static? Is there a reason for that or are you just being
+27:08
+27 минут 8 секунд
+like a little bit lazy in the sense that like you don't want to set it up properly? Now, I will also say that systems like if you're trying to look at this from the point of view of like a
+27:17
+27 минут 17 секунд
+system that does processing to some data and like you want that to obviously be static, that makes sense. I mean that doesn't even need to be static. It just could just be like a free floating
+27:25
+27 минут 25 секунд
+function or something. However, that's not what's happening here because obviously inside physics 2D, we have this here. We have data here that is static. So that doesn't make any sense.
+27:34
+27 минут 34 секунды
+Like this stuff should not be static.
+27:35
+27 минут 35 секунд
+And then if you want the actual you want to treat this as like a system, then obviously when you do do tick, for example, when you call the tick function, you would actually pass in
+27:42
+27 минут 42 секунды
+like the data context of like what it's actually going to be working with. And then it would either write in place there or maybe output some somewhere else. And you could have this be like
+27:50
+27 минут 50 секунд
+kind of like a functional system. But if you want this to actually be like a physics world that has its data, since that obviously relates to the current level, it makes a lot of sense to just
+27:59
+27 минут 59 секунд
+have that be, you know, like you'd have like an instance of physics 2D over here as a member of this level. Okay, I I'm going to take a quick look at the
+28:07
+28 минут 7 секунд
+rendering. I mean, you also mentioned math stuff, so I'm guessing, wow, you've written a lot of matrix classes over here, and they are just uh what look
+28:15
+28 минут 15 секунд
+like normal functions. I was I was expecting like some SSE or something. So yeah, again this is something I would not really recommend. I have done this
+28:22
+28 минут 22 секунды
+before even like I think I did like a Flappy Bird series in Java on YouTube or maybe it was even like a I made Flappy Bird in one like 3-hour long video in Java back like 10 years ago or
+28:31
+28 минут 31 секунда
+something. I'll have that linked up there for fun. I think in there I did write my own Matrix stuff just because I was trying to kind of kind of make itish
+28:39
+28 минут 39 секунд
+from scratch. It was using like LWJGL which uses OpenGL. So I did end up using like that library for the game as well as like used OpenGL for the rendering
+28:46
+28 минут 46 секунд
+and everything. But the actual math I didn't use any math libraries. So I just wrote out some matrix code that I would need by hand. That's fine. I think as a
+28:54
+28 минут 54 секунды
+learning thing but the problem with this is that math libraries are very very very particular. Obviously you're dealing with mathematics like it has to
+29:01
+29 минут 1 секунда
+be precise. It has to be correct. Uh and so you know I would expect to see a lot of unit tests for something like this.
+29:08
+29 минут 8 секунд
+I'm not one to mention unit tests that often. I don't think they're that useful for most things inside a game engine. For a math library they're very useful.
+29:15
+29 минут 15 секунд
+So, you know, you're not really doing I don't think unit tests here. So, obviously like just for fun, for like as like a learning thing, that's totally
+29:23
+29 минут 23 секунды
+fine to do. But for anything serious, you know, I would just use something like GLM, which is a really really great math library. Uh it actually includes SSE support as well if you want to
+29:31
+29 минут 31 секунда
+basically do all your math like four times faster. I mean, not all of it, but anyway, the point is that's a a much kind of better library than anything
+29:38
+29 минут 38 секунд
+that you would really be able to write yourself. Now, as I mentioned, I want to take a look at the rendering code quickly and then we'll wrap this up. So how does the rendering work? So we have
+29:46
+29 минут 46 секунд
+a render target that we draw to. So this is just like an interface. So we don't actually know what this is. But if we go to I don't even know where this. So
+29:54
+29 минут 54 секунды
+let's have a look at No. So level draw actually has a target passed into it. So that means over here when we draw Okay,
+30:02
+30 минут 2 секунды
+window. So the window is like a window is a render target. Interesting. I would have thought like the window would have a render target rather than be a render
+30:09
+30 минут 9 секунд
+target, but I guess that might work as well. And then the com. We'll go through every component and we'll do components draw. Okay. But components, lots of
+30:17
+30 минут 17 секунд
+components don't do any drawing. Like what if it's an audio component? I guess it could do debug rendering. But anyway, I'm guessing so the component class over here just has a bunch of virtual
+30:25
+30 минут 25 секунд
+functions. You can obviously override them. You don't have to override them.
+30:28
+30 минут 28 секунд
+It' be nice if they were like this so that you wouldn't actually um Oh, actually they are. They're over here. I just realized I thought they were like pure virtual for a second, but they're
+30:35
+30 минут 35 секунд
+not. So if we have a look at like that sprite component that obviously does some drawing, I expect. So that uh overrides the draw function and then that will do primitive draw. So there's
+30:44
+30 минут 44 секунды
+we have a sprite primitive inside the sprite and then that will have yeah like a texture ID and a vertex array object over here which I'm guessing we will
+30:53
+30 минут 53 секунды
+create here. Okay. So this is another thing that I would not probably do.
+30:57
+30 минут 57 секунд
+Every single sprite here, every single sprite primitive has its own um vertex array which they're all the same, right?
+31:05
+31 минута 5 секунд
+I'm expecting. So, the only thing that I could really imagine being different here, obviously the texture, right? You might have a different texture per
+31:12
+31 минута 12 секунд
+sprite. That's fine. And that may end up like using different texture coordinates. If it's like inside a sprite sheet, you might have like a sub
+31:20
+31 минута 20 секунд
+texture inside there. But otherwise, like you know, the element buffer here, the index buffer, the actual vertices of the sprite, like you're going to have
+31:28
+31 минута 28 секунд
+the it's just it's just a quad. you know, you're just going to you're going to have the exact same thing every single time, the exact same shader. You know, even images like I I wouldn't have
+31:37
+31 минута 37 секунд
+a sprite primitive actually, you know, like here are the indices for example. I wouldn't have the sprite primitive load the image because that might be an image that you use for like a number of
+31:45
+31 минута 45 секунд
+different things. Like this image should really be like some kind of texture maybe that's passed in here. I mean, preferably it would be like just some kind of like asset handle, but if you
+31:54
+31 минута 54 секунды
+don't have a system like that, then it would be just like a I don't know, like a a shared pointer of a texture object that would actually have this. Because
+32:02
+32 минуты 2 секунды
+what this is doing is basically saying that like every single time you want to create a sprite that uses that particular image and like is of this shape, you have to go through the
+32:10
+32 минуты 10 секунд
+process of creating an entirely new copy of it of everything. And obviously, this stuff you don't really want to do like needlessly. Now, sprite rendering in
+32:18
+32 минуты 18 секунд
+general, uh, you know, is a topic. I have like this series on my channel from a while ago. It's like the batch rendering series that goes through how
+32:25
+32 минуты 25 секунд
+to actually render like lots of sprites and stuff. I think the game engine series probably also, you know, the the 2D version of that does something like
+32:34
+32 минуты 34 секунды
+this. Maybe it's time to do like a little refresh of like fast sprite rendering in Vulcan or something or in OpenGL, I don't know. But anyway, um it
+32:42
+32 минуты 42 секунды
+is interesting that like it looks like inside the vertex buffer though, we have like this coordinates pointer of floats which we actually get like I don't know
+32:50
+32 минуты 50 секунд
+from so get window coordinates are from here. Coordinates relative to window like what is this? And they're kind of based on texture width and height as
+32:58
+32 минуты 58 секунд
+well. So this actually gets put into the vertex buffer. Where are the attributes?
+33:03
+33 минуты 3 секунды
+Okay, so there's two attributes. So this is going to be the position in 3D I guess which is seems unnecessary. I mean, I guess you can use the zed for
+33:10
+33 минуты 10 секунд
+like uh ordering. And then we have two floats over here, which I'm guessing is a texture coordinate. And that's how that's put together. Yeah. So, we have like elements and elements is like this
+33:19
+33 минуты 19 секунд
+little output here, vertex elements. And that gets set to 20, I guess, because there are three vec 3es, which is 12, sorry, four ve 3es, which are 12 floats.
+33:30
+33 минуты 30 секунд
+And then the other eight are just two floats per texture coordinate, and it's a chord. So, we have four of them. Yeah, these are the texture coordinates and these are the actual but these are also
+33:38
+33 минуты 38 секунд
+going to be Oh, I see. Okay, I was kind of misreading this a little bit. So, basically it actually sets up the vertices to be dependent on I guess
+33:46
+33 минуты 46 секунд
+basically like the not just the aspect ratio but also the pixel scale of the image. So, like if you have like a you
+33:53
+33 минуты 53 секунды
+know, let's just pretend this is like a 32x 64 image or something, then you would actually relative to like the window width and height determine what
+34:01
+34 минуты 1 секунда
+the vertices would have to be in clipping space. I'm guessing cuz you're dividing it. Yeah. Well, potentially not not in like 1:1 space, but in like 0ero
+34:08
+34 минуты 8 секунд
+to one space, you would decide how many like units it would take up so that you could actually make something that when you rendered it, it would be
+34:15
+34 минуты 15 секунд
+proportionate. But again, I wouldn't do this at the level of like a vertex buffer. I would just use a transformation matrix to do that because
+34:23
+34 минуты 23 секунды
+if you did that you would need exactly one instance of this. One vertex array, one vertex buffer, one index buffer for
+34:32
+34 минуты 32 секунды
+every single sprite, every single quad you want to render in your entire scene, just one instead of having it like per
+34:39
+34 минуты 39 секунд
+sprite. So yes, that uh would be a quite a large improvement I think to the rendering. All right, that's pretty much all I've got to say here for today. So,
+34:48
+34 минуты 48 секунд
+let me know what you guys thought of this particular code base and well, everything I said in this code review.
+34:52
+34 минуты 52 секунды
+As always, feel free to share your opinions in the comment section below.
+34:55
+34 минуты 55 секунд
+If you want me to take a look at your code, then send it into chennre review@gmail.com. That email address and some instructions will be in the description below. I'll see you guys next time. Goodbye.

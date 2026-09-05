@@ -1,0 +1,315 @@
+So, we are preparing to release Hazel, my game engine, for free very soon. And part of that road map is basic
+multiplayer. One of the two things that I'm currently working on. The other is the new render and renderer 2025, which
+you may have seen me live stream for like the past month. By the way, all live stream VODs uploaded to my other
+channel called Channel Unplugged. I'll leave a link to it in the description below. So, you can take a look at all the work that's going into that project
+entirely on that channel and live on Twitch. Anyway, the other big thing that I'm basically simultaneously kind of
+working on is basic multiplayer. Now, we started working on this the second half of last year and then kind of took a
+little bit of a break because I wanted to focus on Render 2025 and now we're getting back into it. The way that we
+left it last time was we had Genesis, this like game that was the first game that I ever made and then I'm remaking
+it in 3D now in Hazel and it's also an MMO. Why not? That is now more or less running multiplayer. In fact, more work
+has actually happened on Genesis 3D behind the scenes because Jim aka 0x has been working on animation for
+networking. But anyway, that's besides the point. The point is we are getting back into multiplayer. We are getting back into Genesis 3D. And I thought that
+a good way to kind of revive this project would be to share with you how exactly multiplayer works in Hazel and
+what my plans are for it is basically implemented to the degree that I want it to be when we ship this first version of
+Hazel. I think it's more about refinement now. But here's the thing. As I show you all of this and I walk you
+through how everything works and the kind of experience that I've designed, I want you to think about it and give me
+some feedback. I have only ever professionally worked at EA like on Frostbite, Osiris, like engines there.
+Obviously, at that scale, things are very different and I haven't really made any kind of multiplayer indie game or
+anything myself. My goal with Hazel is to try and keep things as simple as possible, which you're probably going to
+see in this like multiplayer design and implementation. So, for those of you who might have some experience or have tried
+to make multiplayer games in other engines such as Unity, GDAU, Unreal, maybe you'll have some opinions or some
+weird things that I'm doing here that are going to make it more difficult for you to potentially use Hazel in the future to make some sort of worked or
+multiplayer game. So without further ado, let's take a look at Hazel and how this whole multiplayer thing works. I
+think the first thing I'll show you is this is Genesis inside Hazelnut, Hazel's editor. And then I've also got in VS
+Code here. I've connected to an actual server. This is a hosting a server. And I have this run server command which is
+going to run the Hazel headless server. So this is also Hazel compiled on Linux
+and then uploaded like to this hosting server. If I go ahead and run the server, you can see it's going to start
+this scene called main, which is this scene inside Hazel that we are currently looking at. And then if I flip back into
+Hazel, with that now running, I can hit play. And you can see it's going to actually connect to the server. The
+reason I know it's connected is because first of all, the time over here is counting down, and the server is the
+authority for that time. We also have this object here, which is like a little test physics object that is entirely
+contained within the server. So the the reason we're seeing this now is because the client is receiving data from the
+server and telling it to actually like render this cube at a position, but the actual physics simulation is happening.
+Well, we can't replay it cuz it's already been the physics simulation has already happened. But if I disconnect and reconnect, you can see how uh like
+another female spawns over here, and their positions are also entirely dictated by the server. But my point
+with the cube was just that when the server starts, there's like a physics simulation that plays. that drops out of the sky, lands on this plane, and that
+is entirely simulated on the server just as a little test. But anyway, these females moving around here, these female
+entities, which are the pink girls here, they are entirely controlled by the server. And that logic is actually
+written in C, much like you would just write client side code for a game in Hazel. So that's really nice. It's not
+like custom or anything. It's actually all within this project. Now you can see here they're not actually animating and
+that's because we don't have Jim's worked animation code within this branch over here. But that is in fact working.
+Maybe I'll show some video on the screen right about now. Anyway, the other thing I can do with this still running is I
+can start an instance of the runtime just to get another instance of Hazel up
+and running. So I believe we have a build of uh Genesis for the runtime. So if I just try and it's not even
+compiled. So, if I just try and run the runtime while the editor is also running, then we should be able to connect. Oh, yeah. We don't have
+textures here for some reason because they're disabled. But if we have a look at this, we should actually be able to
+find each other. So, where's the other player? So, you can see there's only one other like green player. So, if we run
+to him over here, as I run to him, we should be able to see it inside the Hazel Klein. And you can see I'm kind of
+walking around. And if I switch to this one and walk around, we're going to see it move inside the editor. So, there you
+go. So, that's networking working. And at the moment, you can have like as many of these clients as you want. And
+obviously, like the time is all synchronized. I don't think I'm laying it out properly here. That's why it's
+being cut off. And also, I think when the seconds get down to zero, like 1 minute and 6 seconds, it's not displayed correctly. Anyway, that none of that
+matters. This is in development. Anyway, the point is we are seeing obviously real-time multiplayer happening over
+here. So now let's discuss how it's actually implemented both client side and server side and also my idea for
+what it would look like to actually make a multiplayer game such as this one in Hazel. So obviously you can't really
+have multiplayer without a server. And over here we are running on a Hostinger VPS. Now Hostinger have actually been
+nice enough to sponsor this video as well as all of like these multiplayer networking projects that we've been working on for Hazel. And my experience
+with using Hostinger servers for both my websites as well as all of this multiplayer networking stuff has just
+been amazing. They've been great. Whether you just need a simple website or a powerful VPS, Hostinger have got you covered with some of the best value
+I've ever seen. I've been personally using their VPSs for years for everything from simple websites to high performance web apps and game servers,
+and they've never let me down. For Hazel's multiplayer, we're using their KVM servers. Across all of their plans,
+hosting VPS's use powerful hardware such as NVME SSD storage and AMD epic
+processes. This gives you super fast and responsive website or app performance. Of course, you also get full route
+access so you can do whatever you need on your server. They've got some great security features such as DOS protection and userfriendly firewall configurations
+as well as free automatic backups and real-time snapshots. Now, I recommend that you start off with this KVM2 plan
+here. It's a great little server and it's really great value. However, if you do find that you need more resources,
+hosting a scalability means that you can easily switch that over to a more powerful plan. Once you've selected a
+server plan, make sure that you use coupon code churno at checkout for an additional 10% discount. Server setup is
+super simple. You just pick a location and they've even got this like real-time latency so that you can pick the best server for you or for your users. They
+have a huge amount of operating systems to choose from. This one here that we're using for Hazel is Abuntu 24 just like
+our actual Linux computer that's in the office. And then finally, you can set a root password, which you'll need for SSH
+access. Once that server sets up, which doesn't take very long at all, you can just SSH in and do whatever you need to
+do. They also have a really great dashboard, which has everything you would expect, as well as some great documentation to help you out. So, for
+all of your website and server needs, head to hosting.com/cho. Link will be in description below, and use coupon code
+churno to get an additional 10% off for yearly plans. Huge thank you as always to Hostinger for providing us with some
+excellent servers and for sponsoring this video. Okay, so taking a look at all of the infrastructure I guess that
+we have for networking inside Hazel. It's basically all contained within this module called Hazelnet. There is some
+code outside of that such as like the C script glue so that we can call some of these functions and use this
+functionality from C and it kind of links back into C++ but the actual bulk
+of everything is inside Hazelnet. And you can see here there's like six files here. There's it's very very minimal.
+It's very small. It's very simple. That's the keyword of this whole this whole project. So we have a client. We
+have a server and then we just have some like some utilities right to like resolve. I think we've got like one utility basically. Well actually this
+will check if it's a valid IP address and this will resolve a domain name. So that aside we have this client and
+server architecture. Now, the core of all of this networking functionality starts with this library called Game Networking Sockets by Valve. And so,
+because it's by Valve, you could expect that it's quite well suited to video games. I'll leave a link to this in the
+description below. It's open source on GitHub. And it also doesn't actually need Steam. So, Valve, of course, makes
+Steam. So, you might think that they only want to enforce this for like Steam games, but it works with both Steam and
+completely outside of Steam. Obviously, we are not using Steam at the moment inside Hazel with the demo that I showed
+you and everything is working. So, it's a really, really nice library. It's quite popular as well. It kind of
+combines the best of TCP and UDP because obviously you want this to be performant and work well for game engines and
+games. Anyway, I'm not going to talk too much about this. I actually kind of covered this a little bit as part of walnut networking because funnily
+enough, walnut networking is basically what you see here inside Hazel. I basically stole Hazel's networking
+implementation which uses Valve's game networking sockets from Walnut my own
+library. So Walnut networking is open source. You can see over here this repository is public. If you go into
+source walnut networking you'll see the same six files. Now they've been adapted to Hazel a little bit differently. You
+can see this name space for example is Hazelnet and over here it would be Walnut. And I probably have maybe fixed
+some bugs or added some features. But if you want to take a look at Hazel's kind of networking API, then it's it is
+actually open source as part of Walnut. I'll leave that repository in the description below as well. Anyway, all
+of that aside, let me take you through the API. So, I guess we'll start with the server. So, the idea is you need
+something to run a server. Typically, you would make an actual application that is the server. So, if we take a
+look at Hazelnet, this is the net branch of the Hazel repository. I should probably also mention that for those of
+you who do have access to Hazel via patreon.com/thecho for $10 a month. Thank you for helping to support the project over here on the Hazel
+repository which you get access to instantly when you support the project. You'll see there is a net branch and so
+this net branch that's what I'm showing over here. So the other branches are quite different because they have no
+networking functionality. Obviously this will be eventually merged into like the main branch. But over here inside the
+net branch we actually have a few different solutions. So, we've got Hazel, Hazel client, Hazel headless, and
+Hazel server. Hazel headless you don't really need to worry about. And Hazel just combines everything. So, Hazel client and Hazel server are the two
+solutions that I generally use. I've been inside the client one, but if we open up the server one, this is probably
+a little bit better to look at since we're discussing the server. You'll see this project over here under the net
+folder called Hazel server, which we didn't see in that other solution. And that has some other stuff here, but the
+actual core networking API is still inside this Hazelnet module. So this is its own project. I'm going to try and
+run it now. I don't think I really ran it this year. It still works though which is great. And so you can see this is the GUI version of the server. So we
+have the headless version which is running on Linux over here. And obviously this is also compiled on Linux. This is compiled on Windows
+obviously and you can run this as a GUI or as a headless server as well. So we
+can run this within like terminal command prompt as a console application. But this is the GUI version which might
+be nice if you want to like see some more information visually like the clients that are connected and you can also send messages. I mean you can do
+that through uh the command line obviously as well. But anyway I made two versions. GUI version the GUI version I
+think also does work on Linux because when I was working on Hazel server on Linux cuz I needed to get it compiling
+on Linux to actually deploy it onto a proper VPS like this. I think I started with probably the GUI one which works
+because Hazel works on Linux and then I did the headless build. Anyway, most of the code inside Hazel server is for
+actually running Hazel itself. So, not it's not really server specific per se, but we still need to do things like open
+the project, do basically all of the game engine things that you would do, just not the rendering. And the reason
+why is because we still want the entire game engine to like run in the server
+because in most multiplayer games, you need the server to be the authority for
+everything that happens like in the scene in the gameplay that is happening because you obviously can't trust the
+clients because any client could just modify itself and then do whatever it wants to. So, for example, something
+seemingly as simple as just those females at the start moving randomly, the server needs to be the one to spawn
+them. Obviously, tell all the clients that, hey, there is an entity here at this location. It's moving around like
+this. But then, how do you handle things like collision? Oh, well, you need the physics system. And the server needs to
+be aware of all of the players, all of the kind of collidable objects, like the the terrain, the map, all of that stuff
+so that it can actually do that physics simulation. and then just tell all the clients that's what's happening. Whenever the player moves and it needs
+to do a physics simulation, it could just hack itself to go through walls, for example. So, the server needs to
+actually do that simulation as well and then be like, "Yeah, that that's legit." Like, the client has moved into a
+plausible location, so we can now transmit that to all the other clients. You basically need to run the entire
+game on the server, just minus the rendering. Typically, you might actually want to keep the rendering if you want
+to be able to observe things as a server itself. Although, typically, you would just connect as like a client and then
+in be able to inspect everything. So, we don't actually do any rendering really uh as part of the server. At least Hazel
+doesn't do its normal scene rendering. We do like the I'm GUI rendering, the UI rendering you saw for the GUI version of
+the server. Anyway, that's why this is a little bit complicated because it's not just as simple as the server receiving
+data and then reformatting it or whatever and then transmitting it to all the other clients. It actually has to play the game itself. So, that's what
+most of this stuff that you see here is. As far as the actual API goes, it is dead simple, but it's also up to the
+game to actually control how the server gets started and if it gets started and how that works, what it does with data
+that it receives, and also the client side of things. So, connecting to a server, sending data to a server, none
+of that stuff is actually controlled in the C++ code. We just make an API. We
+make it available and then it's up to the game to use that API to kind of pull the puppet strings to make multiplayer
+happen. So we provide quite a primitive set of tools. You can see here that in client for example the API it's just got
+the ability to connect to a server to disconnect and then we can set these like data received callbacks. that we
+can respond to ourselves receiving data or connecting to a server, disconnecting from a server and then we have an API to
+be able to send data just as binary data or strings. That's basically it. And
+then from the servers API, it's basically got the same thing. You create the server object, you start it with a
+particular port and then you can set these like data received, client connected, client disconnected, all of these callbacks to respond to certain
+events as well as send data. And then you've got some other utilities like being able to kick clients and then
+these clients will persist inside this connected clients map. And that is because Valve's game networking sockets
+library actually maintains persistent connections. So really it's doing all of the heavy lifting. We're just providing
+an API for this inside Hazel as well as managing like the connections to some degree in a way that games might want to
+utilize this functionality. And that really was my goal with this because I
+first of all don't have enough experience in networking and multiplayer to make really strong design decisions
+to kind of try and shape a path that is somehow going to suit all kinds of games
+that people might want to make. Even games that I wanted to make like I really didn't feel comfortable trying to
+design this kind of okay this is how multiplayer games work in Hazel. you
+just multiplayer equals true, then suddenly entities will synchronize magically between the client and the
+server. No, none of that stuff was first of all even appealing to me. Like I I don't think I would want to make a
+multiplayer game that just automatically somehow works behind the scenes and then realize that actually this isn't going
+to work or I want to do this extra thing that's not supported. But then the other side of this coin here is that it would
+be a lot of work to do something like that. So apart from this like trying to design this blind which is not a great
+idea, it was also that's going to take a significant amount of resources and I mean the first real game that I
+personally want to make with Hazel like proper premium game that's not even multiplayer. That's not I don't really
+want to make a multiplayer game. So I don't want to say that multiplayer is like this afterthought inside Hazel. I
+just wanted Hazel to be able to have networking functionality so that you could theoretically make multiplayer
+games. But I didn't want to go too hard on locking in some kind of design that all users would then have to adhere to.
+This does obviously slightly complicate things for games because they then have to implement the actual multiplayer
+design, you could say, themselves. However, it also gives them the freedom to kind of build their own architecture
+on top of Hazel that just uses this low-level API. Well, relatively low-level API. And that obviously gives
+the games a lot of flexibility. And that's not to say that Hazel isn't even aware that it has multiplayer. Of
+course, it is. So, for example, in this editor scene that we were looking at, if we click on this cube, you can see I've
+called it server cube and it's also a different color. Some of these entities are different colors. And if we click on
+it, you can see that it has a domain and that domain is set to server. So, you can set this domain to client, server,
+or both. What this means is that these entities, even though I can create them, visually design them, do anything I
+want. like you know this server cube for example is a static mesh. It has a rigid body and it has a box collider. The only
+reason by the way that it's a static mesh is just so that I can see it over here inside the viewport because it's set to server. You can see that if I hit
+play, it's gone. It's not actually in the scene. And that's because this is obviously the client that I'm now
+playing. However, it does exist on the server and so does the plane because there needs to be a plane. That's what
+the cube collides with. By the way, this secondary cube here is client cube. But this is just an entity that takes its
+positions from the server. You can see it doesn't even have any physics on it because it's just going to be receiving
+data from this cube which only exists on the server and then just setting its position to that so that we can see it
+inside the client. And then we have this server entity which also has its domain set to server and then it has a script a
+C# script attached to it which has a prefab over here as well as this script class genesis.server manager. So if we
+flip over here to the C solution, this is all of the scripts, all of the behavior for this entire project. You
+can see that there are actually two projects here that are game side. There's Genesis 3D and there's Genesis
+3D.server. So on this net branch and going forward for Hazel, there's now going to be two different projects. I
+think if you perhaps choose to make a game that completely doesn't have multiplayer, you probably wouldn't see
+this project, but since this is like a multiplayer setup game, you would. So inside Genesis 3D.server, there's that
+server manager C# script that we saw over here inside the script component. And this server manager is actually
+where all of this functionality that is running the server is actually implemented. And you can see that this
+is just simply an entity inside Hazel. And so it has an onreate function. And then look at what it does. It uses that
+server API which maps to C++ to create a server and start it on this port. And
+then it connects up all of these callbacks to these functions. It also does some actual Hazel things as well,
+such as locating entities and some logic like starting a new round by resetting the round timer. And then inside the on
+update function, I mean, here we're deliberately sleeping for 20 milliseconds, just cuz we don't want it to run too fast, and we don't currently
+have a way to limit the amount of ticks or updates that a server will do per second. It counts down the round timer,
+which is the timer that we saw on all of the clients. It processes this event queue of actions. It updates the clients
+by sending the locations of all the females as well as all of the players. And so if we take a look at this for
+example, how do we send the player positions to all of the clients? This is
+how it works in a very very primitive way. And I've deliberately left it like this so that you can see just how simple
+and basic this is. And the idea is you build your own functionality, your own API, your own architecture on top of
+this to make this obviously higher level. But at its core, we just create this new buffer. That's the size of the
+buffer. It's it's calculated like this just because it's counting the sizes of all the variables we're packing into it.
+The first bite here is kind of like the type of packet it is. And you'll see this when I show you what the client
+does with the data it receives. And then we just use this buffer.block copy function to actually convert all the
+data from various variable types. So this is like an integer, for example. We're just converting it to bytes. And then we're writing it into this buffer
+at a particular offset. And that's just the size of the data. Then we just increment the offset by the size of data
+that we wrote into there. And we go through like all of the players inside here. And then we're just basically sending the players entity ID so that
+the client knows which player this data is for. And then just the translation and the rotation as floats. Once we pack
+all of this stuff into this buffer into this byte array, we then just call server send buffer to all clients and we
+send that bite buffer. It's that simple. Now on top of this you could of course write your own networking library where
+you can just basically give it like a bunch of player entities and then it packs it itself and then the client
+decodes it in a reliable way as well. You could use some external serialization library. It's really up to
+you how you want to deal with this and how you want to send data between the client and the server. That's all on
+you. And so you have the flexibility to really make this fit your needs. This little test by the way here directly in
+the on update function is that cube. So you can see we have the server side cube. We just grab its translation and
+rotation and we just send that buffer to all clients as well. Now as for receiving the data server side we have
+on data received and then what that will do is from a particular client ID it will receive this bite array of data and
+then we can decode it. So the way that I'm encoding this data in a very simple way here is the first bite is like the
+type. So if it's one then it's a position update and we respond accordingly. If it's something else we
+do other stuff. This mostly applies to the clients because it looks like the server only receives one type of data
+over here. But you can see it decodes the data from that bite array. And then
+since this is actually called from the network thread, we cue using a concurrent Q which is thread safe. We
+cue this functionality to happen later inside the onupdate function on the main
+thread. And that is just to basically try and retrieve the appropriate player and set its data. So for example, update
+its position and rotation when players initially connect. That's why you saw this happen over here. Client connected.
+We just happened to spawn a female. That's why every time we rejoined, you saw like another pink female entity
+appear. And then we add the info about this player to this dictionary which is
+the player or the entity ID mapping to the player info which contains all of this information. Actually, sorry, this
+is not the entity ID. This is the client ID. And then going through that, we then know to iterate through it and obviously
+transmit all of that to all of the other entities. Client disconnected obviously works the same way. And then console
+message event is just a way for us to be able to kind of communicate to the server to this C behavior through the
+console of the server while it's running. So for example, if the message starts with R, we just reset the cube.
+Actually, that's something that I probably should have showed you. So if we hit play, then we see this cube, which remember I said is controlled by
+the server. So, if I put this over here, let's put this here. What I'll do now is I'll just type in the letter R and hit
+enter. And you can see that on the client, it's respawned. And that simulation that you're seeing, that physics simulation is completely done on
+the server using Jolt, our physics engine. So, this is just a way for us to obviously do that. And then you can also
+see if there are two values inside the message, then it will I think this will actually spawn a female on the client.
+So you can see that the ID for the message is actually zero. So if we go over here to the client Genesis client
+and we have a look at this, this is a good time to transition to the client behavior. You can see that on the client
+side again just an entity inside Hazel. We use this Hazel networking API. So Hazel.net.client over here. We create
+one of these and we try to connect to this server address which you can see is actually set to us.studio.com
+port 8192 which is this running hosting a server. And if we go to the data received event, you can see that if the
+type is zero, we do in fact spawn a female at the coordinates that come in. So let's try that. If I I'm probably
+close to the origin. So if I just type in 0 0 and hit enter, then you can see we just spawned a female there. Let's
+try 2 two or something. That's over there. Maybe minus 2 - 2. And you can
+see we are spawning these females. In fact, they're even making children already. Look at that. Happy family.
+Okay. So, uh, on the client side, it's the same thing as you would expect.
+We're just sending these bite arrays. We're receiving them. We're decoding the messages to see what to do with that.
+The client side obviously has to also contain these like remote player and female containers because it's entirely
+in charge of processing that data and spawning its own entities creating its
+own entities client side which represent the remote entities that are actually existing on the server and being
+simulated and whose behavior is being dictated entirely by the server. And that's it. I don't really have anything
+else to say. Things like client client prediction, lag compensation, none of that exists. It's just raw primitive
+sending bytes to and from like the client, the server. It's completely up to the game to actually make the
+multiplayer work well and in a way that suits your particular game. Because, for
+example, if you're just making a turn-based game, you don't really care about like lag compensation or like
+client side prediction. Maybe you just want to be able to communicate with a central authority that is your server.
+And maybe you just want to have like two clients and you want to make a chess game. Like you can do all of that really easily with all of this without having
+that complexity on top of it. That not only might make it harder for you to
+design the system that you want, but it's also going to make it hard for me and the team because we have to spend time with our very limited resources
+implementing all of that here whereas it might not even fit the your needs like well. So that is basically where we are
+at. Where would I go from here to improve this? because obviously as you can see it works pretty well and to be
+honest the API is not actually too bad. What I would do is I probably would provide some kind of C side
+serialization because this is obviously really annoying to deal with even if the game would prefer to write this stuff
+itself. That's great and it can definitely do that because we're going to leave this kind of low-levelness
+around. However, I would also like games to just, especially if it's like a sandbox or a prototype game or you're
+doing a game jam to just be able to be like, "Hey, look, I got these three entities or here's my list of entities.
+I just want to send all of that to the clients, for example, cuz I'm running that on the server." Or I'm the client.
+I need to I need to send like my position. If we have a look at on update, then I'm sure we'll see send
+player data. So, if we're connected to the server, we're going to send player data, at which point it's going to get our current player entity, the
+translation, the rotation, and then encode it. All of this stuff should be more or less automatic to do. I don't
+think that this should be something that you always have to do primitively like this. So, I would probably build some
+kind of higher level way to just send data, but again, it's still going to come down to just sending byte arrays.
+That I'm obviously not going to change or make automatic like synchronization for, but just this part. And that's
+really easy. You can just use a third party serialization library or we could just provide something really simple
+within Hazel, which is probably what I would be leaning towards, especially because Hazel, the C++ side of Hazel
+actually has a pretty nice serialization API. Like over here, for example, inside the C++ code, mesh runtime serializer.
+This is responsible for serializing meshes into our runtime format. Serialized to asset pack has a file
+stream writer that it takes in. This is Hazel serialization API and you can see that when it comes to writing data all
+it has to do is do like stream.right raw here's actually a strruct being passed in that's like a pod strruct with just
+obviously data and no like interaction with via pointers or anything in there and then we just do stream.right raw or
+stream.right zero because we have to leave some space to then later come back to write array to write this vector I'm
+guessing of nodes. We have all of these tools available to us. We can set the stream position back now that we have
+the metadata to actually write that in. This is obviously much easier and this is in C++. So designing something like
+this potentially inside C as well shouldn't take more than like a day max of work and I think it will obviously
+improve the user experience for doing uh simple things dramatically. Anyway, that is pretty much my overview over how
+multiplayer works inside Hazel. when Hazel officially gets released and it's
+free and it's more or less stable and all the branches are merged together. Obviously, I'm going to probably make a
+tutorial that shows you how to actually make a game from zero that uses this and
+is multiplayer. I don't want to do that yet because it's not finalized and the Hazel is not free yet, so not as many
+people are going to want to use it. But for those of you who are interested and would like a tutorial, then that will
+come in the future. So, please let me know what you think of this primitive flexible. You know, we could paint it in
+in two different lights. Either you could say it's like really basic and primitive, or you could say it's really flexible and it's dictated by the actual
+game project, which is great. I don't know. But I think it's uh quite nice. In my experience, using it obviously for
+this uh has been pretty simple and pretty easy. If you are working on more serious projects like I don't know a
+first person shooter like Counter Strike then you'd probably want quite a lot of client side prediction lag compensation
+obviously stuff to make it more fair and also what happens if you start dropping some packets and like there's a lot of
+edge cases and there's a lot of like refinement I guess and polish that would need to be done especially for a competitive level game. However, I'm not
+an expert in that and I feel like games that are multiplayer at their core and that's such an important core experience
+to that specific game might want to design their own system around it since that's so important to that game. And
+since Hazel provides so much other stuff like rendering and physics and all that, if you wanted to make a multiplayer game
+and you wanted more control, then maybe Hazel would be an engine you would pick because you could spend as much time as
+you want in both C++ and C designing the perfect multiplayer system using our tools potentially and you could really
+refine it and make it your way. If you would like to support the Hazel project and help us get closer to our free
+release, then please go to patreon.com/thecherno. You can sign up and get instant access to all of Hazel's source code, including
+all of the branches like this net branch. All of everything I've shown you here, all of this engine side functionality that I've shown you here,
+you can get access to instantly right now. And a huge thank you as always to all the supporters that make Hazel
+possible. If you need web hosting or servers, then definitely go to hosting.com/churno and use my coupon code churn for an
+extra 10% discount. Link will be in description below. If you have any more requests for something that maybe I
+didn't cover today or that you'd like me to take a look at, also leave them in the comment section below. Thank you all for watching. I'll see you next time.
+Goodbye.

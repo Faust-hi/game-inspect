@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .api import admin, catalog, recommend
+from .api import admin, catalog, project_exchange, recommend
 from .config import FRONTEND_DIST, settings
 from .database import SessionLocal, engine
 from .logging_setup import configure_logging
@@ -154,6 +154,7 @@ def create_app() -> FastAPI:
     app.include_router(recommend.router, prefix=prefix)
     app.include_router(admin.router, prefix=prefix)
     app.include_router(admin.projects_router, prefix=prefix)
+    app.include_router(project_exchange.router, prefix=prefix)
     _register_health(app)
 
     # Документация доступна по обоим адресам: /docs и /api/docs.

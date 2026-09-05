@@ -153,7 +153,7 @@ METHODS: list[dict] = [
       applicable_world_types=["linear", "hub", "arena"],
       pros=["Почти нулевая стоимость в рантайме", "Просто внедрить"],
       cons=["Не учитывает динамические объекты", "Требует пересчёта при изменении геометрии"],
-      limitations=["Плохо применимо к открытому миру со стримингом"],
+      limitations=["Плохо применимо к открытому миру со стримингом", "Окклюзию надо проектировать стенами и комнатами: где нечего закрыть, там нечего отсечь"],
       verification_method="Сравнение числа отрисованных объектов до и после запекания на контрольных точках.",
       verification_tools=["Unity Profiler", "Профилировщик Godot"],
       source_key="UNITY_OCCLUSION"),
@@ -213,6 +213,13 @@ METHODS: list[dict] = [
       cons=["Высокая стоимость реализации", "Появляется задержка подкачки тайлов"],
       limitations=["Требует поддержки со стороны рендер-конвейера"],
       requires_prototype=True,
+      application_steps=[
+          "Замерить рабочий набор текстур на типовом маршруте игрока.",
+          "Выставить пул около 70% лимита VRAM, остальное — кадр и система.",
+          "Ужесточить MIP-bias для далёких тайлов.",
+          "Проверить подгрузку на быстром перемещении.",
+          "Сверить занятую VRAM до и после.",
+      ],
       verification_method="Контроль объёма VRAM и отсутствия «замыленных» текстур при движении.",
       verification_tools=["Unreal Insights", "Unity Profiler"],
       source_key="UE_VIRTUALTEXTURING"),
@@ -270,7 +277,7 @@ METHODS: list[dict] = [
       performance_gain=0.75, implementation_cost=3, complexity=3, confidence=0.9,
       pros=["Большой эффект при умеренной стоимости", "Поддерживается всеми современными движками"],
       cons=["Усложняет выборочное взаимодействие с объектами"],
-      limitations=["Требует одинаковой геометрии и материалов"],
+      limitations=["Требует одинаковой геометрии и материалов", "Видимость всего MultiMesh целиком: далёкие зоны резать отдельными MultiMesh"],
       verification_method="Замер количества вызовов отрисовки и времени CPU на рендер.",
       verification_tools=["Unity Profiler", "Профилировщик Godot", "Unreal Insights"],
       source_key="UNITY_INSTANCING"),
@@ -955,7 +962,7 @@ METHODS: list[dict] = [
       performance_gain=0.75, implementation_cost=2, complexity=2, confidence=0.9,
       pros=["Один из самых выгодных методов по эффекту на единицу затрат", "Не требует переработки контента"],
       cons=["Потеря резкости и артефакты на движущихся объектах"],
-      limitations=["Требует качественных векторов движения"],
+      limitations=["Требует качественных векторов движения", "Тонкая геометрия и растительность дают гоустинг и мыльный эффект; трансформерные модели стабильнее CNN"],
       verification_method="Сравнение времени GPU и визуальной резкости при разных коэффициентах масштабирования.",
       verification_tools=["Unity Profiler", "Unreal Insights", "Профилировщик Godot"],
       source_key="WIKI_FSR"),
@@ -1520,6 +1527,7 @@ EXTRA_METHODS: list[dict] = [
       impact_cpu=-2, impact_ram=1, impact_vram=1, impact_disk=2,
       performance_gain=0.65, implementation_cost=4, complexity=4, confidence=0.7,
       requires_prototype=True,
+      requires_features=["physics_simulation"],
       applicable_formats=["3D"],
       pros=["Сложнейшая анимация за фиксированную цену", "Детерминированный результат"],
       cons=["Гигабайты кэшей", "Нет интерактивности внутри кэша"],
@@ -1549,6 +1557,7 @@ EXTRA_METHODS: list[dict] = [
       impact_cpu=1, impact_network=-2,
       performance_gain=0.7, implementation_cost=4, complexity=5, confidence=0.85,
       requires_prototype=True,
+      requires_features=["multiplayer_netcode"],
       applicable_formats=["3D", "2.5D", "2D"],
       pros=["Минимальный трафик", "Реплей — килобайты сида и команд", "Кроссплей проще"],
       cons=["Самый медленный ПК тормозит всех", "Нет rejoin без снапшота", "Любой десинк — вылет"],
@@ -1633,6 +1642,7 @@ EXTRA_METHODS: list[dict] = [
       impact_gpu=2, impact_ram=1, impact_vram=1,
       concept_impact=-1,
       performance_gain=0.5, implementation_cost=3, complexity=3, confidence=0.8,
+      requires_features=["multiplayer_netcode"],
       applicable_formats=["3D", "2.5D"],
       pros=["Кооп-фишка без онлайна", "Дисциплинирует бюджеты всей игры"],
       cons=["2x нагрузка на слабом железе", "Половина экрана — половина информации"],
@@ -1661,6 +1671,7 @@ EXTRA_METHODS: list[dict] = [
       level="architecture", recommended_stage="preproduction", late_cost="critical",
       impact_cpu=2, impact_network=2,
       performance_gain=0.6, implementation_cost=3, complexity=3, confidence=0.85,
+      requires_features=["multiplayer_netcode"],
       applicable_formats=["3D", "2.5D", "2D"],
       pros=["Предсказуемая цена онлайна", "Отзывчивость там, где нужна"],
       cons=["Высокий тик виден в счетах за флот", "Два баланса под два тикрейта"],
@@ -1705,6 +1716,299 @@ EXTRA_METHODS: list[dict] = [
       verification_method="Подсчёт draws и state changes в захвате кадра; дескрипторная статистика.",
       verification_tools=["RenderDoc", "PIX"],
       source_key="COENEN_DOOM"),
+
+    # --- Пополнение по разборам субтитров и документации (2026) -------------
+    M("mesh_index_optimization", "Оптимизация индексов меша (vertex cache / overdraw)",
+      None,
+      summary="Индексы переупорядочиваются под кэш вершин и овердроу, вершины квантуются: "
+              "меньше вызовов вершинного шейдера и видеопамяти без потери качества.",
+      description="Конвейер meshoptimizer, порядок важен: indexing → vertex cache → overdraw "
+                  "(порог 1.05) → vertex fetch → quantization. Overdraw-оптимизацию пропускать "
+                  "на мобильных tiled-GPU. Godot 4 генерирует LOD этой же библиотекой.",
+      problem="Неупорядоченные индексы перегружают вершинный шейдер и раздувают видеопамять.",
+      level="production", recommended_stage="prototype", late_cost="medium",
+      impact_gpu=-1, impact_disk=-1,
+      performance_gain=0.55, implementation_cost=2, complexity=3, confidence=0.8,
+      applicable_formats=["3D", "2.5D"],
+      pros=["Дешевле вершинный шейдер", "Меньше видеопамять"],
+      cons=["Встраивается в ассет-пайплайн", "Нужен замер ACMR/ATVR"],
+      limitations=["На tiled-GPU overdraw-проход не выгоден"],
+      application_steps=[
+          "Прогнать индексы через vertex cache optimization.",
+          "Добавить overdraw-проход с порогом 1.05 (кроме мобильных).",
+          "Включить квантование вершин и фильтрацию индексов.",
+          "Сверить ACMR/ATVR и время кадра до и после.",
+      ],
+      verification_method="Метрики ACMR/ATVR через meshopt_analyze и замер времени кадра.",
+      verification_tools=["Unreal Insights", "Unity Profiler", "RenderDoc"],
+      source_key="MESHOPT"),
+
+    M("neural_texture_compression", "Нейросжатие текстур",
+      "large_scale_terrain",
+      summary="Текстуры хранятся в нейронном виде: до 7 раз меньше видеопамяти при "
+              "сохранении деталей; распаковка стоит производительности GPU.",
+      description="Поверхности анализируются на схожие фрагменты и пересоздаются нейросетью "
+                  "(RTX Neural Texture Compression). Дополняет виртуальное текстурирование, "
+                  "а не заменяет его. Полная выгода только на GPU с нейроускорением.",
+      problem="4K-наборы текстур не помещаются в бюджет видеопамяти.",
+      level="production", recommended_stage="prototype", late_cost="medium",
+      calc_mode="hybrid",
+      impact_gpu=1, impact_vram=-2, impact_ram=-1, impact_disk=-1,
+      performance_gain=0.55, implementation_cost=2, complexity=3, confidence=0.6,
+      requires_prototype=True,
+      pros=["Радикально меньше видеопамять", "Детали лучше классического сжатия"],
+      cons=["Стоит GPU на распаковке", "Только новые видеокарты"],
+      limitations=["Без нейроускорения выгода частичная", "Требует пережатия всех наборов"],
+      application_steps=[
+          "Выделить наборы, превышающие бюджет видеопамяти.",
+          "Пережать пилотный набор и сверить артефакты.",
+          "Включить в пайплайн виртуального текстурирования.",
+          "Проверить на min-spec видеокарте из каталога.",
+      ],
+      verification_method="Замер занятой видеопамяти и времени кадра на пилотном наборе.",
+      verification_tools=["Unreal Insights", "Unity Profiler"],
+      source_key="WIKI_DLSS"),
+
+    M("planar_reflection_budget", "Бюджет плоских отражений",
+      "water_simulation",
+      summary="Зеркальные отражения рендерятся отдельным проходом: красиво, но сцена "
+              "рисуется дважды. Бюджет и дистанция ограничивают цену.",
+      description="Planar reflection даёт точное зеркало в отличие от экранного (SSR видит "
+                  "только кадр), но требует повторного рендера. Правило: один planar-источник "
+                  "на сцену, половинное разрешение, жёсткая дистанция отсечения.",
+      problem="Зеркала и вода без бюджета удваивают нагрузку на GPU.",
+      level="algorithm", recommended_stage="prototype", late_cost="high",
+      impact_gpu=2, impact_cpu=1,
+      performance_gain=0.35, implementation_cost=3, complexity=3, confidence=0.8,
+      quality_impact=1,
+      pros=["Точные отражения", "Предсказуемая цена при бюджете"],
+      cons=["Двойной рендер сцены", "Поздняя замена затрагивает уровни"],
+      limitations=["Больше одного источника — только по веской причине"],
+      application_steps=[
+          "Оставить один planar-источник на сцену.",
+          "Поставить половинное разрешение и дистанцию отсечения.",
+          "Сравнить с SSR-вариантом по кадру и качеству.",
+          "Зафиксировать бюджет до наполнения уровней.",
+      ],
+      verification_method="Замер времени кадра с отражениями и без на контрольной точке.",
+      verification_tools=["Unreal Insights", "Unity Profiler", "RenderDoc"],
+      source_key="UE_LUMEN"),
+
+    M("normal_bake_retopology_pipeline", "Запекание нормалей и ретопология",
+      None,
+      summary="Детали высокополигональной модели запекаются в normal map низкополигональной: "
+              "затенения сохраняются, полигоны — нет.",
+      description="Скульпт с миллионами полигонов переносится на игровую модель картой нормалей, "
+                  "сетка чистится ретопологией. Классика для персонажей и пропсов: арт Souls-серии "
+                  "держится на этом приёме.",
+      problem="Высокополигональные модели напрямую не тянут целевой FPS.",
+      level="production", recommended_stage="preproduction", late_cost="medium",
+      calc_mode="precomputed",
+      impact_gpu=-1, impact_vram=-1, impact_disk=-1,
+      performance_gain=0.6, implementation_cost=2, complexity=2, confidence=0.85,
+      applicable_formats=["3D", "2.5D"],
+      pros=["Детали без полигонов", "Дешёвый и проверяемый пайплайн"],
+      cons=["Требует DCC-навыков", "Артефакты швов при плохом UV"],
+      limitations=["Не спасает плохую топологию анимаций"],
+      application_steps=[
+          "Довести скульпт до нужной детализации.",
+          "Сделать ретопологию и развёртку.",
+          "Запечь normal map и сверить швы.",
+          "Проверить силуэт на дистанции LOD-переключений.",
+      ],
+      verification_method="Сравнение числа треугольников и времени кадра до и после.",
+      verification_tools=["Unreal Insights", "Unity Profiler"],
+      source_key="UNITY_GFX_PERF"),
+
+    M("build_size_startup_budgets", "Бюджеты размера сборки и старта",
+      None,
+      summary="Вес сборки и время старта ограничиваются бюджетами: subset шрифтов, группы "
+              "Addressables, выгрузка лишнего. Тяжёлая игра теряет игроков до геймплея.",
+      description="Чем больше весит игра и дольше запускается, тем меньше людей доходит до "
+                  "геймплея. Бюджеты: шрифты только нужными глифами, ассеты — группами с "
+                  "приоритетами загрузки/выгрузки, старт — с экраном-заглушкой и порогом времени.",
+      problem="Раздутая сборка и долгий старт срезают аудиторию на входе.",
+      level="production", recommended_stage="prototype", late_cost="high",
+      calc_mode="precomputed",
+      impact_ram=-1, impact_disk=-2,
+      performance_gain=0.5, implementation_cost=2, complexity=2, confidence=0.8,
+      applicable_formats=["3D", "2.5D", "2D"],
+      pros=["Больше дошедших до геймплея", "Дешевле дистрибуция и патчи"],
+      cons=["Требует дисциплины ассетов", "Поздняя чистка болезненна"],
+      limitations=["Не ускоряет сам кадр, только вход в игру"],
+      application_steps=[
+          "Замерить вес по категориям и время холодного старта.",
+          "Урезать шрифты до используемых глифов.",
+          "Разложить ассеты по группам загрузки/выгрузки.",
+          "Поставить порог старта и проверять на каждый релиз.",
+      ],
+      verification_method="Вес сборки по категориям и время холодного старта на min-spec.",
+      verification_tools=["Unity Profiler", "Unreal Insights"],
+      source_key="UNITY_ADDRESSABLES"),
+
+    M("differential_patch_pipeline", "Дифференциальные патчи",
+      None,
+      summary="Обновления доставляются разницей, а не полными файлами: патч 1 ГБ "
+              "превращается в 10–100 МБ.",
+      description="Контент режется на чанки с версиями, клиент докачивает изменившиеся куски. "
+                  "Критично для мобильных сетей, где трафик дорог, и для live-игры с частыми "
+                  "религами: маленький патч качают, большой — откладывают.",
+      problem="Полные пересборки при каждом хотфиксе убивают обновление на слабом канале.",
+      level="production", recommended_stage="production", late_cost="low",
+      calc_mode="precomputed",
+      impact_disk=-1, impact_network=-2,
+      performance_gain=0.4, implementation_cost=2, complexity=3, confidence=0.75,
+      applicable_formats=["3D", "2.5D", "2D"],
+      pros=["Патчи качают, а не откладывают", "Дешевле CDN и трафик игроков"],
+      cons=["Требует версионирования чанков", "Сложнее откат"],
+      limitations=["Не чинит архитектуру, только доставку"],
+      application_steps=[
+          "Нарезать контент на версионируемые чанки.",
+          "Настроить дифф-сборку обновлений.",
+          "Проверить размер патча на типовом хотфиксе.",
+          "Протестировать откат на предыдущий чанк.",
+      ],
+      verification_method="Размер патча типового хотфикса и время обновления на медленном канале.",
+      verification_tools=["Unity Profiler"],
+      source_key="UNITY_ADDRESSABLES"),
+
+    M("audio_streaming_compression", "Потоковое сжатие аудио",
+      None,
+      summary="Озвучка и музыка идут потоком в сжатом виде: минус гигабайты сборки "
+              "и оперативной памяти ценой небольшой потери качества.",
+      description="Полные записи (кейс Baldur's Gate 3 — порядка 20 ГБ звука) не держатся "
+                  "в памяти: стриминг с диска + Ogg/Opus-сжатие. Баланс: битрейт диалогов выше, "
+                  "фоновых слоёв ниже.",
+      problem="Несжатое аудио раздувает сборку и оперативную память.",
+      level="production", recommended_stage="production", late_cost="low",
+      calc_mode="precomputed",
+      impact_ram=-1, impact_disk=-2,
+      performance_gain=0.4, implementation_cost=1, complexity=2, confidence=0.8,
+      quality_impact=-1,
+      applicable_formats=["3D", "2.5D", "2D"],
+      pros=["Минус гигабайты сборки", "Внедряется поздно без боли"],
+      cons=["Слышимые артефакты на низком битрейте", "Нагрузка на диск при стриминге"],
+      limitations=["Диалоги требуют высокого битрейта"],
+      application_steps=[
+          "Разделить аудио на диалоги, музыку и фоны.",
+          "Выставить битрейты по категориям.",
+          "Включить стриминг длинных записей.",
+          "Прослушать на типовых устройствах игроков.",
+      ],
+      verification_method="Вес аудиобанков и пики памяти на сценах с озвучкой.",
+      verification_tools=["Unity Profiler", "Unreal Insights"],
+      source_key="HUNT_AUDIO"),
+
+    M("composition_bootstrap_architecture", "Композиционный каркас проекта",
+      None,
+      summary="Проект строится композицией, а не наследованием: данные отдельно от механик, "
+              "сервисы (ассеты, сцены, звук, сейвы) и DI-контейнер заводятся в бутстрапе.",
+      description="Наследование ломается, когда скорость одновременно хотят менять движение, "
+                  "гравитация и ветер: приходится переписывать половину проекта. Композиция "
+                  "(компоненты + системы, ECS/DOTS/Mass) отделяет данные от механик, и новые "
+                  "механики добавляются без переделки старых. Для прототипа из 20 классов "
+                  "избыточно — раскрывается на росте.",
+      problem="Добавление каждой механики превращается в переписывание половины проекта.",
+      level="architecture", recommended_stage="preproduction", late_cost="critical",
+      impact_cpu=-1,
+      performance_gain=0.6, implementation_cost=4, complexity=4, confidence=0.7,
+      requires_prototype=True,
+      applicable_formats=["3D", "2.5D", "2D"],
+      pros=["Механики добавляются без переделки", "Масштабируется на контентную команду"],
+      cons=["Инфраструктура окупается не сразу", "Порог входа выше"],
+      limitations=["Для мини-прототипа избыточно", "Требует дисциплины данных"],
+      application_steps=[
+          "Выделить данные механик из классов поведения.",
+          "Завести бутстрап, пайплайн запуска и DI-контейнер.",
+          "Подключить сервисы ассетов, сцен, звука и сейвов.",
+          "Добавить две механики подряд и проверить, что ничего не переписывалось.",
+      ],
+      verification_method="Время добавления контрольной механики и связность графа зависимостей.",
+      verification_tools=["Unreal Insights", "Unity Profiler"],
+      source_key="WIKI_ECS"),
+
+    M("art_direction_stylization", "Стилизация вместо фотореализма",
+      None,
+      summary="Художественный стиль снижает требования к fidelity: low-poly, плоское "
+              "освещение и читаемые силуэты дают 60 FPS там, где реализм требует "
+              "трассировки и 4K-текстур.",
+      description="Архитектурное решение уровня концепции: вместо гонки за реализмом "
+                  "игра выбирает стилизацию (как Limbo, Torna Way и clean low-poly), "
+                  "и тогда не нужны ни тяжёлое освещение, ни плотная геометрия. "
+                  "Цена — сама концепция: решение определяет весь арт-пайплайн "
+                  "и не откатывается без пересоздания ассетов.",
+      problem="Фотореализм требует железа, которого нет у целевой аудитории.",
+      level="architecture", recommended_stage="concept", late_cost="critical",
+      performance_gain=0.7, implementation_cost=2, complexity=2, confidence=0.7,
+      concept_impact=-2,
+      applicable_formats=["3D", "2.5D", "2D"],
+      pros=["Дешёвый рендер при выразительной картинке", "Стабильный FPS на слабом железе"],
+      cons=["Определяет всю игру", "Поздняя смена — пересоздание ассетов"],
+      limitations=["Не подходит проектам, где реализм — требование"],
+      application_steps=[
+          "Зафиксировать стиль в арт-библии до производства контента.",
+          "Проверить читаемость силуэтов на серых болванках.",
+          "Подобрать освещение под стиль, а не наоборот.",
+      ],
+      verification_method="Сравнение бюджета кадра стилизованной и реалистичной вертикали.",
+      verification_tools=["Unity Profiler", "Unreal Insights"],
+      source_key="WIKI_IMPOSTOR"),
+
+    M("srp_batcher_discipline", "SRP Batcher и дисциплина материалов (URP/HDRP)",
+      None,
+      summary="SRP Batcher режет смены состояний между вызовами: мало вариантов шейдеров, "
+              "много материалов, запрет MaterialPropertyBlock.",
+      description="В URP/HDRP узкое место — не число вызовов, а смены состояний. SRP Batcher "
+                  "объединяет bind+draw в батчи при условии: мало вариантов шейдеров, материалы "
+                  "различаются только свойствами, без MaterialPropertyBlock. Со статическим "
+                  "батчингом и BRG/GPU Resident Drawer не комбинируется — выбирается что-то одно.",
+      problem="Смены состояний между вызовами съедают CPU в SRP-проектах.",
+      level="setting", recommended_stage="prototype", late_cost="low",
+      impact_cpu=-2,
+      performance_gain=0.6, implementation_cost=1, complexity=2, confidence=0.85,
+      applicable_engines=["unity"],
+      applicable_formats=["3D", "2.5D"],
+      pros=["Включается флагом", "Масштабируется на весь проект"],
+      cons=["Требует чистки вариантов шейдеров", "PropertyBlock ломает батчинг"],
+      limitations=["Не комбинируется со static batching и BRG одновременно"],
+      application_steps=[
+          "Включить SRP Batcher и замерить SetPass calls.",
+          "Сократить варианты шейдеров, материалы различать свойствами.",
+          "Убрать MaterialPropertyBlock из горячих путей.",
+          "Выбрать один механизм: SRP Batcher, static batching или BRG.",
+      ],
+      verification_method="Счётчик SetPass calls и время рендер-потока до и после.",
+      verification_tools=["Unity Profiler", "Frame Debugger"],
+      source_key="UNITY_SRP_BATCHER"),
+
+    M("tiled_clustered_light_culling", "Тайловое и кластерное отсечение источников света",
+      None,
+      summary="Источники назначаются тайлам и кластерам экрана вместо перебора всех "
+              "источников в каждом пикселе: сотни источников без deferred.",
+      description="Экран бьётся на тайлы (2D) или кластеры (3D с глубиной), каждому назначается "
+                  "только влияющий на него свет. Forward-вариант требует depth pre-pass для "
+                  "min-max отсечения и естественно держит прозрачность и MSAA, где deferred "
+                  "требует сотни мегабайт G-буферов. Кластеры устойчивее тайлов к разрывам "
+                  "глубины; пересечение выгоды — порядка тысяч источников.",
+      problem="Десятки динамических источников в forward-рендере умножают стоимость шейдинга.",
+      level="algorithm", recommended_stage="prototype", late_cost="medium",
+      impact_gpu=-1,
+      performance_gain=0.6, implementation_cost=3, complexity=3, confidence=0.8,
+      requires_prototype=True,
+      requires_conditions=["Окупается при десятках источников света; при единицах — оверхед"],
+      applicable_formats=["3D", "2.5D"],
+      pros=["Сотни источников без deferred", "Прозрачность и MSAA из коробки"],
+      cons=["Нужен depth pre-pass", "Сложность сетки источников"],
+      limitations=["При единицах источников оверхед превышает выигрыш", "Прозрачные слои требуют отдельной обработки сетки"],
+      application_steps=[
+          "Посчитать динамические источники в тяжёлых сценах.",
+          "Выбрать tiled или clustered по их числу и прозрачности.",
+          "Включить depth pre-pass для forward-варианта.",
+          "Замерить время lighting pass до и после.",
+      ],
+      verification_method="Время прохода освещения при целевом числе источников.",
+      verification_tools=["RenderDoc", "Unreal Insights", "Unity Profiler"],
+      source_key="CLUSTERED_SHADING"),
 ]
 
 EXTRA_LINKS: dict[str, dict[str, tuple[str, str, str]]] = {
@@ -1780,6 +2084,72 @@ EXTRA_LINKS: dict[str, dict[str, tuple[str, str, str]]] = {
         "godot": ("g_occluder", "partial", "Прямого управления порядком меньше, чем в коммерческих движках."),
         "custom": ("c_render_graph", "direct", "Проход глубины в собственном графе рендера."),
     },
+    "mesh_index_optimization": {
+        "unreal": ("ue_lod", "partial", "LOD-цепочки строятся поверх оптимизированных индексов."),
+        "unity": ("u_lod_group", "partial", "LOD Group плюс прогон meshoptimizer в пайплайне."),
+        "godot": ("g_mesh_lod", "direct", "Автогенерация LOD в Godot 4 построена на meshoptimizer."),
+        "custom": ("c_memory", "partial", "meshoptimizer подключается как библиотека ассет-пайплайна."),
+    },
+    "neural_texture_compression": {
+        "unreal": ("ue_virtual_texturing", "complement", "Нейросжатие тайлов дополняет виртуальное текстурирование."),
+        "unity": ("u_texture_streaming", "partial", "Стриминг мипов из коробки, NTC — внешним плагином."),
+        "godot": ("g_visibility", "missing", "Нейросжатия текстур нет."),
+        "custom": ("c_manual", "partial", "Подключается через нейроускорение самостоятельно."),
+    },
+    "planar_reflection_budget": {
+        "unreal": ("ue_lumen", "partial", "Lumen-отражения вместо плоских; planar — отдельной настройкой."),
+        "unity": ("u_srp", "direct", "Planar Reflection Probe в URP и HDRP."),
+        "godot": ("g_visibility", "partial", "ReflectionProbe вручную, бюджет planar — настройкой."),
+        "custom": ("c_manual", "partial", "Проход отражения пишется в графе рендера."),
+    },
+    "normal_bake_retopology_pipeline": {
+        "unreal": ("ue_lod", "partial", "Запечённые нормали живут на LOD-цепочках."),
+        "unity": ("u_lod_group", "partial", "Бейк во внешнем DCC, раскладка — группой LOD."),
+        "godot": ("g_mesh_lod", "partial", "Бейк во внешнем DCC, LOD автоматический."),
+        "custom": ("c_manual", "partial", "Ретопология и бейк во внешнем DCC."),
+    },
+    "build_size_startup_budgets": {
+        "unreal": ("ue_insights", "diagnostic", "Аудит размера и времени старта через Insights."),
+        "unity": ("u_addressables", "direct", "Группы Addressables и бюджеты размера."),
+        "godot": ("g_bg_loading", "partial", "Фоновая загрузка смягчает старт, бюджеты — вручную."),
+        "custom": ("c_streaming", "partial", "Бюджеты размера в собственном стриминге."),
+    },
+    "differential_patch_pipeline": {
+        "unreal": ("ue_insights", "diagnostic", "Контроль размера чанков пакетов."),
+        "unity": ("u_addressables", "direct", "Content Update: дифференциальные бандлы."),
+        "godot": ("g_bg_loading", "partial", "Докачка ресурсов фоновым загрузчиком."),
+        "custom": ("c_streaming", "partial", "Дифф-патчи поверх собственного стриминга."),
+    },
+    "audio_streaming_compression": {
+        "unreal": ("ue_insights", "diagnostic", "Контроль памяти аудиобанков через Insights."),
+        "unity": ("u_addressables", "partial", "Аудиобанки в Addressables со стримингом."),
+        "godot": ("g_bg_loading", "partial", "Аудиопотоки через фоновый загрузчик."),
+        "custom": ("c_manual", "partial", "Ogg/Opus-стриминг пишется самостоятельно."),
+    },
+    "composition_bootstrap_architecture": {
+        "unreal": ("ue_mass", "partial", "MassEntity задаёт ECS-каркас, сервисы и DI — кодом."),
+        "unity": ("u_dots", "partial", "Entities и субсцены как каркас, сервисы — кодом."),
+        "godot": ("g_threads", "partial", "Сервисы на автозагрузке и пуле потоков."),
+        "custom": ("c_ecs", "direct", "Собственный ECS и DI-контейнер."),
+    },
+    "art_direction_stylization": {
+        "unreal": ("ue_lumen", "missing", "Стиль задаётся артом, а не движком; Lumen подстраивается под него."),
+        "unity": ("u_srp", "partial", "Стиль собирается настройками URP/HDRP и шейдерами."),
+        "godot": ("g_visibility", "partial", "Стиль держится дистанциями и ручным светом."),
+        "custom": ("c_manual", "partial", "Стиль полностью в руках команды."),
+    },
+    "srp_batcher_discipline": {
+        "unreal": ("ue_nanite", "missing", "SRP Batcher — механизм Unity, аналога нет."),
+        "unity": ("u_srp_batcher", "direct", "SRP Batcher включается в настройках конвейера."),
+        "godot": ("g_multimesh", "missing", "Батчера состояний нет, только MultiMesh."),
+        "custom": ("c_render_graph", "alternative", "Персистентные буферы в собственном графе."),
+    },
+    "tiled_clustered_light_culling": {
+        "unreal": ("ue_lumen", "missing", "Отдельного tiled-culling нет; много источников — через Lumen/Deferred."),
+        "unity": ("u_srp", "direct", "Forward+ в URP: кластеризованное назначение источников."),
+        "godot": ("g_visibility", "partial", "Кластеризация уже внутри Forward+, настраивать нечего."),
+        "custom": ("c_render_graph", "direct", "Тайловая классификация и сетка источников в собственном графе."),
+    },
 }
 
 EXTRA_CONFLICTS: list[dict] = [
@@ -1847,6 +2217,38 @@ EXTRA_CONFLICTS: list[dict] = [
                        "а не резать её для всех.",
         "resolution": "Привязать RT-пресеты к верхним тирам и проверять на min-spec тира.",
         "source_key": "UNITY_QUALITY",
+    },
+    {
+        "a_code": "planar_reflection_budget", "b_code": "screen_space_gi",
+        "conflict_type": "conflict", "severity": 2,
+        "description": "Плоские отражения рендерят сцену дважды, а экранное освещение уже "
+                       "считает отражения по кадру: держать оба — платить дважды.",
+        "resolution": "Выбрать одну систему отражений как основную.",
+        "source_key": "UE_LUMEN",
+    },
+    {
+        "a_code": "temporal_upscaling", "b_code": "hardware_raytraced_gi",
+        "conflict_type": "synergy", "severity": 2,
+        "description": "Трассировка даёт шумное изображение, которое временной апскейлер "
+                       "сглаживает и одновременно возвращает FPS: связка DLSS + RT.",
+        "resolution": "Проектировать RT-пресеты только в паре с апскейлером.",
+        "source_key": "WIKI_DLSS",
+    },
+    {
+        "a_code": "destruction_geometry_cache", "b_code": "async_loading_pipeline",
+        "conflict_type": "dependency", "severity": 2,
+        "description": "Кэши разрушений тяжёлые: без асинхронной подкачки их появление "
+                       "останавливает кадр.",
+        "resolution": "Стримить кэши общим конвейером загрузки.",
+        "source_key": "DOOM_ETERNAL",
+    },
+    {
+        "a_code": "tiled_clustered_light_culling", "b_code": "depth_prepass_early_z",
+        "conflict_type": "synergy", "severity": 2,
+        "description": "Forward-вариант кластеризации строится на min-max отсечении по глубине: "
+                       "без прохода глубины сетка источников нечем инициализировать.",
+        "resolution": "Включать парой: сначала depth pre-pass, затем классификацию источников.",
+        "source_key": "CLUSTERED_SHADING",
     },
 ]
 
@@ -2341,6 +2743,13 @@ OPTIMIZATION_CODES = {
     "destruction_geometry_cache", "deterministic_lockstep", "quality_tier_scalability",
     "ml_frame_generation", "splitscreen_render_budget", "tickrate_budgeting",
     "bindless_uber_shaders",
+    # Пополнение по разборам субтитров и документации (2026)
+    "mesh_index_optimization", "neural_texture_compression", "planar_reflection_budget",
+    "normal_bake_retopology_pipeline", "build_size_startup_budgets",
+    "differential_patch_pipeline", "audio_streaming_compression",
+    "composition_bootstrap_architecture",
+    "art_direction_stylization", "srp_batcher_discipline",
+    "tiled_clustered_light_culling",
 }
 
 

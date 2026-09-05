@@ -1,0 +1,863 @@
+okay check this out so over here I'm sshed into a hosting a VPS just going to run the server so this is the Hazel
+0:06
+server 2024 running on an actual Linux server on a VPS headless as you can see
+0:12
+so now I'm going to open up Hazelnut and this of course is Genesis 3D the 3D
+0:18
+remake of my first game and I'm just going to hit play look at this I'm connected I've
+0:25
+also got the run time so I'm going to open up that separately and check this out
+0:30
+I'm connected as well so now I can move around and look that's
+0:37
+me they're both connected to the same server and there's also a 5-minute countdown timer like in the original
+0:42
+game that the server is controlling but it doesn't stop there so over here I have a laptop and I'm going to run
+0:49
+Genesis as well and now check this out
+0:58
+[Music] and at the moment one of the cool things the server can do is spawn females so
+1:04
+let's spawn one at like 33 for example check that out and the females
+1:09
+are entirely controlled by the server so yeah it's been a busy
+1:16
+[Music] month so what have we done thus far in this project just watch last video so we kind
+1:23
+of set up the whole networking API infrastructure which was based off of Walnut networking which uses valve's
+1:29
+game networking sockets Library which meant that we could set up a server client architecture so we introduced something called Hazel server to run the
+1:35
+server side of things now making games in Hazel they're scripted using C so it made sense to extend that to the server
+1:41
+as well so that you could program your game server also using C and taking advantage of all the tools we've built
+1:46
+thus far to actually make games in Hazel and so by the end we wound up with this this is Hazel server running pretty much
+1:53
+the full hazel game engine running a scene that we built using Hazelnut and using C to program Its Behavior here it
+2:00
+is simulating a physics Cube falling and then printing the transform every frame to the console okay now you're caught up
+2:06
+you're welcome so what's next what's our plan for today now that we have the groundwork set up pretty well we just
+2:14
+need to extrapolate that and make it into something useful so Step One is this Hazel server whilst it's cool
+2:19
+running on Windows and everything we want to eventually run it on Linux and not just on a Linux like GUI environment
+2:25
+but an actual Linux server meaning we want to be able to compile Hazel ever headless without any kind of GUI nothing
+2:33
+just so we can run it in a Linux terminal and then once we've ironed out all of the friends that we will
+2:38
+inevitably make along the way then we can focus on developing Genesis 3D and
+2:43
+making it into basically an MMO that will drive this whole hazelet Project's development so yeah step one run this on
+2:49
+a Linux server on a hosting a VPS I want to see that working and then step two
+2:55
+Genesis 3D MMO Edition yes we do need a real server so it's great that hosting have sponsor this video and provided us
+3:01
+with one for this project in fact we already set it up and got it working last video because I wanted to have the the full kind of pipeline the big
+3:07
+picture set up and ready to go immediately so let me take you through it the first thing you need to know is that at the moment hostinger are having
+3:15
+an amazing Black Friday sale this isn't going to last forever and it's pretty much the best time of the year to
+3:20
+actually get yourself a hosting a server they've got some really amazing deals like 67% off this KVM 2 server for
+3:26
+example but pretty much everything is heavily discounted so the first thing you need to do is got to hosting.com chero pick whatever VPS plan you think
+3:33
+you need for your needs and this doesn't actually matter too much because it's really easy to scale this to suit your
+3:39
+needs as they develop so like easily just switch plans as you go and then this is super important when you're
+3:44
+checking out make sure that you use coupon code chero Kia to make sure that you're getting the best available deal
+3:50
+because as you can see that'll give you a further discount I think hostinger has pretty much some of the best value servers that you can actually get
+3:56
+because as you can see they're super affordable but but they're also super high quality they use AMD epic CPUs
+4:03
+along with nvme SSD storage which just provides a really fast and fluid experience obviously you've got full
+4:09
+route access so that you can do everything you need to which we need for this specific multiplayer project
+4:15
+they've got great tools and support like this dashboard for example which is a pleasure to use and lots and lots of
+4:20
+documentation to help you and honestly in the years that I've been using hosting for I've never had an issue
+4:25
+everything just works so once you've got your VPS you'll need to set it up which not surprisingly is very very easy to do
+4:31
+the first thing you'll need to do is pick a location for your VPS I picked Phoenix over here because it's in the US
+4:37
+where the majority of my viewers are but it's also more to the west of the US so it's closer to where I am which is over
+4:43
+here in Melbourne Australia I think it's really cool by the way how hostinger picks the best latency for you and actually shows you all the latencies to
+4:48
+all of their different servers so that you can pick then you'll need to pick an operating system I just went with a bunch of 24 which is actually what I've
+4:54
+been using in the physical computer I have in my office as well and finally just create a root password and you're
+5:00
+done you can just ssh in and use your server however you need so if you need a VPS or any kind of web hosting really go
+5:06
+to hosting.com chero use coupon code chero and take advantage of these Amazing Black Friday deals and of course
+5:13
+huge thank you to hostinger for sponsoring this video and this project now we can actually get hazel running on
+5:18
+a real server and have some multiplayer fun so now let's try run it I mean I've very low hopes for this actually running
+5:25
+okay we just need to copy a DL in uh but we'll see what happens okay so we we do
+5:30
+a little crash here other was one awesome um that happens in application
+5:36
+in window okay so we are in headless application but we're creating a window that should be okay cuz that should map
+5:42
+to a null window or does it though so window. H but see that's different that's a null window okay so this is
+5:49
+probably just oh no no wait so window create if it's a headless build it should give us a null window so render
+5:55
+API I guess render API is was not set to null so to set API I that never gets
+6:00
+called okay so this looks like it's just set to Vulcan basically is this like annoying syntax if I do it like that I
+6:06
+don't want to write this line twice or should I cuz it will look better what do we think I mean there's another way we
+6:12
+could do this as well I guess we can implement this function and maybe call it somewhere so we'd have to probably do this in like I don't know entry point I
+6:19
+guess it should work okay so now we get a window which is like a null window so it's not really real oh my goodness
+6:25
+check this out guys this is Hazel running headless dude this is so exciting let's start up the client and see if we can do the same thing we did
+6:32
+with like hitting the r key and stuff oh man and then NE next step's going to be just getting this running on Linux which
+6:38
+I think should kind of already work which I think should kind of already
+6:43
+work this is very exciting so this must mean that this little console window here is running yeah like a full physics
+6:49
+it's running a full on Hazel scene with physics and everything okay well it's I mean we're receiving data so let's press
+6:56
+the r key and see if that Cube responds it did didn't in the Headless version we
+7:01
+just disconnect straight away what if it's sending too much data obviously like it the iteration of this might
+7:07
+actually be faster the Delta time is probably tiny it's 0.005 so like what if we tried to do
+7:15
+kind of what the actual server was doing which was sleeping for 10 milliseconds just slow it down a little
+7:21
+bit I think we did it so can I press R we did it nice so the next step that I
+7:29
+wanted to do was actually deploy it so that it would be running on an actual server thanks to hostinger who's kind of
+7:35
+been sponsoring this project I think we're going to have to build all of this situation on Linux first and then
+7:40
+obviously deploy it over there so let me maybe do this so This monitor over here
+7:47
+that's kind of where I want to have this and I'm going to need to get like some kind of HDMI this is going to be running
+7:53
+Linux I probably should try and get a better angle this is the Linux computer so we're going to hit the power button
+7:59
+together I think I can do Linux run. sh and then what you should see is hazelnut
+8:06
+right so this is obviously Hazel not running on Linux yay let's do scripts and then Linux build I think Dosh so
+8:13
+we're going to build this stuff don't don't look at the warnings the warnings don't don't worry about the warnings the compiled warnings oh we got an error
+8:19
+base 64 hppp not found in animation gra oh um ah I know what it is it's zero X's
+8:28
+fault the includ path that's coming here is vendor Bay 64 include but the
+8:33
+directory is a lowercase b so obviously that doesn't matter on Windows cuz it's case insensitive where we have do you
+8:40
+guys just love this kind of to zoom into the code I actually zoom in the camera you can see that it's set Bas 64 is set
+8:47
+to include that so this needs to basically change to a lower case b um and then I think we should be okay yeah
+8:53
+cozy compiling this is is a stream in which the code compiles and that's it okay so Linux totally didn't just work
+9:00
+this was the hardest hurdle of the month this took I think about a week to resolve there was a crash that happened
+9:07
+only on Linux Windows worked fine and I created a scene in Hazel that specifically reproduced it basically
+9:13
+whenever this one function was called this script component get instance which was supposed to return this Coral
+9:19
+managed object is a pretty important function it's used when you want to retrieve like the csharp script instance
+9:24
+off of an actual entity in Hazel so that is supposed to return something called a coral managed object that just crashed
+9:32
+and the debugger on Linux was like I don't know what's going on here anyway it gave us a hard time the render is
+9:38
+spinning up we got the audio engine initialized as well it looks like and then we're starting scene Main and then
+9:45
+obviously by starting scene main it's probably you know creating all the entities calling on all the oncreate
+9:51
+functions and that's calling um script component get instance so I'm yeah so
+9:58
+this is interesting uh because again the fact that it's not happening on Windows means that I don't
+10:04
+know what I don't know what to do now I'm thinking like you know what are the differences between Linux and windows
+10:09
+and one of the differences is obviously that you know Longs for example are 32bit instead of 64bit so what if
+10:17
+something's happening with the types where it just thinks that at one point it's like I don't know though cuz
+10:24
+obviously this is much bigger than what a un 32t would hold for example but what if it's somehow going through some issue
+10:31
+and I guess that that well and it's specifically in this function though that's the thing because obviously like
+10:37
+when we get to find Entity by ID or whatever you know we end up having but
+10:43
+this is all C++ side on the other hand whereas that was C side H oh hang on
+10:50
+returning reference to a local temporary object that's not good that happens a lot man I was going to say if it's some
+10:57
+kind of like C memory thing then address sanitizer probably wouldn't
+11:03
+well it wouldn't get it but it should anyway because like either it happens in
+11:09
+like you know the allocation goes into native code or whatever and happens there well actually that's one thing
+11:15
+we're not address sanitizing is coral let's try that cuz I don't
+11:21
+understand I've got this malicious code sitting inside here and yet my address sanitizer is just like nah bro that
+11:28
+looks legit so let's try and open Genesis right so I have Genesis over
+11:33
+here cuz that seems to CRA oh no it did open I thought this was crashing okay so here's Genesis in L on
+11:40
+Linux running uh can I hit play or is that too much that's too much oh look but it's
+11:47
+the same problem it's the same problem as when we're trying to run run our server I mean we've also got sandbox
+11:52
+project which we could build took a while to open and then there's main world so main world oh that
+11:59
+just crashed oh look address sanitizer I think buffer overflow yeah I mean this I
+12:05
+guess this could be a buffer overflow I'd like to get this into a situation where it lets me debug my variable
+12:11
+because I think that might help with whatever else we've been doing you can see now that my material IDs that it's
+12:18
+trying to access has a length of one so um we need to figure out how on Earth
+12:24
+that happened because that doesn't seem to happen on Windows H it tries to allocate some memory I guess oh managed
+12:31
+object happens there it does a copy for managed object look it's the stupid problem type again so it's copying
+12:37
+managed object wait does this work it's this thing that doesn't work dude cuz
+12:42
+you know that's the that's another thing in common right that happens when we try
+12:48
+and return a managed object it has to copy it so in our like get instance function Coral manage object it I'm
+12:55
+imagining it copies it here as well but then luckily Emily came along and fixed
+13:01
+it yeah so basically this looks obviously totally legit but we're getting some kind of Crash feels like a difference in calling conventions no it
+13:07
+shouldn't be uh also because like well the the reason why that's like yes it
+13:13
+sound seems like it might be but I don't think it is and um it well it's not most
+13:18
+likely because again like everything else works fine right so specifically like we've basically narrowed it down to
+13:25
+the fact that it specifically seems to be with this Coral managed object situation and the reason why is because it's
+13:31
+always this function that crashes everything else runs fine right and also and obviously like we heavily call
+13:38
+native functions from C and vice versa um and so if it was a calling convention issue everything else would probably be
+13:43
+be messed up but the other thing that is a giveaway uh is that in the net
+13:49
+project um which is obviously the actual server and the networking stuff we're working on we have a function
+13:56
+um that also crashes and the function uh is for example like
+14:02
+this connect to server every time I zoom it completely knocks off my position it's so annoying it's called connect a
+14:08
+server and what does it take in do you think a coral managed object and so basically this gets taken in it seems
+14:14
+garbage but as soon as we call this function it crashes um and I'm not talking about calling the Lambda like
+14:19
+the actual Lambda code inside but just calling this function the reason why is because to call like when you call this
+14:25
+F this when you create this Lambda you can see it's taking in manage object by value here is copying it it's calling
+14:30
+the copy Constructor and I guess when it tries to access that memory or whatever it just crashes um and it so obviously
+14:36
+again it's to do with managed objects so yeah really weird um but at least we have it somewhat narrowed down and you
+14:43
+can see I've been doing some debugging in like uh in in the net Branch over here where we we were basically just um
+14:50
+dumping like the entity map thing like okay well is this entity valid like is there anty with this in the scene like
+14:55
+what and of course there's not and of course this crashes like I just showed you in the other Branch so yeah that's
+15:01
+kind of where we were at on Friday um I mean we've been at this for like a week now I
+15:06
+think and it seems weird and obviously if we look at this like the actual crash is like some un I don't know like
+15:12
+there's some M set is like just resulting in segmentation fault um it
+15:18
+seems very weird right like basically everything to do with manage objects seems weird so I was like
+15:26
+okay don't know why this is happening um let's maybe try and get Emily to take a look so Emily for those of you who don't
+15:32
+know is a volunteer on uh Hazel and she basically is the one who added Linux support in the first place right so we
+15:39
+supported we really only supported Windows um for a while but then Emily came along and was like you know let's
+15:46
+make this run on Linux um and so there was a little bit of work involved in
+15:51
+that because there was some like I always planned you know to have multiple platforms for hazel so we obviously use
+15:56
+a lot of things like gfw which already has implementations uh any win32 API
+16:01
+code that I wrote was isolated in like a win32 platform folder basically so we
+16:07
+had um multiple implementations per platform I had all of that kind of you know thought out so it wasn't a complete
+16:12
+disaster but it was still a lot of work um and I think this was like years ago basically that she added this uh and and
+16:17
+has also been maintaining it over the years which is awesome so huge thank you to her but uh I was like yeah like
+16:25
+what's going on here do you have any idea cuz I've been out this for days like no clue it's got to be something
+16:31
+that is specifically going on maybe with um you know the way this is being marshaled or like manag objects like
+16:37
+have we run into problems like this in the past blah blah blah um and she was like yeah sounds actually like something that we've been doing and um apparently
+16:45
+she's fixed it so I haven't I haven't actually tried the fix yet I've looked at the the diff everything and we're
+16:50
+going to take a look at it together here in a second but it's not okay so fixed it is like maybe not exactly the right
+16:56
+term it's more more or less like yes this is a known issue with like for some reason it seems like
+17:02
+very small like her explanation as far as I understand was basically the fact that in the past when kind of getting
+17:09
+the whole C and C++ scripting engine situation to work on Linux um she ran
+17:15
+into issues with small structs basically or like classes with not much data in it so if
+17:22
+we look at what managed object is um managed object is pretty small cuz it's
+17:27
+only got two pointers in it so it's 16 bytes right so it's just this right so small 16 by in this case um data types
+17:36
+that you pass by value like that so you're just supposed to copy them um there's something weird that happens
+17:42
+where if they're small enough to fit in like some CPU register then it can I
+17:48
+think it can just shove them in there or something um and then something happens to them and it's
+17:56
+just like looking for them at the wrong register oress or something right so it
+18:01
+is some it does seem to be some sort of memory issue that happens when marshalling between like between the two
+18:06
+languages really uh and it just seems to like lose track of the right place to
+18:12
+get that memory from I guess I'm not 100% sure um yeah it is an AI problem
+18:17
+yes um and so it was kind of like okay well
+18:23
+um what do we do here and the the workaround Apparently that came up with
+18:29
+which I mean she tested it and it works so we're we're going to test it here in a minute and obviously implement it and
+18:34
+stuff it's already on the dev Branch but it's not on the the net Branch so we'll pull her changes in a minute but uh
+18:40
+basically it's the whole idea now is let's just pass these as pointers right
+18:46
+so we're not actually going instead of and there's no real difference right but it's just instead of copying the data
+18:51
+when we pass it into the parameter and passing it by value let's just pass it as a pointer instead um and then
+18:57
+obviously we can access the at that pointer to get what we want and that's it so it's really like it's a very very
+19:03
+simple workaround that that just lets us circumvent I guess or get the compiler
+19:08
+to not do some kind of parameter packing optimization that might lead to it being in a register for whatever reason right
+19:15
+so that's is to make a large buffer no that's not the yeah let's make this object really really big um so that and
+19:23
+then this seems to work cuz I guess with pointers like they just end up being like Oh okay I guess that's not a value based it's like pod type or whatever
+19:29
+it's actually like a pointer so I've got a special kind of way that that will be you know packed or P or transferred or
+19:39
+whatever it might be right so that seems to be the fix so um I'm just going to open up like GitHub sorry for the
+19:46
+flashbang so the commit is this right you can see that what's happened here as
+19:51
+well so with the get instance oh no sorry and it's not just making it a pointer it's not just just making it a
+19:57
+pointer it's also making it be taken in as a parameter so you can see that what's happened here this is this is in
+20:03
+the C this is an internal call is we've added void to the end of this because the last um I really always think it
+20:10
+should be the first but anyway Peter made this for some reason the last one so the the very last template argument
+20:17
+because this is variable as well which makes it weird uh the very last template argument here in this uh template kind
+20:23
+of thing it's not really a template but anyway uh is the return value so you can see that this used to return a native
+20:30
+instance this is back in C Shar land and it used to take in one parameter which was a ulong which was the that entity ID
+20:37
+the UN 64t and now we Tak in two parameters uh ulong and this native
+20:42
+instance pointer by the way native instance is the C like equivalent of
+20:48
+that Coral managed object object so in C again I don't know this Peter made this
+20:53
+but he decided that it should be a coral managed object in C++ and a coral native
+21:00
+instance in C I don't know why I didn't call them the same thing whatever yeah so just know that a native instance is
+21:07
+the same thing as the cor manag object it's got those two pointers and whatever it's the same thing and then void is the
+21:13
+return right so instead of returning something we instead just we have this pointer here which obviously allows us to set that as like an output parameter
+21:19
+so you can see that this is also changed from just returning this because it was a return
+21:25
+value to now here's basically the output and we just passing that address and
+21:30
+then obviously we ride to that and then we end up returning it so let's try that again there you go hi I'm the camera
+21:37
+beautiful right so huge thank you to Emily because that is very relieving now
+21:42
+I don't even think we have the type set to the correct type but it seems to work so I might just
+21:49
+um not set it back to pin so the reason why like that pinned thing is also a bit
+21:55
+of a like an interesting thing cuz it used to be pinned right so this is basically pinned pinned just means that
+22:01
+if you read what this means um just on like msdn like the documentation it just
+22:07
+says that pinned as the name kind of implies means that the garbage collector um you're you're making kind of a handle
+22:13
+to this actual you're getting a handle to this actual native object instance right so this is there obviously a c
+22:20
+object and you're you're passing the instance into here it's going to give you a handle and that handle is
+22:25
+basically like a memory address that you can actually use back in the native code to access the data that is this object
+22:32
+right so it's very important but obviously obviously garbage collectors are kind of complicated they run on a separate thread and they can just be
+22:38
+like I need to do some rearranging so I'm going to either delete your object entirely cuz it's gone it doesn't need
+22:43
+it or it could even just be like I want to move this object around in memory and if it moves it it's obviously an issue
+22:49
+if you've got a pointer like a memory address to that object in C land it's a managed object that has just got moved
+22:56
+so you're going to try and access the memory and it's wrong so that's basically what as far as I understand
+23:01
+normal kind of lets the garbage collector potentially do that but pinned is like no this object is pinned so you
+23:08
+cannot move it that's obviously something as well that you shouldn't keep forever because if you keep that
+23:14
+forever then it kind of can it reduces the efficiency you know of C I guess
+23:20
+because if it's not if the garbage collector and like the memory system I guess is not allowed to move memory
+23:25
+around then it might not be able to optimize like M mation or like whatever else it needs to do right um so it's not
+23:32
+ideal to have this but the idea is that you only obviously have this temporarily
+23:37
+and then when you um dispose of the object you're obviously freeing the handle which means that it's that now
+23:43
+that instance that managed object instance is no longer pinned obviously so you're only supposed to do this like
+23:49
+transiently I guess while you're in native land and then as soon as you're done with that function you can basically dispose of this and that's
+23:55
+basically what what should happen because obviously it's when you're disposing of this native instance rapper
+24:00
+not the actual object itself Okay cool so did that make sense everyone good um
+24:06
+yeah so anyway obviously looks like that that fixed it can't believe how much Linux Dev I've been doing lately I mean I kind of expected I guess a lot of it
+24:13
+but maybe not this much okay so yeah so hopefully now we'll hit play and it should work but yeah the ultimate test
+24:18
+obviously is going to be to run the server like after we get this running I'm going to run the server probably the GUI server maybe and see if that works
+24:24
+cuz that was kind of opening up but then it was crashing because of that script like get instance thing that we just fixed and then after that it's going to
+24:30
+be headless server I think okay let's have a look at this oh awesome this are the worst cuz like I don't know why that
+24:36
+happened and we're not getting much debugging which sucks oh well actually we kind of know this is a little bit
+24:42
+helpful it's an undefined Behavior sanitizer load of misaligned address wait I didn't do this properly did I no
+24:49
+I didn't at all yeah how did I manage that so proxy this is supposed to be the memory address of this proxy thing
+24:55
+that's why we made this in the first place and then if we go to internal calls and we find a connect server then yes that's supposed to be the memory
+25:02
+address of that and we're taking that in so that's actually correct cool so let's compile this and run it again yay it
+25:07
+works so it just says connecting yeah sure so we can try now that we've compiled everything and We Know It kind
+25:13
+of works the server should kind of work as well I think try and do a build all and it obviously should build an asset
+25:18
+pack for the server if it does that then we should be able to run the server maybe and we need to do that because
+25:24
+otherwise it will not run the server correctly since we we need to repackage
+25:30
+the asset pack with our new newly built server c d because that has the fixes
+25:36
+for like the parameters and stuff for the managed object native instance marshalling thing guys I think we're
+25:42
+running our server on Linux look I think we did it all right guys so this is a big moment right because I'm about to
+25:51
+run the client over here and we're going to see if we connect to the server I mean we should right let's just H play
+25:58
+oh okay so we're getting a weird that's probably okay it doesn't matter anyway
+26:03
+it it is working oh it's working we don't have the the ground unfortunately
+26:08
+and it does say we're connected so does the physics Cube work if I hit R is that
+26:14
+what we were supposed to be doing and what was the other thing spawning women does that work doesn't really look like
+26:19
+it's doing anything so maybe but it does say we're connected what does the log say okay
+26:26
+it's upset yeah that that's fine I think what is all this though invoke method
+26:31
+invalid operation manage object CS okay so the ah you know what this is this is
+26:36
+probably me making a mistake basically invoke method is not working because of something so it's probably something
+26:44
+here right so oh we're not creating the server proxy H I knew I forgot some
+26:50
+stuff from client we forgot the these two lines basically okay ready uh no okay so we're not getting any we can see
+26:57
+client connected we're not getting getting any messages here there is oh yeah that's that's fine that's just the drawing thing that's why we don't see
+27:03
+the the actual map but if I write R guys guys we did
+27:10
+it we literally did it and then I can spawn females I think
+27:16
+I don't know where they're spawning let's spawn one to z0 there she is now what I want to do is I want to
+27:23
+take this and obviously the problem with this server at the moment is it's full on running it's running everything it's
+27:29
+running Vulcan it's running IM goey we need this to actually run like in a Linux terminal we need it to run
+27:35
+headless uh because the next step is going to be to run this server not on
+27:40
+this Linux computer but on a hosting a VPS that's our goal right the thing is
+27:46
+we're probably going to have to do a bunch of build configurations just to make sure it works on Linux and everything is correct okay so the
+27:52
+Headless server H uh let's close what we have running at the moment we will talk
+27:57
+about The Headless server so we have that obviously working on Windows and we
+28:03
+have like we basically have this build headless thing right so we just ran I think pre-make normally so we actually
+28:09
+have a file that is both the server and the client but now we're going to do I think build headless or something so
+28:14
+let's have a look at scripts I guess Linux we can do Linux setup let's copy that one and we'll rename it to Linux
+28:21
+setup headless I guess I won't do any of this stuff like we no well we do need coral and stuff we probably don't need
+28:27
+sandbox project object here though we still need this yes so I'll keep that in there file equals build headless and
+28:34
+then everything else I don't really care about so um Let's do let's make Mark that as executable so that I mean that's
+28:41
+probably going to overwrite all of our make files isn't it though so sure we can do we can clean so it's a bit
+28:47
+annoying switching between the two I guess here it on Windows it would have generated a separate solution file and separate project files but obviously
+28:53
+this is just by using make so it's just going to be make files but I guess that's all right so yeah let's just do
+28:58
+make sure we do a make clean so you can see now it's kind of it's cleaning a different set um and it's Hazel server
+29:04
+headless instead of just Hazel server cuz that's the gii version maybe it will just work you know that would be great I
+29:10
+mean I I guess it should unless unless there's specific code within either
+29:15
+configuration in that pre-make file that we need to modify or there's uh you know
+29:21
+code blocks like that are behind like a HZ headless macro or something like an HZ headless Define the obviously weren't
+29:28
+being compiled before other than that yeah it should be fine oh no we already failed actually so je W okay Linux file
+29:35
+system that shouldn't include that file cuz obviously we're in a headless build so what does it even use it for doesn't
+29:40
+look like we are so that's a weird include but um yeah SD format is that
+29:45
+really not found let's try build this again which one of these two though it's 50/50 it's annoying I hate 50/50s left
+29:53
+one all right guys [Music]
+30:00
+oh look it built successfully that's nice uh let's try and launch it so if we now just open up a
+30:07
+terminal we're running it inside a terminal everyone so now what we do is we run editor so now if I hit play
+30:15
+client connected and can I respawn the cube by hitting r Wait where' the cube go oh it's here make this smaller guys
+30:24
+this is epic
+30:30
+okay that time step and then can we spawn a female of course we can oh the
+30:36
+sweet taste of success all right do you guys like what you see okay well there's no Vulcan anymore which is
+30:42
+great yeah yeah we'll probably have to install protuff on the server and probably maybe some of the compression
+30:48
+libraries I don't know something else okay so 150 mag we'll start uploading that try and run the server on the
+30:54
+server and we'll see what the server tells us and then based on that we'll make some moves Hazel
+31:02
+server atas anyway look though we're running so we're actually done in terms
+31:07
+of static libraries and stuff or dynamic libraries rather so really we just needed to do this one thing and then
+31:13
+make sure that we had prot buff and this everything else seemed to already be on the server so that's cool we now need to
+31:19
+get the actual Genesis project onto the server right so let's make a folder
+31:25
+called Genesis 3D I guess inside the asset okay we need the data directory
+31:31
+cuz that's got not actually going to use that but I think it needs it um in the assets directory it needs the server
+31:38
+asset pack the project H dot HD maybe this audio commands registry I'm going
+31:43
+to try not to include that though and then that actually might be it let's try
+31:48
+and run this again oh yeah and so now we can actually just be like run server but like genesis 3D dude cuz maybe he's
+31:55
+doing it relative to so what like if we did this hey okay yes it is that H trying to
+32:04
+load a stupid edit editor resource I icon okay let's just let's just add
+32:11
+this and we'll like what's in here A whole bunch
+32:16
+of stuff unfortunately I added it pretty quickly they're all tiny files but yeah it's annoying that it needs
+32:22
+it oh cuz it's in supposed to be in resources
+32:28
+guys guys are you seeing this we're actually running the server on the
+32:33
+server so now let's um open up just the net Branch I guess if we look at Genesis
+32:40
+client that tries to connect and it used to be Local Host right but we're going to change this to be I think it's going
+32:48
+to be like us west. sto.com a192 I don't know if this will
+32:54
+work as I just said we might actually have to resolve that ourselves okay we got some it did say connecting to server
+33:00
+but I guess that didn't work I wonder if that's okay let's check to see if the domain resolution actually works like is
+33:08
+it actually goes through that path even yeah we're just passing that server address as is
+33:13
+into uh I guess the client. CPP connect to server yeah that
+33:20
+I don't think that does anything to resolve anything before we get the domain name working let's first actually
+33:27
+get the server address working right a
+33:34
+sweet all right you guys ready I mean this should work if it doesn't that's
+33:39
+going to be upsetting our ports might be blocked I don't know what the ports situation is we'll have to see if we have to like reduce the firewall or
+33:47
+whatever we're in guys we did it so now if I hit R and then alt
+33:55
+tab we are doing it it's running now on a hosting a server and we can simulate
+34:01
+our Cube we can spawn some women yes so now uh what do we do like
+34:10
+let's have some fun with this and make it something a bit more fun so server manager I guess we need to implement
+34:15
+some concept of like a timer like we could just be like timer plus equal TS
+34:20
+which is in seconds I believe so that's like not hard to obviously convert into minutes or whatever so we started we can
+34:27
+start it at Z or we could start it actually at yeah we could say like you know 5 minutes time 60 seconds as well I
+34:34
+guess that might make more sense you know if round timer less than equal to
+34:40
+zero for example then obviously um we need to restart game over new round but
+34:46
+probably not new round in immediately like because we want to show the high scores but for now we can just make it
+34:53
+like you know new round I don't know like let's just say that every time a
+34:58
+client connects we're going to create we're going to instantiate that prefab so I actually want to come and get this
+35:04
+like uh concurrent queue thing because we're going to have to queue up events here I think so every time someone
+35:10
+connects at the moment for fun we'll just spawn a female and obviously that will somewhat persist right so what that
+35:16
+means though is we're going to we're going to test that persistence I guess so we're going to at the moment we have
+35:23
+to send every female that's in the female container obviously as well as the time so update clients and then what
+35:30
+I'm going to do is let's create a buffer I don't know how big it needs to be let's set the packet type here to be
+35:37
+like four cuz I don't think we've used that before and it's going to be up to Genesis clein obviously to receive that
+35:43
+stuff so we've just got this Cube thing so let's just probably should just delete all this other testing stuff and
+35:48
+then for each of these it basically just needs to send let's just send a position
+35:53
+right now we going to set a rotation pop it somewhere else and let's give it a
+35:59
+script that's just a female so where is it okay it's off man that's so 50 is too
+36:05
+much I don't know why it's 50 how about how about just like five or is that even too much okay cool there we go check
+36:11
+that out that's pretty cool and so I guess kind of what we have to do here is uh we'll have a female container as well
+36:17
+do M uh remote female container do
+36:23
+instantiate child and we'll do obviously female which we might not have yet
+36:30
+public prefab remote female so now
+36:36
+obviously let's try and run this and we'll see I'm expecting some stuff to
+36:41
+crash here obviously but we'll see what happens so you ready guys Oh cannot apply Force to a non-dynamic body well
+36:48
+we didn't crash and if you can look closely you can see the timer seems to be working so it's it's counting down if
+36:54
+I hit stop and then I rejoin you can see it crash crashed I think offset and length were
+36:59
+out of bounds okay it's all right it's all right we expected this right now my whole console is red now oh it's a
+37:05
+static rigid body so yes that's what what the thing was complaining about the fact that um cannot apply Force to a
+37:13
+non- dynamic body so somehow we didn't make that Dynamic apparently so the size here should apparently be n bytes I
+37:19
+should probably just do this like so one for the type one bite for the type four for this for the round timer plus four
+37:26
+for the length that's how we end end up um getting our nine byes that we had there plus eight a because it's eight
+37:33
+per thing so for this it's um it's the amount of children we have * 4 + 3 + 8
+37:42
+that's why so 4 * 3 is because we have uh three like we have a VC 3 basically
+37:48
+we got 12 bytes here um and then obviously eight bytes for the thing and it's per child I just had it as if it
+37:54
+was like sent once as if this was out of the loop so we connected is there a female somewhere in the world so the
+38:00
+timer obviously is working so this timer is being run entirely on on the server I can walk around uh so every time I
+38:06
+connect I believe a female should spawn now we can actually look at the editor and see there's nothing in remote female
+38:11
+container there's the event Q size as well cuz I really wanted to verify that it was correct yeah see it's getting
+38:17
+very high like 38 is massive that's 38 functions in there to execute it's
+38:22
+because the server is sending us much more we really need to restrict this to like 30 FPS or something cuz this is
+38:27
+crazy an exception oh I V Q size 6,000 yeah because it's going to keep see that's the issue if this frame rate
+38:33
+falls down even low it's just going to keep sending us it sent us 6,000 messages from the server to update stuff
+38:39
+that's crazy same key has already been added oh look so it does work for a bit
+38:44
+but then it doesn't work because something's null maybe I didn't set the prefab where what um I'm lost what is it
+38:52
+it's called remote female on the Genesis client script oh it's not set okay so now if we connect hey there she is okay
+39:00
+let's go back to our player character okay where is she she's here cool and so that she's going to persist right so if
+39:06
+I stop and I play again she's probably still there but we got another one and we're going to keep getting more every
+39:12
+time we join Isn't that cool and obviously the time is persistent hello entity that is not real that does have a
+39:18
+physics collider so I can I can't actually go through you that's kind of cool yeah so now I guess what would be
+39:25
+cool is if we had multiple players joining but the only thing with other players joining is we're not actually maintaining other player positions and
+39:31
+transmitting them so I think that's Pro that's probably something that would be cool right so let's keep the functionality we've got but what I would
+39:37
+like to do now is also do do the same thing we're doing but with other players we can start this server side right so
+39:44
+the server manager uh I want it to kind of maintain like a list of clients I guess as well or does it even need to I
+39:50
+mean yeah well I guess so yeah let's do this let's just do this for now so we'll do dictionary uong which is the client
+39:58
+ID to just do this really simply so we'll have like uh M you know
+40:05
+player positions or something right really simple so let's do the same thing we do on the client actually which is
+40:11
+this whole this thing so we have type and then we have the span buffer cuz the first bite is just the type or whatever
+40:18
+let's just say type is one which is a position update layer info. try get
+40:24
+value p is going to be the client ID which comes in from from here on data received so we're just sending basically
+40:29
+who are we and then where are we we're going to receive that data from players every frame or I don't know I don't know
+40:36
+how often let's just like see what happens and that's it and it's just going to obviously update it it's going
+40:42
+to update the player info uh so we'll get yeah we'll get that we've decoded all the data pretty easy we got the
+40:47
+player position so now I think we can just do our event queue just to update it basically is I actually should be
+40:53
+able to have multiple instances of this which is pretty cool so you can see the time here should be the same check this
+40:58
+out so we got the same time now it also didn't make any players though oh it's
+41:06
+because it's the same instance so it's going to have the same uu ID that's why here's what we can do we can generate a
+41:13
+u ID that we just keep for ourselves which could be cool but the client actually already has one that we can use
+41:19
+I think so basically it's not that hard this is all we have to do I think basically when we send the U ID I think
+41:25
+what we're doing is we're sending our ID but let's do M client. ID cuz that is
+41:30
+generated per client so that's actually unique but we can obviously check to see if when we receive it whether it's our
+41:38
+client's ID or not let's also join here and hopefully I won't be on top of each other guys this is me I think let's walk
+41:45
+in front of him guys guys are you seeing this that's me this is me here look I'm
+41:52
+walking around him now that is pretty dope do you really need to do the root motion on the server well short answer
+41:58
+yes like you don't need to do the full animation but the problem is because the like you know we have a player this root
+42:04
+bone here the animation of that that's been authored in like something like blender right that actually moves it
+42:10
+that is physically what moves the player so when I'm running around the screen right now it's the actual like animation
+42:15
+from the asset that actually moves The Entity and so if I don't like if I still
+42:21
+want animation based movement and I don't want to just be like okay screw Ro root motion I'll just play the animation
+42:26
+at the same time as actually moving the entity which of course is going to look much worse then yeah then I don't need
+42:32
+to do any animation on the server and everything's great otherwise I don't need to do the full animation and the skeletal like bones and do everything
+42:38
+like that obviously on the server but I still need to be able to just be like okay root bone what are you doing anyway
+42:44
+guys this is pretty epic I'm not going to lie I'm pretty excited about this I think we've basically got this working
+42:49
+and obviously I could keep I guess I could keep joining in with other clients and it would work right like this is a
+42:55
+pretty big milestone I don't we're probably going to take a break from this project for a while I think I might
+43:00
+clean it up and stuff and just make it good but uh yeah we'll see we'll either
+43:06
+take a break from this project or we're going to double down on it and actually make this into like a bit of a an MMO
+43:12
+game but the the the problem is that like it's going to this looks like it works really well the detail by the way
+43:18
+is so nice look at the detail like I just noticed the detail and this
+43:24
+isn't even 4K textures I think these are like 1K textures but like like just the detail in this was like just looking
+43:29
+really good here which you might not see on stream but anyway guys thank you for watching uh it's been such a journey but
+43:36
+I'm glad we have something pretty cool up and running now it was worth it um and obviously this is just the beginning
+43:42
+as I always say because there's lots of other things to do um oh look the uh
+43:48
+server about to restart the timer cuz see we're at like 2 seconds left 1 second and yeah back up to 5 minutes
+43:56
+round two next round yeah but I think this is a pretty good example now obviously of
+44:01
+multiplayer in Hazel we've got two two clients both connected to a remote
+44:07
+server somewhere in the US uh that's running a two and is like a
+44:13
+hosting a VPS two clients communicating getting stuff the females are all in sync that's what matters you know thank
+44:19
+you guys for watching hope you enjoyed the stream hope you enjoyed the project this is going to be the end for now for
+44:25
+this like as in I don't know what I'm going to resume this I'm probably going to next time I stream I might work on the new renderer until
+44:32
+then keep it real goodbye

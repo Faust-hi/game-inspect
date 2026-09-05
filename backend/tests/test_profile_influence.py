@@ -189,7 +189,19 @@ def test_engine_affects_support(client):
             and item["engine_support"]["relation_type"] == "direct"
         )
 
-    assert direct_count("unreal") > direct_count("unity")
+    def own_support_share(engine):
+        data = recommend(client, engine=engine)
+        supported = [item for item in data["recommendations"] if item["engine_support"]]
+        assert supported
+        own = sum(1 for item in supported
+                  if item["engine_support"]["engine_code"] == engine)
+        return own / len(supported)
+
+    # Поддержка следует за выбранным движком, а не приклеена к одному:
+    # общие методы без функции тоже несут свои связи.
+    assert own_support_share("unreal") >= 0.9
+    assert own_support_share("unity") >= 0.9
+    assert direct_count("unreal") != direct_count("unity")
 
     # Для Unity часть решений доступна не напрямую: это видно в ответе.
     unity = recommend(client, engine="unity")
@@ -248,7 +260,10 @@ def test_priority_changes_ranking(client):
 def test_functions_filter_recommendations(client):
     data = recommend(client, functions=["water_simulation"])
     assert data["recommendations"]
-    assert {item["function_code"] for item in data["recommendations"]} == {"water_simulation"}
+    codes = {item["function_code"] for item in data["recommendations"]}
+    # None — общие методы без функции (вкладка «Общие методы»); остальное строго
+    # отфильтровано выбранными функциями.
+    assert codes - {None} == {"water_simulation"}
 
 
 # ---------------------------------------------------------------------------

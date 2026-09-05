@@ -1,0 +1,232 @@
+in a lot of my videos I say that
+software doesn't matter it is you and
+the knowledge about the software that
+matters today we're going deep gentlemen
+after this video you will understand how
+the magic behind your renders works fun
+[Music]
+[Applause]
+the more you know about these deep
+processes the more control you have over
+everything over the look of your 3d
+scene and more importantly over the time
+it takes to render your 3d scene first
+in my talk about render engines I
+briefly mentioned the light in
+photography and cinematography is
+briefly get back to that topic photos
+and videos a result of our camera
+recording light humans have an ultimate
+sensor called eyes that's why the light
+is the most important aspect and it
+defines the look they feel the quality
+of your photos and videos I have a big
+light source on my right the race this
+light emits are scattered across my room
+and reflected by other objects I have
+here each ray from this light source
+gets bounced billions of times before it
+gets to my camera sensor and gets
+recorded you can imagine how many rays
+are there in this room right now
+bouncing trillions of times this is why
+real life looks so good good models
+textures materials eternal variety of
+elements and enormous amount of light
+bounces captured by our eyes or camera
+one of the most popular topics is the
+hardware we use in our work and it makes
+sense because opposed to real world
+computers have limits of what they can
+calculate in real life
+eyes are capturing uncountable amount of
+data non-stop computers are far away
+from that kind of processing power and
+clever people came up with the different
+rendering methods there are several
+rendering method rasterization ray
+casting ray tracing and path tracing
+there are also subgroups for these but
+we won't go that deep let's start with
+the restoration this is what was
+possible in the beginning of computer
+era and it is what all computer games
+are using till this day this method
+doesn't use any race it simply helps to
+display geometry on your screen
+basically rasterization takes vector
+data and transforms it into pixels it
+refers to both primitives like polygons
+and 3d models to make it simpler 3d
+model consists of polygons polygons are
+formed with points points are placed in
+space using different math 3d scenes are
+using XYZ coordinates
+remember geometry is cool but your
+screen is flat to the XY plane for
+example here is our camera imagine that
+this is our screen with pixels in it the
+rasterizer takes the points from every
+polygon and calculates where to put them
+on screen then it's processing the space
+between the points and turns the shape
+into a group of pixels after all
+polygons are processed the computer is
+able to show you that 2d representation
+of your 3d object rasterization is what
+our 3d softwares are using to display
+our scene in the viewport and it's still
+the most popular way of producing 3d
+graphics in real time it is extremely
+fast because it's simply a process of
+transforming our scene geometry into
+pixels this doesn't really sound like
+actual rendering does it indeed looking
+at your scene in a viewport is also a
+rendering method the second method back
+in a days when computers just appeared
+was rendering using ray casting I
+prepared a 3d scene that will help me to
+demonstrate everything the rays are
+casted from the camera one through every
+pixel when the objects in the scene are
+intersected by the Ray the computer
+records the closest point to the camera
+and its color value that can be
+determined from a texture let's say we
+want our image to be thousand by
+thousand pixels resolution this means
+the computer have to cast 1 million race
+each ray calculation is tens
+if not hundreds of lines of code to
+process I think you guessed how
+challenging it was back to 70s a massive
+amount of calculations for the computers
+to do this method also limits everything
+creatively as it's only a texture that
+defines the color of geometry as the
+Rays going one direction only it means
+no reflections or shadows possible does
+that remind you something this flat look
+started to change in 1980 when a man
+called Turner Whitted turned Ray casting
+into something different something
+revolutionary previously witted made
+researches for a nuclear power industry
+and he was studying the behavior of
+light photons in space so this clever
+man knew exactly how light behaves in
+real life let's look at our sample 3d
+scene again with it introduced what we
+know as Ray bounces the ray tracing
+method with this method the computer is
+also sending a ray through every pixel
+but when the Ray hits an object instead
+of recording the data straight away the
+computer sends more rays one to each
+light source from this intersection
+point to find out how these lights are
+affecting the color or brightness of
+this point the point could now have
+shading an illumination data calculated
+if that ray did meet another geometry on
+its way to light source it means there
+is something blocking the light and our
+intersection point should be darker as
+it lies in the shadow if the object was
+reflective the computer sent a new ray
+forward at a certain angle to check if
+there is another object which should be
+reflected in our intersection point and
+so on until the ray meets a light source
+this was revolutionary because artists
+could finally art direct the scene they
+could dictate the behavior of the race
+by setting up the materials a material
+dictates how light should be reflected
+or maybe it's absorbed or maybe the
+light goes through the material there
+are billions of these bounces drawing
+our scene appearance over
+the years this method got modified and
+improved but still it wasn't a
+simulation of reality these calculations
+simulated only a reflection refraction
+and hard shadows hard shadows because
+the light and this method is a point in
+space which rays are travelling to get
+soft shadows who have to cheat to get
+global illumination we have to cheat and
+so on it was a huge jump towards a
+photorealistic renders that we are
+familiar with nowadays though ray
+tracing has been promised for years as a
+ultimate gaming experience but even
+today's computers are too slow for this
+method to be calculated at 60fps
+technology is constantly evolving and
+what we see in real-time renders
+nowadays is truly impressive just this
+year we have seen the Star Wars
+real-time ray tracing them or released
+by Unreal Engine and was powered by
+NVIDIA sir RTX technology still required
+a computer which costs fifty thousand
+dollars to run at 24 frames per second
+but it is a perfect example of how
+realistic real-time rendering can be
+with good skills and time spent on
+cheating ray tracing is good for
+everything including now real time
+engines but what about let's say VFX
+where image has to be flawless in order
+to be believable there is a purely
+offline rendering method that is not
+suitable for real-time engines just yet
+due to calculations needed and it's
+called path tracing once again it sounds
+raised through pixels but when the ray
+hits an object instead of tracing new
+race to the points of light sources it
+keeps bouncing the same ray between
+scene objects as many times as necessary
+to get to light source this allows to
+gather information about the objects
+that are close to each other find out
+what color they are and if that color
+effects the previous object in simple
+words the Rays are acting like light in
+a real world this is why the path racing
+engines care about size of the light not
+the position because every individual
+ray can hit a surface of their life it
+is no longer restricted to a point you
+will have your soft shadows calculated
+properly in color bleeding like let's
+say if colored object is intensely lit
+caustics like fancy light reflections
+through the bottle nowadays GPUs are
+getting more and more advanced powering
+path tracing engines and you can add
+many GPUs in one system more than
+processors this means you can render
+realistic scenes in the matter of
+seconds but everything always depends on
+a lot of factors for instance I'm
+waiting for octane for to be ready for
+production use because they're
+introducing the the noise system noise
+in path tracing render engines is one of
+the most painful topics and looks like
+octane for eliminated that problem but
+this is a topic for another video how
+does it feel now when you know exactly
+what's going on behind your renders and
+how they are born if you guys still have
+questions feel free to use comment
+section thumbs up if that lecture was
+interesting to you subscribe if CG and
+VFX is something you're into thanks for
+watching guys see you soon
+peace
+[Music]

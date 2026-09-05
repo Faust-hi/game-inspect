@@ -4,11 +4,15 @@ import type {
   Conflict,
   Engine,
   Enums,
+  FeedbackSummary,
+  FeedbackVote,
   GameExample,
   GameFunction,
   HardwareCPU,
   HardwareGPU,
   Method,
+  PresetFile,
+  ProjectImport,
   ProjectProfile,
   RecommendationResult,
   ValidationIssue,
@@ -130,6 +134,31 @@ export const api = {
     request<{ public_id: string; name: string; profile: ProjectProfile; basket: string[] }>(
       `/projects/${publicId}`,
     ),
+
+  feedback: (publicId: string, methodCode: string, useful: boolean) =>
+    request<FeedbackVote>(`/projects/${publicId}/feedback`, {
+      method: 'POST',
+      body: JSON.stringify({ method_code: methodCode, useful }),
+    }),
+
+  importProject: async (files: File[]) => {
+    const form = new FormData();
+    for (const file of files) form.append('files', file);
+    const response = await fetch(`${BASE}/project-import`, {
+      method: 'POST',
+      body: form,
+    });
+    await throwIfError(response);
+    return (await response.json()) as ProjectImport;
+  },
+
+  presets: (profile: ProjectProfile, basket: string[]) =>
+    request<{ files: PresetFile[] }>('/project-presets', {
+      method: 'POST',
+      body: JSON.stringify({ profile, basket }),
+    }),
+
+  feedbackSummary: () => adminRequest<FeedbackSummary>('/admin/feedback-summary'),
 };
 
 /** Административный раздел. Локальный режим: без токена. */

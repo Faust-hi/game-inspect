@@ -1,6 +1,14 @@
 /** Экран 1. Создание профиля игры. */
 import { useStore } from '../store';
+import { ProjectImport } from '../components/ProjectImport';
 import { Card, Field, NumberInput, Select, Toggle } from '../components/ui';
+
+/**
+ * Скоуп проекта — ПК и macOS. Остальные значения enum Platform живут только
+ * для честности данных (примеры реальных мультиплатформенных игр) и в API,
+ * но в анкету не предлагаются.
+ */
+const QUESTIONNAIRE_PLATFORMS = ['pc_windows', 'pc_linux', 'macos'];
 
 const RESOLUTIONS = [
   { value: '720p', label: '720p' },
@@ -26,6 +34,7 @@ export function ProfileScreen() {
 
   return (
     <>
+      <ProjectImport />
       <Card
         title="Общие сведения о проекте"
         hint="Опишите будущую игру: формат, структуру мира, технологии и целевые показатели."
@@ -93,24 +102,26 @@ export function ProfileScreen() {
           hint="Решения, не поддерживаемые хотя бы одной платформой, будут исключены из рекомендаций."
         >
           <div className="chip-row">
-            {enums.platforms.map((platform) => {
-              const active = profile.platforms.includes(platform.value);
-              return (
-                <button
-                  key={platform.value}
-                  className={`chip ${active ? 'selected' : ''}`}
-                  onClick={() =>
-                    updateProfile({
-                      platforms: active
-                        ? profile.platforms.filter((p) => p !== platform.value)
-                        : [...profile.platforms, platform.value],
-                    })
-                  }
-                >
-                  {platform.label}
-                </button>
-              );
-            })}
+            {enums.platforms
+              .filter((platform) => QUESTIONNAIRE_PLATFORMS.includes(platform.value))
+              .map((platform) => {
+                const active = profile.platforms.includes(platform.value);
+                return (
+                  <button
+                    key={platform.value}
+                    className={`chip ${active ? 'selected' : ''}`}
+                    onClick={() =>
+                      updateProfile({
+                        platforms: active
+                          ? profile.platforms.filter((p) => p !== platform.value)
+                          : [...profile.platforms, platform.value],
+                      })
+                    }
+                  >
+                    {platform.label}
+                  </button>
+                );
+              })}
           </div>
         </Field>
       </Card>

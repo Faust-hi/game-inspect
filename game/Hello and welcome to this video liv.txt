@@ -1,0 +1,1122 @@
+Hello and welcome to this video live from Warsaw, Poland, where I am here at CD Project Red's headquarters and I just saw The Witcher 4 demo running on a
+0:20
+20 секунд
+PlayStation 5 and it was mighty impressive. And I'm joined by these fine gentlemen here today from CD Project Red and Epic to talk about it. and if you
+0:28
+28 секунд
+would please introduce yourselves. Hi, I'm Charles D. I'm the VP of technology.
+0:33
+33 секунды
+I pretty much oversee all tech development across the company.
+0:37
+37 секунд
+Hey, I'm uh Jakob Napik. I'm the VP of art and gold director. I oversee all the art and I had a pleasure to work with Lucian Viens, art, our director of the
+0:45
+45 секунд
+Witcher uh for and the and obviously the the content team on the on the silver demo lighting and and look development.
+0:53
+53 секунды
+I'm Kevin. I lead one of the rendering teams at Epic on the this demo we did together. Uh I was part of the a lot of
+1:00
+1 минута
+the rendering stuff and the performance aspect.
+1:04
+1 минута 4 секунды
+Hey, I'm Kait Kapushinski. Kayan Kapushinski. I'm a cinematic director at the PR Red. I was responsible for directing scenes and whole flow of this
+1:12
+1 минута 12 секунд
+technical demo that you've s seen and also I was the one playing it live in Orlando during Unreal Fest.
+1:20
+1 минута 20 секунд
+Hi, I am Yan Hermanovich. I'm engineering production manager at CDPR.
+1:25
+1 минута 25 секунд
+Uh, and I was the main producer and the dev owner uh, of Project Silver. Oh, that's the code name for this. Now it's spilled.
+1:34
+1 минута 34 секунды
+I'll edit that out in post. Um, that actually gets into my first question was when did the what is the timeline of
+Эпизод 2: When did the cooperation begin for the TW4 Tech Demo?
+1:41
+1 минута 41 секунда
+this demo and the cooperation between Epic and CDPR look like? Because we had an announcement a number of years ago that you would be moving on from Red
+1:49
+1 минута 49 секунд
+Engine to Unreal. So when did when is like the beginning of the cooperation and the genesis of this demo? When is that and what did that look like? Okay.
+1:57
+1 минута 57 секунд
+Uh I think I can take this uh this question maybe together with Charles because it's like two two questions in in one. So in general our collaboration
+2:03
+2 минуты 3 секунды
+is uh pretty much since we announced that we are switching engine um a little bit before that. Uh right so that will
+2:10
+2 минуты 10 секунд
+be about 3 years by now 2022. Yeah. So so 3 years uh 3 years by now. uh and this is pretty much as as long as we we collaborate with um with Epic Games.
+2:21
+2 минуты 21 секунда
+When it comes to uh to this particular um demo, you know, projects like that have different stages. Uh so it's it's
+2:29
+2 минуты 29 секунд
+some sometimes hard to draw a definite line between like a pre-production or ideation phase and the actual production and and pushing the content uh content
+2:38
+2 минуты 38 секунд
+forward. But let's say this is this is a relatively fresh thing uh that we were we started working uh somewhere last
+2:46
+2 минуты 46 секунд
+year. Mhm. So obviously we're joined also by you from Epic today, but what was internally at CDPR in 2022? What was
+Эпизод 3: Why did CDPR switch to Unreal Engine?
+2:55
+2 минуты 55 секунд
+the impetus to actually want to move over to Unreal Engine? Because we see an Unreal Engine 5 demo. It was a big part of Unreal Fest, but you had internally used your own tech for a long period of
+3:04
+3 минуты 4 секунды
+time. So what was like the core factors in switching over to Unreal? Uh yeah, it's a very good question. I get it often. Um so and I always preface this
+3:14
+3 минуты 14 секунд
+with one statement is that because I don't want people to think that uh we the tech that we had was problematic and
+3:21
+3 минуты 21 секунда
+or like you know it's [ __ ] or something like that. No, actually we're super proud of what we achieved for Cyberpunk.
+3:27
+3 минуты 27 секунд
+I think even today it's it's it's it's a it's a statement of what we achieved and we scale very well. But that being said, when we started the uh the new new
+3:35
+3 минуты 35 секунд
+project, The Witcher, uh the company we wanted to be more as a multi- uh production um company and uh our
+3:43
+3 минуты 43 секунды
+technology was not very well made for that. It was you know one project at a time and then you just you know put the game play down and then you move on. Not
+3:50
+3 минуты 50 секунд
+very well made to have multiple project in the same time. Uh second thing is we also want to extend to multiplayer experience. Uh and uh once again our
+3:59
+3 минуты 59 секунд
+tech was is a single player game. So it was very complicated to move on with this. So we decided to partner with Epic now to uh you know uh follow the company
+4:08
+4 минуты 8 секунд
+strategy. Um so yeah this is where we are now. Mhm. Okay. So, we specifically just saw that running on PlayStation 5.
+Эпизод 4: Why target and show the demo on PlayStation 5 at 60 fps?
+4:17
+4 минуты 17 секунд
+And I would say that's actually quite against the grain from what CDPR had done in the past where we would see, for example, The Witcher 3 or even I saw it
+4:24
+4 минуты 24 секунды
+multiple times at Gamescom the wonderful PC C uh CP 2077 demos, but here we're seeing it demoed on PlayStation 5 at 60
+4:34
+4 минуты 34 секунды
+fps. So, a 60 fps target. So, why show it off on PS5 first? Why target 60fps? I
+4:42
+4 минуты 42 секунды
+think that when we start the the the collaboration we uh we had you know we have super high ambition for this project and we always as you said we
+4:51
+4 минуты 51 секунда
+always do PC and we push and then we you know try to scale down but then we had so many problem in the past that we tried to see okay this time around we really want to be more a console first
+4:59
+4 минуты 59 секунд
+development right so um and then we worked with Unreal with our partner uh and then we saw the challenge uh to
+5:07
+5 минут 7 секунд
+realize the ambition that you know to make what we want as 60 60 fps on PS5 would be you know there would be work
+5:14
+5 минут 14 секунд
+and this is why we started to talk uh to figure out what needs to be done with the technology and we also decided okay we need to have all those things that
+5:22
+5 минут 22 секунды
+needs to be developed where we go from there it's hard to say but right now we really wanted to focus on what does it mean to make this ambition on a console
+5:31
+5 минут 31 секунда
+and we have all the project at 60 fps and we really wanted to also to aim for 60 fps once again and not go back to uh you know 30 fps or something like that.
+5:39
+5 минут 39 секунд
+Yeah. And it was a mutually mutually shared uh ambition together with Epic, right? So when we started talking about it, that like was a I think that was literally like the first pillar uh we
+5:48
+5 минут 48 секунд
+established uh together that this this is going to be a uh a console 60fps uh fake console 60 fps fit in memory. Uh
+5:57
+5 минут 57 секунд
+yeah, constrained by platform pretty much. Yeah. Yeah. Yeah, it was a really good opportunity for for the engine as well to, you know, use this as a demo
+6:04
+6 минут 4 секунды
+and really showcase that 60 fps on a base console is totally achievable with all the features that we have. Yeah, that's quite different than the Matrix
+6:13
+6 минут 13 секунд
+demo, for example, which was targeting 30 FPS and was the last time we saw, at least on the console side of things, a hardware rate tracing demo from Epic
+Эпизод 5: 60 FPS: a challenge or a limitation?
+6:20
+6 минут 20 секунд
+itself. Um, but still, you're talking about 60 fps versus 30. That's a whole bunch of frame time. Do you see this as
+6:27
+6 минут 27 секунд
+a challenge or a limitation? like how do you view it because uh strictly adhering to that in an open world is it's it's a
+6:35
+6 минут 35 секунд
+mighty big challenge like how do you view it? Yeah. So I think that at this stage we are perfectly aware that uh
+6:43
+6 минут 43 секунды
+we're we still have a lot of work ahead of us right so you know this is a tech demo there is you know not the whole gameplay loop is implemented there's no combat there's a lot of thing that
+6:51
+6 минут 51 секунда
+doesn't work but still the ambition is set so this is where we want to aim and you know we'll beat them if we don't try to get you know this game uh in performance
+6:59
+6 минут 59 секунд
+it's too early to say you know if we manage to to to nail it but we're we'll work as hard as we can to make it for
+7:06
+7 минут 6 секунд
+sure at least based upon base rendering tech. It seems like it's at least there to get that part of it at 60 for the most part because the demo is incredibly
+7:15
+7 минут 15 секунд
+fluid. As I said, uh when we did the DF direct on this, it doesn't drop a single frame. That is something you usually usually see in a demo like this. Uh for
+7:23
+7 минут 23 секунды
+example, the Matrix demo could drop frames if you if you go back in time to our coverage of it back then. Um so this was mighty impressive from that aspect.
+7:30
+7 минут 30 секунд
+Um, from Epic as well as from your side, uh, hardware lumen to this point has been on consoles other than on
+Эпизод 6: How was Hardware Lumen brought up to 60 fps on console?
+7:38
+7 минут 38 секунд
+Fortnite's most recent season. That was a new thing. Uh, been limited to 30 FPS ambitions typically. So, what were the
+7:45
+7 минут 45 секунд
+big roadblockers on a console like the PS5 from getting hardware lumen up to within 16.6 milliseconds? I mean,
+7:54
+7 минут 54 секунды
+obviously, it comes down to performance, right? And optimizations on both uh the GPU side and the CPU side. So uh on the CPU there's been a ton of work on
+8:02
+8 минут 2 секунды
+optimizing away a bunch of the cost on the critical path on the render thread.
+8:06
+8 минут 6 секунд
+So you know multi-threading things removing all sync points that we don't need. Uh allowing all all types of primitives to actually time slice and
+8:14
+8 минут 14 секунд
+not only like you know landscape or something like that. Um that's for the dynamic part. Um on the GPU obviously
+8:22
+8 минут 22 секунды
+tracing cost needs to be kept low. So, you know, having good proxies, um, you know, streaming in the right amount of stuff in the vicinity, um, these things
+8:30
+8 минут 30 секунд
+just, you know, making that work out of the box, um, is core to to the 60 fps.
+Эпизод 7: Why use hardware ray tracing when the software path already exists and ran better?
+8:36
+8 минут 36 секунд
+Mhm. So, why though want to use hardware ray tracing when there's already a software path that does target 60, for
+8:43
+8 минут 43 секунды
+example, right? So, the the software lumen path has a lot of limitations, things we simply cannot get away from no
+8:51
+8 минут 51 секунда
+matter kind of how hard we try. the distance field approximation or the representation is effectively um static
+8:58
+8 минут 58 секунд
+right and the more dynamic worlds we build then you know we want that to also be part of the the rate tracing scene.
+9:04
+9 минут 4 секунды
+So um using harder rate tracing for that much better quality wise we can get a much better representation with rate tracing than we can with distance
+9:12
+9 минут 12 секунд
+fields. Um so it's generally we've just it is also kind of the future. We see that in in hardware coming out as well
+9:19
+9 минут 19 секунд
+that we're going to focus on that. So we are focusing on hardware lumen for sure
+9:26
+9 минут 26 секунд
+um and consider software lumen to be um hopefully a thing of the past. Mhm. And also I think if I add there's like
+9:35
+9 минут 35 секунд
+looking from the Witcher point of view you know this game will have dynamic day cycle. So when you look at from this point of view you need to secure the
+9:42
+9 минут 42 секунды
+environments lighting wise for all light angles and it's an open world game. So you need to make sure that the way you make content will work and it will not
+9:51
+9 минут 51 секунда
+light leak in all the situations and hardware retraced lumen is just much better for securing your walls to not
+9:58
+9 минут 58 секунд
+leak lumen inside or just like Kevin said you actually can move trees and have a proper occlusion. So for us it was like okay if we' go with software we
+10:06
+10 минут 6 секунд
+would have a lot of limitations that's one but it's a different way of how you set up the environment like from the content point of view for both modes and that will actually kill us from the
+10:14
+10 минут 14 секунд
+production point of view. So looking from this point of view, there was just one big challenge. We just need to do it uh on the tech side because it would literally kill us on the production side
+10:23
+10 минут 23 секунды
+later on. Otherwise, you would have to change the design of the game. Yeah, I think actually that's a pretty good point. Um you know, if you do software lumen on one platform, but you intend on
+10:32
+10 минут 32 секунды
+scaling that up to hardware lumen on another platform, like working with both is is problematic. Like you want to have the one representation. It's much
+10:40
+10 минут 40 секунд
+better. Yeah. I mean, it's as much as it would be great because we'd love to see hardware utilized everywhere, you're kind of locked into something from a QA
+10:48
+10 минут 48 секунд
+perspective, an artistic perspective, you can't just be doing everything as much as it would be great. But from your perspective, primarily coming from the
+Эпизод 8: What affect does RTGI and Reflections have on Art Design?
+10:55
+10 минут 55 секунд
+tech tech art direction, what is it like to work on a title then in the future where you have access to real-time global illumination and real-time
+11:03
+11 минут 3 секунды
+reflections for the first time? Because in Cyberpunk, you had that, but it was only on the PC SKU primarily. And uh here it's going to be the baseline
+11:12
+11 минут 12 секунд
+presumably. So like what is that like from your perspective? Well, we we out the game on PC cyber punk. So actually,
+11:19
+11 минут 19 секунд
+you know, we it it was it was a a bit of an issue resolving find a middle ground artistically so that it works both on
+11:27
+11 минут 27 секунд
+console and high-end PC. Right here, we can actually with this approach, we can alter the game once and we make sure that it just it's pretty much visually
+11:36
+11 минут 36 секунд
+similar. it just gets better but it's similar visually across all the platforms that's the difference we can ensure that our direction is consistent
+11:43
+11 минут 43 секунды
+across all the platforms while in PC you could say that it is slightly different you know lookwise between the lowest
+11:51
+11 минут 51 секунда
+grade and the highest grade uh platform right so that's that's the difference and also for like cinematic authoring using lumen for the first time in
+Эпизод 9: How does Lumen affect cinematic design?
+12:00
+12 минут
+cinematics could you explain it like what it was like for you know I'm not super technical so probably Majority of questions will go to the others. Uh but
+12:09
+12 минут 9 секунд
+yeah like uh the how we can now work on uh cinematics using the the tools that we are provided with with Epic and the
+12:16
+12 минут 16 секунд
+tools that we are uh co-developing with with them like it opens up a lot of possibilities to actually have this creative freedom to be able to create
+12:24
+12 минут 24 секунды
+scenes like you've seen at the beginning of the of our of our demo. And this is for me as a content creator not really
+12:32
+12 минут 32 секунды
+on the teart side. Uh it's great. It's just you know liberating in many ways and that that's super cool and yeah like Kuba probably can explain more about the technical side of it.
+12:42
+12 минут 42 секунды
+Yeah, actually we there there many more aspects to the look apart from lumen that we actually introduced in this demo that actually contribute to like the
+12:50
+12 минут 50 секунд
+more cinematic experience of the the cameras like lens simulation, film simulation, aces, all the stuff that we also added uh while working on the technology for for the Witcher, right?
+13:00
+13 минут
+So all that contributes to slightly more, you know, effortless I guess I can call effortless um approach to scenes.
+13:08
+13 минут 8 секунд
+Mhm. You could already see I know you just talked about the other aspects of cinematography there, but uh one thing that struck me in the demo is when the
+13:16
+13 минут 16 секунд
+coin hits the ground and it flashes time of day like immediately. And you can that's something that would be a great struggle to do using any form of baked
+13:25
+13 минут 25 секунд
+lighting, let alone have the quality be maintained after the flash. And it doesn't drop a frame during that flash, too. It's another thing to comment on.
+13:33
+13 минут 33 секунды
+It's pretty impressive. Um so we're looking at the demo. It's got the cinematic aspects. It's got uh you walking through the town, but it's also
+Эпизод 10: How was the world and terrain created for this demo?
+13:41
+13 минут 41 секунда
+a large open world, which The Witcher games are known for. For this demo, how were objects such as trees, rocks, and the town itself placed within the train?
+13:52
+13 минут 52 секунды
+And how was the terrain generated actually for this demo? Uh so the the pipeline we we use for this is actually
+13:59
+13 минут 59 секунд
+the the pipeline we are using for for the main game, right? Uh so uh there's a little bit of uh let's say there's
+14:09
+14 минут 9 секунд
+ideiation and then the actual landscape creation within dcc tools. So uh we we do the first pass outside of uh of
+14:17
+14 минут 17 секунд
+engine and then we uh import uh that height map for the landscape uh into the engine and then we do the rest of the
+14:24
+14 минут 24 секунды
+sculpting uh actually in Unreal Engine uh there. So this is purely when it comes to the terrain uh layer, right? Of
+14:31
+14 минут 31 секунда
+course, the final picture that you see is is a layered picture. So, uh on top of of the landscape itself, um uh there
+14:38
+14 минут 38 секунд
+is plenty of meshes, there's some additional rock formations, there's trees and and all that that stuff. Uh there's a procedural uh PCG layer pretty
+14:47
+14 минут 47 секунд
+much, right? But the but the pure height map, pure terrain, this is this is the pipeline that we uh we are using there.
+14:54
+14 минут 54 секунды
+Mhm. And that also goes over to like the the small stuff that's scattered on the ground that is the PCG PCG. So that is
+15:01
+15 минут 1 секунда
+that is a a runtime uh runtime PCG. uh I I hope it's not too much of a
+15:08
+15 минут 8 секунд
+simplification but we can say in effectively we replace the like autographs with the runtime GPU based uh
+15:15
+15 минут 15 секунд
+PCG and we use that for all the smaller like what you would use uh autographs normally for right so all the small
+15:23
+15 минут 23 секунды
+debris um trash in a case of of of of the town right grass and stuff like that
+Эпизод 11: How did the team view the paradigm shift in how vegetation is made?
+15:31
+15 минут 31 секунда
+when it comes to making those trees though that was Probably the after the getting to Harvard Lumin to 60, I'd say like the largest and most visually
+15:40
+15 минут 40 секунд
+impressive thing of the demo is the density of the trees, the way they look, the way they scale. From an artist perspective though, we kind of already know a little bit about how it works. We
+15:48
+15 минут 48 секунд
+can talk to that a second. Is this the the biggest change you've seen in a long time of making like vegetation in games?
+15:56
+15 минут 56 секунд
+Because it's been about these alpha cutout cards since I was a child.
+16:01
+16 минут 1 секунда
+Absolutely. I I think that is that plus PCG that combo I think this is a killer combo you know because creating a
+16:08
+16 минут 8 секунд
+foliage big trees is one problem creating a small foliage is a second problem. I think with this demo we tried to combine those two uh techniques into
+16:17
+16 минут 17 секунд
+creating a fage and I actually did the trees just like Kevin somehat highlighted already was our biggest concern because of how you alpha sort or
+16:27
+16 минут 27 секунд
+how you create illumination and then how you actually move the trees around because if you have a static trees that's one problem that's a pretty
+16:36
+16 минут 36 секунд
+approachable problem even before this demo but having a movable trees I remember I was in a big dow like I had this discuss with Luchian the art
+16:43
+16 минут 43 секунды
+director I said Lutian you can have good lighting or moving trees it's hard to have both really it was like two years ago that was our discussion internally
+16:51
+16 минут 51 секунда
+pretty common and so we tried to actually challenge that and there was a lot of effort coming from both CDPR tech teams and and epic tech teams to resolve
+16:59
+16 минут 59 секунд
+that problem and and yeah Kevin you can pick it up actually but that was by far the biggest the biggest change and concern we had when it comes to the
+17:06
+17 минут 6 секунд
+Witcher yeah I mean as you said alpha cutout cards has been the way for many many years. Uh, but I mean it just
+17:15
+17 минут 15 секунд
+doesn't really cut it. Uh, you it's flat, right? So, it can can look good from a certain angle, but not every angle. Shadows might be problematic as
+17:23
+17 минут 23 секунды
+well. Um, so just throwing that throwing geometry at it is kind of the only way to make it real voluometric, right? Um,
+17:32
+17 минут 32 секунды
+exactly. And, uh, and it opens new possibilities for artists. Uh, right. Uh so for example those like pine needles
+17:40
+17 минут 40 секунд
+um you can see up close on the uh on the on the big tree that we are showcasing in the that we're really zooming in on the uh on the demo. Uh that is like a
+17:48
+17 минут 48 секунд
+perfect case for geometry, right? You can actually model those uh those pines and doing this based on cuts. It's a bit like you know probably like slap through
+17:55
+17 минут 55 секунд
+three maybe four cuts together to achieve this effect, right? Uh of course it requires some some change of thinking within like uh like the foliage artist
+18:04
+18 минут 4 секунды
+let's say because now the things that were for example like very thin uh very ephemerric kind they have this kind of of plant right? So how how do you
+18:12
+18 минут 12 секунд
+actually like can you model this? How do you model this? Right? Uh but in in general uh the the benefit and the
+18:20
+18 минут 20 секунд
+possibilities absolutely outweigh whatever new challenges uh might pop with this with this new pipeline. Yeah, I can already imagine that like it's
+18:28
+18 минут 28 секунд
+going to also allow different types of vegetation that you don't typically see in games to become more viable like like willow trees and things like that that
+18:36
+18 минут 36 секунд
+are actually very challenging and tend to look pretty bad in games.
+18:40
+18 минут 40 секунд
+Uh you know, I already can see that in my brain. In all fairness, the reason why we had the pine tree also is because we thought it was one of the
+18:48
+18 минут 48 секунд
+worst case. Yeah. Yeah. And we work on this case for a long time. Actually, I was super stressed when we started demo and you know when we came Epic guys came
+18:55
+18 минут 55 секунд
+up uh you know with our guys like do the solution was like oh my god we we got it. Uh also you know we need to consider also the asset on disk. Uh
+19:05
+19 минут 5 секунд
+all the assemblies it's you know really good and also the Witcher the forest is pretty much the soul of the game. So we need to have like you know what does it mean to have the yet the new iteration
+19:14
+19 минут 14 секунд
+of the forest for for this game? It could not just be a traditional you know good old card system. It was not the not the one what we wanted to achieve. Yes.
+19:21
+19 минут 21 секунда
+I I think it was like the one one of the one of the best days uh on the on working working on this pipeline because this pipeline we actually started
+19:29
+19 минут 29 секунд
+working a little bit before the demo. So that was like one of our angles of collaboration even before we started work on the on the demo when we looked at the table and actually turned out
+19:37
+19 минут 37 секунд
+that like this crazy insane amount of polygons uh without alpha actually runs faster than the classic cards approach
+19:44
+19 минут 44 секунды
+and like everybody's a bit like oh yes okay there's there's something to it let's go down this path. So yeah so you already have it skinned and animated as
+Эпизод 12: Can the new vegetation technology be used elsewhere?
+19:52
+19 минут 52 секунды
+well. Um do you then see this I want to talk a lot about this because I find it so fascinating. Sorry. Um but do you see this technique also bridging into other
+20:01
+20 минут 1 секунда
+areas of rendering uh the way nanite's handling it and then it's loded at a distance because right now there's similar phenomena like hair um even like
+20:10
+20 минут 10 секунд
+long grass and things like that you know like extruded triangles like do you see this going into other directions in the future from Epic's perspective? Uh it's
+20:19
+20 минут 19 секунд
+possible we haven't really gotten all that far in exploring that it's it's it's come up for discussion. Uh actually the voxil idea isn't really all that
+20:26
+20 минут 26 секунд
+new. Uh Brian Caris who uh came up with Nanite initially has in his uh HPG talk a few years ago a section on on on
+20:34
+20 минут 34 секунды
+voxels and how he explored um you know the idea of using voxels to kind of solve the geometric problem that Nite
+20:41
+20 минут 41 секунда
+eventually did. Um but at the time wasn't really a perfect fit for everything. Turns out it was actually a
+20:49
+20 минут 49 секунд
+very good fit for foliage. Um, so anything that might, you know, look like foliage might actually be a contender to
+20:56
+20 минут 56 секунд
+to use this tech. Uh, I mean, it's going to be continued to be explored. I mean, if there are ways to make this better, obviously we'll we'll take a look at that for sure. Yeah. I'm just curious
+21:04
+21 минута 4 секунды
+about like cuz right now when Nanite falls back, it usually goes to the HLOD at a distance and that doesn't happen for trees right now. Correct. Doesn't uh
+21:13
+21 минута 13 секунд
+Well, I mean, they're part of an instance. They don't they don't bake down to anything, but that was by choice. We we could have done if you want to you can obviously in the
+Эпизод 13: How is the new voxel technology lit and shaded?
+21:21
+21 минута 21 секунда
+distance whatever you want but uh uh but yeah in this case no they're always loaded. Okay, so that's one thing I didn't I it's described in the demo in
+21:29
+21 минута 29 секунд
+the initial demo that they are lit shadowed and all these things but how are they lit uh primary how are they primarily lit like from the like direct
+21:38
+21 минута 38 секунд
+like how are they rasterized they're not rasterized but how are they made lit shadowed how do they fit into VSSM
+21:45
+21 минута 45 секунд
+because they're not geometry like what how exactly do they fit in because the rest of the rendering pipeline is not voxels so how do they fit into the the classic rendering pipeline down here.
+21:55
+21 минута 55 секунд
+They actually fit in very nicely as in the nanite pipeline as you know it today before voxil u you know part of that is
+22:03
+22 минуты 3 секунды
+essentially just replaced by the voxil uh path and that same path runs for vsm.
+22:10
+22 минуты 10 секунд
+So that's also why it's kind of cheap to render into shadows in the distance because they're just voxels. Uh so that just works out of the box. Um lighting
+22:19
+22 минуты 19 секунд
+wise I mean it's regular which is light uh using a directional light. Um there's been improvements to the shading model
+22:26
+22 минуты 26 секунд
+uh fol shading model but in general there you know it fits into the the ordinary pipeline quite well. Uh on the
+22:34
+22 минуты 34 секунды
+indirect side um we have a simplified representation which is static. Um so that doesn't move uh for you know
+22:43
+22 минуты 43 секунды
+performance reasons. So it scales up for sure. We could obviously, you know, make everything model out everything in the rate tracing scene and make that all
+22:50
+22 минуты 50 секунд
+animate and everything like that, but for performance reasons, uh, for this demo, obviously, we don't. You just talked about shadows. Another thing that
+Эпизод 14: How was Virtual Shadow Maps brought up to 60 fps for this demo?
+22:59
+22 минуты 59 секунд
+the demo does show off that we don't see actually always in a lot of shipping UE5 games to date is, yes, lumen, both, you
+23:08
+23 минуты 8 секунд
+know, specular and diffuse, but also VSSM. Some titles we've seen cut it just using normal CSMs because the expense is
+23:15
+23 минуты 15 секунд
+too high. So, how did you get VSM's performant at 60 fps with everything else that's going on here? Uh, so I mean
+23:24
+23 минуты 24 секунды
+there's been a lot of work for a long time on improving performance in VSSM.
+23:28
+23 минуты 28 секунд
+Um, I think in a lot of cases when people might turn it off is maybe because they have a lot of non-nanite geometry in there because VSM is really
+23:37
+23 минуты 37 секунд
+good uh at rendering nanite because it can do much finer uh culling when it renders into those pages. Uh whereas if
+23:45
+23 минуты 45 секунд
+you render a non-nanite mesh, it there's only one bounce there. There are no clusters. There's just one big thing to render. Um
+23:52
+23 минуты 52 секунды
+so yeah, general optimizations for sure. Um that's been that's been the main point.
+24:00
+24 минуты
+Um obviously the the settings are important as well. Um you can't just go with the absolute highest resolution and the highest lo bias and everything like
+24:08
+24 минуты 8 секунд
+that. You need to make sure that your settings actually are appropriate for for what you intend here. Uh for the demo we uh I don't recall the exact
+24:16
+24 минуты 16 секунд
+number but we we have a very sensible setup for sure. um you can see some flickering on, you know, skin, some um
+24:25
+24 минуты 25 секунд
+some surface from from lower resolution shadows, for example. But it works for us. Yeah, it's impressive that it scaled
+24:33
+24 минуты 33 секунды
+though at all because when I've ever tested UE5 on my own, u it's usually one of the highest scene cost aspects. So
+24:40
+24 минуты 40 секунд
+getting there on the 68 to PS5 is impressive in its own right. Um, let's talk about the the flawlessness of the demo in terms of frame time and frame
+Эпизод 15: How was the demo's "flawless" frame-time achieved?
+24:48
+24 минуты 48 секунд
+rate because that's another big takeaway of this where on especially on PC side of things, I'm a huge stickler for
+24:56
+24 минуты 56 секунд
+having good frame times, no hitches, very anti-stutter as I describe it always.
+25:04
+25 минут 4 секунды
+How exactly is the demo achieving this almost perfect frame time? I know in the
+25:10
+25 минут 10 секунд
+um the 60fps making of the Witcher 4 demo, you said you're using a specific version of frame uh triple buffering to get it essentially flawless throughout
+25:19
+25 минут 19 секунд
+the entire demo. And for camera cuts, can you explain a bit of how it works?
+25:23
+25 минут 23 секунды
+Um so first of all, you every you know the average frame time has to be within Perf of course. I mean that's right. Um
+25:31
+25 минут 31 секунда
+so we rely on dynamic resolution to make sure that you know we've got a achievable 60 on every frame. Uh and then we have the camera cuts which is
+25:39
+25 минут 39 секунд
+kind of the biggest enemy of this uh as you alluded to and uh in that case we what happens is you know camera cuts
+25:47
+25 минут 47 секунд
+away we lose all the history that means all the so the the depth for for the nanite occlusion culling so we have to rerender a lot of extra stuff so
+25:55
+25 минут 55 секунд
+overdraw is massive in that first frame and typically that spikes you know it can be 10 milliseconds or more I don't know but it can drop a frame for sure so
+26:04
+26 минут 4 секунды
+initially tackling that was an optimization to prime that data so that we actually have something to call against that already brings that down significantly.
+26:14
+26 минут 14 секунд
+But in a lot of cases, we're we're going to go above those 16.6 milliseconds anyway. But given that um we don't have
+26:22
+26 минут 22 секунды
+the super low latency mode enabled, it actually gives us quite a bit of latency, quite a bit of kind of
+26:29
+26 минут 29 секунд
+pipelining in terms of like buffered up frames. um to the point where you can go above for frame time in one frame and
+26:38
+26 минут 38 секунд
+then if the next frame frame doesn't go above you you start catching up again and you don't actually lose that frame.
+26:44
+26 минут 44 секунды
+So essentially what that means is by the time you submit your work from the CPU to the GPU um the time that work has to
+26:53
+26 минут 53 секунды
+finish before the next present it you can have two three frames of of you know buffer zone there which means yeah you can you can eat these hitches.
+27:03
+27 минут 3 секунды
+Um, for the visual aspect of this, if you looked at the demo more closely, um, you can see that the first frame is
+27:11
+27 минут 11 секунд
+actually pretty good after the camera cut. And that's because we actually with this kind of buffer, we can render two
+27:19
+27 минут 19 секунд
+frames before the next present and then just discard one of them. The first one
+27:27
+27 минут 27 секунд
+provides the history for the second one, which means that one now looks much better. Um so it's effectively yeah if
+27:34
+27 минут 34 секунды
+we manage our um frame times enough then we can kind of get away with that. Do you see this as something cuz this was
+Эпизод 16: Can UE5 have flawless cutscenes on all platforms?
+27:42
+27 минут 42 секунды
+isolated demo on a PlayStation 5 where you have complete control over uh how many frames are cued and all these things. Do you see this as like a user
+27:49
+27 минут 49 секунд
+selectable option in Unreal for specific or something like that? Because as a PC player if I had an option in menu that said smooth smooth cutcenes I would
+27:58
+27 минут 58 секунд
+always click it you know like smooth cut scenes. So I mean there's we there are two options here I guess. Um one being the uh the way we sync the game thread
+28:06
+28 минут 6 секунд
+to the GPU. Um there's already options for that. Uh you can do really low latency stuff where you sync with the present. So you just try to be as up to
+28:15
+28 минут 15 секунд
+date as possible from your you know your logic to your frame so you get very little latency or yeah or you can uh
+28:22
+28 минут 22 секунды
+have you know sync your game thread to the render thread then to the RGI thread so you actually get a bit of a pipeline going uh which does smooth this out and
+28:30
+28 минут 30 секунд
+then you can select you know double buffering or triple buffering if you want to have even further things piped up. Yeah. And and there was a a quite
+28:38
+28 минут 38 секунд
+some quite some work we did together also on the game thread side of things, right? So on the CPU side, right? So so
+28:45
+28 минут 45 секунд
+you know smooth like we needed both to be smoothen up, right? So on the CPU side, we offloaded as much as we could
+28:52
+28 минут 52 секунды
+to async, right? So you know it can be uh it can be computed over uh over time.
+28:57
+28 минут 57 секунд
+uh Android animation framework also helps a lot with that because it offloads a whole bunch of of animations um to the to the other threads and
+29:05
+29 минут 5 секунд
+actually uh you don't suffer that much from a from a game to tick right so the frame is pretty much like the whole
+29:13
+29 минут 13 секунд
+whole game whole uh game frame is not waiting for for all of that to um uh to finish right plus streaming improvements right so this is a big one because we
+29:21
+29 минут 21 секунда
+are now streaming uh smoothly uh geometry with fast Jio um in this case in this case on this particular demo. Uh
+29:29
+29 минут 29 секунд
+so we are not loading a big chunks of a of a word for example, right? Uh plus like another aspect of this which which
+29:37
+29 минут 37 секунд
+I think is important to to also mention is there is it it requires some strategizing right uh so we know this
+29:47
+29 минут 47 секунд
+particular map uh same as we know the maps we are making for for our open world and the content. So like when when for example it's a good moment to uh to
+29:54
+29 минут 54 секунды
+load all of the community uh that is in the in the village right uh and we we can like we we can do this strategy both
+30:04
+30 минут 4 секунды
+here and both when do when we do it in the uh in the game to make sure that those things are not just like oh oh it
+30:11
+30 минут 11 секунд
+happened oh there's a hitch right but rather when we think is the is the right moment right of course you won't be able to like predict everything and and
+30:20
+30 минут 20 секунд
+strategize everything like that. But actually like having this thought process and and going through this and and and uh looking at the frames and how
+30:28
+30 минут 28 секунд
+the entire thing lays out is is important part of this. Mhm. So you described also the Fast Gio plugin there
+Эпизод 17: Where do frame-time issues usually occur in UE5 projects?
+30:36
+30 минут 36 секунд
+uh as well as streaming improvements, but when you look at it from Epic's point of view and in Unreal, what are
+30:44
+30 минут 44 секунды
+those typical things that you see in a in a UE5 project that cause a hitch when you're running through an open world? A lot of people when you read comments
+30:51
+30 минут 51 секунда
+underneath our YouTube videos, they're always saying like, "Oh, it's the SSD speed." But I don't think that's actually usually the problem. So, where do you usually see and how did this demo
+30:59
+30 минут 59 секунд
+avoid those pitfalls essentially? Uh, I mean, the streaming is definitely one thing. Um, and fast Gio is helping in
+31:07
+31 минута 7 секунд
+that area. Uh, PSO hitches is another, not a problem on PS5. Um in general uh
+31:16
+31 минута 16 секунд
+we've got garbage collection which is another one and for um for demos it's possible to schedule the garbage
+31:24
+31 минута 24 секунды
+collection more more you know uh intelligently.
+31:28
+31 минута 28 секунд
+Um, but in general, like going back to what you were saying uh about all these different improvements to optimize the CPU in general and um and streaming like
+31:37
+31 минута 37 секунд
+just knowing that you can have pretty much a healthy frame every time without any surprises is definitely key here
+31:44
+31 минута 44 секунды
+because I mean if if you can you know sometimes oh there suddenly you walked in somewhere and you just started streaming in way too much stuff and you
+31:52
+31 минута 52 секунды
+don't have any way to mitigate that or or time slice it or whatever then you're going to hit that eventually.
+31:58
+31 минута 58 секунд
+So just kind of ironing out all those issues and making sure that we're in a healthy state in general um is what's
+32:05
+32 минуты 5 секунд
+going to help these cases. Exactly. And I think the the the process that we had here was also also important because like both both sides approached this
+32:12
+32 минуты 12 секунд
+like with super open mind uh and and I think on the game uh on the CPU on the game thread side we pretty much went through everything that happens there
+32:20
+32 минуты 20 секунд
+and ask ourselves a question. Does it have to happen here right or can it happen on the worker threads? And of course there are some things that that there are on on the game thread
+32:26
+32 минуты 26 секунд
+obviously that that's what it's made for uh right but uh we we really went through a lot checking and and verifying
+32:34
+32 минуты 34 секунды
+if we can upload it to either async or just to the worker thread right so this is more of a philosophical question because uh it's a bit uh challenging but
+Эпизод 18: Will UE5 ever be rid of the "render thread" or "game thread"?
+32:44
+32 минуты 44 секунды
+you keep referencing back to render thread game thread etc. When is the point in time in the future in Unreal
+32:51
+32 минуты 51 секунда
+when we don't reference the game thread as being this like monolithic thing that we have to be afraid of about how much stuff is on it? Can it be broken up over
+32:59
+32 минуты 59 секунд
+time? That was a big part of the demo, making it async, making it parallel the things that could be. Are we always
+33:06
+33 минуты 6 секунд
+going to be struggling against the game thread uh essentially in the future?
+33:11
+33 минуты 11 секунд
+Well, I mean, you have to sync up somewhere at some point. Uh but the work that has been done and has been ongoing for a while is to offload all this work
+33:20
+33 минуты 20 секунд
+from the game thread from the render thread from these named threads into me more of a kind of a worker uh task or you know making this async essentially.
+33:30
+33 минуты 30 секунд
+So I think if this work continues eventually the name threads are are mainly going to be there uh for legacy
+33:38
+33 минуты 38 секунд
+reasons so to speak uh you know philosophically. So that that is certainly the the path forward is to just try to make use of the hardware as
+33:46
+33 минуты 46 секунд
+best as we can um and not be beholden to like an old paradigm of of these particular threads. This isn't in reference to the demo completely, but
+Эпизод 19: How was RedEngine designed and what is its affect on how CDPR uses UE5?
+33:55
+33 минуты 55 секунд
+you're coming from Red Engine and you took those learnings from there. So how was the split and setup actually from game render thread etc on Red Engine and
+34:04
+34 минуты 4 секунды
+did that play an influence on what you guys are doing with UE5 now? Okay. So, yeah, it's very different because we
+34:12
+34 минуты 12 секунд
+don't really have a game tread on Red Engine. Um, when we came from the Witcher tree, yes, we were a bit the same. So, classic render tread and and
+34:19
+34 минуты 19 секунд
+game tread. So, when we went to Cyberpunk, we we already knew that it's not going to work on uh, you know, to to maximize your hardware for the the the
+34:28
+34 минуты 28 секунд
+ambition. So, we did quite a lot of work when we switched to the 12 and we managed to we had also a garbage collector. So we did a lot of work to to
+34:36
+34 минуты 36 секунд
+remove this. Uh that being said uh we also had all the gameplay that was uh multi-threaded and it's it sounds cool
+34:44
+34 минуты 44 секунды
+uh but it's it was very challenging because the gameplay programmers and uh or even the engine programmers sometimes they they go from a single threaded
+34:52
+34 минуты 52 секунды
+paradm to a multi- threaded paradigm and now suddenly you know start stuff start to crash and now you need to change your mindset how to paralize everything. So
+35:00
+35 минут
+it was quite challenging actually to make the migration. Uh and now if I go back a bit fast forward with Unreal, this is definitely one thing that we had
+35:08
+35 минут 8 секунд
+a long discussion and a lot of work. I think we we we just brush a little bit like you know fast geo and this and that
+35:15
+35 минут 15 секунд
+and easy. It was a lot of work. Lot of work with Epic uh and and and us to you know analyze the frame figure out okay
+35:22
+35 минут 22 секунды
+this should be can be out of the game thread this can be done differently and I think the guys did amazing work actually and uh and I wish I could say
+35:32
+35 минут 32 секунды
+uh months ago we were done but uh it was uh you know uh improving improving continuously until until the finishing line. Yeah. And real AAA content like
+35:40
+35 минут 40 секунд
+this is what we can use now as a you know basis for kind of pushing all these things. Yeah, it does seem like a big push in the engine itself beyond what
+35:47
+35 минут 47 секунд
+CDPR has been doing. And I think that uh when you see the crowd that we we have at the end like again I think when we started we were like very like are we
+35:56
+35 минут 56 секунд
+going to be able to make it and again with with all the works uh from from from both side like I think we managed to to nail it down and there's still a
+36:03
+36 минут 3 секунды
+lot to do but and I think what what worked excellently in this in this case is that uh we uh we use a demo as a
+36:11
+36 минут 11 секунд
+catalyst for this work as a actual real as just mentioned as the actual real playing content right Uh so it it
+36:21
+36 минут 21 секунда
+allowed us to discuss looking at data uh and less philosophically in a sense you know because you can have a very
+36:28
+36 минут 28 секунд
+academic discussion on like pros and cons on on approach or like how hard is it or how much do you have to change versus we just we just had this like we
+36:36
+36 минут 36 секунд
+started working this content we look at this content and then we it streamlined the discussion which parts are we actually attacking and which parts for example are are not a problem right.
+Эпизод 20: How would CDPR potentially scale the graphics beyond PS5?
+36:45
+36 минут 45 секунд
+Mhm. So I only saw it running on PlayStation 5 UE5 scales to a lot of platforms PC included. How do you see this technology scaling up? Like where
+36:54
+36 минут 54 секунды
+what would you do? For example, you described already like resolution is one of them. Like how would you want to scale this up if you could scale it up?
+37:01
+37 минут 1 секунда
+This is not a promise to anyone in the audience.
+37:06
+37 минут 6 секунд
+This is a tricky this is actually a tricky. We're frozen because this is actually one of the topics we're actually having thinking about it. You asked previously why we did we start
+37:14
+37 минут 14 секунд
+with the with the console. It's because like Charles said, like Kevin brought it, we wanted to solve certain foundations for us. It's and it's pretty
+37:23
+37 минут 23 секунды
+logical and think about it. It's easier to scale up than down. And because we know that the both Lum and all those technologies are providing us pretty
+37:31
+37 минут 31 секунда
+consistent representation across the scale up, we knew that once we'll you know set up certain foundations both
+37:39
+37 минут 39 секунд
+visually and technically, there's a room to scale up. Now, what it means is another question, you know, because we are we're CDPR. We always like to push
+37:48
+37 минут 48 секунд
+PCs to the limit. It's just that it's it's a creative process how to really use it. We know we have like a really great foundation right now on the console that we we still need to push,
+37:57
+37 минут 57 секунд
+but we'll still figure out how what it means. For sure, we're going to expand all the rate tracing features forward.
+38:02
+38 минут 2 секунды
+So, yeah, it's another really good uh argument for Lumen hardware, right?
+38:07
+38 минут 7 секунд
+because if you start there, you can scale up easily because all the super high-end features if you're looking at megalytes or anything like that will use
+38:14
+38 минут 14 секунд
+that as a basis. So yeah, again I don't want to go too much in details and again not to overpromise or and stuff but uh
+38:22
+38 минут 22 секунды
+you know in the past uh it's something that's super important for the group is that if people you know pay good money for the hardware and we want them to
+38:29
+38 минут 29 секунд
+have what the game can provide for that, right? Not like a a simplified experience. So this is something we'll definitely explore uh and we will we
+38:37
+38 минут 37 секунд
+will definitely make sure that you know we the company started as a PC company and we definitely will want to have the best experience for the PC gamer for sure but it's too early to say what will
+38:46
+38 минут 46 секунд
+it mean for this you know for the Witcher 4. So scaling up but scaling down. We have an Xbox Series S out there
+Эпизод 21: How would CDPR potentially scale the graphics below PS5?
+38:53
+38 минут 53 секунды
+if you've ever heard of it. And you guys uh did scale I'd say rather gracefully in CP 2077 onto the Xbox Series S. Um,
+39:03
+39 минут 3 секунды
+where do you take a demo like this and get it running on something with less memory and far less GPU resources? Well, I wish like we did a lot of work already
+39:11
+39 минут 11 секунд
+on that, but we did not. Uh, so this is something that is next on our on our radar for sure. I will be well again
+39:18
+39 минут 18 секунд
+maybe, but I will say that 60 FPS will definitely be extremely challenging on Servas. Uh, let's just say that this something that we need to to figure out
+39:26
+39 минут 26 секунд
+like um yeah. Okay, so second last question for me here or maybe third last. We'll see. Um I come from PC and
+Эпизод 22: How did RedEngine manage PSOs?
+39:33
+39 минут 33 секунды
+in the past uh Red Engine for example was wonderfully smooth in the aspect of how it did PSOS
+39:41
+39 минут 41 секунда
+and we actually never had the opportunity to to ask how you did it and would those learnings from that apply to also how you do PSOS on U5 because we
+39:49
+39 минут 49 секунд
+see a lot of console projects come to PC for example and you have like a half an hour wait at the beginning or you know maybe they're using a lot of CPU in the
+39:57
+39 минут 57 секунд
+background to asynchronously crunch all that. How would you do it? How do you do it? Well, uh, for Red Engine, uh,
+40:06
+40 минут 6 секунд
+basically everything is async. There's no blockers. So, we basically kick the process and we don't just we just just don't show the object until it's ready.
+40:13
+40 минут 13 секунд
+When it's ready, we dissolve in. So, it seems like a a smooth transition in there is, if you really look, there might be some, you know, some popping
+40:22
+40 минут 22 секунды
+because we we just don't show it. We just wait until it's finished. Then, we uh we attach the render proxy to the scene and there there we go. And I think
+40:29
+40 минут 29 секунд
+that on on similar strategy can be done, right? That's Yeah, exactly. That's what we're doing now as one of the options if you want to, you know, not render your objects. But you wouldn't like for
+40:38
+40 минут 38 секунд
+example, id software kind of notoriously limits essentially their artists to a certain specific pool of shaders to keep
+40:45
+40 минут 45 секунд
+things down. Would CDPR uh instead have like a more I would say a greater pool of shaders that that that can just be
+40:52
+40 минут 52 секунды
+made by any artist that they want or do you do you keep things a little bit more limited? Oh man, it's so different now because we went from uh
+41:02
+41 минута 2 секунды
+No, it's hard to answer. Yeah, that's a hard one. Okay, but those are two different problem spaces you describe essentially, right? One is like very
+41:10
+41 минута 10 секунд
+limited uh you know known set of PSOs and the other one is like full artistic freedom do whatever you want and then
+41:17
+41 минута 17 секунд
+you know drop the problem on on the on the engine. Yeah. Yeah. Uh well stay tuned uh for that one. Um, you already
+Эпизод 23: What is a moment or aspect of the project which you are particularly proud of?
+41:26
+41 минута 26 секунд
+answered this question. Uh, so I guess my last question to everyone here would be, uh, as part of this entire process of making this this long journey to this
+41:33
+41 минута 33 секунды
+demo coming out, uh, what is something you're particularly happy about, proud of, or you enjoyed during the experience. It can even just be like a moment or something like that. I think I
+41:42
+41 минута 42 секунды
+said it already, but for me it was the first time we saw the whole forest come into light again because we work, me and Yanek, very challen uh, like I'd say that it was quite stressful, let's say.
+41:53
+41 минута 53 секунды
+uh to to figure out how to make this forest. And then, you know, when when the Apic guys, you know, they they also worked extremely hard to to figure out these problems. And I think the first
+42:01
+42 минуты 1 секунда
+time I saw like in in full bloom, I was like, "Okay, we got it." And again, as I said, this the forest is super important for this game. You want the player to
+42:08
+42 минуты 8 секунд
+want to explore the forest and you're hunting monsters. Okay, CT of course is important, but the forest is one of the key experience. Uh so for me, it was
+42:16
+42 минуты 16 секунд
+like, you know, okay, we got it. Like I was like my my stress level reduced, let's just say, when I saw it.
+42:24
+42 минуты 24 секунды
+Yeah, probably I won't be original here because I agree to me the biggest biggest concern I had visually artistically was actually the forest and having a dynamic
+42:33
+42 минуты 33 секунды
+um and having the the really interesting coherent fidelity across because you know naturally you see more and more details in assets you see already in
+42:41
+42 минуты 41 секунда
+demos and and and you know artists are doing it daily using Unreal they can provide an amazing assets or small
+42:49
+42 минуты 49 секунд
+worlds with Unreal already for quite some time but having all flat and really dense, rich and dynamic forest was something that I haven't seen before.
+42:58
+42 минуты 58 секунд
+And it was our ambition for the game.
+42:59
+42 минуты 59 секунд
+You actually want to feel the environment there. You want to feel it.
+43:01
+43 минуты 1 секунда
+So once I saw that moving and elite, I felt like, yeah, now we're on to something. I think you're on to something here because um when you look
+43:10
+43 минуты 10 секунд
+at the pictures, we do not want it to be static, you know? It should not be like just like a screenshot. It has to be always and this is where it's the
+43:18
+43 минуты 18 секунд
+challenge like was uh and exactly if you if you look at the demo one more time guys carefully you'll you'll see that we try to move pretty much all the elements
+43:26
+43 минуты 26 секунд
+on the screen. So you ask today casually are the clouds volutric at the background. Yeah, they are because they need to move and they need to react to
+43:33
+43 минуты 33 секунды
+the light and and dayight cycle and all those decisions add up to fully dynamic world and when you think of dynamic
+43:40
+43 минуты 40 секунд
+world and dance world and then lit world these are not easy elements to combine and so for me I'm an art director but
+43:48
+43 минуты 48 секунд
+for me actually having technically resolved the world uh foundation to create a dynamic lit believable immersive world was a massive milestone for us I guess.
+43:59
+43 минуты 59 секунд
+Yeah, obviously the foliage is a highlight, but to try to be a little original here and not just copy. Um, just, you know, towards the end of a
+44:08
+44 минуты 8 секунд
+demo when things are just coming together like all everything. Um, magical seeing it on the big stage for
+44:16
+44 минуты 16 секунд
+the first time. Goosebumps. Yeah, it's crazy. I mean, uh, very different experience for sure. So much more detail, so much more vivid. Um, and the
+44:26
+44 минуты 26 секунд
+fact that it's I think you mentioned flawless before.
+44:29
+44 минуты 29 секунд
+Uh, I mean, yeah, there are some some some little snags here and there, but it really it really holds up really well and that yeah, it's just nice to look at.
+44:40
+44 минуты 40 секунд
+Yeah, I had more time to think about my answer. So no like first of all I would say that cooperation with epic was great because like I think we are quite
+44:48
+44 минуты 48 секунд
+ambitious group of people here inside the project and it was great to meet quite ambitious group of people at Epic and work on something together. So that that was great to meet meet these people
+44:56
+44 минуты 56 секунд
+and see how they think how they operate how they work on uh on the features and like how we managed to work on the demo
+45:04
+45 минут 4 секунды
+together. Uh and as for the demo, uh what I'm proud of and what I'm happy about is actually that the whole flow actually what what Yanx started to say
+45:12
+45 минут 12 секунд
+about like we used context of the Witcher 4. So we were able to push the technology to its limits uh and we were able to have a flow that has both like
+45:22
+45 минут 22 секунды
+shows the ambition ambition and our direction of our project but also showcases the technology. So how this
+45:29
+45 минут 29 секунд
+all puzzles came together and how whole flow of the of the of the demo works.
+45:34
+45 минут 34 секунды
+I'm pretty proud of it and yeah like I haven't seen it on the big screen because I I I was looking at the small one on which I was playing but yeah like
+45:41
+45 минут 41 секунда
+during one of rehearsals also seeing that that was that was amazing. Yeah.
+45:46
+45 минут 46 секунд
+Yeah. I think I I have like there there were many good moments and very many happy days. Uh there was some challenging as well obviously but I
+45:53
+45 минут 53 секунды
+think one of the one of the best ones uh for me is when we like when we're actually on the optimization phase of
+46:00
+46 минут
+the project. So like content was pretty much locked uh right and there was like some uh some passes and and some great minds on both sides like daily actually
+46:10
+46 минут 10 секунд
+meeting to figure out to perf and of course performance testing and and you know with this change paradigm that we're using DRS we are more fighting from actually like the frame rate was
+46:18
+46 минут 18 секунд
+was stable for a while you're more fighting to get into resolution and we had the one performance run after this entire like after a few of the
+46:26
+46 минут 26 секунд
+optimization passes and actually we realized like oh our average rendering res like rendering resolution is above the target we set for ourselves. I was
+46:34
+46 минут 34 секунды
+like very very happy days. It's like you know we we got we because you know you always have those hot spots and those difficult scenes and those difficult cuts, right? So we're fighting very hard
+46:42
+46 минут 42 секунды
+to get those uh really to the to the target not like drop below the of course we are sometimes below the the target.
+46:50
+46 минут 50 секунд
+We we assume that on average we're higher and then you see this and that results in for example like big chunks of of demo running above 1k almost
+46:59
+46 минут 59 секунд
+almost 180 right. Uh so that was super happy. Second favorite moment when we are like super close I think was on the final rehearsals or something like that.
+47:08
+47 минут 8 секунд
+We're setting everything everything up and was like really spirit of partnership like we it it felt absolutely like one team uh as an Epic Games right. So like we're working in
+47:16
+47 минут 16 секунд
+the same room. We're setting this up in the same room. we're sitting on the same let's say part of the audience. Uh so so that was like really really good
+47:24
+47 минут 24 секунды
+feeling. Uh and uh I'm super happy about how how this how this went through. Well I'm also grateful to have seen it live
+47:31
+47 минут 31 секунда
+here in the studio today. Played in person. You did a wonderful job. It was connect the controller was connected. I saw it everyone. Uh and it was a fantastic demo with great sound too.
+47:41
+47 минут 41 секунда
+Something we didn't even talk about uh today but wonderful sound mix there too.
+47:45
+47 минут 45 секунд
+So everyone thank you so much for talking to me. Um, thank you. Yeah, and I'll hand this off to my future self.
+Эпизод 24: Conclusion
+47:51
+47 минут 51 секунда
+Thank you, Alex from the past. And this is just me at the end of the video saying thank you for tuning in and listening. And thank you to CDPR for
+47:57
+47 минут 57 секунд
+hosting me in Warsaw there. And if you did like the video interview, please hit that like button, subscribe to the channel, ring the little bell, help us
+48:06
+48 минут 6 секунд
+out on Patreon, and as always, this is Alex.

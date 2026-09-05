@@ -20,10 +20,13 @@ from ..models.entities import (
     Method, MethodEngineLink, Project, PublicationLog, ValidationIssue,
 )
 from ..models.enums import Status
-from ..schemas.catalog import BasketRequest
+from ..schemas.catalog import (
+    BasketRequest, FeedbackIn, FeedbackOut, FeedbackSummaryOut,
+)
 from .. import repositories
 from ..seed import seeder
-from ..services import publication
+from ..services import feedback as feedback_service
+from ..services import publication, recommender
 from .catalog import method_to_out, used_in_map
 
 logger = logging.getLogger("gamedev_dss.admin")
@@ -470,11 +473,18 @@ projects_router = APIRouter(prefix="/projects", tags=["Проекты"])
 @projects_router.post("", summary="Сохранить проект")
 def save_project(payload: BasketRequest, db: Session = Depends(get_db)):
     public_id = uuid.uuid4().hex[:16]
+    # Снимок ранжирования считается сервером, а не принимается от клиента:
+    # иначе в сводку оценок попадут чужие порядки.
+    snapshot = recommender.build_recommendations(db, payload.profile, payload.basket or [])
     project = Project(
         public_id=public_id,
         name=payload.profile.name[:200],
         profile=payload.profile.model_dump(),
         basket=(payload.basket or [])[:200],
+        result={
+            "snapshot": [item.method_code for item in snapshot.recommendations],
+            "feedback": {},
+        },
     )
     db.add(project)
     db.commit()
@@ -494,4 +504,73 @@ def get_project(public_id: str, db: Session = Depends(get_db)):
         "name": project.name,
         "profile": project.profile,
         "basket": project.basket,
+    }
+
+
+def _project_or_404(public_id: str, db: Session) -> Project:
+    if len(public_id) > 36 or not public_id.isalnum():
+        raise HTTPException(404, "Проект не найден")
+    project = db.scalar(select(Project).where(Project.public_id == public_id))
+    if not project:
+        raise HTTPException(404, "Проект не найден")
+    return project
+
+
+@projects_router.post("/{public_id}/feedback", response_model=FeedbackOut, summary="Оценить применимость решения")
+def project_feedback(public_id: str, payload: FeedbackIn, db: Session = Depends(get_db)):
+    """Голос «пригодилось / не пригодилось» по методу из сохранённого проекта.
+
+    Оценка хранится в JSON снимка проекта: отдельная таблица и миграции
+    для локального инструмента избыточны. Накрутка локально бессмысленна,
+    поэтому повторные голоса просто суммируются.
+    """
+    project = _project_or_404(public_id, db)
+    known = db.scalar(select(Method.id).where(Method.code == payload.method_code))
+    if not known:
+        raise HTTPException(404, "Метод не найден")
+    stored = dict(project.result or {})
+    votes = dict(stored.get("feedback") or {})
+    entry = dict(votes.get(payload.method_code) or {"up": 0, "down": 0})
+    entry["up" if payload.useful else "down"] = int(entry.get("up" if payload.useful else "down", 0)) + 1
+    votes[payload.method_code] = {"up": int(entry.get("up", 0)), "down": int(entry.get("down", 0))}
+    stored["feedback"] = votes
+    project.result = stored
+    db.commit()
+    current = votes[payload.method_code]
+    return {"public_id": public_id, "method_code": payload.method_code,
+            "up": current["up"], "down": current["down"]}
+
+
+@router.get("/feedback-summary", response_model=FeedbackSummaryOut, summary="Сводка оценок и предложения по достоверности")
+def feedback_summary(db: Session = Depends(get_db)):
+    """Агрегирует голоса по всем проектам. Предложения не применяются сами:
+    их вносит человек через административный раздел."""
+    merged: dict[str, dict[str, int]] = {}
+    with_feedback = 0
+    for project in db.scalars(select(Project)):
+        votes = (project.result or {}).get("feedback") or {}
+        if votes:
+            with_feedback += 1
+        for code, entry in votes.items():
+            slot = merged.setdefault(code, {"up": 0, "down": 0})
+            slot["up"] += int(entry.get("up", 0))
+            slot["down"] += int(entry.get("down", 0))
+    summary = feedback_service.summarize(merged)
+    current = {
+        code: confidence for code, confidence in
+        db.execute(select(Method.code, Method.confidence)).all()
+    }
+    suggestions = feedback_service.suggest_confidence_adjustments(summary, current)
+    return {
+        "projects_with_feedback": with_feedback,
+        "methods": [
+            {"method_code": row.method_code, "up": row.up, "down": row.down,
+             "total": row.total, "helpful_rate": round(row.helpful_rate, 3)}
+            for row in summary
+        ],
+        "suggestions": [
+            {"method_code": item.method_code, "current_confidence": item.current_confidence,
+             "suggested_confidence": item.suggested_confidence, "reason": item.reason}
+            for item in suggestions
+        ],
     }

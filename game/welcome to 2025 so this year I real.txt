@@ -1,0 +1,1475 @@
+welcome to 2025 so this year I really want to bring back some more serious educational content to this Channel and
+so today we're starting something special now this idea began somewhat recently in my latest code review video
+I went back and took a look at what was pretty much the first code that I ever wrote for an actual real sort of project
+it was this multiplayer on One keyboard game called Squad where you basically just move around and try and catch each
+other very fun and so going all the way back to the beginning and seeing that first project of mine really made me
+want to do kind of the same thing with this Channel and so what I've decided to do is remake that game in C++ make it
+real multiplayer over a network in 3D using Vulcan Ray
+tracing is that enough basically call it a New Year's resolution if you will I want to go back and fulfill all of the
+promises I've been making as to things that I need to like finish or talk about in the first place Place such as
+application architecture Vulcan tutorials that people have been asking me to make and of course the r tracing
+series and GPU R tracing so why not combine all of that into one big fun project and make this game kind of from
+scratch in C++ and show every single line of code in this sort of live
+tutorial format as I'm calling it now let me address a couple issues with this
+concept first and foremost big huge projects and series like these don't
+generally tend to fit the YouTube platform very well of course you can make long videos on YouTube but
+viewership tends to fall off and generally they're not as good for the Creator when compared to something like
+a paid educational course the second issue is to make this more YouTube friendly it's common to do only a little
+bit of work in each episode of this series making sure that the video title
+matches the concept that's being discussed which theoretically gives you more consistent and frequent uploads
+because there's just more videos to make but in my experience leads to a project that can last years and make very very
+little progress with each video so let's address these two issues the first one
+we're kind of just going to ignore I hope that the other videos on my channel will be successful enough to sort of
+drive this project and of course your support on patreon.com theano is much appreciated now as for the second issue
+I want to release big huge video that match the big huge nature of this
+project in which substantial progress is actually made so I basically just want to make long videos in which we achieve
+a lot and we get a lot of work done which you may have picked up on if you've noticed this video's length so it's a new year we're going to give this
+idea ago that way hopefully once the video is released you don't have to hope
+that the Creator me keeps uploading and gives you enough content to at least
+finish the part that you're working on instead you've you've got the full video of a particular concept I guess like
+this one here today and you can just progress at your own pace so hopefully that's a good idea I think if I was a
+viewer of this video I would probably prefer this so please let me know if you like this or not leave a comment below
+and of course don't forget to like the video if you like it feedback is very important okay so now let's talk about
+this project so the game that we're remaking squar I'm not going to talk about it in this video I encourage you to take a look at the previous video
+which was the code review because me and my wife actually played this game for a solid 5 minutes so if you want to see what the game is like go to that video
+second of all the tech stack behind this project meaning what technologies we're going to be using latest version of C++
+I'm going to be using msvc and visual studio however this will compile on all platforms and compilers in fact later in
+this video we will be compiling the server on Linux yes that's right in this video now when it came to choosing a
+library to be the basis of this I thought about this for a long time and initially Rib was what I thought I would
+use however I realized that it really wouldn't be a very good fit because Vulcan Vulcan Ray tracing it's a 3D game
+so we'll probably need a 3D physics engine it just didn't really make much sense to use something like rayb hazel
+of course doesn't fit because Hazel is a game engine and this project is about riding something more or less from
+scratch in C++ so I settled on Walnut an application framework that I made a
+couple years ago it's completely public and open source on GitHub I'll have a link to it in the description below the reason why I chose Walnut is because
+it's really lightweight it's kind of like a collection of other libraries like glfw glm di guy kind of set up in a
+very very basic application framework honestly I encourage you to take a look at the source code and you'll see what I
+mean it's so Bare Bones that we are almost starting from scratch but it's just a little bit of a nudge that will
+make some things easier and in fact for this project we'll actually be expanding wut quite a bit because it is quite
+bebon and we'll to do more for us but yeah that's one of the rules for this project as well is that everything we
+use every third party piece of code or library has to be open source so that way anyone following along with this
+project can see all of the code now speaking of code the code for this project will be free and open source on
+GitHub I'll leave a link to it in description below it'll be in a repository called cubed because cubed is like the 3D version of squ now I did
+briefly consider making the code early accessible by patreons who support the series on patreon however I did want
+this educational content to be as access as possible even though you shouldn't
+really need the source code if you're trying to learn because following along with the series making your own thing is going to teach you a lot more than just
+copying the code from GitHub but nevertheless hopefully that additional resource will be useful to you as well
+and of course if you want to support this project then patreon.com Theo much appreciated in fact if you do become a
+patreon supporter you can get access to something a little bit more substantial like Hazel and finally let's talk about
+this video so this video has chapters in the description below which means that on the timeline of this video you will
+see all of these chapters I encourage you to take a look at them so you can see what is in each video so in this
+video predictably we'll be starting at the beginning and creating our project and then in this video we'll be going
+all the way to creating a server that's running on a hosting of VPS on Linux to which multiple clients can connect to
+and can like move around and like see each other like a basic multiplayer server client architecture game setup so
+yes getting a lot of work done today so anyway without further Ado let's begin so we literally are going to be
+Project Setup (Git, Walnut, submodules, VPS)
+beginning at the very beginning and I hope the beginners will appreciate that we're beginning at the beginning so over
+here we have GitHub this is my GitHub profile I guess I'm going to create a
+new repository and I'm also going to take a look at this Walnut repository from Studio Cho which is of course what
+we're going to be using for this so Walnut has a branch here called Dev I updated this like an hour ago just in
+preparation for this just fixed a few things and made sure it was roughly working there is actually a walnut app
+template that you can use so if you go use this template you can create a new repository from this template and this
+basically just has like some starter code I guess it uses wut as an external subm module rather than actually relying
+on say the example project from within this we're not going to use this app template I'm going to show you how to
+really set this up from scratch also this app template points to the master Branch not the dev Branch that's another
+reason why I just didn't want to dive in and start changing everything here so let's create a new repository here from scratch so I'm going to call this cubed
+because the original game of course was called squared but this is 3D so we're going to call it cubed description we'll just leave blank public I'm going to add
+a read me file and I guess we can add like a C++ get ignore we're probably going to modify this I don't know if
+this knows we're going to use visual studio for example so we might want to ignore certain files from ever being committed into our repository and then
+for the license look I don't really care we could just pick M it license cuz that's pretty popular and it's also going to set main as the default Branch
+so Master is kind of a thing of the past main is the preferred name to use these days I don't really care so we're going
+to stick with main okay let's create the repository so once we have the repository created let's clone this onto
+our computer so we have it locally so I'm going to go ahead and open this projects folder I have contrl L gets you
+this path and I'm just going to type in CMD hit enter and then we just have a terminal just super easy way to get a terminal up so for this to work you need
+to have git installed I'll guess I'll leave a link in the description below I don't know how basic I want to get obviously with this little series here
+just install git if you don't already so let's type in git clone we don't need to do recursive because there's no sub modules yet here and we're just going to
+type in cubed like our past in our path here and hit enter this should take like 2 seconds okay it's done so over here we
+have the code that has been created for us by GitHub checked out locally so well done if you got this far and that's the
+end of this video I hope you guys enjoyed I'm just kidding we're just getting started as I mentioned I'm going to try and actually like get a lot of
+work done in each sort of episode of this I don't want to call it an episode of a series because I don't want this to
+be a series we're just going to get a lot of work done in this video okay so from here the first thing that I want to do is I want to get to Walnut and I want
+to actually add this as a subm module so this entire Walnut repository I want this to be a subm module so to do that
+let's just grab this path it doesn't matter about the dev Branch we'll indicate that we want that later let's first of all get into that cubed
+repository that we just created we can just do a get status to make sure this is in fact a repository and that it's set up correctly and then we can just do
+get sub module add now I honestly always forget this so you can just type in d-el
+and it will tell you what to do again being super real here in this live tutorial so we want to do get subm module add and then you can see we can
+indicate a branch so I can indicate my Dev Branch so let's do get subm module add and then what was it dashb Dev and
+then we've got a repository basically and a path that we need so the repository is going to be the URL that
+we have here and then the path that we want here so okay let's think about this so we're going to have our main
+repository like over here meaning like the actual cubed repository we just be this root director obviously so Walnut I
+mean Walnut is a pretty big deal it runs everything so I think we can probably just have it in a WN that like I'm not going to bother putting it into like a
+third party or a vendor folder I think it's very very core to everything we're using so I'll probably just have the app
+outside in this directory and then Walnut as a subm module this is very similar obviously to what we had with the Walnut app template where we just
+have this repository here the actual app is here yeah but then the Walnut subm module is also in this kind of root
+directory but it's a subm module and it's pointing to another repository so let's go ahead and just type in Walnut I think it would have done that anyway
+because the name is Walnut and again we are adding the dev br specifically here as a subm module let's hit enter and hopefully this will work out so get sub
+modules in general if you don't know what they are I recommend you do some reading I might leave a link below which explains what it is but basically it's
+just a way to reference another repository from your repository so instead of us copying and pasting like
+all of this stuff here this inside Walnut into this repository which we could have done technically where just pointing to a different repository when
+we require those certain files and of course you can change that subm module to point to any commit any branch of any
+repository you want so in the future of want to update that subm module we can do that without having to like recopy
+all the files and and keep track of them ourselves that's the other big thing here we obviously want to make managing our repository as simple as possible and
+if we have like so many other files that are external that we have to track and like update changes for and commit
+changes to all of that stuff within our main repository just makes everything really noisy instead this kind of lets us Focus just on the game I guess that
+we're building and not the third party stuff because they'll be isolated into these subm modules and we'll have to actually go into the subm module if we
+want to modify things manually or pull or update the sub modules like that okay so one thing I've noticed here is this
+was suspiciously fast adding this so it must not have recursively checked everything out um I don't know if we
+have to do like a git uh subm module update maybe with some kind of oh yeah recursive so we probably have to do this
+so let's actually just try that so get subm module update and then recursive that might just download everything we
+need and the reason why is because okay that didn't work we might have to go into how do we indicate which one we
+want ahuh okay so I always always forget this whole innit situation but basically there's nothing to update because they
+haven't been initialized yet so what we want to do is get subm module update recursive yes but we also need to do
+init which is over here basically the idea is that inside our repository we have Walnut and then we have vendor
+which has all of these other dependencies that Walnut itself has and they're also all subm modules so for
+example gfw is a subm module but if we go into it it's empty because we haven't actually recursively initialized and
+pulled all of those subm modules within our Walnut subm module so to do that we need to do get subm module update pass
+in init to initialize first those subm modules that haven't even been pulled at all and then also we want to do that
+recursively meaning that we want to drill down all the way and initialize and pull all of those sub modules okay
+so there we go we're getting some stuff now it's going to clone all of our subm modules Okay cool so we've checked out all of our sub modules everything seems
+to have worked now as I mentioned the end goal of this video is to get this actually running on a real server on a real VPS on the internet so let's go
+ahead and make sure that's all set up and ready for us to use now for this specifically we're going to need like a pretty decent VPS we need to have full
+route access so we can do whatever we need on our server we need it to perform well we need some decent hardware and of
+course we want all this to be reasonably priced and great value and for that there's really only one thing that comes
+to mind and that is hostinger the sponsor of this video so hostinger by far are my favorite web host whether you
+just need a simple website or a fully controllable powerful VPS like in our case they've got you covered and they've
+currently got a giant New Year's resolution sale for this project specifically I'd probably recommend like a KVM 2 or a KVM 4 since we do want a
+little bit of power but the great thing with using hosting it is you can easily scale this to fit your needs so if you get one and it's just not fast enough
+you can always upgrade now of course these vpss are going to come with full root access which we need but then they're also using amd's epic processors
+and nvme ssds so they perform really well head on over to hosting.com chero
+pick a plan and then when you're checking out make sure that you use coupon code chero to get an even bigger
+discount once you've got your server it's super easy to set up the first thing you need to do is just pick a location for your server I'd probably
+pick the one that's closest to you which is easy because they actually measure your latency and pick the best one for you then you need to pick an operating
+system for your server I'm just going to pick auntu 24 that's the same as the Linux PC I have here in the office and
+then finally just create a rot password and you are done it'll take like 5 minutes or so just to set up and it's
+ready to use then you'll be graded with this dashboard which I really like I think it's really clean and it has all the features you would expect and
+hosting also has a whole bunch of really well written documentation if you need help with managing your server from here
+we can of course just SSH into our server and do anything that we need so if you need a server or any kind of web
+hosting head on over to hosting.com chero and of course don't forget to use coupon code chero for an even bigger
+discount at checkout huge thank you to hosting and for sponsoring this video and for providing us with a server to use for this project so let's go back
+Build system setup (Premake)
+into the root of our repository here and I don't really need to or want to initialize this completely from scratch
+so instead if we look at at Walnut there's actually a walnut app that already exists here and there's a script
+that will build an example project for Walnut it's just that we haven't really need to use that from within Walnut and
+we don't want to cuz we want to keep this repository want to keep the subm module intact if I open up our main
+repository here cubed inside Fork Fork is a really really good git client that I highly recommend I'll have a link to
+in the description below you can see that all we've added so far well we've modified git modules and we've added Walnut as a subm module and if we go
+over here into subm modules you can see that we have Walnut which we can double click on and then it will open a new tab
+and you can see this is like the entire kind of isolated Walnut repository so
+hopefully you can see that since this is in fact like a separate repository basically we can pull the latest code if
+we need to we can switch branches we can do all of that stuff and this just sort of points to it so obviously this means
+that we don't want to go into here into Walnut and start modifying things at all we just want to reference it and
+hopefully we can refrain from actually modifying it since if we want to modify it we won't be able to push back to the
+server unless we have permission and so that's generally where forking will come in you can just take anyone's public
+GitHub repository Fork it and then effectively make your own changes to your own Fork to your own Branch
+whatever and then have that itself be as a subm module we've done that with several other dependencies that we have
+just because we might need to fix bugs or modify some code to suit our needs better but I'm going to try not to do that with Walnut obviously I have
+permission to push to Walnut so it's a little bit different but still I don't want to obviously modify the Walnut repository just our code over here so
+Client and Headless Server project setup
+what I'm going to do is I'm just going to copy everything I want from here so let's grab Walnut app we're going to
+copy it out here except I'm going to call it cubed so this is going to be our actual like Cubed project which uses
+Walnut inside here we just let me just rename this to Source cuz that's what I tend to do these days walnot app I'll
+just call this cubed app and then we have build walnot app which I might just call build cubed and this is the
+pre-make build script that we can double click on and have a look at so the project name let's change this to cubed app we'll keep it as a console app for
+now C++ 20 which is good this is all stuff that I'm guessing we're going to need now you can see that this actually
+goes back a directory and into Walnut Source that's not exactly what we want here because it assumes that just
+because we of course were within Walnut or in fact within Walnut app so we go back a directory and then into Walnut or
+vendor but from cubed we still have to go back a directory but then go into Walnut there are a few different ways we
+could do this with premake I'm going to just keep this simple this is effectively just all lure code so you
+can literally program anything you can imagine to sort out your paths like entire functions that might do you know call
+like operating system calls even to determine which directory they're in lots of stuff very flexible one of the great things about premake but I'm going
+to try and keep this obviously as simple as possible so we are simply going to go back a directory and then into Walnut so
+into that like repository basically uh and then either into vendor or into Walnut itself to include all of these
+things now these include directories are going to point to I guess variables that are defined somewhere else so build
+walnot example project and build walnot external are two files that might be of interest to us so you can see that this
+for example sets include directories to certain things so we need to make sure that's what we want and then it's going
+to include Walnut and build Walnut and really the purpose of this I guess is just for us to be able to include Walnut
+externally so this is probably what Walnut app template I imagine would use we could have also I guess we maybe
+should have just done this Walnut app template actually already has a setup that I think works similarly to what we
+wanted and it's got its own premake which you can see will include walnot external so let's actually grab this and
+then over here in the root of this directory I'm going to make we'll just call this pre-make 5. L and now at least
+we'll paste in what we just copied we can get rid of that I'll call this cubed debug release and disc configurations
+the start project will have set to cubed as well output directory is where our binaries get output to you can see that
+we're just basically making like this path we're making this directory from the current build configurations so
+debug release or disc the system that we're on so like Windows and and then like architecture such as x64 so that's
+just like a little uh directory that we make for that specific configuration the build configuration and platform and
+that's where we'll actually build our binaries too then we'll include walnot Walnut external which looks good and of course instead of walnot app we'll
+include cubed which is this and in fact we called it build cubed. L I don't know
+if that's necessary so the thing is as I mentioned the very first thing we're going to be tackling this entire project
+is networking because it's a multiplayer game and I really want to start from the the beginning with that client server
+architecture so because of that I don't want to I I guess I I want to be able to build headless and build the server or
+specifically build the server headless basically from the beginning so let's actually change around a few things so
+let me call this cubed client and then we'll call this cubed server so we got two different directories I've just
+copied and pasted them and with the server specifically I want to have build cubed server but then I want to copy and
+paste this and have build cubed server headless now Walnut does actually have a headless configur ation which is great
+so you can see there's build Walnut headless external which is what we need to run so we will verify in this video
+if all of that works because I want to go as far as actually deploying all of this onto the server in this video and
+making sure that we have that server client communication already working so build cubed server and server headless
+for now we can just do the build cubed server headless this is our actual app so we'll just need to make sure that we
+strip everything another good point of reference by the way is probably going to be walnot chat so there I do have a
+repository called walnot chat which is you can see from Walnut app template and this has this app server app com and app
+client because this was like a little chat application I made using Walnut like a couple years ago last year I'll
+have that video linked up there if you want to check it out but this is also going to be like a really nice I think point of reference for us in fact I
+might just steal most of the code from here just to speed things up a little bit so we have build headless and we have build. L and of course the scripts
+I think will set it up on Windows and setup.sh might call yeah calls build
+headless over here with GM 2 on Linux and using the Linux binary for for premake and clang is the compiler so
+that's great we probably need like most of this I think and then app client and app server you can see that this is
+basically our cubed server this is our cubed client we might actually need some common functionality in fact this is looking so good I think I might pivot
+and just steal most of this I don't actually want to clone this whole repository and steal stuff from it that way just because I don't actually want
+all of this but I think the actual the whole build system for this and how that is architected I think basically want
+all of that okay so I do actually have wellnut chat I did end up cloning it and I'm just going to probably copy these
+build scripts and put them over here so we did have yeah we haven't even we we did start making premake 5. L which I
+think just yeah just defined the workspace and some other things so let's actually get rid of that I'm going to
+paste in build headless and build. L so these we're going to modify now let's get rid of this comment here so this
+instead of Walnut chat obviously we'll call this just cubed I guess and then we can have a cubed head list over here the
+start project will probably just be cubed client that's the thing like do I want to have two different workspaces
+probably yeah two different workspaces for the server and the client so we might actually call this cubed client
+and Cubed server headless I don't know do we like the other thing that's probably worth considering is whether or not at this point we want to have a
+non-he headless server at all I'm going to probably say no uh so we can just say
+that okay let's just have a server let's just have client and the server will just be headless especially because this
+is such a simple simp Le project that I don't want to get too crazy here with complexity so yeah we can just say that the server is always headless so we'll
+have that headless defined we'll include up common uh headless and app server headless now the thing is this is
+obviously in this app common and app server directory app server is fine we can probably call this cubed server and
+then cubed client we'll get rid of this completely so we could include the
+server app in this solution thing is it's not headless though as in this client situation isn't headless which
+means that Walnut wouldn't be headless either so you can see here it's the Headless Walnut here it's not so
+therefore I'm probably not going to do that we'll just keep them completely separate we'll have two different workspaces two different solutions one
+for the client one for the server app common I'll just rename to cubed common and then we'll have build cubed common
+build cubed client I'll just rename up to cubed basically and then I can have I I think I'll leave headless on these
+build scripts as well so it looks like we have to have a a headless version of common and a non-he headless version of common that's interesting I wonder why
+cuz common is I'm imagining is just like some data structures or like some structs you know that Define layout of
+types that are communicated from client to server so I'm not 100% sure why that has to be headless why it has to be a
+specific headless variant but I guess we'll see okay that looks pretty good let's go over here now cubed client cubed server they're going to have
+things inside them as well I'll just verify how similar this is to Walnut
+chat so here's the build app client oh yeah we did rename our directory to Source didn't we so let's do that we're
+also including app common source so I guess we should probably do that we'll say cubed common source I yes will not
+networking that's important to include that we we didn't have that cuz I guess the will not app template is from the
+master branch which doesn't even have the will not networking subm module so therefore it didn't have the include so let's include that links so yeah we'll
+link app common and walnut interestingly this didn't link Walnut I'm guessing because app common itself links it and
+maybe something to do with Linux I don't know I think app common will actually link WN not itself so therefore that
+should propagate but anyway we'll include both of them here for now I don't know what this yaml CPP static Define is we'll ignore that for now
+looks like we do need some post build commands to copy these into the right directory yeah that will be needed so we'll just copy that into here so all
+that's doing is just copying our game networking stockers DLS that we need into the bin directory that we've just
+built to because they need to be there next to our executable and that's not really going to be required on Linux because we can just set like our LD
+Library path or whatever to wherever we want and just have them in either a common directory or alongside as well in
+some kind of external directory I don't know we'll talk about that when we get to actually deploying and running this on Linux okay so for the server I guess
+app common an app common headless we can probably grab this from Walnut chat and just put this into cubed common which
+again we're not really going to have anything in here just yet but we are going to need that I think going forward so that's why I want to just start with
+that already here so app common we'll call cubed common and yeah I want to all right okay so I think there's a headless
+version because for whatever reason we decided to actually have one Walnut here and you can see that for example The
+non-he Headless version has I am goey and gfw but this one doesn't so it does actually have the full kind of Walnut
+functionality within here if we want it so it's obviously optional but I guess we can we can keep that and so we've got
+Walnut and walnut networking in the non-he Headless version and walnut headless and walnut networking in the
+Headless version which is great and everything else I'm pretty much happy to keep I'll just call this cubed common
+headless so inside Walnut chat you can see that inside app common we did have a
+couple things here and namely Like This Server packet and I think we had this is just packet type to string but basically
+this was just like an enom class that was like hey here's a protocol for Server client communication so that we
+can agree on like what kind of packet type or what kind of you know data message whatever we receive so what I'm
+actually going to do is I'm just going to copy this for now we're not actually going to use it we're going to repurpose it but I'm still going to copy it just
+because I want to make sure that we have some code here to compile to test out this common uh Library compiling right
+so I'll leave that in there because again you can see it's very very Standalone it doesn't actually use any functionality from Walnut like chat or
+anything it's just got these two includes and that's it so it should be a pretty good like dummy code file okay so
+this is getting complicated but I think we have everything we need so server we do have a build Cube server so there's a
+build Cube server but also a server headless so we don't really need the non-he Headless version as we've determined and then if we have a look at
+this we'll just make sure I guess this is called Cube server it's a console app
+let's have it read from like the source directory here for all the files it does include gfw for some reason we must not
+have copied this I think from Walnut chat because obviously this is like the non headless version basically so if we
+look at app server and build app server headless yeah this looks different so I think I'm probably going to want to copy
+all of this and then let's just paste it in so that will also do the networking stuff that we need it'll make sure that
+we're using App common headless which we renamed to cubed common headless Walnut headless Walnut networking all of that
+stuff so that should be a lot better and obviously we need to make sure yeah I'm sure I've made mistakes throughout this
+this is just the reality of like dealing with stuff like this so we really need to just run this uh and then obviously
+see if we can get something building that's really going to be step one so um
+I've got this like roughly working I think let's have a look at what Walnut chat has had in terms of its setup
+scripts so it built two versions here built the non-he Headless one and the Headless one um what do we have inside
+our build scripts do we have any build scripts we don't have any build scripts at all so let's just copy the scripts directory we'll paste it in here I'll
+close this one and we'll edit our one here so walnot V I think this is fine um
+but then we'll just do the file that we'll build will be oh yeah I guess build. lure and build headless so I
+think I'll just rename this to like build client and build server maybe so this will be build client and build
+server the reason why is because we don't have like a non-he headless and headless build it's just like the server is headless and the client is not so
+build server it should just yeah have CED common and CED server headless inside CED common and CED server and
+that's inside app otherwise it's just it's this I guess and then CED client we'll just have CED common and CED
+client yeah I mean I don't know I think that that should be a decent start so let's go into here what I'm going to do
+is I'm actually going to open a terminal here just because I want to see I think it might exit immediately from it when I run it so I I want to see the log
+messages so let's run setup okay so we get system cannot find the path specified so most likely what this is is
+probably it's a very it's a kind of annoying error message because it doesn't give you any context to it it
+either means one of two things either it can't find premake so it can't run premake and that's what it means cuz I
+think that's why it says the system canot find the part specified or one of the includes here it can't find so one
+Building and running our projects
+of these directories is wrong so back a directory we should have yeah build client. ler and then that's going to
+include Walnut W uh build Walnut external as well as cube common so build
+cubed common. L you can see we didn't rename these so that's probably what it
+was complaining about so let's just rename them quickly so build cubed client instead of build cubed as well
+okay so now if I go into here I was in Walnut chats directory earlier so I had some errors but now that we are inside
+cubed definitely let's try and run setup. bat and there we go we generate a whole bunch of project files and
+solution files and all that so we should have built uh we should have cubed client and Cubed server let's open up
+that client and see if we can actually get something building and running okay so we've got uh a bunch of different things here we've got cubed app and
+Cubed common over here so we need to rename this to like Cubed client and then we've got Walnut and then we got all the dependencies so this is what our
+project structure looks like at the moment which is cool uh we might as well just rename stuff immediately so cubed
+client has this build cubed client thing which is called cubed app so let me just call this cubed client getting really
+tired saying cubed all the time let's reun setup. bat and now we should be able to reload this and it should be
+changed right to cubed client I guess I also want it you can see selected cubed common as a startup project that's why
+it's in bold whereas I uh would prefer it to have cubed client as a startup project now you can see it it's because
+it is actually set to cubed client but when we first generated this project it was set like Cubed app was the name of
+this one so there was no project called cubed client and in those cases like when you regenerate it unless you actually delete all the files it won't
+change that startup project since it's kind of saved it into like some user profile probably or something with visual studio so that should work going
+forward but it just didn't didn't work for us so let's just set this as a startup project if we cleaned up all of
+the visual studio project files and started again it should in fact select it as a startup project okay so let's
+try and build everything I'm trying to go as fast as I can through like this sort of phase just because this is uh
+you know somewhat kind of boring or boiler plate but hopefully it is giving you at least some insight into what it
+takes to get like a project I guess building from the ground round up okay so we need to compile so wut networking
+I think is upset because we need to compile using utf8 just because of the latest version of speed log or like
+whatever version we updated to so it's coming from here so yeah so that's something that I guess I'll have to probably push to Walnut networking so if
+we go into Walnut modules will not networking and then build I guess will not networking we just need to make sure
+that on Windows here so system Windows we have build options and then SL utf-8
+if we rerun this I'll R setup up that let's try to build everything again okay cool so that seems to okay well here it
+is building it now but we can't open app common lip so why is it called app common something something must be still
+linking to app common so one thing we can do is actually this whole cubed project let's open this folder over here
+inside vs code I like to have you know visual Studios open to my solution which is great but that doesn't include all
+the files whereas vs code will so I I like to also open the directory a lot of the times in vs code and therefore you
+know if there's any tools inside vs code I can use them across this repository as well which is nice but here I'm just going to search for app- common cuz that
+obviously shouldn't exist anywhere and if it does then we can change that so we'll ignore the vcx project cuz they're
+generated and you can see build cubed client uh actually does link or tries to
+link app common whereas it should link cubed common so that's hopefully fixed so now we go into scripts we rerun
+setup.bat we go back to visual studio we reload control shift B the life of a programmer okay we're building finally
+so now in cubed app uh you know if we hit a five like we should be able to actually run something and here we have
+Walnut running but it's inside our repository and it's external and we've set it all up fantastic now what I want
+to do before I go forward is also set up the server so Cube server if I open that
+up we should have Cube server which should be headless right so let me just try and build all of this as well you
+can see we are getting some issues here just because this app wasn't even headless to begin with so like it tries
+to use I'm goey so those errors are obviously Fair enough we also need to make sure that we are building again
+with utfa but what's this in Walnut headless okay so Walnut headless doesn't actually have that utf8 thing so let's
+open up so Walnut and build Walnut external headless so inside Walnut we'll
+have build Walnut headless and build Walnut so build Walnut has utfa this one
+doesn't so let's just make sure that we add that build option and then let's regenerate everything go back to our ser
+reload try and build it uh and in the meantime you know we can have a look I think at Walnut chat and if we have a
+look at what the server looks like app server uh then maybe this will just give us some ideas as to what we can do well
+yeah if we just don't do a headless thing then it should still start up so let's try that I'm also going to do
+something critical here uh inside my aror list I'm going to switch from build plus intellisense to just build because
+intellisense I don't know maybe this is just a habit left over from when I used to work on huge projects at EA but in t
+sense it's just super annoying I mean you can kind of see here that this is so much noise whereas really if I switch
+this to just build only look one error and that's the only error that we actually have and tans tries to kind of
+it's probably gotten a lot better since it was 10 years ago for example I I realized that but it still seems to it
+doesn't actually give you errors based on a real compilation it tries to I guess do on the Fly compilations as it
+goes and then just throws whatever errors it finds at you whereas these build messages are actually from like
+where it counts it's from where you actually try and build this file or this entire project and that's actual real
+errors from the compiler not just like intellisense trying to partially compile compile certain code fragments
+potentially there might not even be real errors cuz a lot of the times they're actually not even real but anyway so this is the problem well not image we
+can't open UI that wouldn't work and this is obviously stuff that doesn't exist because well we don't have UI
+we're headless so let's just get rid of like everything I think um were we pushing a layer on here yes server layer
+and then server layer I guess yeah just had its own kind of stuff okay so let's do this let's do uh I still want some
+stuff from here we're going to I think we're going to most likely end up well we'll definitely make a new file for all
+this stuff but for now let's just have on update I think we have like a Time step here yeah Okay cool so let's just
+do let's just try out we'll try out the logging as well so this should be like um well not like the log log or
+Setting up our client as a game
+something or core log so let's do Walnut info time step server time step and then
+yeah we obviously this applies we'll call this Cube server we'll push on that example layer and that's it okay so
+let's try run this okay we need to add that Unicode support thing again so if
+we go to cube server we have our build Cube server headless uh let's just add I
+don't think I've got the clickard anymore so build options and we'll do SL
+utf8 all right set up reload control B
+okay that compiled let's run it okay so you can see we're now we're running it says client but that just means like the
+client application rather than the core Walnut but you can see that it's obviously running at a very very fast
+time step so one thing we might actually want to do is slow it down so let's just do this thread sleep for uh and then
+we'll do like I don't know 5 milliseconds or something we'll probably going to you know we'll do this more seriously later but I just want to
+establish at least something in the beginning so we'll do using Nam space
+sdo literals usually how I like to do it that just lets us do like Ms for example here for milliseconds and now if I run
+this again then you can see it's obviously a lot slower than it used to be but our server is running it's running headless so things are pretty
+great now I think Walnut also Walnut headless probably or is it even in here
+maybe maybe it's not maybe it's in Walnut chat but WN not chat actually includes some sort of headless log I
+guess headless console right app server yeah so we'll probably steal this as well just because this lets us you know
+type in uh messages and like commands into the actual server and then have them printed but also have like a
+message call back so if we need to actually get the server to send some data or kick a player we can implement
+it using this headless console inside W nut chap so we'll definitely be using that in the future but for now I think this is a good start okay awesome so
+what we've done might seem pretty simple but it's a really good start because we
+Preliminary rendering
+have a client application like this and then we have a server siiz headless application um and so really the next
+step is going to be to get the two to communicate so the first thing I want to do is I want to basically I want to set
+up this window to be a little bit more like a game so at the moment you can see it's set up to be an app which is cool
+we've got this like custom title bar it looks really nice but obviously games don't typically look like this and also
+it's dock space so this whole area is a doc space there's no real real area here
+to render Graphics I want these IM Windows to basically act like just floating windows on top of our canvas
+that we're going to eventually render our game to we're not going to deal with specific Vulcan rendering and making a
+Vulcan renderer in this video because that actually would be crazy this video is crazy enough as it is I think but what we can do just for the purposes of
+this video is at least set it up properly and also use I'm guy's built-in drawing functionality to render things
+like you know circles or rectangles so the first thing I want to do is uh
+inside here where we actually create the wut application I'm just going to do spec. use docs space false so that's
+going to just not use that docs space and I'm also going to get rid of the menu bar callback uh because that only
+those menu bars only really work if you have like a full screen doc space otherwise you have to add it specifically to a window rather than
+just globally so this is what we're looking at very basic change oh and also I guess custom tle by El also set to
+false because we've gotten rid of the dock space so we're not going to have that window anymore so you can see now
+we've gone back to a plane application looks kind of bad compared to what we have but it will probably look better as
+a game right and then here's a doc space you can note also that we can drag these windows out which is super cool I love
+that it means that if we're actually using IM GOI which we probably will in the future to debug things we can have
+it set up somewhat like this and then that way it's like not interfering with our viewport which is cool but but if we
+wanted to we can also have them over here and I guess we can dock them even within each other and then they're part
+of this window which is awesome so if we did want to draw something here how would we do it and let's establish this
+initially just because I think that's important and you know what we're going to try and do today is we're going to set up that server client uh
+communication but I also really want to not just send you know arbitrary text messages back and forth but I actually
+want to be able to connect maybe with two clients to the server and have them move around and have some visual
+representation of both players actually moving around inside this common game world so I'm going to initially
+represent these players as rectangles so what we can do is I am if we go to
+just I'm Doh we have like I think like draw a rectangle or feel rectangle
+re field add W yeah here we go add re field so you can see I'm really trying to find this stuff here it is so we got
+these Primitives that we can draw uh as part of our draw list and you can see there's ad wed field you know ad w
+Shield multicolor there's a whole bunch of different things we can draw lines as well even like you know curves and paths
+and we can add images and it's great like it's it's a little rendering API that we could theoretically even use to
+build a game but of course we're going to go a lot deeper and make this 3D and you know blah blah blah and we're going to have to actually build like a falcon
+render for that but we'll we'll get there eventually but for today let's just see if we can draw some of those Primitives so the first thing we really
+need to do is uh you know somewhere over here I guess in onim in on UI render we need to get like say
+the background draw list so this gets us an IM am draw list I believe like this
+so we have our draw list and then from here we can simply be like hey I want to add you know a fi rectangle at a
+particular point so let's just say I in to 5050 and then we'll give it a a Max
+as well so maybe like 150 150 so this isn't a size is just like you know Min is up here and then Max is this green
+one over here so this is th this is that that point and then that is this point the we're specifying we need a color so
+let's just make it like pink uh and then we won't worry about rounding so let's have a look at what that creates for us
+cuz we should see some kind of rectangle now the interesting thing in general with IM GUI is we do see a rectangle but
+you can see it's literally at the coordinate 50/50 of our monitor not
+local to the window which is pretty crazy at first glance so what we need to do instead is offset it by where the
+window is so we can do like um I'm going get window position which is a v two and
+then to that we can add this for example and then we can say that I'm V 2 this is like our Min and then our Max will
+simply be our Min plus this now in order to use plus with uh I am gooey you
+actually have to Define that so and the way they've done it is a little bit annoying maybe there's a better way but
+we basically need to find where I think application GUI will include I am goey which is inside Walnut which is annoying
+but basically somehow before we include I'm am in either I mean I guess we could just add this to our we could
+probably add this to our build script or like to our build configuration which we
+probably should do I think I will do that but basically what we need to do is we need to Define I'm going Define math
+operators somehow before including I'm guy and so we can do that here and if we go back you can see that now works
+however this requires us to modify Walnut and also we don't really need to use this within Walnut just within our
+stuff so what we could could do instead is take this Define and just have it be something that we ourselves Define
+somewhere in Q now if you did actually want it to be across the entire project
+Application layers
+you can do that so what we can do is if we go into like build client for example at the workspace level we can specify a
+Define so we can be like defines and then just have that specified here or we could go into a specific project like
+Cubed client and then over here you know we could have a Define just like we do I think you know for wmart platform
+windows so I might just do it at the workspace level since I guess this applies to everything uh we don't really
+need it for the server because we don't been use IMU in the server so I'll just leave it here for the build client. Lis
+script so let's run setup again we'll reload this make sure that we don't have this inside our application GUI and we
+should still you know be able to use those math operators and they should compile fine okay so that's just a little note there so now that we have
+men and Max let's use men and Max and now that pink square of our should
+actually move along with the window and not be tied to the monitor which is probably not what we want by default
+Okay cool so there we go if I move the window that thing moves awesome so we now actually have a way to draw things
+so step one I think is I want this to now be a function so let me come out here and I'm just going to do static
+void draw wrecked uh we can take in we could use glm here I'm going to keep
+this simple for now we'll just take in float XY and width and height I'm I'm just going to grab this paste it into
+here and then obviously this is going to be uh our width and height and this is just going to be an X and Y and then I
+guess I'll also take in a color which I'll write over here and then we can just call draw wrecked you know we do
+the same thing 50 80 120 80 and color let me just mix this up a bit I don't
+know what this will be this will be kind of pinkish I think but just light oh it's great with a little bit of green in it um okay cool so uh yeah there's our
+rectangle and now we've got a function obviously to do that instead of copy and pasting this code every time cool the beauty of functions right all right so
+um let's move on to some client serice stuff because that's really the goal for today I think what we'll probably do in
+the next video is I going to talk about that application architecture that I keep mentioning in all my code review videos and we'll actually set up like a
+renderer I mean render we'll probably do later but we'll we'll set up the actual application architecture I think
+properly for this game make sure that that's all works working but we're not going to worry about that today because I want to focus on the networking aspect
+and just make sure that we can basically communicate between the client and the server now the first thing I definitely
+am going to have to do though is make a new file regardless cuz otherwise it's going to get very very messy so inside the source directory let me just add a
+new file we're going to call this client layer so this is literally going to be um we'll do client layer. agent client
+layer. cppp as well uh and we should probably make a name space here called cubes I think for all the Cube stuff
+this is going to to be like the root of our application and it's going to be like a walnut layer so layers are just
+basically like these I guess classes that you can ultimately create that will receive like update render and events as
+well so it's something that you can add to your application and then inside that application Loop every frame is going to call like the update function and
+whenever there's like an event like a key press it will also notify you if you want to be notified so really what it does is it just connects us to that
+actual core application that we obviously can't really modify because it's inside of Walnut and we're not
+supposed to so let's include Walnut SL layer I'm guessing and if you actually open up this by just Hing F12 on it you
+can see what this gives us so I could just copy all of this and then I can overwrite it and you can see that this
+is what I'm able to do with this so I can Rand a UI using I am guy I can do things inside this update function
+that's called every frame with a Time step and then on detach and onattach is basically like the initialization and
+shutdown of this particular layer so so let me include uh inside the client layer. CPP I'll include client layer. H
+I'll make my cubed namespace and then I'm going to create method implementations using visual assist but
+you can see that's basically just automating the creation of this code here okay cool so this is where I want
+to do everything obviously so V and Cubed uh app I'm going to just grab my draw rectangle function put it at the
+top of this again this is super temporary because we are going to have a proper renderer later I think of this is kind of like a debug renderer just for
+us to have here initially uh let's include I'm goey because we obviously need that I might grab this little hello
+button thing we have or in fact the demo window maybe just to make sure that we have some UI rendering here on update
+Player movement
+I'm not going to care about and on Hatch I'm not really going to care about either I'm also going to include uh Walnut application here which should
+give us some more things as well that we need in fact if we go to Client app I think yeah application really just has
+most of the stuff in it so this example layer now really doesn't need to exist because we've replaced it with our
+actual kind of real client layer so let's have our client layer and in fact what we can do I think is push layer
+probably has yeah a templated version of this so if we wanted this to be a little bit cleaner we could just do app push
+layer and then over here we can actually put in client layer and that's it so
+we're just pushing layer client layer and client layer is obviously going to be our cubed client layer which we will
+also get rid of this which will also include all right cool let's try and
+build that okay so inside Cent we're getting a really weird era here where it's not happy with these operators even
+though we have the Define obviously in place furthermore it was working inside here so I don't really maybe I do know
+what's different I'm not sure exactly what's different about these two files there were some includes that I removed earlier but after a quick little search
+of this actual Define and where it enables The Operators it's inside imuy internal. that it actually defines these
+operators so you can see that if this Define is on then here are the operator functions that we can use therefore this
+file obviously needs to be included in some way but I don't know why it worked
+before so if I include I'm going internal we're fine because that's where the operators are defined or at least
+declared well actually declared and defined according to this right there's the definition as well so it's a little bit weird but if I do that then I think
+it will compile so weird but that's really like a little tip I guess for everyone is uh you know if something
+weird like that's going on just hunt down exactly where the thing that is not defined should be defined and you can
+see that led to me discovering that it was in fact inside I'm going internal so clearly this has to be somewhat included
+otherwise you're not going to have access to that regardless of the Define so anyway now that we have this uh draw a rectangle function here let's try and
+add something a little bit more interesting than this potentially let's extend this so that we can move around
+so what I'm want to do is just add let's just say player position and we'll include glm this is a good test as well
+cuz glm might not be included so we have a look at maybe build cubed client I don't think it is oh yes it is actually
+include directory glm but are these actually set so one way that we can check for sure is if we go to the
+property Pages for this I just clicked on that and press Alt Enter then we can go into C C++ General and then the
+additional cluee directories here and just make sure that we do in fact have glm but I think this is not really going to be correct so these I think are right
+but you can see these are missing an extra Walnut they need two walnuts like these two have so it's back into a
+directory then Walnut then vendor actually maybe not no actually I take that back these are fine that only two walnuts because the vendor directory
+isn't in the Walnut directory but it is in the Walnut repository but uh this is obviously wrong so this has to be dot
+do/ Walnut and then SL vendor slgm so where is it getting them from in the
+first place okay here it is so build Walnut external defines it AST do/
+vender then glm so I think generally when Walnut is built externally like this it would be in an external
+directory therefore it would be like in a subdirectory called walart so let's just change that to this I'm surprised
+this worked though didn't it I don't know I don't know what's going on let's just try and rerun that script and we'll
+have a look okay well this seems to not be an error anymore and if I build the CPP file with control F7 then it does
+seem to build so I guess that worked so let's just maybe uh you know put the player at 50/50 roughly where it was uh
+in the beginning and then inside on update I'm just going to say if uh Walnut input is keyed down we'll have to
+just include w not/ input SL input. H so is key down let's just do key code uh W
+for example let's do player position so I guess what we kind of want to do here is calculate some sort of Delta so we'll
+just say we'll have a direction that we want to go in and then initially we'll just use the is key down I think to just
+calculate directions so w will probably make us go up so we're going set that
+to1 just copy this a bunch of times I guess we'll do else if for down so we we don't get to do both they'll overwrite
+each other but anyway this might make it cleaner so we'll go left with a we'll go
+right with d and I'm guessing down with s so what we've really done here is
+we've kind of created like a directional Vector really like if this is the origin at 0 0 over here this just lets us set
+our direction to one of kind of four points right so on the X it can either be here or here which is-1 and 1 ignore
+the fact that I draw it at yal 1 but anyway and then vertically in blue it can also be either negative 1 I'm
+guessing that's down here it might be the other way around and then positive one up here but we can combine these two
+because usually we're allowed to move both horizontally and vertically and so really what we get here in Orange is one
+of these four points that's if they're both combined to something and if they're not then it could just be this
+could just be this could just be this could just be this and of course it could just be nothing in the middle as well and so we basically have like nine
+possible directions now what you might be seeing here as well is that the distance between these two is actually
+shorter than the distance between these two which means that if we do select this as a direction it's not going to be
+like a unit sphere in the sense that the distance from the center to the edge is the same whichever direction we go in
+it's a square and so we can actually move I guess more if we just apply that
+to our position then we'll be moving faster if we move into these diagonal directions and that's because the length
+here is basically going to be like the the sare < TK of two which is like roughly you know 1.41 or something
+whereas here the distance is just going to be one and so we basically end up moving 40% faster now that could be a
+valid gameplay decision I'm actually I kind of like that sometimes if you move diagonally you move faster it's just
+like one of those things like bunny hopping you know that it's just like a I mean it's I was going to say it's like a
+skill thing that that lets you gives you like a learning curve and makes more skilled players perform better at the game but obviously you know moving
+diagonally does not require much skill but anyway so we could keep that in there if we don't want to though the simplest way to get rid of it is
+probably just to normalize that directional Vector so if we just normalize it then that is going to basically convert it from being a square
+to being a circle because it's going to make the length always be one and so obviously if youjust horizontally off to
+negtive 1 so if this is the only key you've pressed is a and j negative 1 that already is a unit Vector it has a
+length of one but if you're up here and it's like11 that's not a unit vector and it will bring it down to like 77 or
+whatever it is on both of these uh axes and that will obviously make you go that same amount of distance per frame so
+just a little like small thing to consider if you care uh so again I'm going to just say optional for gameplay
+reasons but we may want to like play around with that um you know for fun so now that we have that direction again
+that doesn't have it's not a velocity it's just basically it's just a direction of travel we want to probably
+maybe convert it into like an actual velocity that we want to move now this it's common to actually just have this
+be uh also a member variable uh in fact I might just make it one and the reason why is because we might want to like
+Decay the velocity over time so like add some friction or some Physics basically this is very this is getting a little
+bit Overkill maybe I'm just having a little bit of fun here at at this point but if we do actually make this three 3D
+in the future uh which we're planning to I guess then we also want to potentially use like a physics engine for that for
+things like collision and well physics and so if we're going to do that then that's going to handle all this for us
+and we're not going to have to do this so yeah we we'll see but for now we'll just uh I guess set the velocity uh
+we'll say that if the direction is not zero so what's the easiest way to do that uh I guess we could just get like
+the length and this isn't like in terms of performance this is not a not really
+a good way if it's above zero then we could probably say uh that we are trying
+to move somewhere and therefore let's update the velocity by setting it to I don't know let's just have a con flow
+speed I'll set it to like five cuz I don't know how fast we're going to end up moving but we could set the player velocity to basically uh you know
+Direction times speed otherwise what we can do is probably have velocity Decay
+by for example luring it down to Zero from wherever it is by some kind of
+factor and then if it's small enough we can just cancel it out entirely or we could just be like whatever for now and
+just I don't know set it to something like let's do player velocity uh glm V 2 0 and then we'll set this to like 3 or
+something something and so this is not really my favorite way to use this slurp function which I need to probably
+include something in order to do is it even called lurp in glm maybe it's called like mix or something right is
+that does that do basically what I want I think the reason why is because what we're doing is we're basically so if this is one this is zero it's becoming
+like a bit of a mouth class I guess but what we're doing is we're basically being like okay well if instead of just like going through from 0 to 1 with some
+kind of potential curve as well if we want we're just saying let's take 30% of the value every time so the first time
+it's going to be here the next time is going to be here the next time is going to be here the next time is going to be
+here and you can see that like you know over the course of several frames it's going to basically get very very close to that but not quite reach it kind of
+like this is an ASM toote uh so I don't like using lurp like that I feel like it's better to animate it from0 to one
+but this is just a really quick kind of hack to just add some little physics response I guess to this and add some
+friction essentially not stop immediately but have it slow down a little bit over time okay so next up uh
+we need to apply this velocity to the actual Direction and so you can see we're updating it to full blast if
+something if a key is pressed but otherwise we're just letting it decay basically but we still need to grab
+player position and then add to it the velocity but we need to multiply it with our time step otherwise it's going to be
+dependent on our frame rate and probably very very fast so time step remember is in seconds so if this is running at 60
+frames per second as an example I think it won't be if this is vsync this monitor is 144 HZ so it'll be faster
+than that but if it was 60 frames per second then the time step would be like 0.016 basically which is a very small
+number so that's what we're multiplying player velocity with which is why that speed is important because now the speed
+is not like 5 units or 5 meters let's just say per frame is basically reduced to 5 m/ Second and so that becomes
+potentially different because I guess yeah five 5 m per frame would be at 60 FPS 60 times more than obviously 5 m uh
+you know per second all right cool anyway so let's I guess let's test this out we're not even drawing the player so
+inside on on UI render I going to do this inside on UI render just because this is in fact I'm am goey so you know
+maybe after we do the demo wi it doesn't matter it's drawing to the background list anyway because we're getting the background draw list but let's go ahead
+and just draw this at basically player position now remember we made these um
+not yeah if I draw wrecked let's make this take in I'm not going to bother passing these by con reference because
+they're only eight bytes so so size position and size and then obviously we can just do position dox position doy
+size dox size. y so we can pass in play a position and then for the size I don't
+remember what we had let's just say 50 pixels and then color let's just make it like I don't know pink need to pick some
+nicer colors okay so we can't open oh can't open glm I thought we said we could oh well now Walnut can't open it
+oh great so Walnut was relying on that as well even though it was like build external or whatever that's super
+annoying okay you know what let's uh make this I'll get rid of this as well
+cuz I didn't realize Walnut was using this um and then what we'll do is I'll copy this path what we'll do is I'll
+just manually put this in to like here so we're kind of doing this along with I guess this stuff up here okay and vonos
+DEC is is a uh an environment variable so that should be fine so control B let's try build everything hopefully it
+will work I don't know cuz this is live so we we will see okay let's run this it compiled okay I don't actually
+see anything so size is 50/50 position was also like 50/50 right did this
+completely move us somewhere I mean velocity should be Zero by default right and it should otherwise it should reach
+zero let's just set player position to like 5050 just to make sure may have done something wrong okay yes so it is
+drawing it it's just it must be wrong so let's have a look maybe I can set a break point and see where it's gone to
+Nan awesome okay cool what is this mixed function I'm beginning to suspect the mix function I mean this is going to be
+zero a lot of the time right so if we're going I guess between 0 and0 maybe that's upset at that I don't think it
+should be okay I think I know what it is probably so length so directions already
+oh cuz we normalized it but it was Zero ah okay yes so let's only who how did I
+insert a smiley face that's hilarious um let's uh only normalize it if we need to
+like this I think so that was a bit subtle cuz normalizing requires dividing it by the magnitude but the magnitude is
+zero okay that still didn't uh that still gives us an NS awesome okay I'm also kind of sus about this length
+function okay so that's wrong yeah so that's not the length I was looking for cuz you can say zero is it like
+magnitude or something yeah length is two because there's two elements in that Vector 2 and there's no magnitude
+function right so what do I have to use like glm length I think this might be
+what I want it's very though okay good we're not n in this video Cho learns how to use GM so I can kind of move it's
+very very very slowly it might be decaying too quickly I mean that's the other thing if this is running very quickly then the rate of this Decay is
+Connecting to a server using UI
+going to be also faster so you might want to maybe do this by the time step and maybe make it a bit higher as well I
+don't know if that's what's causing us moving so slowly probably not but we could also just make the speed like 50
+and see if that helps just common things that might happen from this okay so yeah there we go okay so now that decay is
+very uh slow so let's M let's maybe make it higher but again if you mult if you're doing it by time step this could
+be anything it doesn't actually have to be between Zer and one anymore so I still feel the speed's very slow oh well
+it's cuz it's in pixels obviously it's not in meters or anything right so we are in fact moving in pixels so when I
+said like 5 m/ second obviously we haven't really established what that means so really it's five pixels per
+second which you can see is in the scope of the this game world and if we are 50x
+5050 pixels then moving we're effectively moving 10% of our body width
+every second so imagine you're moving like this much every second like that's effectively what's happening right so if
+you want to break it down mathematically that's the issue so we have to we do have to kind of make it really fast and you can see that kind of friction and
+Decay now you know will happen uh a lot quicker as well so if we want it if we want it even quicker we can just make
+this faster and then it you know will stop a lot faster but I kind of like that you know slightly smoother stopping
+rather than stopping immediately cuz just just to show you I don't know how well this will communicate over the video but if we just didn't have this so
+basically uh what would be the alternative we're also already throttling it by the way so I think we
+should probably do it here but anyway the alternative would just be clearing it immediately um which would mean that
+we stop instantly like that which is a bit doesn't feel as good cool so now we have a cool little got some nice like
+damping friction whatever you want to call it some Decay on our velocity awesome so we got some movement code uh
+and this uh you know the next step is just going to be basically sending that over the network and then having a server that can propagate it to multiple
+clients so the next thing I really want to do is be able to connect to the server to a server so I think what
+should happen is inside client layer initially we can start using some of walnut's networking API so we'll do
+walnot networking and then client and so I want to obviously have like an actual
+Walnut client uh sitting over here so I think we can just do I don't know if we need this to be like a unique point or
+anything probably not we can just do client and then we just need to do client connect to server this is where
+obviously like I'd like to have some UI probably so that we can connect to a server if I was setting this up properly
+which is debatable whether or not I want to do it properly for this I'd probably have like some kind of login screen or
+like connection be a separate layer and then that would actually transition into
+a different layer that is the game once you are connected maybe we can we can talk about that in the application
+architecture uh you know video but I think for now I'm just going to make it really simple so inside onui render what
+I want to do is I just want to first of all access the client's connected state so let's get the connection status and
+then let's check to see what it is and if it is is this inside Walnut or walnut
+net or like is this I'm just trying to see what name space this is in oh since Walnut client Okay cool so WN not client connection
+status if it's connected then we're basically you know playing the game right in which case uh we can draw our
+rectangle I guess and also process this update stuff in this case if the client is not connected then let's just return
+because we just got game stuff here otherwise I want to you know we can get the connection status maybe I should
+just use namespace WN not somewhere so connection status if it's connected we'll do that otherwise if it's
+something else you know based on what it is we can we can think about what to do and I might again split this up into functions a bit later but I want to
+write the code first so we need to display basically a uh you know connect
+to server box or window and then this will ultimately just have a input text
+that's going to be like our server address we can just use a a string for this I just don't forgot what we need to
+include if we want to use the Char buffer way then obviously we need to have like some kind scratch buffer to
+actually write the characters into as they get typed into this input text but there's also I think uh in MK maybe CPP
+uh yeah I'm guyd li. and then this which we need to include separately which is really not letting me drag anywhere nice
+anyway it's in I'm guey MK CPP so if we include I'm maybe it's just in MK CPP and then stdlib.h then you can see
+it lets us do an input text uh with an actual STD string which is cool right so
+that's what I'm going to do and you know we can have this be we need this to be position anyway but we'll just say
+server address so we'll pop that in there like that because it wants a pointer and then text Flags or whatever
+I don't really care we'll just have it like be an input text and then we're just going to make a button you know connect if button connect then we're
+going to do client connect to server and server address obviously is going to be that server address that we made there
+now we probably want to resolve it if it's an IP address using like DNS and get the actual IP address also like
+handle the port number correctly validated do all that stuff but for now we'll just keep it simple this is still
+here from my Windows Explorer nice anyway what if I just close that window no it's going to stay forever okay cool
+nice so that's what we'll do obviously I think if it's connecting I'd like to
+display this stuff but maybe disable it and to disable I am gooey elements I'm trying to remember because you can in
+Hazel we just have like some helper things that can basically pop you know or push disabled stuff onto the stack I
+guess so everything on like in that scope is basically disabled which is super useful but I'm not really sure how
+to do that I think there's just a flag that goes onto these things like I'm going text flags and it might just be
+well it's like read only yeah read only so um bull read only equals let's just
+say connection status doesn't equal Walnut client connection status
+disconnected right so if it's not disconnected then we're probably connecting I mean it might be fail to connect though so yeah we'll have to cuz
+that obviously is a also state but we'll display something for that so let's say that if it's read only then we'll do you
+know I'm gooey input text Flags read only otherwise just zero and I think we
+can do the same thing for the button can we have a r only the button okay so there is a push item flag I wonder if
+this will also use for that but there's basically I'm go item Flags disabled which we can push and I guess pop yeah
+if it's read only and this is why why we usually have um systems in place for this in Hazel just because you can see
+this gets very messy and also very arrone so we have like kind of we use RI and do some stack stuff that just makes
+it for the whole scope for example which is really useful so maybe this is something that uh you know it would be
+nice to add to uh walnut's IM GUI or walnut's UI API now let's get back to
+trying to connect to the server so there's a couple different ways we can architect the actual you know status of
+the connection and everything meaning that like we've got these call backs that we can set whenever we connect to the server for example if we want to be
+notified by it we also have a data received call back when we receive data from the server uh because this
+typically runs on a different thread right so the client itself will start up a network thread and then we have this
+function here called Network thread Funk so this all of this runs on a separate thread now as I mentioned we are using
+Walnut networking here which is completely open source it uses valve's game networking socus Library so you can
+have a look at all of this I just didn't want to use valves game networking so Library directly because you can see there's a bunch of code that we would
+have had to write I'm trying to keep this manageably sized right not like a full 50-hour course or something so
+because of that uh I have taken some kind of abstractions and I guess Outsourcing some of the work to other
+libraries like you see here but I want to stress that all of it obviously is open source so you can just have a look
+at all of the code here nothing here is like blackbox or close Source or anything like that so the flow here is
+pretty simple we just try and connect to the server and then if we do have a connection to the server then we will
+receive data presumably and we can just handle that data however we like so what we'll do is inside onattach before we
+even have a connection we'll just set this data received call back to be something now I want to make a specific
+function for data received so we'll make a new function here called on data received right so this will be data that
+we're receiving from the server and then we need to take in I think it's just a buffer it might be a con buffer but anyway we can look at this set data
+received call back and it will tell us exactly what that type is so data received call back is a function of void
+const buffer right so a function that returns void and takes in a const buffer so if we go back over here we'll just
+make this a const buffer so this will be a walnut buffer and then we can implement this function now you can see
+that it's not a static function I haven't made it static it's a member function of this because I want it to have access to everything that it might
+need access to inside this class so in order to Simply like pass it into this set data received callback it needs to
+be bound effectively to the current instance of this client layer class and we can do that by the the simplest way
+to to do this nowadays in C++ 20 and a few earlier versions in that as well is
+by simply using a Lambda that just happens to be uh you know more simple and it also I think it will result in
+Faster code as well than if you use something like STD bind which you could use in the past so if we just do uh if
+we just pass in this like this so that we're capturing it inside the Lambda then all we need to do is call that
+function from here and obviously the parameter here is going to be that con buffer so that we can basically forward
+it onto our on Dat received function like this so this is typically how I handle situations like these where we
+need to set a call back but we want it to call a member function okay so that's great and obviously this will work this
+will all this does you can see the source code all it does is it just sets this m data received call back right so
+obviously if you're not connected to the server it's not going to do anything it's just that when the time comes to actually call this function to call this
+call back because we have actually received some some data from the server then of course we can end up calling
+this on data received function and do whatever we need to okay so let's just try and run this I just want to see what
+this UI is looking like that we've written so far remember it should give us I guess uh this sort of box to
+probably stop showing this I'm goey demo thing but you can see it gave us the box for the server address so we can type in
+something like Local Host presumably and a port and then we can hit connect um and you can see it in this case it's
+giving us an invalid IP address could not pass Local Host because we should be resolving that name ourselves into an
+actual IP address so we'll have a look at how we can do that but also it's disabled everything it's not clear that it's actually disabled it uh and that's
+probably because if we put a breakpoint here the connection status has failed to connect right so rather than disabling
+everything cuz that seemed to have been pretty much useless I thought it would like gray out or or be obvious that it's
+disabled but instead it it didn't um but anyway Let's uh maybe let's just display
+like a status message below so if it's read only I think I'll just get rid of
+this for now and then maybe uh underneath server address I'll have text
+and we can do text colored and the color we can choose I think IM goey theme might have some colors right so we do
+have some colors here so there might be some sort of there's some stuff here from Hazel as well which is funny but
+there might be like an error color I think invalid prefab is basically an error color so maybe let's really get
+rid of those prefab related things cuz it's obviously a Hazel thing but um we can just have a thing called error which
+maps to that color for example and that way I think we can just use Walnut UI Colors theme or whatever that seems like
+a lot of that seems like a huge uh thing to write though Walnut UI Colors theme
+damn uh error for example and then we can you know be like uh fail to connect
+or something and and this is all dependent on that connection status right so if connection status is failed
+to connect then we can obviously set it to that now we probably have to include this file so I'm goey theme. is located
+inside Walnut I'm guey I'm gooey theme so Walnut I am goey uh I'm am gooey
+theme uh okay so that actually gives us an an INT does it I am color all right
+Server application
+cuz it gives us it gives us yeah just an IMU 32 whereas we probably I guess we
+want a v four okay so there seems to be I'm am color which can take this in I
+guess and then obviously it's got an implicit operator here to convert it into a v 4 so we can actually use we can
+wrap this I'm guessing in an IM color and then it should work so just like
+that we can wrap it okay cool so let's try this so this will give us a fail to connect and then you know we could also
+have like an else if connection status is connecting then we can also do like a
+text colored but we can do basically like a a bit of a gray or something there is a text darker
+actually so maybe I'll use text darker and we'll just WR connecting so we're just giving ourselves a little bit of
+status here just like some feedback to the user so we can see what the current operation is because obviously it's not
+clear okay so now if we type in something like this and hit connect w we get an aror cool all right let's have a
+look at this okay it's the pop yeah okay I should have gotten rid of this as well that wasn't as exciting as I thought it
+would be okay connect and then we have failed to connect at least so we know what's going on and if it's actually
+trying to connect to something which we won't oh yeah there we go then it will display connecting and then I'm guessing
+eventually it will say fail to connect maybe it's taking a while oh just disappeared that's weird I would have
+expected it to be fail to connect but it's actually disconnected so it remained I guess as connecting and then instead of failed to connect it just
+like timed out I guess maybe and went back to disconnected very interesting all right anyway so yeah we've got the
+ability now to connect to a server from the the client and then once it does actually uh get set to connected so I'll
+just get rid of this once this does become connected we just won't see this anymore right so this connector server
+only exists if the status isn't connected otherwise we're actually going to display at the moment our player
+rectangle thing on update will also be running if we are connected but not if we're not connected and then when we
+receive data that's when we can process it and basically apply it to our player hopefully so now that we've done that
+part of it I think we can probably open up the server so in the root of our repository we have cubed server solution
+and let's basically write a bit of a server here so I want to create some sort of uh console as I mentioned so
+Walnut chat uh inside app server has this uh headless console situation right
+so I want to have this headless console uh let me just grab maybe this okay so
+I've just pasted in the Headless console files over here and I can go back to scripts and rerun setup.bat so we should
+have them over here now hopefully they'll just compile um I don't think they use anything too weird
+so let's just hit control F7 on the CB file yeah that's fine so again you guys can get that from Walnut chat obviously
+as well uh this repository will be on GitHub as well so you can look at that but if you wanted to get it from the
+source then you know where I'm getting it from okay so uh example layer same situation I want to create a server
+layer basically so over here in Source let me create server layer and this is going to be obviously responsible for
+for running the entire game server so we're going to have to Branch this out I'm guessing uh into something a little
+bit more complicated in the future depending on how far we go with this project but for the in the beginning
+we're going to set up basically the same situation as what we had for the client so we're going to have a server layer
+it's going to be uh Walnut layer which I will include Walnut uh layer and then it's going to
+have I guess I can just grab these functions over here and uh let's just do override um and then in the CPP file
+let's include server layer and let's do namespace cubed and then I will
+Implement all of those functions all right cool so I want to create that headless console that we just put in so
+let's include that let's just have a quick look so headless console we just I think we just need that so let's just do
+headless console I'll call it console uh and then that should mean hopefully that we can uh do we have to it's it's
+running on its own thread I think so I don't even think we need to do anything I mean there is a set message send call
+back so this is important obviously because we want to be able to know whenever a message is sent so let's do a
+similar thing that we did just then with the client where we have a data received call back but here we have we'll have it on Console message callback maybe just
+on Console message and then let me just have a quick look at what that is so it's string view so texes in a string
+view as a parameter so that's our message let's implement this and then inside on attach I'll just do M console
+set message send call back we'll capture this here we'll have our STD string view
+which is our message and then we'll call on Console message with the message so
+there we go uh so now we can basically do something like process a command if
+Setting up the Server to send/receive data
+we need to so we you know from here we could do everything we be like hey you know if the message starts with you know
+a slash for example then we can be like okay this is a command so let's like process that or whatever uh you know if
+we wanted to do like slash KCK or something like that so that's you know that lets us do that basically handle
+those messages that are coming in from that console because now we've got the ability to basically write stuff through
+this headless console as well as post messages so if we wanted to we could also be like console. add message or you
+know I mean italic is not going to do anything the reason why it even has that is because it there's a non-he headless
+version that actually can like display different fonts and stuff like that and like bold messages but I think with color should maybe work or maybe not
+this just all does see out so actually it does nothing I think this the color stuff and whatever is just for UI so I
+don't know if we want to use this console for actual message logging or if we just want to use nuts like macros
+because they will have color and they will also go to files so yeah we'll definitely see but we do need the
+console so that we can actually write stuff so you know you are called the
+message command so we'll have a little test here just to make sure we can call these commands so let's hit our five on
+that maybe or not why is that not working there we go okay so there's the time step okay that's annoying yeah cuz
+we're logging the time step so let's go back here oh we haven't even pushed on our server layer okay so let's do that so let me get rid of this we'll still
+keep our sleep in here I guess although we'll have to move this into the server layer because now we don't actually have
+the example layer we're going to not have in a minute we're going to delete it right and instead we'll just push on
+server layer but this can be push layer server layer like that and then we just need to make sure that we include server
+layer and that should be it I think I guess it's a cubed server layer who all
+right let's run that okay so we should be able to type stuff here right such as slash KCK and then you can see it says
+you called the kick Command right so all we've done is just set up this little thing here so that we can actually write
+messages and deal with them very very simple so let's start the real the actual real server though so that we can
+receive messages so let's do include Walnut networking server and then we'll
+go ahead and set that up over here so we'll do server we not server server and
+then this is kind of similar to the client in terms of its API uh it doesn't start it until we call start I think and
+we have to specify a port so let's just do but we have to I think we have to construct it with a port is that right
+so you can see we have to constructed with a port but all it does is that so we could just construct it you know like
+this I guess and we're done 8192 is just a port that I happen to use for some reason once that's done we can start it
+now so if we wanted to an onattach I guess we could do server Dost start and now the server is running we could do
+stop inside detach but obviously you know we need to in order for the layer to get detached this function will get
+called externally if we pop the layer off the layer stack so if the application somehow had functionality to
+do that which doesn't at the moment then it will call stop but otherwise you know maybe we'll call SL quit and it will
+actually stop the server so yeah we'll definitely see and then once that's done we have some things as well that we need
+to do uh we need to set up these callbacks if we want to know when clients connect or when they don't disconnect now Hazel actually cuz I used
+wellnut wellnut networking recently inside Hazel but I made it I kind of turned it into Hazel networking and I
+ended up fixing some bugs and adding some features so I might have to pull that into Walnut networking but one of
+the bugs that I noticed we had was that these callbacks basically need to be set because if they're not set then you can
+see they get they just get called there's nothing here that checks to see hey did you actually even set that so we
+basically need to add something like and I'll probably pull this in but we need to verify to make sure we actually have
+that callback set that it's not like empty because if it is then this will crash cuz we're trying to call it and then it's the same situation for I mean
+dat received is a call back that you'll basically always have but client connected client disconnected you might not even need that so it's definitely
+worth like checking to see if that's even set in the first place before you call it so let me just quickly add that
+in obviously yeah I'll I'll end up pulling this in and committing this to waln not networking but in case it's not there then we just need to make sure
+that we do that okay so now if we want to know when this happens like when a client connects and stuff then inside
+our server layer let's set up the callbacks and we can do that before we start the server so let's do Set uh
+client connected call back and then I'll do client disconnected call back uh and then we'll also do set data received
+call back and so these I think let's see what they are so client connected callback is so we have this Con client
+info that comes in for data received we have the client info which tells us which client the data's come from as well as the buffer of data and then uh
+client disconnected again just has a client info so I'm want to go over here and we've got this on Console message so
+let's also have on client connected which uh will take in what was it const
+Walnut client info client info I think uh disconnected has the same thing and
+then on data received also has the same thing with a const buffer okay so those three let's Implement them and then I'm
+going to set up my uh Lambda wrapping situation like we have here so we can
+grab this and then const Walnut client info client info and then I know this
+Line's getting a little bit long cuz my font's super big as well but we'll just call on client connected with the client
+info uh and then yeah we can copy most of this I think for these two we'll just call on client disconnected with client
+info and then here obviously we'll call on data received with client info and const walnut buffer all right so this is
+what it looks like um yeah we could obviously I don't know make this a bunch of different lines this is like really
+just a wrapper though I don't really mind having long lines for stuff like this because it this is just calling
+another function you know what I mean it's like forwarding it it's delegating it it's not actually doing any real work here you're just passing everything
+Client/Server connection
+along so the code's almost like not that significant and I think having it on one line just keeps it a little bit less
+dense looking and less uh you know a bit more tidy okay so um now I'm code
+reviewing my own code which is great so uh what's next I guess we should
+probably log something so this is where we if we wanted to we could actually use this console uh this is only useful I
+think if you the reason why you would want to do this instead of just doing stdc out or using the Walnut macros is
+only really if you have a GUI version of this as well so if we had both a GUI server and a con like a headless server
+then of course using like doing it this way meant that we would only have to have our code written once and it would
+work for either an actual GUI console widget that we might have in IM GUI or
+in this case it would go straight to see out basically so uh but with this again you really don't I guess you don't need
+to have that but uh you can just do see out directly or whatever else so I might just do see out client connected
+actually let's have a quick look at Walnut I just want to make sure I don't know if this works or not cuz there was some issue with it right so I think what
+I'm going to do is I'm going to try and use the Walnut logging uh situation because this will give us color text so
+info I think will be green and also if we want we can also do info tag and then we can tag it with something so we can
+say hey this is the server this whole thing is a server though so I don't really care too much uh but if we don't tag it I think it will say client which
+might be a bit misleading so let me just tag it with server and then we'll just say client connected ID equals and then
+we'll have client info do ID and then we'll have to include uh Walnut log
+Walnut core log. okay so there we go we're logging um our client connected let's also log disconnected and then on
+Sending data between the Client and Server
+data received obviously we can do something with that if we want so now we effectively have the ability to run a
+server and I don't know receive data so if I try and just hit F5 here let's have a look at what happens okay so the
+server is listening on Port 8192 which is cool so now if I open up the client um let me run the client because we
+should have the ability to connect here so let's run the client uh and then if I just have the server running over here
+so we can see let's just do 1 127.0.0.1 which is Local Host and then colon and
+then the port 8192 so this should be basically if you followed everything this should be the the default address
+you're connecting to so let's hit connect uh okay we got we got an error here this might just be a I am gooey
+thing but you can see the client did in fact connect and here's our ID so that's great now what's the assert from uh oh
+yes so this is what I was talking about we have those callbacks that unfortunately aren't Set uh so you can
+see that what's happened here is we're trying to call the server connected call back because we actually managed to connect to the server successfully but
+it's not set so that's why this should be guided with an if statement and then finally if we have a server disconnected
+call back as well will crash or will assert so that's actually not even called so LOL okay cool anyway let's run
+that again so you can see the client disconnected obviously cuz we terminated the application so let's try that one more time we got our server running over
+here let's do 127.0.0.1 uh and then we'll do 8192 and we'll hit connect and
+there we go right so here's our thing we can move around this obviously doesn't do anything at the moment but it's just indicative that we have a valid
+connection to the server because if we didn't I think it would go away and in fact if we try and close the server here and we have a look this is going to
+eventually realize that it's lost connection to the server and it should go back to that login screen or that connection screen let's see what happens
+okay there it is took a little while but you can see we've just gone back to this state now because it's not there and it
+will try and connect but then obviously the server is not running at the moment so it should just say that it failed to
+connect or it will just time out I don't know yeah it's just timed out cool all right cool so uh that's great we've got
+that going now now we could theoretically send data between the server and the client and I think that's
+where this cubed common is going to come in because we have this server packet that we stole from Walnut chat now we
+can decide to have various different types of messages that we might send between the server and the client and
+this can basically be like a a TW byte header I guess in our message that we send that encodes what kind of type it
+is so I think it goes without saying but initially we're going to keep things really simple we're not going to worry too much about security we're not going
+to worry too much about clients doing the wrong thing or trying to connect multiple times or modifying their own binaries and trying to connect whatever
+else it might be we're going to keep things rather simple so I think the first thing we're really going to do is we're going to in introduce this concept
+of a server being able to handle multiple clients multiple players connecting to it and the communication
+of player related data between both the clients and the server but also I guess between the clients effectively through
+the server so what I'm really talking about is we have this server which is over here and then of course we can have
+multiple clients and they need to be able to connect to the server and once they've done so they probably need to
+download some data from the server such as well this is going to get specifically into the type of game that we're making which we're going to avoid
+in this video but they might download like what map they're on and what the other players are what you know what the
+state of the scene or the game world is as well but initially all we're going to do is probably download a list I guess
+of all the other players that are that exist on the server because we need to display their positions in some form
+over here on the client and then once this connection has been established at a certain frequency we now need to send
+updates to the server so we have to be like basically what is our position what are we doing what is the play who is
+this client trying to do inside this scene inside this game world and that obviously has to happen from all of
+these clients and then depending on what they do that might need to also go down into the clients so in other words if
+this client moves then obviously this client needs to update that client's position it gets kind of messy but this
+is where you need to make sure that you have a good server and client architecture that can handle all of these messages basically so the core of
+the rest of this video I guess is going to be just be the the messaging that happens between these and we need to facilitate that communication somehow so
+the server itself I believe is going to have I think just built into it I think it might have a list of clients right so
+there's a map of connected clients which is great because it needs that in order to actually send each client a message
+basically that says you know this is the position of one of the players in the world now inside the diagram that I drew
+where we have the server and the two clients the very first thing that I think we need to worry about is the client's ability to identify themselves
+so they need to have some kind of ID now there's a few different ways that you could do this for example you could have
+the client itself generate some sort of like uu ID basically uh they could both do that every client could do that and
+then tell the server hey this is my ID so please use this now to refer to me because at this point the server is
+going to have a list of clients how does it know which one is which it needs to be aware of this but another way that we
+could deal with this is we could actually have the server be the one that actually creates an ID per client and
+one of the reasons why I think I might try to do it this way here somewhat spontaneously is because we already
+receive an ID so whenever a connection happens there's an on client connected we get a client info and one of those
+things is a client ID which is just an H steam Net Connection which is really just a uint 32 right so it's a 32-bit
+unsigned integer and that's some ID so what we could do is when a client gets connected we could actually respond to
+that client by saying something like server send buffer to client we could send uh you know know the client that
+actually just connected we could send it a buffer and that buffer could contain some details such as hey you connected
+to the server successfully here is your assigned ID and that ID could just be this ID that would make it super simple
+because then we wouldn't really have to maintain any kind of mapping from a game generated uu ID and then a connection ID
+now I don't know if that might you know open up some vulnerabilities because this is the direct ID that we have
+obviously it's just generated every it's a random ID I guess that's generated every time a client connects so it's
+really only present for the lifetime of that particular client um and if I was making a proper game like I would
+probably have the game engine itself generate some kind of universally unique identifier and that's what we would use
+so technically this probably isn't something I would do in the real world but uh we we're just going to do it here
+we're going to try it out and if it fails or if there's a reason that we decide in the future to change it it's
+very easy to change of course so let me create a first of all now the server itself is definitely going to have to
+send a lot of data back and forth and we don't want to allocate memory every time we need to do something so what I
+generally like to do is create some sort of scratch buffer that we can reuse so let's just do static buffer we'll call
+this scratch buffer this is going to be a walnut buffer I think I might just should I just using namespace Walnut up
+here somewhere I don't know maybe anyway when we attach I'm going to allocate so we'll do Walnut buffer we can just do
+allocate uh some kind of size so I don't know let's do for example I mean 10 megab is probably a lot but let's just
+do like 10 megab for example okay that's actually not a static function so we can just do this so we've allocated
+allocated like 10 Meg here which should definitely be enough so what we can do now is anytime we need to write some
+data into a buffer we just use that actual scratch buffer and the size of it we can obviously keep that trim down to
+what we want so it's a little bit like using a span I guess inside a vector or whatever but the benefit here is just
+that we've pre-allocated a huge block of memory and we can just reuse that instead of having to allocate you know
+very small allocations every time we want to construct like a buffer okay so once we've got that scratch buffer we
+still need to make our own buffer from it so I'll actually just assign this to scratch buffer like this and the reason
+why we have to do that is because this scratch buffer is going to have obviously a very large size of 10 mbes
+but we need to actually send this buffer to a clent and we don't want to send the full 10 megabytes most of it's going to
+be empty and so what we're doing instead here is we're creating a new buffer and you can see the buff is non- owning right it's kind of like a span as I
+mentioned and so we can uh basically have the size be set to something much
+smaller for this actual buffer kind of object instance but the memory that we're pointing to is obviously much
+larger so we can just use like a portion of it which is what we're trying to do here because all we're trying to do here is probably send like some kind of
+acknowledgement that we've connected uh and then we should use calization so maybe like the packet type or whatever
+should be the fact that hey you're connected and then we need to send you your ID so this is what we're trying to send so how do we encode this into a
+buffer well we're going to use Walnut calization library which is really the same as Hazel's cialization Library so
+you can see there's something called a buffer Stream Rider and there's also a Target buffer and I think by the way that this is all proving that we don't
+actually need to make our own buffer like we did here because this will handle it for us so let's create a
+buffer Stream Rider instead we'll have a walnut buffer Stream Rider we'll just call this stream and we're going to pass
+in the scratch buffer because that's going to be our under memory so let's include Walnut serialization and we'll
+do uh buffer stream I guess and then I think we can just do stream get buffer or something what was this yeah stream.
+get buffer and so this is walnut's civilization Library which again as I mentioned is like Hazel calization
+Library so now if we want to write stuff to it it's super easy we can just be like hey we want to write some data I
+actually don't know what function specifically we want to use so you can see there's a bunch of right raw yeah
+right raw is probably what I was thinking of so we can do right raw and this allows us to pass any raw type so
+for example in this common thing we had this server packet situation and we had packet type so I think I'll just reuse
+this as I mentioned so sure we can keep message as a thing um client connection
+request client connect is five I really should just delete most of this and probably start again but whatever we'll
+reuse this for now so client connect let's just say for example is what we're trying to pass in so let's do packet type uh client connect so we'll just
+write that in like that so let's include um oh we'll see if this is actually so
+where is this technically it's just common source so we maybe should just be able to do server packet. H and that
+should just be there cool so we've written that in that's like the packet type and now we obviously want to write the client info. ID so we've said that
+okay the client's connected and here here here is your ID basically that you're going to use from now on to refer to yourself now technically speaking um
+I'm just trying to think about whether or not the client even needs to know what its ID is I'm not sure whether or not it does because I mean it could use
+that if it receives like a whole bunch of different updates from all these different players it could use that to make sure that it's not updating for
+example its own positions so it could exclude itself because it would know that hey one of those is me but that depends how we write the server whether
+or not the server actually will just send everything to the clients or it will only send it to the clients that need updates about those positions I'm
+not sure we'll think about it but anyway let's just pretend that we're sending it like this for now and then let's also
+process some data that we might receive so how do we do that so we basically need to create a buffer stream reader
+instead of a buffer Stream Rider that's if we want to decode it and basically deal with it so we'll say stream and
+we'll say buffer and the position will just be zero so the first thing that we kind of expect to read here we can just
+do read raw is going to be this packet type so if I just do packet type now this function I think yeah we'll just
+read it into there so I think we can just do packet type type and then we can just read raw like that and then based
+on the type that we receive we may want to do something so if we receive packet type let's just say client update which
+we actually have here already which is cool then we could assume that okay well what is it going to receive from a
+client it might be like an update as to its position and velocity for example so
+let's do read raw and then I'll do glm VC 3 so we'll just say this is a
+position it's actually a v two for now cuz it's a 2d game so we'll do VC 2 uh
+position and velocity for example so we'll read the position followed by the velocity and then let's just log it for
+example so let's set the tag to server I don't know if we can just pass in glm things to the logging directly so
+unfortunately I'm doing it this way I just realized of course there's no Z so that's funny I'm used to making 3D games
+and working on 3D game engines not 2D but anyway so there's our server uh basically being like hey I've received
+some data obviously for the player that's the position and the velocity so let's also remove these otherwise that
+is going to be not right and then player side right or rather client side we just need to send that data so if we are in
+fact connect ected then we're obviously over here and we can basically just send the player position and velocity at the
+end of this if we want to now realistically this is where usually there would be a lot more architecture to this so having it just an update like
+we probably have one point in the frame where it's kind of like a sync point and we'd just be like okay is it time for us
+for example to even send data to the server because we might not want to be doing this at vsync in fact we definitely don't want to be doing this
+at vsync you might want to do this say 30 frames per second or or like or 60 frames per second second but definitely
+not 144 frames per second like this might be running out but again for now we're just going to keep things simple
+we'll explore these specific details and problems as they arise in the future so for now I'll just do client send buffer
+and then we obviously need to encode this stuff so let's grab W nut calization we'll do stream reader and
+Stream Rider and I guess it's going to be buffer stream actually which should include both of them so now I can just
+do buffer stream writer stream and then we'll create that same scratch buffer
+because I I definitely don't want to be allocating every single time we need to send this every frame instead it's just much better for us to have a a present
+allocation that we can just send it is worth pointing out as well that at the moment we're sending so little data that
+you could just have a little stack allocation basically you could just allocate enough memory on the stack here for whatever you need and then send that
+but I'm creating something that could uh scale I guess a little bit bigger than what we're doing at the moment so let's
+grab that scratch buffer we'll just pop it at the beginning here that's nice didn't actually copy anything so we'll
+grab the scrp buffer pop it here there's that allocation and we'll put it onto onattach all right so we've got the
+scratch buffer that we can use for reading and writing so now let's do stream uh we'll do WR raw and of course
+I'll write in that packet type so we'll just do packet type client update and then obviously we need to encode everything we need into here so let's
+also include packet type server packet rather okay so does that work it's not inside Walnut so we'll just do right raw
+and this will be a GM VC 2 note that you don't really need to explicitly point it out like that like it's if you just do
+play a position because that is a glm 2 then it will write it as a glm 2 I just
+like doing this because at a glance just onto the code like this you can see that it lets you see what type that is so I
+know that for example I'm reading this I'm like okay that's 8 bites of data that's being written like that so for me just makes the code a little bit more
+clear so I I just like that idea okay and then we'll do stream get buffer and we've effectively sent our position and
+velocity to the server which is great and the server is just going to log it all right now on received this is where
+we're going to receive our ID if we even want to deal with it so I guess on data received we could be like you know
+Walnut stream well we're going to need this anyway but we'll do walnot stream
+uh riter rather reader stream buffer and then this is where we'll get the type as we did
+before H it's a buffer stream reader so we'll do stream this is again something
+I could just copy I think from here so when we receive data we could read you know let's just copy this read this and
+if it's a client update from the server then this is going to be like you know a list of other clients basically so we'll
+deal with them here and I'm thinking yeah we we could probably just be like hey this is these are all the players
+basically like here is everything uh instead of singling out the one that we send it to I think that will just be
+easier so in that case I think it would be nice for us to know what our ID is so let's do client connect was that it
+client yeah client connect so at this point we'll go ahead and we'll write in our ID so our ID is going to be just a
+un 32t uh client ID we'll say uh I don't think this has its own ID or anything
+right no well it's got It's got connection though so maybe it already does that so where does the connection
+actually come from connect by IP add oh maybe it already has it maybe I'm just stupid um maybe we don't need to do that
+but one thing I was going to point out uh before I forget quickly is that you have to realize that this on Dat received function is very special in the
+sense that it's actually running on the client thread so it's running on a separate thread to our main thread so be
+very careful when you're doing stuff like I'm doing somewhat recklessly just writing in client ID from this thread
+because if you're also writing to it or consuming it potentially from like a different thread you can run into problems and we'll definitely be doing
+some synchronization and like uh you know proper multi-threading code a little bit later on as well so that's
+something to take note of but it looks like we might not even need it so let me just see um let's just do Walnut uh you
+know we have connected so if we print this we know we've actually received something from the server right but
+otherwise we'll just yeah be receiving um the list of the other clients so let's build this and we'll try and run
+our server now okay so we get fail to write to log file well anyway let's run the server okay so server is running and
+then we'll run our client okay this looks like it failed yeah so we need to set this up I think that was an issue we
+were having with this so for now let's just print this but yeah I need to come
+back and actually make sure my include path I think is correct for Speed log oh it's still yeah it's I think I think it's cuz I included it where did I
+include it okay I think we're just going to fix this now because this is going to be very annoying um let me go back to
+this and then if we go into cubed client probably and we have a look at the lure here so you can see we're relying on um
+actually we just I think we just stri the log completely so we need to also make sure I think that we're doing speed
+log and also it's if we go into uh Walnut and then I think it's build
+Walnut external we can see that it's also slash include so just need to make sure that we've got that path properly
+figured out then we can rerun setup okay and now let's give that a compile and that should build successfully so that's
+good all right let's run the client so the server's already running so we should have this be like the default or something cuz I'm getting tired typing
+this every time let's hit connect so we're in and you can see the server is in fact getting the position of this and if I move around here we're seeing that
+here right which is pretty cool because obviously these are two different applications this is the client and this is the server so we're we're able to see
+that you can see by the way what I was talking about with the lert function cuz this is our velocity and it's very very small it's like - 37 right but it's uh
+as in e- 37 so like 37 zeros below this but we're still basically sending it so
+that's why it's like important to you know treat that a little bit better if you care about your velocity not being
+zero cuz it keeps getting out to the position but yeah so this is great now the only thing that we need to really change um is we need to be able to
+connect with one than one client and then in all the clients we should see the other clients right so this is where
+that's important now uh unfortunately we are also printing length to everywhere so I would really like to see if we have
+connected if that got printed and what our actual ID is so because we are sending the ID from the server over so
+let's have a look if we can uh see what it actually is here so we'll do stream read raw and this will be un 32t and
+this is basically going to be that ID so server ID server I guess I'll do ID from server and this is what we'll read
+obviously and so we have connected server says our ID is and then we'll do
+Managing multiple connected players on the Server
+ID from server and then we'll just say we say our ID is and then we'll do
+connection or whatever client dot see the thing is I don't think we actually share that so M connection so this is
+inside well not networking but I'm going to have to add a function I think that's going to be like basically what was it what did it say h steam Net Connection
+well it can just be a un 32t so get uh connection ID we'll say or maybe just get ID const and then we'll return M
+connection I just want to compare these two and see if they're the same cuz I have a feeling they probably will be so we'll let just do get ID all right so
+and what are we logging that stupid length yeah so let's get rid of that okay let's run this let's run the server
+and we'll have a look okay so obviously we'll connect connect all right we're connected and then what does it say here
+oh look they're different so server says our ID is this but our ID apparently is this now this looks like the max size of
+a u is it actually it suspiciously looks like it let's relaunch this and see if
+we have a different ID cuz yeah that looks that looks wrong which is a little bit surprising unless I did something wrong
+oh no okay so it's not yeah so they they definitely don't agree so that's uh bad
+unless I've sent something wrong uh which is possible I might might have made a bug but anyway this means that we
+really should um probably maintain our own IDs like that so I'll just do you know client ID or something uh maybe
+player ID and then again I am just going to assign that variable directly from
+here but you know you can maybe like Lo that or have it be Atomic or something but it's not going to matter cuz I don't
+think we're really going to use this very often outside of this thread so that's another thing to keep keep note
+of obviously it's fine to have variables that are used by other threads as long as they're they're local to the thread
+that they're used in so the problem is when you start using accessing you know variables from different threads if
+they're all locked to one thread then obviously it doesn't matter that it's not the main thread just as long as you keep that that rule going otherwise if
+you want to access that variable from different threads that's where you might need some kind of synchronization basically or just a very well defined
+order of operations okay so the next step is going to be for the server to actually keep track of all of these
+client positions and velocities that it's receiving now the velocity I think is important because that's where the
+whole prediction lag compensation comes into this if we know the player is moving a particular direction then even
+if we don't receive data from the player because the packets might get lost or whatever else they take too long to get delivered we can basically predict where
+they're going to move to and that might be like a technique that we explore in the future we might not immediately use
+it but that's why I'm setting it up this way to begin with so the server itself inside the server layer we need to think
+about this so when we're receive data from a player and it's their particular position from a client info which is obviously that specific player's ID we
+now need to store it somewhere so this is where like I probably have some sort of map I'm not going to make it an unordered map I'll just make it a
+regular map to make it a bit easier to debug because the IDS which are going to be the keys they're going to be in order
+so we're just going to do un 32t which is the the ID and then we're going to have like you know player info for
+example or player data and player data is just going to be a struct that's going to have that position and velocity
+and then this is going to be our player let's just say our player data and so again this is where the threading is
+important because if we want to add something to this player data and then consume it somewhere else we just have to be aware of that and I probably
+wouldn't do it this way so what I think I will introduce probably in another video is going to be a concurrent queue
+so there's a I'll leave a link in the description to a concurrent queue so this is the one that I think I've used before in the past I'll have a link to
+it it's a concurrent q 4 C++ it's very very fast it's industrial strength Lock Free Q for C++ that you don't
+necessarily have to use a lock free Q especially for this but apparently it's blazingly fast so knock your socks off
+so uh this is what I think will drop in uh in the future there there's releases over here that I'm guessing this
+probably just like a single header file this is what we should really use but I'll show you how you can do a that's a
+lock free queue let's do a locked queue so I can show you how we can lock access to this so basically what we do is we
+create a mutex so this will be like our player data mutex for example and what this does is it just lets us obtain this
+like mutually exclusive lock if we want for this data so that the idea is that before we use it we have to first lock
+it and it won't let us lock it if someone else has locked it so we lock it then we use it then we unlock it use and
+unlock start with the same letter might as well written LOL so we lock it then we use it by calling functions that's
+why the f is there and then we un lock it so that's the order of operations and so if another thread comes in here and it says actually I want to use it it
+can't just use it directly it has to lock it first but the lock won't they won't be able to obtain a lock until it's been unlocked by another thread so
+by locking stuff down like this you're basically guaranteeing that only one thread at a time is able to access this
+data whether it be reading or writing so we generally use this with like lock guards or spin locks or whatever else
+you can just call. loock directly I think on mutex that's fine so if we wanted to we could just do it that way
+but the idea is that if we're sure that we want to put data into this we can basically just be like player data.
+loock right and then we'll have unlock and again you can wrap this mutex inside like an raai lock which will basically
+just be like for this scope it'll just be locked and it'll magically unlock that really just calls this so feel free to just call this code as well so we can
+do lock and unlock like this and then we can access that player data if we want to so as an example let's just do player
+data at the ID so from clientinfo doid we'll grab that and then we'll just uh
+that's so that that gives us a player data so let's do player data player data at that uh place over here and then
+we'll just do player data. position equals obviously the position we've received and then the velocity like this
+now obviously we could have created something like this up here outside of the lock and then we wouldn't have had to have these temporary variables we
+could read it within the lock as well uh I guess reading just really copies from from you know read data will just copy
+from you know just do a m copy so honestly I'm thinking that we don't need this let's just move this into here and
+and that way we can obviously just do player data. position we can go directly into there and same with velocity and
+that might just be better otherwise that's just pointless okay uh and then if you want you could also uh sometimes
+I put this into a bit of a scope like this just so you can see the lock and the unlock and the context of that but that's all you need to do and that just
+makes sure that we can't be you know reading from that somewhere else on a different thread while we're trying to
+write to it as well because that can obviously cause errors if that stuff's H happening simultaneously now the only
+downside to this is that it'll probably be slower than that lock free q that we just looked at that I think we'll use in the future but yeah it's like really
+simple obviously to do this and by the way the lock free Q the way that we would do that is instead of actually processing this here potentially and
+writing into our player data we might instead create a Lambda of a function that will then execute in inside that
+onupdate function right so it's like we're deferring a function call instead of doing it here on this thread we're
+queuing it up to be done on the main thread later in time so again we'll that'll be something we explore in the future okay so the next step then is
+that we basically want to go through all of the player data and send it to all the players so let's copy this cuz we
+need the lock as well and inside on update which at this point will happen every like 5 milliseconds or whatever uh
+let's I guess do this at the end cuz that seems to make more sense let's lock the player mutex again and then I'm just
+going to go through it so we're going to do four I don't know like const ID data
+inside our player data totally forgot the Syntax for this forgot to write Auto so con Auto and then we're using like
+structured bindings here to actually extract the key and the value actually I just realized we don't I don't think we
+have to do this so we we'll lock the mutex but then I'm pretty sure we can just use Walnut buffer Stream Rider
+right we'll use our scratch buffer here obviously and then I think we can just do like stream. WR map which I think
+will just let us yeah basically take this player data and just write it to the stream and the reason why we can do
+that is because I mean these are just both primitive types and obviously they contain exactly what we want to send
+which is the player ID whose data this is and then the the data itself so
+actually that's yeah way easier than I thought it would be that's done now we still want to send we still want to
+actually write raw for the actual packet type I guess that it is so we'll do packet type uh I'll just do client
+update whatever and that's it and obviously we've locked it because we need to be able to like actually copy
+all the data from this map into this scratch buffer without like it being
+being written to simultaneously so that's why the lock is there and that's it I think um now we can unlock it and
+then we can just send it so because that's now stored inside scratch buffer inside this stream so now we can just do
+M server. uh send buffer to all clients and we can just do stream. getet buffer
+we can exclude certain clients if we want but uh and that might be an optimization where you don't send the
+player its own data no but the thing is we need to do that see that's the other thing right so you might think that okay
+if we have the server over here and then we have these two clients then if this like the server doesn't need to send
+this client its own position but the thing is it does because this client might be for whatever reason out of sync
+with the server the server might have a physics simulation they might not agree this client might even be hacking right
+so therefore the server has to be the authority so it has to basically be like hey client this is your position whether
+you like it or not this is your position so I think that's important and we'll explore how to get that functioning well
+Multiple players on Client
+I think in the future as well all right so stream get buffer okay so this is where we could create this outside of
+here it's just the actual writing of really the writing of player data is what needs to be in this lock so generally when we lock things as well we
+want to keep that lock as uh brief as possible so if we have a lock for a long period of time then this might be held
+back I didn't really explain this but what happens with lock obviously is that if if two different threads try and lock
+like simultaneously or if like you're in the middle of this but then the other thread tries to do lock then whatever thread tries to do lock but it can't it
+will just simply stand it'll just wait so it'll just suspend the thread waiting for that to become unlocked so that's
+obviously potentially a waste of potential work uh and so we don't want to you know slow down our application by
+doing that instead we can make sure that we're locking for as brief a time period as possible okay so now on the client
+side um we just need to receive this client update and then what I'll do here as an example is kind of the same thing
+so I'll copy and paste these two things go over here to the client player data as well I'll just grab and and then once
+we receive this update we've already read the actual packet type so we can probably just do read map and then we'll
+do the what was it called player data so we'll just read into player data making sure that we lock it initially and then
+we'll unlock it and what I want to try and do I think here is basically inside update when we do all of this and we
+move the player I want to uh let's not do ourselves yet but let's actually go
+through so we'll have to lock this so another thing is if you have a lot of processing to do with this map like
+let's just say we were going to do something here that took like 5 milliseconds and we didn't want to block the other thread what we could do is we could simply copy player data into
+something else so that we aren't locking the resource that might be in use by
+another thread so what we could do instead is we could actually just have this player data map copied from player
+data like that and that's obviously locked and now we can unlock it so other threads can access it and then we can do whatever we want with it so that's
+another technique probably not necessary in this case but I think I'll keep it anyway so let's iterate through this now
+so we've got ID and we've got player data I'll just say data inside player data so the first thing I want to do is
+I want to say if ID equals our client ID I think it's player ID then let's just continue so we'll skip ourselves we
+won't like do that reconciliation of the server's Authority on where we supposed to be or whatever yet we'll just do that
+and instead what we'll do is if we run into uh player data here that's obviously a different player then I'm
+going to draw it right so we are inside on update and not inside on random so I
+think that's probably another thing we should do let's grab this and actually do it inside uh on UI render so this is
+where we play the game and we draw ourselves so let's lock this and over here what we'll do is we'll just draw
+Deploying and running our Server on a Linux VPS
+data do position I'm sure we'll keep it the same size and I'll make it I don't know let's just make it green which I
+think will be this so let's try and run that I don't know if this will work okay so what happened here so the server's
+upset I think cuz I didn't use I need to include glm let's try again all right cool let's run the server okay so
+server's listening let's connect to it here's our first client cool so now let's start another instance so I'll go
+back to uh the cubed client we'll debug start new instance so now we got two instances we'll have to also do uh you
+know 8192 uh and connect to the server obviously just have the server log up as well and I'm going to hit connect and
+now we got two check this out so one of this is us and one of this is not us now they should be at the same position so
+the fact that they're not is already a little bit weird but if I move check this out why are they not the same
+position though so I'm this one is this working for some reason it's kind of hard to tell let me um resize this yeah
+well it's obviously moving on both sides right why did it spawn me on what looked like the wrong side anyway there you go
+so that's clearly working um it looks pretty fast like it looks like it's kind of running in real time obviously
+there's a lot we need to make sure is happening in terms of how often we're actually even sending data and receiving
+messages and queuing messages that we receive from the and there's a billion different things but you can see that
+roughly uh this is in fact working as we would expect and obviously we are opposite colors right so pink is always
+us here and then um green is always the other player and if we you know if we
+connected with a third client which I guess we should try out so if I go to client and I start another instance over
+here then you know once I connect uh you can see there's now three uh yeah and the positions are interesting I didn't I
+thought we were spawning them all in 50/50 so why why do they look like they're at different positions weird anyway yeah we've now got three
+different clients and they're all obviously capable of moving and seems like everything is in fact working okay
+so now that everything is working locally the next step is to take this and deploy this onto a server so that we
+can really do this whole multiplayer networking thing now because servers vpss usually run Linux if this was a
+more serious complex project what I might do is prefer to work locally on like a real Linux machine machine so for
+example when I was working on Hazel's multiplayer and I wanted like the whole Hazel engine running on Linux I just fired up my auntu 24 PC that I
+physically have here in this office and then I was just able to get it building and working properly locally and then
+also over the local network get that communication working if I needed to now that's because Hazel is like a 3D game
+engine and obviously trying to get everything building say on the server would have been more of a hassle so what
+I'm saying is for more complicated or serious projects I would prefer to just do this locally on a physical Linux
+computer however because this is so simple and it's just a really straightforward project we haven't introduced any other dependencies even
+aside from just Walnut and walnut I know of course Builds on Linux already it really shouldn't be an issue for us just
+to use that hosting a VPS that we set up earlier to actually build this entire application we've made and then
+obviously run it on that server as well so what I'm going to do is I'm just going to take really all of what we have
+here inside cubed not the build binaries or the intermediates I think there some actually inside the Walnut folder as
+well so to be honest we can just go ahead and delete all of these because they get rebuilt anyway I'm just going to take all of this and dump this onto
+that hosting of VPS now my preferred way of dealing with servers in this capacity
+I guess is actually by using visual studio code which we have been using a little bit for like searching earlier
+today so there's this extension called remote SSH which I've talked about briefly before I absolutely love it I
+think it's excellent get it because basically it just lets you remotely connect connect to a server list all of
+the files you know inside the server directories open them edit them in vs code run a new terminal if you want as
+well to execute whatever commands you want and you can even download and upload files like over FTP or SFTP so
+really like you don't need anything like file Zilla or going through the terminal like externally here if you just have
+this Visual Studio extension literally does everything for you and of course you can even do stuff like control shift
+F to search across all files in a directory on your server it's basically as if you had opened a local folder
+in vs code all of that functionality is there I actually don't know if all of the functionality is there but most of
+it seems to be so once we have this extension set up the first thing you're going to have to do is add a new SSH host now I've already done this step and
+in fact I also have a domain name which I've pointed to the IP address of the server we've just set up in hosting her as well so because of that I'll just
+connect to host and I've called it us west. studio.com so this is just like a little subdomain I've made the points to
+that server so let's connect to that it'll open a new vs code window for us I'll type in the r password and just
+like that we're in so it doesn't actually look like anything's happened but if we go to this folders over here we can actually open a folder on the
+remote so I'm going to go to app SL cubed which is just a directory I've made that's completely empty for this
+project so let's hit okay it'll prompt me again for my password and that's it I'm in so again doesn't look like much
+because we don't even have any like files or folders in this directory at all but let's go ahead and open a terminal here you can see where I am
+over here let's list there's nothing in this directory right so now we can basically take everything and just upload it to the server so I'll just do
+this by literally selecting all of this which I don't think it's that big it's like 160 megab here there's probably
+some stuff we don't need but anyway I'll just drag this entirely into here and we'll copy everything another way to do
+this which is probably a little bit less straightforward but maybe a little bit more robust potentially is I could have
+just committed all of this to the git repository that we made earlier and then just used git like on the server here
+you know to pull that's also completely viable but this way of doing things might a little bit more straightforward
+for the beginners out there and also I kind of like how easy it is to potentially make changes so if we
+realize oh we actually need another file or something we can just obviously drag it in and we don't have to go through the process of committing it then to get
+a billion times you know until we get it right so this is a little bit more kind of ad hoc flexible faster iteration time
+kind of thing anyway that looks like it's all done didn't take very much time at all so the biggest issue right now I
+would say is that everything here is root you generally don't want to run any applications on your server really as
+root now this is not going to be a how to run a server properly tutorial mostly because I don't know how to do that I'm
+not a server administrator I'm not a I'm not even a network programmer right I'm just a game engine programmer who knows
+a little bit about networking as much as he needs to get by so therefore if there are any experts in the comment section
+you know feel free to leave a comment being like oh you should do it this way instead however what I will tell you
+especially if you're at a kind of a beginner level is that the problem with running things as a root on the server is that root has has access to do
+anything on your server and so the potential issue is that this Walnut thing that we're running this cubed
+Building our Headless Server on Linux
+application that we're running if that was somehow to be modified or if that even had a bug in it it might have some
+sort of vulnerability that would allow something to happen that we maybe didn't want to happen and if we're running this
+application as a super user as an administrator as a root then there is no bounds to the severity of what could
+occur really like it could literally wipe our entire server but if we instead make make a user for this application
+specifically so that it runs the application instead of root then we can restrict access for example to just this
+directory which means that it can't go outside of this directory and start manipulating files on our server or whatever else because it's just locked
+to this directory so if we lck it down with some stronger permissions basically we're preventing lots of vulnerabilities
+from even happening even if they're there because the worst thing it could potentially do is maybe modify or delete
+this directory as an example so I've already got a user here let me actually maybe make everything bigger I've
+already got a user here called Hazel which I was using for my Genesis server which is actually also on This Server so
+what I can do first of all is just change the owner here using CH own to be Hazel and I actually never remember the
+let me just do dash dash help I never remember the uh okay so it's it's user first and then the directory okay so
+it's owner group and then file so it's the owner first we'll probably want a dasr as well so anyway
+ch-r for it to be recursive Hazel Hazel and then I guess everything so I can put an risk or a DOT now if I do ls- la
+again which shows me everything you can see everything Above This I mean it also may get ignore for some reason root still but everything here in this
+directory uh is now owned by Hazel and that should be recursive as well no idea to be honest Linux people let me know
+but I had no idea why the the dot files did not actually make it there maybe because they're hidden and that command
+I ran didn't run hidden I mean they're not hidden here though anyway that shouldn't really matter because we don't
+need them so the next thing we can do is actually switch user to Hazel so now you can see we're not root anymore we're
+Hazel So the plan now is we obviously need to build this whole cubed server of ours just the server so to be honest
+there was no reason to copy the client but anyway we need to build cubed server for Linux so how do we do that well if
+you recall inside our scripts directory we've actually got a setup.sh and that I
+think well at the moment it goes It goes back a directory and then it goes waln not vendor bin pre so it runs prake 5
+inside the Linux directory which we should have there uses clang and it calls build headless DOL so build
+headless we don't even have a file called that so I think build server is what we're going to want to run so let's change this to build server and now
+hopefully you can see the benefit of using that remote SSH extension within vs code because just so easy to just
+work on this as if we're working locally now this push dot dot will just go back a directory temporarily until we pop
+which would have been the right thing to do if we run this script from within the scripts directory cuz we do need to go back to the root directory but since I
+imagine I'll be kind of running it from the root directory usually by just doing scripts SLS setup you know Dosh I don't
+need this so let's get rid of that now speaking of trying to run setup.sh it won't let us do that because it'll say
+permission denied because that script if we actually run maybe this it'll tell us
+that it's not executable so you can see that there is no like X permission or whatever here I don't know if it should
+be here as well one's for the user ones for the group anyway Linux stuff the point is that this is not marked as
+executable if it was we would see an X here somewhere yeah probably like here and here and also it would be a
+different color so to First Mark it as executable before we can execute it we need to do chod plus X you can also use
+like the number code if you want to only have it affect like a group or a user or whatever else and then we'll just do
+scripts /s setup.sh and now if we run that lsla again okay it's not a
+different color for some reason but you can see that it now has that executable permission I wonder why I wonder if that's just um maybe maybe this just an
+LS thing I used to have colors here that's so weird anyway whatever you know what I think it it might be the fact that it's under the Hazel user hang on I
+want to prove a point here I think it might be because it's the Hazel user and there might be like some yeah so I've
+got colors here now so if I do lsla scripts yeah there we go so I think it's just a bash configuration thing I must
+not have configured colors but you can see that if I switch to root and and run lsla then you can see we've got the X
+permission obviously uh it's actually yeah three times and then we've also got the color here as well and it's in Bol
+so let's switch back to Hazel yeah and you can see I don't get any colors so yeah probably just like a bash configuration thing okay so now I should
+be able to run setup.sh okay cannot execute required file not found okay so
+this is most likely the same situation as what just happened when we tried to run setup.sh but it wasn't marked as
+executable this is trying to run a program called premake 5 which I'm guessing is not executable so if we just
+grab this directory let's just do an lsla on that then obviously neither like this pre-make 5 binary is not marked as
+executable either so let's do a chod plus X on premake 5 and then let's now
+also run uh setup.sh again okay same issue I mean build server. L should be
+here so let's just first of all let's just make sure that we can execute this okay so that works fine so let's get rid
+of this and let's run the script again okay that doesn't work is that really because it's in the wrong directory no
+okay I almost forgot what this is but then I remembered so basically the issue
+with this is that we must have modified this script on Windows or something but if you look down all the way here we have cr LF so this is like a carriage
+return and a line feed that's the end of line sequence for Linux or for Unix it's supposed to just be LF so if we just
+change this file's line ending basically to just BF instead of that's a for slash a back sln instead of a carriage return
+and a back sln so this is Windows this is like Unix then it'll be fine otherwise it's thinking that we want to execute something that I guess is a back
+SLR and of course I can't find that so a little bit cryptic but I've had this before so I remember what this is so
+let's just change this to an LF and then obviously save the file and then now if we run this yeah we should be there so
+again benefit of a live tutorial I think if you actually wrote this setup script on Linux then you probably wouldn't have
+that issue but we must have either written or saved it on Windows or I don't know maybe git checked it out that way for us not really sure I think
+another thing that possibly could have avoided this is if we actually had gone through git then a lot of times on
+checking out files git will actually modif our line endings to suit the platform that we're on so if we didn't
+copy and paste like I just did but we used G it may also have not been an issue for us but hopefully now you know
+that is a potential issue so obviously this works now so if we just undo a bunch of stuff here so that we bring this back and we'll have to change our
+line endings again cuz we hit control Zed so there we go this is what we're trying to run so let's run
+setup.sh unable to write file to make file okay so that's because this
+directory that was another issue I should have known noce the current directory is actually owned by root as well we need everything to be owned by
+Hazel so what I'll do is I can probably just do pseudo and then CH own- R Hazel
+Hazel and then the directory I'll pick here is the the entire app Cube directory not just the asterisk which is
+everything within this directory so let's do that I bet the Linux Geniuses out there saw my issue when I did it the
+first time I don't know what this is okay whatever let's just switch to rout cuz it's trying to elevate us which we
+might not be able to do and then I'll just do this okay we'll switch back to Hazel so now you can see that uh this
+directory is actually owned by us which is great and these files also follow the suit maybe the asterisk somehow doesn't
+include the dots I don't know whatever that should be fine now so let's do scripts setup.sh and then finally this
+is working you can see we've got a bunch of make files now that premake has generated for us this is all in the debug configuration we can actually just
+go into the make file if we want and change this to say release if we want to build it as release
+we can just keep it as debug for now cuz we're playing around with this and we probably want the extra debugging but that's just something you can do because
+you can see if the configuration is release then like that's a valid configuration and so it's disced here as
+well but it's going to build debug by default unless we specify something into make when we build it so now we should
+build this so to do that we'll need make installed so if you don't have that you can do first of all apt update and then
+app install make and you'll probably also have to install clang and those are probably the only two things things you
+need to make sure you have on the server I've already got that if you have a more complex project you might actually want to have like a build script as well
+which will build it which might run make and then it might like use eight cores or eight threads or whatever this is simple enough that we can probably just
+literally type in make and hit enter and it should just work so let's have a look at this using DJ with a number such as
+four or 6 or eight just to make this multi-threaded would have definitely been beneficial cuz you can see it's
+taking longer than I thought it would but again I'm I'm just trying to demonstrate the Simplicity here you can literally just hit make and there you go
+it's making okay so it's finally building the actual Cube server now this is our executable so let's see what
+happens here I suspect we might have some linking errors because I don't think we've specified any directory for
+the dependencies of the directly linked files so we'll see okay so it actually can't even find game networking sockets
+let's have a look quickly at cubed server so it should have found that one I was expecting dependencies of that to
+potentially not be found if we have a look at the lure script here then this is probably what will under system Linux
+actually link it so the library directories it specifying is this I can already see that's wrong because we have
+Walnut and then it's not Walnut networking directly it's Walnut modules I think that moved probably since that
+was written then you can see it's SL Walnut networking and then vendor bin and Linux and this is what we need game
+networking sockets now this is required by this but I think when we build it we can just probably set our LD Library
+path to be this directory as well so we'll see what happens first I'm going to fix this so this will just be Walnut
+modules now this does mean I have to run that setup script again obviously this time I want to make with like eight or
+whatever this should be faster I mean it's already compiled everything it'll keep that but anyway now you can see that we have linking errors lots of them
+but they're all undefined reference too and you can see from all of this it's all the protuff stuff that I was talking
+about so that library is here now you can install this Library through like app to get or app to install the issue
+is that the version required by this specific binary of game networking sockets is 23 and I actually couldn't
+find that anywhere so I just ended up uploading it and this will be in the actual gear repository for Walnut networking but I probably should just
+update the version of game networking Sockers and that might use a newer version of protuff which you can just install through a package manager but
+anyway what we can do to fix this is we could either write a setup script or a build script rather that actually did
+this for us I think I'll do that in a minute I'll show you how to do that but for now what we can do is we can just do export LD Library path so what this is
+is it's basically setting our path that we can look for dynamic libraries to load right and I'm going to set it to
+this so I'll copy this directory copy path and I'll paste it in here so you can see here's an absolute path I don't
+think it has to be absolute but here's an absolute path to that Linux directory so I'm going to hit enter this is only
+going to apply to our current console session to our current terminal window that we have open and then if I run make
+again then you can see it's it's done successfully now because that's annoying for you guys to probably follow or
+Running our Server and playing our “game”
+anyone really on your team to follow it's advisable to instead make a like a
+build.sh script for example I'm going to copy this bin bash thing from it and then from here we can just call make
+with like for example eight threads and before that we can export LD Library path to this now obviously this is uh
+absolute so I guess we would just try and do relative but if it needs an absolute path what you can do is you can
+just do real path which is absolute path path and then that relative path and then that should kind of convert it to be that and actually usually I use back
+text for this I don't think I don't know where I got parentheses from yeah and then if you wanted to test to make sure that works I guess if we let's open a
+new terminal and then if I I don't know if I just do make j8 it probably won't relink will it not unless we go into bin
+Cube server and we just delete it so if we do make j8 now you can see we get the linking errors obviously but if we call
+scripts let's do chod plus X scripts build and then we're going to run that
+build script then you can see it worked right so there's that export LD Library path which should work for basically
+everyone as long as that's your relative directory Okay cool so now we just need to run it uh which again we could have a
+run script for it or in this case I guess we can just I probably will make a run script for it but if you wanted to
+run it manually then of course you just go bin yeah cuz the path is annoying uh Cube server and then cubed server okay
+and you can see same issue error while loading shared libraries so that's exactly why it's nice to have this
+because it actually needs to load this this is actually a dynamic library that it needs to load at runtime so we kind
+of need this again for that right so because of that let's yeah let's copy this build script I'll just paste it in
+here hopefully it'll make a yeah build copy we'll call this run and then inside run instead of this we'll just call what
+we called here we can use exec as well which will just kind of sacrifice the parent context of this script if you
+want I'd probably do that but the important thing is we're also setting that Dynamic Library location so now
+again chod plus X scripts run and now finally I think we should be able to run
+our server server listing on pop awesome and I think we've got like just to see it works y it works I mean that command
+doesn't do anything but it does print that message so that does seem to be up and running awesome so now let's go back to our client and let's try and connect
+to this server so there's a couple ways to do that uh I mean this server is going to have an IP address which I need
+to figure out so one way we can do that is just by looking at hosting his dashboard so you can see here has our IP
+Resolving domain names to IP addresses
+address so we can just copy that so let's grab that and that's what we're going to try and connect to so I'm going to start an instance of my client the
+server is obviously still running over here let me just make this a bit bigger CU we care about this okay so I'm going
+to paste in that IP address 8192 I'm going to hit connect and there we go so our server is saying client connected
+and you can see here we are so that's great so now let's start another instance of our client just so we can
+actually see if it's working okay so here's our running client here is our new instance and we can also see the
+server log here here let's paste that in again 8192 hit connect and now you can see there they are we're both connected
+we can move around and there you go now obviously there's a bit of latency now because I think this server well if we want to test the latency I guess we can
+just go to our terminal and do ping and then that IP address and you can see the latency is about 174 milliseconds so
+that's a decent amount especially because what's happening is we've got client one here that's connecting to the
+server which is taking like 174 actually is that I mean that's a a reply so that is a round trip isn't it yeah so
+approximate round trip times in milliseconds so get going there and then getting a reply is taking 174
+milliseconds so that's what our latency is which is not the best which is where some like lag compensation and other
+algorithms could definitely help but without any of them you can see roughly what it's like and that's why it's also so important for the server to do any
+kind of authoritative things like for example of these two cubes could kill each other which might be what's coming next then uh obviously yeah you'd want
+the server to handle the these things to keep it more or less fair but it's also going to depend on the Ping that clients
+can have cuz obviously we can play this game globally now uh cuz it's running on a server so that means that what if
+someone has 30 milliseconds of ping and someone has 250 then it might not be fair which is where the whole lag
+compensation thing comes in like maybe there should be some kind of compensation going on for larger ping numbers to make it a little bit more
+fair H honestly I remember when like Call of Duty Modern Warfare 3 introduced that and everyone hated it anyway we might explore that later but you can see
+now hopefully that uh this is all running pretty awesomely now one thing I do not like which I'm going to quickly
+fix is that we had to actually type in the IP address of the server rather than the domain name and the reason why I
+think so if I go to cubed client let's run this again I think if I try and do us west. studio.com and then 8192 let's
+hit connect yes that's not going to work because it couldn't even pass the IP address now this was something that we
+basically fixed for hazel so this is Hazel's repository on gith Hub which you guys can get access to if you go to patreon.com Theo and you help support
+the development of Hazel so inside here we obviously have been working on multiplayer so inside Hazel net I think
+which is very similar to Walnut networking we are probably maybe even inside platform I think for both Linux
+and windows we've introduced this little hasport thing and this is specifically to resolve domain name so I don't think
+we actually have this inside here I will push this to Walnut networking before this video probably goes up but inside
+Walnut networking in networking utils or rather this is in platform Windows networking utils you can see we don't
+have that check there and that check basically just checks to see if there is a port and if so it separates it out and
+that's just so that we can not really worry about providing a domain name with a port instead the purpose of this
+function is we can give it an actual like name like a domain name like us west. studio.com colon 8192 and if we do
+have the presence of that Port inside that domain name it will return it back to us you can see with a port which is
+great so I'm just going to grab this whole thing I'm not going to try and in fact let's just replace the whole file although that's a bit annoying cuz this
+is hazelet utils so maybe I won't I'll just grab this function I just don't want to do like too much of a surgical
+replacement in case I miss something so let's grab this and then I think we're going to have to include Vector oh and
+then the split string util thing there is it it exists in a walnut as well so I think we just need to make sure we use
+walnuts uh we're already in here actually so split string let's have a look that's in string utils and string
+utils is in W Walnut util string utils so I think we'll just have to include
+Walnut utils string utils and that should be pretty good so that's step one and then the other thing that we
+obviously need to do is inside the client when we try to connect so the way that we're doing that at the moment I
+think is over here in our little connect to server we're just doing client. connect to server directly whereas
+inside client. CPP inside Hazel networking what we have here is this little block of code which I think is
+new and this is different to how wellnut networking does it so it's this you tills is valid IP address and if it is
+then sure we can just use that otherwise we're actually going to resolve the domain name into an IP address and so we actually end up keeping two different
+things here we have a server address and we have a server IP address and the Ser they might be the same if you just give
+it an IP address but if you give it a domain name then it will basically keep both but it will use it will resolve the
+IP address and use that for actual connections which is pretty cool so let's just grab this block over here and then inside client. CPP when we try and
+do that connection which is over here before before we use this server address let's paste in this block here and along
+with server address I'll also have server IP address which we will assign over here and that's what we'll use
+basically going forward because you can see it we'll get assigned over here and then utils is valid IP address I think
+we've got this function here let me just search for it so it's in Walnut utils is valid IP address so it's in networking
+utils which we might just not have included so let's do include Walnut networking networking utils okay cool
+now when we assign it in the first place I think inside the connect to server function we just need to make sure that
+yeah so we end up setting server address which is the only thing we have and then when we actually do the connection on
+the network thread that's where it will set server IP address to either directly the server address if it's already an IP
+address or it will try and resolve it if it's not now the only issue here is that the the port might not get separated but
+I don't think that matters I think it's fine because when we pass it into this it also has the port so anyway I think
+that should now work so let's run this I think the server should still be running so you can see we've obviously disconnected but the server is still up
+so when we run this now I should be able to do us- west. sto.com 8192 hit connect
+and there we go we're in now we didn't delete the other two players from the server that's why they're here and we
+received their information but they're dead because they're disconnected and of course I can open another instance and
+connect as well and there you go pretty cool so now we have a
+multiplayer game EX example where we have a dedicated server running on an actual like Linux VPS on the internet
+and then multiple clients really as many clients as we want connecting to that server and the data is being shared
+between the clients and the server so hopefully this was a good example to get you started potentially on working on a
+multiplayer game over the holiday break the plans as I mentioned in the beginning for this series of I don't
+know live tutorials is pretty ambitious even though I am trying to keep the scope kind of small so please let me
+know what you thought thought of this kind of video I don't generally make videos like this on this channel usually
+because they just don't seem to do well on YouTube you know YouTube's all about the kind of shorter videos that are a
+little bit more click baity a little bit more like hey check this out rather than like a a almost like a course really
+which is what this is so please do let me know if you liked this and if you want to see more of these kinds of videos because the next step here
+there's a few different ways we could go I think the next step is going to be probably to move away from the imuy rendering specifically for all this
+stuff and see if we we can actually render this through Vulcan so this is almost going to become like a little bit
+of a Vulcan tutorial because I'm going to have to you know like write some shaders create like a Vulcan Graphics
+Pipeline and render some geometry using Vulcan so let me know if you want to see that in the comment section below and
+then once we have like a rasterized Vulcan pipeline we probably want to introduce like a ray traced Vulcan
+pipeline which is where like the ray tracing 3D side of this cubed game is going to come into play and then we've
+already got that multiplayer infrastructure in place so we'll just have to iterate on that and obviously
+make it work as like an actual game so yeah if you're interested in seeing more of this project and you like the live
+tutorial programming everything on video kind of approach then please do let me know in the comment section below I hope
+you enjoy your holiday season merry Christmas happy New Year I'll see you guys next time goodbye

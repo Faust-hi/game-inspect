@@ -1,0 +1,325 @@
+hey what's up guys my name is eciano welcome back to my ray tracing series lighting lighting and shading everyone's
+always talking about lighting and shading i mean when i think of good graphics or photo realistic graphics and
+rendering the first thing i think of is lighting lighting shading you know shadows ambient occlusion global
+illumination like sure the quality of the actual geometry and the textures they matter a lot as well but lighting
+that's really what it's all about isn't it why is that the reason why lighting is so important is because it's
+literally how like vision works if there was no light anywhere we wouldn't actually see anything because what we
+perceive with our eyes is a result of light rays actually hitting us i mean you don't even necessarily need to think
+about the human eye let's take a camera for example when we point and shoot a camera at something the sensor inside
+this camera the actual sensor that is the thing that is soaking in all of the
+light that's hitting it if there's no light hitting the sensor when i see anything there is no image
+and the way that the camera works is actually surprisingly similar to how we're going to make our ray tracing code
+work so more on this later in the series because lighting is such an important topic we will be spending a lot of this
+series talking about different lighting algorithms and different kind of ways for us to to simulate but also somewhat
+approximate and manage this kind of concept of simulating light rays hitting
+our actual viewport and i'm completely serious when i say that's a complicated topic i mentioned this book in the very
+first episode of this series physically based rendering from theory to implementation this book is like filled
+with this kind of stuff because it's extremely complicated there's a lot to it today we're going to start our
+lighting journey but don't worry it's going to be extremely simple in the beginning and eventually it's going to
+lead us into actual photorealistic rendering which is very very exciting so
+without further ado let's begin now in the last episode of this series in the visualization episode
+we actually went a little bit further than we'd already gone in episode three with our current code base we took a
+look at how to actually solve these kinds of ray sphere intersections to actually fully see where in 3d space our
+hit point was and we even applied a little bit of lighting to it i highly recommend that everyone watches that
+video because i think that kind of visualization really helps to provide you with a deeper understanding of how
+ray tracing actually works and understanding is very very important for this kind of stuff so there is going to
+be a little bit of overlap from the kind of code that we typed out last episode in c sharp using hazel and also here
+inside our c plus plus project now the current stage that we are at is this pink sphere we haven't really adjusted
+it for aspect ratio as you can see but that's okay next episode we're going to talk a lot more deeply about the camera
+but for today the best thing i can recommend is kind of trying to make this viewport like square we could of course do this programmatically but we're not
+going to bother since that's not going to really apply for future episodes that way you'll kind of see what's going on here now you may have noticed that my
+render time has increased slightly from the last episode or from episode three the reason being is i'm on this laptop
+which is not as powerful as the computer that i use so no no code has actually changed we haven't made anything slower
+we're just simply running this in release mode but this kind of rendering time indicator is just a a good kind of
+measure of what is actually going on and if we're doing stuff that significantly slows down our code so if we hop on over
+into our per-pixel function that contains the actual math as being executed over here we've solved this
+quadratic formula discriminant that we learned about in the second episode and we'll be referring to more of this like
+episode two math here in this video as well and because we know over here that if our discriminant results in a value
+greater than zero we have two solutions if it's zero then we have one solution if it's less than zero so if it's
+negative we have zero solutions using that we're able to conditionally return
+a different color so we return pink if it's greater than or equal to zero and of course just black if it's not now if
+these quadratic equations aren't really quite making sense to you and you would like to revise your math a little bit
+more then i highly recommend you take a look at brilliant the sponsor of this video simply put brilliant is my
+favorite place to learn math on the entire internet they are an absolutely fantastic resource they're a website
+filled with courses on various stem topics and unlike other course websites brilliant strong points are the fact
+that they are extremely engaging and interactive classes they don't just sit you down and throw content at you hoping
+that you'll absorb it they actually get you to engage and interact with the content as well as quiz you on what
+you've learned to make sure that you're actually retaining that information and learning we're learning all about ray
+tracing here we're learning how to render photorealistic graphics that involves a lot of math and it's also
+extremely visual lots of math extremely visual that's what brilliant is all about their
+math courses do a fantastic job of covering literally everything we'll be using inside this series and they've
+also got various other stem topics such as computer science and data structures the best thing about brilliant is that
+you can get started for free just click my link in the description below but also brilliant have been nice enough to offer the first 200 of my subscribers
+who clicked that link in the description below 20 off an annual membership as i mentioned the key to this series is
+understanding making sure that you understand everything and so if you're struggling with the math at all or you would just like to understand it more
+comprehensively then brilliant is your friend huge thank you to brilliant as always for sponsoring this video so
+ultimately the plan for today is to continue solving the quadratic formula we've worked out the
+discriminant which is this part over here that's listed as 32 here we just need to then square root it and then
+work out the two solutions by adding or subtracting negative b from it dividing by two a
+and then we'll get hopefully our two intersection points now of course if the discriminant is zero then we'll get the
+square root of zero which is just zero so we'll get plus minus zero which is the same as just not having that at all
+obviously it doesn't matter if we subtract zero or add zero we'll still only have one solution therefore we have
+that kind of if it's zero we have one solution section in which case t will technically be the same if our code will
+compute two values as we'll get it to the two values will just be the same now we are still outputting our color as
+Using floats for colors
+just kind of an rgba one byte per channel format that's going to be fine for now we'll have to write a little
+conversion function because ultimately i want to move into dealing with floats for our color values just like we would
+be doing if we were using gpu shaders now just because we're going to be using floats for colors doesn't mean that we can't use this kind of 8-bit per channel
+approach we can it's just that our float value will ultimately just result in a
+number in an integer between 0 and 255 which is obviously the maximum kind of
+range we can display with just one byte of data so the first thing i want to do is kind of rephrase this or replace this
+to actually return a glm vect4 so if we go back to our header file i'm going to
+do the same thing this per pixel function now is going to return a glm vect4 which is going to be four floats
+so if we want pink we'll return one zero one one so rgba just the green channel
+here is going to be zero and if we want black we're going to return zero zero zero one now you may have noticed here
+that the previous value of black was actually this right so we had kind of the alpha first that's because the alpha
+channel occupied like the most significant bits of this actual integer we have to remember that because it
+means that when we do this conversion we'll have to shift it up to the most significant bits which means we'll have
+to shift it left by 24 places to get that bit or those bits into the right
+place inside this memory but it makes more sense to us if we just define the alpha channel being here so that it
+reads rgba now if we come back over here into our render function now this per pixel function obviously isn't working
+because this buffer is still a un-32t so this is exactly where we have to do our
+kind of conversion so what i'll do is separate this a little bit i'll have our glm vect4 color over here that's going
+to be our per pixel and then i'm going to write some kind of like convert to
+rgba function that will take in our color and output just a um32t let's go
+ahead and scroll up a little bit i'm just going to make a little namespace called utils for all of these various utilities we might have and that's where
+i'm going to implement this convert to rgba function now i don't really need to copy all those floats so i'll pass them
+in as a const reference here and now we can get started so first of all let's just convert a single channel so for
+example the red channel to convert that we just need to multiply it by 255
+f because what that's going to do is when color is one which is the seemingly the maximum here it's going to make this
+exactly 255 which is our maximum and when it's zero it's going to make it zero now what if it's above that well
+yes technically we will get a value above that which will probably spill out into other channels depending on how we actually write this code what we
+technically should do is make sure that that value is clamped between zero and one meaning it's no less than zero and
+it's no greater than one if we were running this code on the gpu using an api such as vulcan or directx or opengl
+it would actually be doing that clamping for us depending on what image format we're using here of course we're doing
+everything ourselves there is no like graphics pipeline there are no gpu drivers doing all this extra stuff for us it's just c plus code so we have to
+handle that ourselves what i'll actually do is i'll scroll down over here and before i actually
+provide this convert to rgba function with the color i'm just going to set the color to be glm clamp color and then i
+want to provide it with the minimum which will just be glm vect40 and the maximum which is going to be glm vector
+1 this will clamp every single component of that vector to be between 0 and 1. so
+now we can be sure here that it is in fact never going to be 1.5 or negative
+0.5 or anything like that so once we're multiplying it by 255
+we now need to convert it into some kind of integer because well that's not going to be useful to us at all so what we can
+do is just convert it into a unit 8t that will be our red channel and there
+we have it we have a one byte unsigned integer type here that is now going to contain a value between zero and 255.
+let's go ahead and do this for all of the other channels now i didn't really mention this about glm but one of the
+nice things about their api is that you don't have to write like xyz you can just write rgb it's referencing the
+exact same memory it's just a different name it's like an alias that you can use just like in the shading languages so
+now that we have all of these let's combine them into a un-32t which is what i'm going to return over
+here so we'll type in un-32t result and that is going to be the a
+channel remember that's the first one that we needed to shift up 24 places so we'll say a shift left 24. that's going
+to put it into that most significant byte of that un-32t then we're going to combine it so we'll use a bitwise or to
+grab the blue channel and shift it up 16 places then we'll do the same with the green channel but eight places and
+finally we'll have the red channel at the end occupying the least significant bits and finally we can return our
+result so there you go you could do all of this on one line of course i've just written it out so that it's hopefully more readable now let's go back over
+here and add that utils namespace and there we go that hopefully should work so let's run this code just to make sure
+that it's working remember the big change that we've made here is that we've switched up our code in the per pixel function to actually use vect4s
+instead of un32ts and there we go we still see a pink sphere now it's important to test and make sure that our
+color channels are in the right order so i'm going to make it a red sphere hopefully so this is blue we know that we've flipped our red and blue channels
+but there you go it's red so that is in fact correct okay awesome so now we can use floats to express colors just like
+we would be doing if we were programming on the gpu in shaders which is exactly what i want the main reason why i wanted
+Why use floats instead of ints for colors?
+to do this so early on as well is just because dealing with colors in floats is something that i want you to get used to
+first of all if you're not already but also because dealing with colors as floats is just much more comfortable
+it's a lot easier to do common things for example if you want to do like some gamma correction that's all going to
+work as you would probably expect because it's in a zero to one range if you square a value that's like 10 you're gonna get a hundred it's not exactly
+what we're looking for so my point is just that if the colors are between 0 and 1 a lot of the math that we actually
+want to do to calculate those colors they actually work really well with a
+number between 0 and 1. so it's really useful to get into that habit as soon as
+possible really okay so let's talk about how we can actually solve the rest of the quadratic formula well we know it's
+Finding our sphere hit coordinates
+going to be minus b negative b plus minus the square root of the discriminant which we already have so
+let's write that part down so the rest of this is going to be minus b plus minus the square root of that
+discriminant and all of that is going to be divided by 2a so divided by 2a and we
+need to make sure that we're obviously dividing all of this so that is that is the rest of the code that we effectively need to type out here now this part is
+not useless though because this lets us effectively early out from all of this we don't need to continue solving the
+rest of this and actually running this code evaluating this mathematical expression if there are no solutions
+because our rage is completely missed our sphere so we can just return well you know like the clear color in this
+case but it could be just an indication that like hey keep going ray like you didn't you haven't hit anything so what
+we'll actually do is flip this around so that if the discriminant is less than zero then let's return black which is
+going to be like our clear color otherwise we're going to keep going and actually calculate a color so for now
+let's define some kind of sphere color i'm just going to make it a vec3 we don't really care about the alpha at this point in time i'll still keep it as
+pink for now just to make sure everything's still working like it was and obviously if i just return this now
+as is i'll have to make sure that i'm adding in that alpha value as well but
+at the moment the kind of non-modified sphere color if i run this code i should get exactly the same result as before
+i've just kind of flipped the way that we deal with this if statement here so we've got our terms abc we literally
+just need to plug them into this equation and that's it now because we have a plus minus though we know there's
+going to be effectively two outcomes to this and either one of them are solutions we can find out which one is
+the closest hit if we want to but ultimately they're both going to give us solutions so let's go ahead and type in
+t0 that's going to be our kind of plus variant so minus b plus glm square root
+of the discriminant divided by 2 times a let's go ahead and surround
+this with parentheses so that it's clear what our division is doing and that is
+in fact t0 now t1 the other solution is going to be minus b minus square root of
+the discriminant divided by 2a that's kind of it let's go ahead and drop this comment down here and we've got our two
+t values now going back to the math episode we know that these t values are not some
+kind of coordinate in 2d or 3d space no instead what it is is basically a hit
+distance that we can then plug into our original ray equation which was a plus
+bt so a and b a is the ray origin b is the ray direction and t is what we've
+just solved for and as you can see over here we can do this if we want per component so we only had x and y we did
+this in 2d space on paper but we now have a z component we can just calculate it for a z component as well because our
+array origin and right direction will also have a z component so this will all work and once we have that it will
+provide us with an actual 3d coordinate for each component that we have
+so since we will have an x y z we effectively have three of these equations that involve t so we plug t
+into all three and we get an xyz hit position that's our coordinate in 3d space which defines where our sphere was
+actually hit so back in our code we have ray origin we have ray direction and we have t now there's no reason for us to
+actually do this per component we don't have to do float x and type in like ray origin dot x
+plus ray direction dot x times t 0 or t 1 we
+could do this that would work however because of the way the glm's api works
+and in general the way these math libraries work this isn't unique to glm is we can just do this same operation to
+all three components at once by just writing ray origin plus ray direction times t0 which of course is very useful
+so we have our first hit position i'll say h0 and then we have our other hit
+position which is going to be this t1 here so this is our sphere potentially getting hit twice once on the entry and
+Closest intersection point
+once on the exit with this ray so if we actually wanted to visualize this in some way
+which hit point would we use well if we take a look at this we know that ultimately we're calculating two t
+values and t is like the distance from the origin along the right direction to our actual hit point so clearly the
+smallest t value the smallest solution should be the closest hit so just by looking at this math i mean assuming
+that a is not negative we would always assume that this is the smallest solution because we're subtracting a
+value from here and then dividing it by 2 times a now if we take a look at what
+a is and how we calculate it we actually use the dot product here of ray direction with itself to get a
+so effectively what we're doing here is squaring ray direction and then adding
+them all together so there's no way that can be negative so a is definitely positive and then we're doing minus b
+minus the square root so t1 is going to be the smaller value no matter what it
+might be negative possibly but it will be the smallest value especially because we obviously know that the discriminant is going to be positive i mean it's
+going to a square root and we're not dealing with imaginary numbers so of course it's going to be positive so t1 will be our closest hit point i might
+rename it to just read closest t so because of that let's get rid of this other one we're not going to use it at
+the moment and this is actually going to be our hit point now what i could do at the moment is just output the hit point
+as a color so this is what i mean it's so easy to do it's a vec3 it's going to be roughly in that zero to one range
+most of it will be because we're dealing with a sphere that has a diameter of one or a radius of 0.5 and since our colors
+are also kind of in that zero to one range we can just set our sphere color here to be the hit point and if we run
+this code we'll get something very interesting so we actually get some coloring here that appears to show that
+our sphere actually does have some depth to it and then we have a very large blue section here because this part of the
+sphere is actually going to have negative hit point values because the origin zero is here so therefore
+everything left of that everything below that is going to go into that negative space from zero and we are clamping
+negative values to just be zeros so we're seeing this blue here because x and y so up and down is our y axis left
+and right is our x axis those are both zero but z is going to be positive and z
+is the blue color that we're visualizing here so what's actually going on here if you've never seen this kind of thing before is we obviously have an x y and z
+Using color to visualize numbers
+coordinate for every pixel that's the hit point what we're doing is taking those values and outputting them as the
+color so the x coordinate becomes the red channel the y coordinate becomes the
+green channel and the z coordinate becomes the blue channel and so we're able to kind of visualize these numbers
+as colors and see for example that the top of the sphere here is green because the y component of our head coordinate
+is larger and over here towards the right our x is larger because it's more towards the right which contributes more
+red to that final pixel this kind of practice of outputting our data our mathematical numbers as colors is very
+very common in graphics programming so that's all good we can see that our hit points are working because we visualized
+them hopefully you can see why it's so helpful to do this in graphics programming because the alternative
+would be what like placing breakpoints and kind of trying to look at this per pixel or logging every color but we have
+like i don't know a million pixels on our screen it's so difficult for us to kind of look at that information
+presented to us in a per pixel basis and make sure it's working across our image
+there's just too much data to deal with but if we can visualize it in some way in the form of colors we can look at the
+entire picture at once and see if it's working correctly let's take a look at this piece of paper that i have here if
+How lighting and shading works
+it's facing the light it's very bright if it's not facing the light i mean we
+can still see it a little bit but it's significantly darker as i rotate it to face the light we see a much brighter
+color and this of course works in three dimensions doesn't matter if i orient it so that it faces down it's still going
+to get a lot darker and it obviously works not just for flat surfaces but if we have something like this my light
+source is over here hopefully you can see that the areas that are facing the lights are obviously a lot brighter than
+say this area over here which is facing away from the light how can we take this
+and recreate it with our sphere well let's think about the different pieces of our puzzle here what are our
+different variables we have the light i mean sure there are things like the brightness of the light how big it is
+all those other details but fundamentally it's just the location or the direction of the light and then also
+the location of our model and possibly more critically the direction that each
+part of this model faces now we're rendering things in terms of pixels so we can translate this to say the
+direction that each pixel faces so we need the direction of the light coming in on us and we would like
+to know the direction that each pixel of this model is facing because if we look
+at this area over here we know that because it's facing away from the light it's facing that way the light is facing
+that way it's not really facing the light it is in fact darker so we have this kind of observation here that the
+more we face the light the more this kind of area faces the light the
+brighter it becomes so how do we apply that to our sphere how can we determine per pixel which way which direction it
+Calculating lighting using normal vectors
+is facing that is called a normal why is it called a normal i mean it normal sounds like a bit of a weird name for it
+because a normal is a vector that is perpendicular to a particular surface so
+i have this pen here i have this flat surface the normal would be a vector facing up facing that way if i had this
+kind of flat surface it was facing this way the normal would be this vector over here so in other words a normal is
+exactly what we're looking for because it's a vector that is facing the direction that the face faces lots of
+facing going on here so how can we work out this normal vector for our sphere well it's actually really really easy
+since we know where our sphere's origin is and we also know the position that we hit the sphere at we can simply subtract
+those two vectors we can take the hit position and subtract it from that center point from that origin and it
+will give us our normal now we don't exactly have a sphere origin at the moment because it's just zero so that's
+even easier it means that literally our normal is our hit point with the only exception being that we need to
+normalize this normal if we want to be correct the reason being that obviously based on the origin of that sphere
+itself those vectors are going to get translated well anywhere in 3d space as well as the radius of the sphere if if
+the radius is bigger we're obviously going to get a larger kind of vector and that's not really a directional vector
+anymore the length is going to be equal to our radius so in this case it's going to be 0.5 whereas we want to have a unit
+vector that's actually why this image that we looked at here was so dark because we're not looking at these
+colors between like zero and one they're actually going from zero to point five and hence whenever exceeding that kind
+of 50 level of light so going back to our code i'm going to type in glm vect3 normal
+and it's going to be our hit point normalized again usually we would subtract our sphere origin from hit
+point so we'd write hit point minus sphere origin but we'll introduce that later when we actually have the ability
+to move our sphere around and probably render more than one sphere as well that would be nice so now that we have this normal let's look at that instead let's
+visualize our normals instead of visualizing that hit position so there we go much brighter effect so this is
+something that you should get used to if you don't quite understand why this image looks like it does just take a moment play around with it play around
+with some other values potentially and just make sure that you understand it now the sphere is a little small so what
+i'm actually going to do is move the camera forward a little bit we've got this ray origin at 2 which is the location of our camera i'm just going to
+push it one unit forward so that we get a much larger image as you can see here now because we're actually sending those
+rays in the negative z direction the normal that we're getting is positive z which is why we're seeing so much blue
+in this image that's a little bit annoying though because clearly we're losing a lot of that capacity to
+Visualizing normals better
+visualize this normal here why because the normal vector is a unit vector that
+can be between negative one and one for each component so because it goes down all the way to negative one
+we can't see anything past zero anything that's below zero just becomes zero so we're seeing no red at all and no green
+at all for like this entire region here what i would much prefer is having like
+the colors being arranged that we can all visibly see so in other words i'd like it to be between zero and one instead of negative one and one because
+that way we can at least see everything so how do we convert this from being between negative 1 and 1 2 being between 0 and 1 well we can just multiply it by
+0.5 and add 0.5 that will obviously take that negative 1 make it negative 0.5 and
+then add 0.5 to push it to 0. and meanwhile our positive one which is the other end of the extreme that will be
+half to 0.5 and then we'll add back to 0.5 to bring it back up to 1. so no change there so if we run this code
+there we go this looks a lot better to me because we can actually see the kind of full spectrum of colors here we can
+see that it gets more red as we look to the right and more green as we look up the blue mostly stays the same okay so
+now that we've done this let's define some sort of light direction and then we can use the math to compare the two and
+see the angle between them so what should our light direction be well looking at this image we know that we're
+facing the negative z direction so i think our light source should kind of be also facing the negative z direction so
+Using math to calculate lighting and shade our sphere
+that we can actually kind of see it and then maybe i want it to come from like above over here so we want it to be
+going in kind of the negative y direction as well so that it's going down from above and since my mouse
+pointer is around here i want to come from this side that's also basically negative x because it's coming in from
+positive x into kind of this negative x space it's going left so what i could do is simply just define like a directional
+vector that's minus 1 minus 1 minus 1 because that's what i'm looking for and then just normalize it and that'll take
+it to be about roughly 0.7 it'll make it a unit vector and more importantly it will be in the right direction so let's
+go ahead and do that i'm going to write glm vect3 light direction is going to be
+negative 1 negative 1 and negative 1 but as i mentioned i want to also normalize
+it so there we go there's our light direction so since we determined earlier that it's the direction of the normal
+versus the direction of the light that we're trying to compare and see how much it faces the light so the angle that it
+shares with the light we really just need to figure out the angle between these two but before we do that there's
+also one little step that we need to not forget about and that is the fact that the light direction that we've defined
+is a vector from the light to us but we're going to be comparing this to the normal which is a vector of where
+this surface faces to so that's kind of like two different things we have the incoming directional vector and then we
+have an outgoing one i'd like to compare it to both be incoming or outgoing
+outgoing makes more sense so in other words i'd much rather have a vector from us to the light instead of from the
+light to us and that's really easy to do i just need to negate the light direction because that will obviously
+just flip it and then once i have that i can work out like the angle between these two vectors and i can do that
+using a vector dot product because the cool thing about the dot product is it will tell us the relationship between
+two directional vectors in fact the dot product of two unit vectors is the same as the cosine of the angle between them
+so what that means if we write this down in our code is that this kind of dot product between the normal and the
+negative light direction since these are both unit vectors is going to be the same as the cosine of the angle between
+them and since the cosine function of course will give us a value between negative one and one same with the dot
+product it will also give us a value between negative one and one and this value will determine how much our face
+our pixel on our sphere actually faces the light source so for example what happens if the dot product gives us zero
+what if the result of our double product is zero well then that would mean that the cosine of our angle was also zero
+and the cosine of 90 degrees is zero therefore if our dot product returns
+zero we know that the relationship between those two vectors the angle between them is going to be 90 degrees
+that's actually perfect because if something is facing 90 degrees away from our light source so if this was facing
+well 90 degrees like that you can see it's it's pretty dark so really it's just the angles above 90 degrees which
+should get brighter and brighter until it's really facing our light source perfectly and that is what we're going
+to use the dot product for this d here is actually going to effectively be the intensity of our color now obviously we
+know that if that angle is going to be greater than 90 degrees the dot product will give us just like the cosine of an
+angle that is greater than 90 will actually be negative so because of that what we're going to do is use glm max
+the dot product and also zero this is like a clamp but it's like it's only clamping one side of it so i'm going to
+clamp it between two numbers make sure it's between two numbers just one so we're making sure that it's gonna pick the maximum of these two values since
+zero is higher than a negative value if this dot product is negative then we will just get zero instead so now what
+we can do is we can take our sphere color we'll go back to our original pink sphere color and we'll just multiply it
+with this dot product and if we run that code check this out how cool is that we
+have our light source perfectly defined in the place that we defined it at it's facing the direction we wanted it to be
+and we now have some rather beautiful looking lighting hitting our sphere so there you go
+one small step towards photorealistic rendering i hope that you guys enjoyed this episode if you did please don't
+forget to hit the like button as an exercise try and add some controls to this try and add something like to this
+iron gui window that will let you control the color of the sphere as well as the direction of the light that kind
+of stuff is really fun to play with and since this is in fact rendering like in six milliseconds rendering in real time
+you'll be able to see that effect in real time as you play with the values which is gonna be really cool and will hopefully help you understand this even
+more and i really encourage you to play with this code for yourself the code will be uploaded to the github ray tracing repository which will be linked
+in the description below next time we'll be talking about cameras how they
+work and how we can have a camera system defined inside our application here but until then thank you guys for watching
+don't forget to check out brilliant using my link in description below and i will see you guys next time goodbye
+[Music]
+[Music]
+you

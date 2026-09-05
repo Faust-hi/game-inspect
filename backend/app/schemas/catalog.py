@@ -385,6 +385,18 @@ class CriterionScore(BaseModel):
     kind: str
 
 
+class StabilityOut(BaseModel):
+    """Устойчивость ранга при дрожании весов TOPSIS на ±10%.
+
+    None означает «сравнивать было нечего» (одна альтернатива или неразличимые
+    строки) — там и сам TOPSIS некомпарабелен.
+    """
+
+    rank_min: int
+    rank_max: int
+    stable: bool
+
+
 class RecommendationOut(BaseModel):
     method_code: str
     method_name: str
@@ -398,6 +410,7 @@ class RecommendationOut(BaseModel):
     reasons: list[str]                      # почему рекомендуется
     excluded_reasons: list[str] = Field(default_factory=list)
     criteria: list[CriterionScore] = Field(default_factory=list)
+    stability: StabilityOut | None = None
     engine_support: MethodEngineLinkOut | None = None
     engine_alternatives: list[MethodEngineLinkOut] = Field(default_factory=list)
     summary: str
@@ -504,6 +517,66 @@ class RecommendationResult(BaseModel):
                 self, "input_key", input_fingerprint(self.profile, self.basket_codes)
             )
         return self
+
+
+class SuggestedMethod(BaseModel):
+    """Кандидат в корзину, найденный в файлах проекта (эвристика, не факт)."""
+
+    method_code: str
+    reason: str
+
+
+class ProjectImportOut(BaseModel):
+    """Частичная анкета из файлов движка + прозрачность извлечения."""
+
+    profile: ProjectProfile
+    filled: list[str] = Field(default_factory=list)
+    suggested: list[SuggestedMethod] = Field(default_factory=list)
+    detected: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+
+
+class PresetFile(BaseModel):
+    name: str
+    language: str
+    content: str
+
+
+class ProjectPresetsOut(BaseModel):
+    files: list[PresetFile] = Field(default_factory=list)
+
+
+class FeedbackIn(BaseModel):
+    method_code: str = Field(min_length=1, max_length=64)
+    useful: bool
+
+
+class FeedbackOut(BaseModel):
+    public_id: str
+    method_code: str
+    up: int
+    down: int
+
+
+class MethodFeedbackOut(BaseModel):
+    method_code: str
+    up: int
+    down: int
+    total: int
+    helpful_rate: float
+
+
+class ConfidenceSuggestionOut(BaseModel):
+    method_code: str
+    current_confidence: float
+    suggested_confidence: float
+    reason: str
+
+
+class FeedbackSummaryOut(BaseModel):
+    projects_with_feedback: int
+    methods: list[MethodFeedbackOut] = Field(default_factory=list)
+    suggestions: list[ConfidenceSuggestionOut] = Field(default_factory=list)
 
 
 def input_fingerprint(profile: ProjectProfile, basket: list[str]) -> str:

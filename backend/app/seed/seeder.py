@@ -149,14 +149,27 @@ def seed_method_links(db: Session, methods: dict[str, Method], tools: dict[str, 
 
 
 def seed_conflicts(db: Session) -> int:
+    # Ключ апсерта — вся тройка (a_code, b_code, conflict_type), как в UNIQUE
+    # uq_conflict_pair. Раньше ключом был один a_code: при повторном сиде вторая
+    # запись с тем же a_code перезаписывала первую и падала с IntegrityError.
     _, conflicts = methods_data.with_sources()
     count = 0
     for data in conflicts:
         payload = {k: v for k, v in data.items() if hasattr(Conflict, k)}
         payload.setdefault("status", PUBLISHED)
-        obj, created = _upsert(db, Conflict, "a_code", payload)
-        if created:
+        obj = db.scalar(
+            select(Conflict).where(
+                Conflict.a_code == payload["a_code"],
+                Conflict.b_code == payload["b_code"],
+                Conflict.conflict_type == payload["conflict_type"],
+            )
+        )
+        if obj is None:
+            db.add(Conflict(**payload))
             count += 1
+        else:
+            for field, value in payload.items():
+                setattr(obj, field, value)
     db.flush()
     return count
 

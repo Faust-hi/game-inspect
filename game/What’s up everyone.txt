@@ -1,0 +1,143 @@
+What’s up everyone?
+Matt here with the Maya Learning Channel and today you might notice something different.
+That’s right, I indeed have a face!
+So what’s the occasion for this big reveal?
+Well demystifying my appearance seemed appropriate
+since today I wanted to quicky demystify something else –
+a recent buzz-word that has the potential to revolutionize the film-making pipeline.
+And that word is…
+But what exactly is USD and why should you care?
+Well that’s exactly what we’re here to find out
+Now if you’re an industry professional, or even just an enthusiast,
+you might’ve already heard the term “USD” being thrown around.
+In fact, if you’ve been employed by or done contract work for a major VFX studio lately,
+you may have even run into it.
+At first, it might appear to be just another way to store data like
+What is USD?
+Maya files, Max files, FBX files, or so on – and in a way it is…
+…but what makes USD special is the way it stores scene information.
+The clue is in the title itself, which stands for Universal Scene Description.
+In other words, rather than storing a scene as a
+single, bloated, software-specific scene file with everything in it…
+…it instead describes how to assemble the scene from a bunch of smaller files.
+Why use USD?
+By breaking things down into more manageable chunks like this,
+you get vastly improved scene performance…
+…while giving artists the ability to load only what they need, when they need it…
+…as well as the ability to express different opinions on various parts of those descriptions.
+You see, gone are the days when a single VFX house – even ones as big as ILM or Weta –
+can take on the bulk of the responsibility on a large production
+while supported by a handful of smaller studios.
+Nowadays, movies are so big that they often need four, five, even six major houses
+handling point, usually with a small army of support studios backing them up.
+And even within those studios, there are more departments
+using more software packages than ever before…
+…and with each of those software packages speaking a different language
+while trying to pass the same data around,
+is it any wonder that a Universal Scene Description has become the holy grail?
+In fact, solving that problem is exactly the reason that Pixar – yes that Pixar –
+began developing this standard while working on Brave way back in 2010.
+And it’s the reason they’re now sharing it with every other studio out there –
+because it’s in everyone’s best interests to make data exchange as painless as possible!
+Basically what I’m saying is that if you ever want to do work for one of these FX houses
+in the future, you’re going to likely run into USD sooner or later.
+And that means you need to know how to work with USD data.
+But how does it work, exactly?
+Prims
+Well, everything in USD starts with a primitive or “prim”.
+Now these aren’t just your run-of-the-mill Maya primitives like cubes or spheres.
+No, a USD primitive can be as basic or complex as you like.
+The only stipulation is that a prim can’t be broken down any further.
+In other words, a prim is the smallest possible unit in USD.
+How you decide what a “smallest unit” consists of is completely up to you.
+Maybe something like this kettle is the smallest unit…
+…or maybe the individual pieces that make it up are each a single unit. It’s really up to you.
+Either way, once you've decided what a prim is,
+you can then compose them into sets of prims to make more and more complex objects
+So here we have Pixar’s own “test kitchen” scene that they released with USD,
+loaded into Maya. I’ve put a link to it in the description below.
+If I select this USD kettle, you can see that the artist here went with the latter route
+regarding their prim design – its individual pieces are each considered one prim.
+And unlike a Maya polygon equivalent,
+those prims can’t be further broken down into vertices, edges, or faces.
+USD data vs Maya data
+This distinction between USD data and Maya data is important.
+Even though these two objects look identical – they play by a different set of rules.
+The easiest way to tell the difference is in the Outliner by turning on “Shapes”.
+Anything with these diamond shaped icons is native USD data.
+So typically what you’d do is model an object in Maya, just like normal.
+Then, instead of saving a Maya file, you’ll instead export to .usd.
+This breaks down your object hierarchy into a bunch of prim compositions.
+Notice here all the different compositions saved as individual .usd files.
+This means that, as an artist, you’ll want to make sure the structure of your Maya scene
+reflects the prims that you (or, more likely, the studio you’re working for) wants
+before you export –
+whether that means breaking the object down like this kettle…
+or leaving it as a single mesh like this mug.
+And this applies to more than just polygon objects.
+A prim can be anything, from a light, to an effect, or even a shader.
+Don’t worry though – if you ever need to edit your USD data again,
+you can easily do that by right-clicking it…
+...then making your edits to the Maya version...
+…then send those edits back to the USD version once you’re done.
+Variants
+Finally, it’s important to note is that a prim can have alternate versions assigned to it
+called “Variants”.
+Think different styles of the same thing.
+Prims with variants will be denoted by a small "V" in the corner of their Outliner icon.
+So, working in USD is really about shifting your mindset a bit. As an artist, it’s your job to:
+A.) plan ahead about how you can break up your traditionally complex structures, into prims
+B.) make sure that your contribution adheres to the criteria handed down by your employer.
+This way, you can ensure that your cog will fit in with the larger pipeline.
+Speaking of that, how does the rest of the pipeline work in USD?
+Well, as I said before, a USD scene doesn’t consist of a single flat file with everything in it…
+…instead, it sets something called a “stage” that describes
+how to assemble the scene together.
+Now, it’s important to note that one of the biggest strengths of USD
+is its open-endedness.
+Any studio could choose to assemble their film or game however they want.
+But what I’m about to show you is the most common setup –
+the way that Pixar itself uses USD.
+Layers and opinions
+So here we start at the bottom with a bunch of individual USD assets.
+At this point, someone from the layout department needs to come along
+and assemble them on stage into a starting scene.
+Once the starting scene is complete,
+others in that department may layer on “opinions” on top of that scene.
+Note how these layers are hierarchical –
+those higher up represent stronger opinions that override lower opinions.
+Notice that I said “override” and not “overwrite” though.
+That’s because, thanks to the way layers are stored as .usd files themselves,
+a higher opinion will never completely obliterate anything in a lower one.
+Reviving data from a lower opinion is as easy as muting the one above it.
+So back in Maya we can see a practical example of this in the USD Layer Editor.
+By activating these layers one at a time,
+you can see the build-up of different artists’ opinions on the scene.
+And if I’m a director and I don’t like an opinion, it’s easy to mute it.
+So now you’re hopefully getting an idea of how powerful it can be to work
+in layers and opinions like this.
+This is what’s called non-destructive editing
+and if you’ve ever accidentally overwritten a scene file that you needed again later,
+you can probably see why it’s such a big deal.
+And everything I showed you is JUST in the layout department.
+If I zoom out here, you can see that this pattern continues up through other departments too –
+like animation, FX, and lighting – which work on their own layers
+building upon the foundation we established with layout.
+Now you can see we have one large layer per department,
+made up of smaller sub-layers for the artists within those departments.
+And just like the layout sub-layer we just looked at,
+each one of these individuals in each one of these departments
+can override things done by previous departments.
+So if I’m in the FX department and I don’t necessarily care about the changes
+made by the animation department, I can just mute them!
+But the same is true lower down the chain too!
+If I’m in layout and I want to see what the current scene lighting looks like
+because it’s going to affect where I place an object, I can do that just as easily!
+And all this made possible because everyone is working from one central set of data,
+rather than each of them having their OWN version of the scene.
+So hopefully now you have a better idea of what USD is and what it can do for you.
+If you want to learn more about USD,
+including some of the more advanced topics I wasn’t able to get to in this video,
+I’ve included some helpful links and other resources in the description below.
+And for more on USD, make sure you subscribe to the Maya Learning Channel.
+I plan to make a few more videos detailing process of using USD specifically in Maya.

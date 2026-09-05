@@ -1,5 +1,7 @@
 /** Экран 11. Итоговый план проекта. Одновременно является печатной формой отчёта. */
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { api } from '../api';
+import { downloadTextFile } from '../export';
 import { useEnsureResult, useStore } from '../store';
 import {
   Badge,
@@ -44,9 +46,11 @@ const SEVERITY_LABEL: Record<string, string> = {
 interface Props {
   onExportJson: () => void;
   onExportPdf: () => void;
+  projectId: string | null;
+  onSave: () => void;
 }
 
-export function PlanScreen({ onExportJson, onExportPdf }: Props) {
+export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Props) {
   const { profile, basket, result, catalog, calculating } = useStore();
 
   useEnsureResult();
@@ -315,6 +319,119 @@ export function PlanScreen({ onExportJson, onExportPdf }: Props) {
           </ul>
         </Card>
       )}
+
+      <PlanPresets />
+      <PlanFeedback
+        projectId={projectId}
+        onSave={onSave}
+        methods={selected.map((m) => ({ code: m.code, name: m.name }))}
+      />
     </>
+  );
+}
+
+function PlanPresets() {
+  const { profile, basket } = useStore();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleDownload = async () => {
+    setError(null);
+    try {
+      const { files } = await api.presets(profile, basket);
+      for (const file of files) {
+        downloadTextFile(file.name, file.content, file.name.endsWith('.json') ? 'application/json' : 'text/plain');
+      }
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
+  return (
+    <Card
+      title="Пресеты движков"
+      hint="Стартовая конфигурация из корзины: каждая строка знает, из какого решения взята, остальное — значения по умолчанию."
+      actions={
+        <div className="btn-row no-print">
+          <button className="btn btn-sm" onClick={() => void handleDownload()}>
+            Скачать 3 файла
+          </button>
+        </div>
+      }
+    >
+      <p className="small muted">
+        DefaultScalability.ini, пресет качества Unity и пресет рендеринга Godot. Скопируйте
+        нужное в проект и проверьте на минимальной конфигурации.
+      </p>
+      {error && <Callout tone="danger" title="Не удалось сформировать пресеты">{error}</Callout>}
+    </Card>
+  );
+}
+
+function PlanFeedback({
+  projectId,
+  onSave,
+  methods,
+}: {
+  projectId: string | null;
+  onSave: () => void;
+  methods: { code: string; name: string }[];
+}) {
+  const [votes, setVotes] = useState<Record<string, { up: number; down: number }>>({});
+  const [error, setError] = useState<string | null>(null);
+
+  const handleVote = async (code: string, useful: boolean) => {
+    if (!projectId) return;
+    setError(null);
+    try {
+      const result = await api.feedback(projectId, code, useful);
+      setVotes((prev) => ({ ...prev, [code]: { up: result.up, down: result.down } }));
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
+  return (
+    <Card
+      title="Пригодилось ли решение"
+      hint="Оценки копятся локально и помогают пересматривать достоверность методов. Ничего не меняется само — предложения смотрит человек."
+    >
+      {methods.length === 0 && <Empty>Корзина пуста — оценивать нечего.</Empty>}
+      {!projectId && methods.length > 0 && (
+        <div className="btn-row">
+          <button className="btn btn-sm btn-primary" onClick={onSave}>
+            Сохранить проект, чтобы оценивать
+          </button>
+        </div>
+      )}
+      {projectId &&
+        methods.map((method) => {
+          const vote = votes[method.code];
+          return (
+            <div key={method.code} className="method-row">
+              <strong className="small">{method.name}</strong>{' '}
+              {vote && (
+                <span className="xsmall faint">
+                  +{vote.up} / −{vote.down}
+                </span>
+              )}
+              <div className="btn-row" style={{ marginTop: 6 }}>
+                <button
+                  className="btn btn-sm"
+                  onClick={() => void handleVote(method.code, true)}
+                >
+                  Пригодилось
+                </button>
+                <button
+                  className="btn btn-sm"
+                  onClick={() => void handleVote(method.code, false)}
+                >
+                  Не пригодилось
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      {error && <Callout tone="danger" title="Не удалось отправить оценку">{error}</Callout>}
+    </Card>
   );
 }

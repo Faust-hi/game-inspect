@@ -1,0 +1,191 @@
+with it and this type of interaction
+depends on what that rock is made of and
+what its surface texture looks like that
+determines where that light goes next
+the rock surface may be smooth and
+reflective like a brand-new shiny car
+which will cause that sunray to bounce
+off of it
+casting light on the backside of this
+tree but the light doesn't stop there
+folks it may bounce off the bark surface
+and head into the leaves causing them to
+light up a little bit to then bounce
+again and again like a billiard ball in
+a pool table until that single ray of
+sunlight has finally lost all of its
+energy we begin to notice that the Sun
+does not light all of our trees and
+rocks directly but rather through
+indirect paths like this one most of our
+shady spots are not black darkness but
+mostly visible because light found its
+way in there that was just an example of
+what happens with a single ray of light
+just imagine this for every ray of the
+Sun there must be millions billions
+bazillions there are infinite paths that
+light can take illuminating everything
+we see that is a lot of light bouncing
+that's how physics works in the real
+world but what about animated movies
+let's look at how the computer doesn't
+imagine the window as your computer
+monitor looking out onto a virtual scene
+all objects in the scene or world are 3d
+models they are represented here as
+wireframe objects this is how they
+appear to the computer it is our job to
+paint them with texture let's take a
+closer look at that rock underneath the
+tree when creating the scene we are able
+to art direct this rock surface and
+therefore how the light will bounce off
+of it will this stone be smooth like a
+pebble which would cause the light
+hitting it to bounce back cleanly
+uniformly or should we make the stone
+surface jagged and jumbled creating more
+unpredictable behavior on how the light
+might bounce this is all known as
+surface appearance every object in the
+scene has its own are directed surface
+that dictates how it interacts with
+light but that does not determine how
+the object itself will look if this rock
+is smooth is it a smooth rock made out
+of marble or maybe granite we can art
+direct this rock and pick which one we
+want we can be creative now we have a
+beautiful granite rock living under our
+tree with a smooth reflective surface
+the process for building this image
+inside the computer is called rendering
+the computer has to make a calculation
+for every ray we see adding up to
+millions and billions of calculations in
+a scene these calculations take time and
+can often demand more than what the
+computer is capable of so how do we get
+around this issue and keep the Ray count
+down to just what we need or what is
+computable in our scene every time a
+light ray bounces from object to object
+the computer needs to calculate its new
+trajectory its direction some rays may
+hit that rock first others go into the
+river some travel into the sky where
+we'll never have a chance to see them so
+what is the point of calculating those
+Ray's when they'll never be in frame in
+order to produce a more efficient render
+we use a method called path tracing this
+method reverses the process and
+considers only the light paths that are
+visible to the camera path tracing
+involves emitting Ray's from the camera
+tracing them back to the objects in the
+scene and then back to the light source
+that way every single relevant ray of
+light is accounted for
+without wasting time tracing paths of
+light will never see wow I know what
+you're thinking how can we be even more
+efficient mr. narrator well in order to
+answer that we need to understand how
+the computer works every time we tell
+our computer to create a camera ray it
+has to do a calculation a task for
+example we ask it to travel outward from
+the camera and hit that rock that's one
+the rock surface appearance then tells
+that ray how it is supposed to act the
+rock is reflective so our computer will
+now begin a new calculation plotting our
+rays next direction that's - it will
+encounter another object 3 then another
+4 eventually tracing its way back to the
+light source the way our computer
+processes these tasks is using it well
+processor it takes each ray or surface
+hit and calculates it for us and it may
+do this millions or
+even billions of times for every image
+we make you can see the computer has a
+lot of work to do camera rays don't emit
+one at a time instead millions of rays
+are emitted across the entire camera
+frame the first set of rays go out into
+the scene and capture everything that
+the lens can see but one ray hit is not
+good enough again we have to do multiple
+hits to make things look natural shadows
+translucency everything seen in the real
+world a ray may need to bounce for five
+maybe even ten times or more to create
+the look we desire
+once our Ray's leave the camera and
+scatter through the scene things get
+complicated our computer wants to render
+these rays evenly in uniformly but there
+is no inherent ray organization at
+random it tries to grab each single ray
+place it on the processor and try to
+render it this is like doing a single
+problem from your math homework then
+putting your book away and pulling out
+your history book only to write one
+sentence for your history report I don't
+know probably bout some King nobody's
+ever heard of or something then after
+finishing that one sentence you close
+your history book and pull out your math
+book again to solve just one more
+problem whoo this is crazy
+just stop that's not a good strategy for
+doing your homework it'll take you all
+night computers work in a similar manner
+it doesn't matter if one ray is headed
+toward the river or the next ray is
+heading into those bushes it doesn't
+know any other method to render those
+rays it's better to do 10 math problems
+at a time or knock out a paragraph or
+two from your history report with
+computers you can organize certain rays
+by telling them to batch or bundle
+together based on where they're
+traveling in a scene their direction
+because some rays are traveling in the
+same direction and have similar
+characteristics we can batch them
+together and place them on the processor
+to be calculated at the same time
+see those rays there they're traveling
+in a similar direction
+let's bundle them together let's also
+group those rays heading toward that
+part of the scene and so on and so forth
+until we have rendered the entire second
+bounce with the process this is called
+ray sorting and this is our method for
+path traced rendering pretty nifty huh
+we repeat this sorting process for the
+third 4/5 bouncers as many as are
+required until our scene is lit how we
+design by grouping similar tasks
+together we are able to trace many more
+rays in the same amount of time it is
+more efficient because it reduces the
+overhead of switching between different
+kinds of tasks hence it allows our
+scenes to render faster and let's our
+artist create more detailed and
+beautiful images in summary using these
+three methods we can build our scene
+surface appearance how light will
+interact with the object painting the
+look of the object and organizing rays
+of light to make our scene visible to
+create our worlds and bring them to life
+using the physics of light

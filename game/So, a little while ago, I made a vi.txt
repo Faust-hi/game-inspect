@@ -1,0 +1,763 @@
+So, a little while ago, I made a video where I reviewed some code that was sent in. It was this weird game called Skyward Scammer. You're like something to do with like stealing balloons.
+0:08
+8 секунд
+Anyway, that's besides the point. The point is that at the end of this like 2D game, there was like this kind of pseudo 3D scene that used like the track from the original Mario Kart game. But also,
+0:17
+17 секунд
+what is this like 3D graphics, bro? This is cool. Anyway, I made a video talking about optimizing this like pseudo 3D rendering because there were a few
+0:25
+25 секунд
+things that we could do to make the performance slightly better. But but what I said was that if you want the
+0:33
+33 секунды
+biggest possible optimization that you can do to this, it would be to not do it on the CPU, but instead to move it to
+0:39
+39 секунд
+the GPU because we all know that GPUs are very good at rendering graphics. And so I was like, do you guys want to see how to actually move this to the GPU and
+0:48
+48 секунд
+take advantage of that extra performance and probably just wind up with it being like a billion times faster? And the answer was yes. So that is what we're
+0:56
+56 секунд
+doing here today. We're going to take this weird game, this weird like pseudo 3D rendering which is actually based off of one lone coder and his like little engine and we're going to move it to the
+1:05
+1 минута 5 секунд
+GPU using this GPU compute project that I made a video about a little while ago.
+1:10
+1 минута 10 секунд
+I'll have it linked up there. Basically, it's just a simple app to run compute shaders using OpenGL. So, we're going to be moving this from C++ and from well,
+1:17
+1 минута 17 секунд
+it'll still use C++, but from being like mostly done on the CPU using C++. We're going to move it from that to running inside a computer shader using OpenGL.
+1:25
+1 минута 25 секунд
+Now, the biggest thing that I probably want to mention is that what I'm going to be doing here today is like literally moving this code, this C++ code that was
+1:34
+1 минута 34 секунды
+written. This is actually my like slightly optimized version, I think, from that optimizing pseudo 3D rendering video that I made. I'll have the original repository linked in the
+1:42
+1 минута 42 секунды
+description below. This is the Skywards Scammer like original repository that I reviewed in source is where this like pseudo 3D planecp file is. And you can
+1:51
+1 минута 51 секунда
+see that's like what the original rendering was. I changed it like a little bit, optimized it a bit. We're going to be working off of this optimized copy just cuz that's what I have here. Doesn't really matter too
+2:00
+2 минуты
+much. What I'm going to be doing is taking this code and like showing you how to actually move it onto the GPU to get the GPU to do the work. However, if
+2:07
+2 минуты 7 секунд
+you don't like constrain yourself with trying to execute the original code and basically do this like pseudo 3D
+2:15
+2 минуты 15 секунд
+rendering this exact way, then you could of course just render this scene in 3D and that would probably be even better.
+2:22
+2 минуты 22 секунды
+But this video is meant to be more of like a how to optimize something by moving it to the GPU rather than how to reimagine like an entire project and
+2:30
+2 минуты 30 секунд
+change it completely but get like the same visual result. Now, a lot of this code centers on math, and if you guys are looking for a resource to help you with math, then I highly recommend
+2:38
+2 минуты 38 секунд
+brilliant.org, the sponsor of this video. Brilliant.org is an amazing website filled with lots and lots of really high quality content on various STEM topics. Computer science and math
+2:46
+2 минуты 46 секунд
+are two things that I think brilliant teaches really well. They have these fantastic like entry-level computer science courses that really teach you programming in what I think is a really
+2:54
+2 минуты 54 секунды
+effective way because they don't teach you a specific language, but rather they teach you just programming in general, how to think like a programmer. And that's so important. Their way of
+3:02
+3 минуты 2 секунды
+teaching is super fun, engaging, and interactive. You won't just be like watching videos. You'll be actually playing with widgets, dragging these things around, learning how things
+3:10
+3 минуты 10 секунд
+actually work by playing with them, which in my opinion is just a far more effective way to learn. But this visual interactive way of teaching really, really translates well to math because
+3:18
+3 минуты 18 секунд
+math is just such a visual thing. Going from their basic courses to things like linear algebra and calculus, trying to learn these more advanced topics with
+3:25
+3 минуты 25 секунд
+the help of this visual, engaging, interactive way of learning helps understand everything tremendously. And Brilliant also has this fantastic 30-day
+3:33
+3 минуты 33 секунды
+free trial that you can use to check out their entire platform. Just go to brilliant.org/thesh. Link will be in description below or you can use the QR code on screen. You can use that free
+3:40
+3 минуты 40 секунд
+trial to check out their entire platform and see if you like it. And if you do, then that link will also get you 20% off a premium annual subscription. Huge
+3:48
+3 минуты 48 секунд
+thank you to Brilliant.org as always for sponsoring this video. Okay, so the first thing we're going to do here is we're going to check out this actual repository. Right, so I've got some instructions here. It's really easy.
+3:56
+3 минуты 56 секунд
+Uses CMake. These are the third party dependencies that it uses. If you have a look at the CMake file, it will actually fetch those dependencies for you. So you don't really have to do anything. You
+4:04
+4 минуты 4 секунды
+just have to clone this and then follow these steps. Links to all of this stuff will be in description below by the way, including like this source file that we will be using. Now, since the original
+4:12
+4 минуты 12 секунд
+video that I made on this project, I have added one thing today just to make this project of ours actually work and that is this load texture function that
+4:21
+4 минуты 21 секунда
+is inside the renderer. The reason why we need this is because the original project actually uses like the Mario Kart PNG and this like sky texture.
+4:30
+4 минуты 30 секунд
+Actually, let's come over here and grab these immediately. So, this is the Mario Kart.png file and this is the sky texture. We need these, of course. So,
+4:37
+4 минуты 37 секунд
+let's copy them. And then over here inside the root of our repository inside app, I'll just make a directory called assets. And I'll paste them both into
+4:44
+4 минуты 44 секунды
+this assets directory. If you just clone that GPU compute repository and run it, you should see this which is just like that example from shader toy that I demonstrated. This is just running
+4:52
+4 минуты 52 секунды
+inside a compute shader. And if we go over here into the app directory and then shaders compute.jsl. This is the actual comput shader that's being run.
+5:01
+5 минут 1 секунда
+Now one other thing you can do with this is you can reload these shaders while the program is running. You can just edit the file over here. So you can see it's outputting O, but we could make it
+5:09
+5 минут 9 секунд
+output color. Save the text file and then press the R key and it will reload that shader. So whilst you're working on a project like we are here, that of course is very useful because it just
+5:17
+5 минут 17 секунд
+helps you iterate faster or debug. Can't forget about debugging. So what I'm going to do to begin with is let's just come over here and strip like all of
+5:24
+5 минут 24 секунды
+this code. I'll just keep this color output. Let's just make sure this is working. If the shader doesn't compile, it will just tell you in the console log over here. Now let's come back to the
+5:31
+5 минут 31 секунда
+original project. This like Skywars scammer game. Let's take a look at it.
+5:35
+5 минут 35 секунд
+So first of all, I added a timer into here which tells you around how long it takes to render. So like 9 to 10 milliseconds over here. And we are running in release mode. This is after
+5:43
+5 минут 43 секунды
+my optimizations. I think it was something like like I don't know. I'm actually not sure how fast it is on this computer because this is a different computer than that video. But anyway, it was even slower than this. And I added
+5:51
+5 минут 51 секунда
+this nice like fog over here into the middle just to like fade out into the horizon to make it look a little bit nicer. So, the first thing I want to mention here is first of all, this is a
+5:59
+5 минут 59 секунд
+very small resolution, but also this like person and the balloons are not part of this at all. If we go to the function that calls that pseudo3 to
+6:07
+6 минут 7 секунд
+rendering, which is this, you can see we're not timing the actual main guy or the balloons, and they're just being drawn as a normal texture. So, I'm just going to comment that out. We don't care
+6:15
+6 минут 15 секунд
+about that, obviously. This is what we care about. And you can see the performance is not affected at all because we're not even timing that section. Now, the other thing I'd like to do is just beef up the actual
+6:24
+6 минут 24 секунды
+resolution. So, here the width and height is set to like 30* 24. Guessing 24 is maybe like the tile size of the rest of the 2D game. Let's set it to
+6:32
+6 минут 32 секунды
+1280 x 720, which is what that GPU compute project is running in. So now you can see in release mode on a pretty
+6:39
+6 минут 39 секунд
+beefy CPU, it is running very very poorly, like 30 milliseconds. So 1280x
+6:47
+6 минут 47 секунд
+720 is probably what we're going to be focusing on just because that's what we're running our compute project in.
+6:53
+6 минут 53 секунды
+But of course, this is resizable, so this should work work at any size. So, the first thing that we're going to have to think about here is how do we get those actual resources working, right?
+7:01
+7 минут 1 секунда
+So, we have Mario Kart.png and sky 1.png. Let's get those loading and let's just see if we can like sample them in
+7:08
+7 минут 8 секунд
+our shaders. So, the first thing we'll do is in mainc I'm just going to load them as textures. So, we have this function now. Let's just call this sky
+7:16
+7 минут 16 секунд
+called load texture. And then that takes in our file system and path. So, where do we put it? Inside assets and then like sky 1 I think.png. So, let's just hit F5. See what happens here. Okay.
+7:25
+7 минут 25 секунд
+Okay. Well, it hasn't complained about not loading it. That's good. I want to quickly point out as well the one thing I think I did to my local copy was I actually changed the working directory.
+7:34
+7 минут 34 секунды
+So, you can see I changed it to solution directory back directory and then app because by default it will just be your project directory. And because we're
+7:41
+7 минут 41 секунда
+using cmake, that's inside like this build directory. And unless you want to like copy your resources into that directory, which is a little bit
+7:48
+7 минут 48 секунд
+annoying, I just like to set my working directory to be like the root, I guess, of the actual app folder, which lets me
+7:56
+7 минут 56 секунд
+access assets and kind of keep everything clean here because the build directory, you don't want to permanently store stuff there since that's like a local thing. Someone will use cmake to
+8:04
+8 минут 4 секунды
+actually populate this directory and having like a post build step that copies assets is also annoying. So that's my preferred solution. So let's
+8:11
+8 минут 11 секунд
+also load the other asset which is Mario Kart.png and we'll call this ground because in the original code we also had ground surface and sky surface. So how do we get these into our compute shader?
+8:21
+8 минут 21 секунда
+Let's do that first and foremost. The load texture function by the way is really simple. This of course is just open source. It's on my GitHub. I'll have link to it in description below.
+8:29
+8 минут 29 секунд
+This is part of that GPU compute project. All it does is it uses STB image to actually load the image file and then it just uses OpenGL to
+8:37
+8 минут 37 секунд
+obviously make a texture on the GPU and like even generate it maps. OpenGL is very easy to use. It's very refreshing to be honest. So in our shader if we
+8:46
+8 минут 46 секунд
+want to access those textures, we basically just need to create a uniform sampler 2D and then just give it a name.
+8:52
+8 минут 52 секунды
+So I'm going to call this U sky texture and then we'll have a U ground texture.
+8:57
+8 минут 57 секунд
+Now, we can also specify a layout binding equals and then whatever we want it to be. So, I'm going to make this sampler be in binding slot one. So,
+9:06
+9 минут 6 секунд
+texture unit one basically. And then this one will be in two. So, you can see this one's in zero. This is important because obviously if we want to access
+9:13
+9 минут 13 секунд
+multiple textures, which we have kind of three images, three textures that we're accessing inside this shader, we actually need to have them in different
+9:20
+9 минут 20 секунд
+slots. So, we need to now map one of these like textures to an appropriate slot. with the one we're writing to we're using glind image image texture
+9:28
+9 минут 28 секунд
+which you can see is binding it to unit which is the first parameter here zero right so that's why we have binding equals zero here this is binding one
+9:37
+9 минут 37 секунд
+this is binding two so we need to use a function called glind texture unit and then you can see that just wants a unit
+9:44
+9 минут 44 секунды
+and a texture very easy so to unit one we will bind that sky texture so skyhandle and then to unit two we'll
+9:52
+9 минут 52 секунды
+bind ground handle and That guys is just as simple as open gel is. It's amazing.
+9:57
+9 минут 57 секунд
+We can now just like use these textures in our shader. So what I'll do is I'll set the color here to just be texture.
+10:03
+10 минут 3 секунды
+So this is how we sample a texture. We just use this texture function. And then yeah like U sky texture and normalized coordinate. Normalized coordinate is the pixel coordinate divided by the texture
+10:12
+10 минут 12 секунд
+size. So it's basically a value between 0 and one which is what a texture coordinate is. So let's hit F5. And you can see we now have our sky. Now it is
+10:21
+10 минут 21 секунда
+upside down. The reason why, I'm just going to put these side by side here.
+10:25
+10 минут 25 секунд
+The reason why is because if we have a look at these actual normalized coordinates, so I'll set the color back to that. The bottom left is 0 0.
+10:33
+10 минут 33 секунды
+Typically with textures and the way that they're stored, the top is actually 0 0.
+10:38
+10 минут 38 секунд
+So, we don't really care about the X. Of course, X is going to be on the left, but in terms of like the Y in OpenGL, we generally like to go up like this, but images often are stored kind of going
+10:46
+10 минут 46 секунд
+down. So, you got two options to fix this. You can either tell STB image to actually load it flipped. So flip vertically on load, something like that.
+10:53
+10 минут 53 секунды
+Or you can just flip the coordinate.
+10:55
+10 минут 55 секунд
+Since we're already here in the shader, I'm just going to flip the coordinate.
+10:58
+10 минут 58 секунд
+So we'll just write normalized cord.y equals 1 minus normalized cord.y. And if we reload this, you can see that flips our coordinate. And now if we go back to
+11:07
+11 минут 7 секунд
+just displaying the image, it's now the right way up. I don't know if this is really technically the correct fix for this. Like maybe flipping it vertically on load would just be better. To be
+11:15
+11 минут 15 секунд
+honest, it's been a while since I actually thought about this kind of thing deeply. So, for those of you out there who have opinions, let me know in the comment section below. But I've given you both options. Now, it would be great to see our ground texture as well.
+11:26
+11 минут 26 секунд
+So, let's look at them both simultaneously. Why not? Let's have our sky sample over here. And then I'll also
+11:33
+11 минут 33 секунды
+have a ground sample that samples the ground texture. And then I'll set the color to be a mix of them. So, we'll do sky sample, ground sample, and then.5.
+11:43
+11 минут 43 секунды
+So basically I'm just blending halfway between the textures. So you can see they're kind of both overlaid on top of each other. But the point is they're both working. That's all I'm testing. So
+11:51
+11 минут 51 секунда
+if we go back to our original code now, all we have to do here is basically just like copy and paste it into that compute shader and then translate it, port it
+12:00
+12 минут
+into like GLSL. Now what you need to think about though is that the compute shader that we're looking at, it runs once for every pixel. That's kind of how
+12:09
+12 минут 9 секунд
+we've set it up. Comput shaders can run an arbitrary amount of times. It's up to you to control that. But because we're doing image processing, that's kind of
+12:17
+12 минут 17 секунд
+the goal of this. We've set it up to run once per pixel. So, you can't just like put these for loops into the computer shader. That wouldn't make sense. That
+12:24
+12 минут 24 секунды
+would mean that every pixel would be running over every pixel. It's basically the inner contents of these for loops
+12:31
+12 минут 31 секунда
+that become just like the normal main function of the compute shader. And then if we want the x and the y variables
+12:38
+12 минут 38 секунд
+that are like the for loop index, the for loop iteration, then that's what this like pixel coordinate is, which comes from the global invocation ID. So
+12:46
+12 минут 46 секунд
+it does require like a little bit of thinking as to how to wrap your head around it. The other thing that's very important is we have stuff that's outside of the for loops, right? So
+12:54
+12 минут 54 секунды
+specifically, we have like these trigonometry functions that are used to like calculate these far and near variables. We don't want to put this
+13:02
+13 минут 2 секунды
+into the compute shader. I probably would not do that. Instead, I would just leave these as like C++. The other reason why is because if we just
+13:10
+13 минут 10 секунд
+collapse this for loop, we also change world X and Y based on like the elapsed time. So that's what actually creates that like animation of us flying through
+13:18
+13 минут 18 секунд
+the world. These are obviously persistent variables that are actually stored inside the class as members. So if we wanted them to like persist in our
+13:27
+13 минут 27 секунд
+compute shader, we would basically have to like write them into a buffer and that complicates things. So what I would suggest here is just taking the actual
+13:34
+13 минут 34 секунды
+for loops and the contents inside that moving that to the compute shader. Then everything else can just be done in C++.
+13:40
+13 минут 40 секунд
+This stuff is the heavy lifting anyway, not like this. So it's going to be totally fine for performance. Don't worry. Now getting variables onto the
+13:47
+13 минут 47 секунд
+GPU in OpenGL is very very easy. So let's like do that with the time variable as an example. So we need to create like a uniform float called time.
+13:56
+13 минут 56 секунд
+And what we can do in like more recent versions of OpenGL is actually set a location for it. So I'll just write location equals Z. This is separate to a binding. If we go back to our main
+14:05
+14 минут 5 секунд
+function, all I have to do is write GL uniform 1F because it's a single float. Location zero because we set it to zero.
+14:12
+14 минут 12 секунд
+And then whatever value I want. So I'm going to use GFW get time, which is just like the current time in seconds since the start of the program. It's just
+14:20
+14 минут 20 секунд
+constantly accumulating. And if I go back to here, let's just grab that time variable and maybe let's just add it to our sky samples coordinate. So that
+14:28
+14 минут 28 секунд
+should just scroll our sky texture because we've got the actual texture set to repeat. So the wrap mode is repeat and we're just going to like increment the coordinates so it will scroll the
+14:37
+14 минут 37 секунд
+texture. And if we run that, look at that. The sky is scrolling. I'm telling you guys, OpenGL, am I right? Maybe no one else gets this, but it's just coming
+14:45
+14 минут 45 секунд
+from like, you know, using Vulcan for the last 5 years or so. This is just crazy. It's almost like using Unity instead of making your own game engine.
+14:51
+14 минут 51 секунда
+So time is actually a variable that I don't think we'll need because we've established that since this stuff is outside of the for loops, we won't be doing it inside the computator and
+15:00
+15 минут
+that's the only place where this time is actually used. But anyway, let's start copying this stuff over. Actually, the first thing I'll do is I'll come over here, grab all these member variables,
+15:08
+15 минут 8 секунд
+and then back in main outside of our while running loop, I'll just paste them in. And then I'll grab all of these.
+15:14
+15 минут 14 секунд
+I'll probably just put this into like this compute section here since that's the main, I guess, rendering part. Now, I could keep these as is. I'd probably
+15:21
+15 минут 21 секунда
+be more inclined to use GLM instead of the standard C++ or C math library. It's probably not going to matter too much in this case, but I'll change it anyway.
+15:30
+15 минут 30 секунд
+So, this stuff needs to run first and then it does all this processing and then you can see it actually does this world X stuff. Now, this stuff can
+15:38
+15 минут 38 секунд
+actually just go directly under it because Forld X and Y are used for these variables and these are the only variables we actually use in the
+15:46
+15 минут 46 секунд
+rendering code. Forld X and Y are not used. They're just used to create these variables. Now elapsed time kind of sounds like it's the elapsed time since
+15:55
+15 минут 55 секунд
+the start of the program. It's not. It's a it's a delta time because it wouldn't make sense to multiply this by elapsed time because that would mean that the
+16:02
+16 минут 2 секунды
+speed would increase over time since like 1 second into runtime it's one 2 seconds it's two. So if this is ever growing then the amount that we
+16:10
+16 минут 10 секунд
+increment by is going to grow exponentially as well. So it doesn't really make sense and I don't know why it's called elapse time but this is our delta time. So to set up some delta time real quick cuz we don't have any here.
+16:18
+16 минут 18 секунд
+We'll just make a last time which I'll set to GFW get time. And then over here maybe the first thing inside our while
+16:26
+16 минут 26 секунд
+loop. We'll write float current time equals the same thing. And then we'll write float dt for delta time equals
+16:33
+16 минут 33 секунды
+current time minus last time. And then we'll just update last time to current time. That's all you need to do. And we now have the delta time in seconds. In
+16:41
+16 минут 41 секунда
+more professional situations, you might want to like limit it or set it to a max or whatever. We don't care about that.
+16:46
+16 минут 46 секунд
+So that's it. It's ready to use. We can just paste that in here and again I will use GLM functions instead. So now let's take a look at the code that needs to
+16:53
+16 минут 53 секунды
+run on the GPU which is all the stuff that's inside the for loop. Now the first thing you'll notice is that these variables are all used in here. Right?
+17:01
+17 минут 1 секунда
+All of these are used inside the for loop. And to be honest that's the only thing aside from the textures that we need to sample that is actually coming
+17:09
+17 минут 9 секунд
+into this code here. Right? So we need our comput shader to access all of these variables as well as the two textures.
+17:16
+17 минут 16 секунд
+two textures are already done. So just all of these variables, how do we get them to the GPU? Now, the best way probably would be to use a uniform buffer because that way you can just
+17:24
+17 минут 24 секунды
+have like a strct and you can set them out all up and it would be great. My little GPU compute program doesn't have the Open Gel code to actually create a uniform buffer and I feel like it's
+17:32
+17 минут 32 секунды
+almost unnecessarily complex for just this simple example. So what I'm going to do instead is just use uniforms to get them to the GPU. Now, it would be a
+17:40
+17 минут 40 секунд
+little bit annoying to create eight uniforms because there's eight floats.
+17:45
+17 минут 45 секунд
+So, instead, what I'm going to do is I'm going to create two vecs and just kind of pack them in there. So, to show you what I mean, I'll just create a ve
+17:52
+17 минут 52 секунды
+called like far or like f cuz this is f prefix for some reason. And then we'll set this to f x1, f y1,
+18:01
+18 минут 1 секунда
+fx2, and f y2. So basically what that means is that dotx and and doty are like
+18:07
+18 минут 7 секунд
+far x1 and far y1 and then z and w will be x2 and y2 respectively. And I'll do the same thing for near. Probably makes
+18:16
+18 минут 16 секунд
+sense to have near first. We'll just replace far with near here. And that's it. So in our shader I'm going to create two uniforms. They're going to be ve
+18:24
+18 минут 24 секунды
+fours. Obviously we're going to have near and far. And I'm also going to give them locations. Now let's keep near as zero and far as one cuz we've
+18:33
+18 минут 33 секунды
+established that we don't need time. So we'll get rid of that one. And so over here instead of using gluniform 1 f we're going to use 4 fv. V is like for
+18:42
+18 минут 42 секунды
+arrays or like basically let you take in a pointer rather than the 4F function which will actually get you to take in four floats individually which is a little bit annoying. So we'll use 4 FV.
+18:53
+18 минут 53 секунды
+So into location zero we will take in glm value pointer and then f near. Now to use this value pointer function we'll
+19:02
+19 минут 2 секунды
+have to include glm gtc type pointer and this also requires the count. So this is the amount of vec fours basically. So we
+19:10
+19 минут 10 секунд
+just have one. So we'll put that in. And then we'll duplicate this and put it into location one and obviously set our f far variable. So now we should have
+19:19
+19 минут 19 секунд
+all of this data on the GPU and we're obviously sending it like every frame.
+19:22
+19 минут 22 секунды
+Okay, cool. So, now we just need to take all of this code. I'm going to kind of line this up side by side and show you
+19:30
+19 минут 30 секунд
+how I'm going to copy this across. So, I guess I'll just start from here. Um, we'll talk about the X for loops because
+19:37
+19 минут 37 секунд
+there's two of them. And also, y kind of does window height divided by two. So, we'll have to talk about this a little
+19:44
+19 минут 44 секунды
+more when we actually start implementing it. But for now, so we can get rid of let's just put it over here. So with that code copied, let's start changing
+19:52
+19 минут 52 секунды
+some of this stuff. So f sample depth is y / window height / 2. So half of window
+19:59
+19 минут 59 секунд
+height. Now y is what? y is the current index of our for loop here. So in other words, it's like the vertical coordinate
+20:07
+20 минут 7 секунд
+and then we're dividing it by half of the window height. Now the window height is just our texture size. So what I can do is I can use if I want to keep these
+20:14
+20 минут 14 секунд
+like as floats and everything, I can use fx size which is our texture size in pixels but as floats. So we can get rid of the float cast and just use fx size.y
+20:23
+20 минут 23 секунды
+/ two. And then y is going to be our pixel coordinate. Not the normalized one, but the actual pixel coordinate.
+20:30
+20 минут 30 секунд
+And that's why we're casting it to a float. Now to cast in gsl, you have to use like these old style casts. And that
+20:37
+20 минут 37 секунд
+should give us our sample depth. Now this is almost our normalized coordinate, but not quite because we're actually dividing this by two. So if you
+20:46
+20 минут 46 секунд
+wanted to, I guess you could just use the normalized coordinate, but then multiply the y by two. But I'm going to try and go for a more direct translation. Now inside here, we start
+20:55
+20 минут 55 секунд
+using these far and near variables. As we know, they're packed into near and far. So near x1 is just going to be
+21:02
+21 минута 2 секунды
+near.x. Near y1 is near. X2 is z. And y2 is w. Just going to add some spaces
+21:09
+21 минута 9 секунд
+here. So this is z and this is w. And this is y. And this is x. And then for
+21:16
+21 минута 16 секунд
+far, we just have far do.x, far.y, farz, and far w. And then we use them over here as well. And that's it. That's
+21:24
+21 минута 24 секунды
+basically that part done. So back to this. Then we have the two for loops.
+21:28
+21 минута 28 секунд
+Now originally it was one for loop. I just kind of tried to make the memory a little bit more like the iteration through the memory a little bit more like continuous cache friendly. That's
+21:37
+21 минута 37 секунд
+why I split it up into two. However, the point of these two functions is very simple. It just samples either the sky
+21:44
+21 минута 44 секунды
+or the ground. So depending on which for loop we're in, and then just draws that somewhere on the window. If you actually look at the code, they're doing the
+21:52
+21 минута 52 секунды
+exact same thing. So we just need to copy like one of them and then just make it draw two things and that should be fine. So let's grab this stuff over here
+22:00
+22 минуты
+and I'll paste it here. This stuff is my fog. So we're not going to bother with that for now. And then I'll grab this code as well. So, if we have a look at
+22:08
+22 минуты 8 секунд
+this code that we've just pasted in, this sample width is basically doing the exact same thing that we had over here with sample depth. It's just that it's
+22:15
+22 минуты 15 секунд
+not dividing window width by two. So, we can paste that code in, change this to x, and just have this be fex size.x. In
+22:22
+22 минуты 22 секунды
+other words, it's just our normalized coordinate x. But, we'll keep it like that to be a little bit more direct translationy. Fample x just uses like fend and fart, which we created up here.
+22:34
+22 минуты 34 секунды
+Fample width we obviously have. So this stuff doesn't need any changing whatsoever. Get rid of this comment as well. Now here we're basically rounding
+22:41
+22 минуты 41 секунда
+it off. So let's just make sure that they're compatible casts with JSL and then we draw it. So drawing is just
+22:48
+22 минуты 48 секунд
+image store obviously. So let's just write image store output image. So pixel coordinate. So where are we putting it?
+22:55
+22 минуты 55 секунд
+This is where we're putting it. And these are the colors that we're setting.
+22:58
+22 минуты 58 секунд
+So m window height / 2 + y. Let's create a little ivec 2 cord. And this is where in the image we'll actually write our
+23:05
+23 минуты 5 секунд
+color. And you can see here that for the x it's just x. So that's easy. It's just going to be pixel core.x. But then for this we have to calculate it slightly. Y
+23:14
+23 минуты 14 секунд
+will be pixel core doy. So we'll add that in. But then window height / 2 is going to be text size by 2. Text size by
+23:22
+23 минуты 22 секунды
+two. And this is an integer. Okay. So that looks pretty good. Now we need to know what color to actually draw. And for that we need to figure out what we're actually sampling. So the plus y
+23:31
+23 минуты 31 секунда
+is the ground surface. And you can see we're sampling it at fs sample x and f sample y. So f sample x and y we obviously have. So let's grab our sky
+23:40
+23 минуты 40 секунд
+and ground sample. I'll bring them both down here. And instead of using normalized coord here, we'll use f sample. We'll make a vector 2 of fs
+23:46
+23 минуты 46 секунд
+sample x and f sample y. Now if we have a look at the sky texture, it's exactly the same. So let's just copy this and
+23:54
+23 минуты 54 секунды
+paste it in here. So we have our sky and ground sample now. So since this is our ground chord, let's actually write in ground chord just so that it's a little bit more clear. We'll paste in ground
+24:02
+24 минуты 2 секунды
+chord here and we'll just write in our ground sample. So now we're writing our ground sample whatever pixel we happen to sample from the ground texture at
+24:10
+24 минуты 10 секунд
+this coordinate inside our image. And we have to repeat the same thing for the sky. So we'll do sky cord. And if we have a look at the original code then
+24:17
+24 минуты 17 секунд
+for our sky surface we are drawing it into window height / 2 minus y. So that's the only difference. We're just subtracting it. So let's write that in
+24:25
+24 минуты 25 секунд
+and then paste in sky quad and sky sample. And that I believe is basically it. Now the big difference here is that
+24:34
+24 минуты 34 секунды
+if you have a look at this outer for loop, it's dividing the height by two and then obviously it's drawing two pixels instead of one. So we're
+24:42
+24 минуты 42 секунды
+iterating through our image. Instead of going per pixel and drawing one pixel, we're going per like half the pixels and drawing two. So we still draw all the
+24:50
+24 минуты 50 секунд
+pixels that make up the image, but we just draw two at a time and we iterate through half of the pixels of the image.
+24:56
+24 минуты 56 секунд
+If that makes sense. We're not really doing that here. We're iterating through all of the pixels of the image and we're still drawing two. Now, I still think
+25:03
+25 минут 3 секунды
+this will work visually. It's just we're doing like twice the amount of work as we need to. I It's probably not going to affect performance at all though cuz
+25:10
+25 минут 10 секунд
+it's going to be crazy fast, but that's one thing that we might think about optimizing if we need to. I mean, I probably would. Now, this color variable, I think, is no longer used,
+25:19
+25 минут 19 секунд
+right? So, we'll get rid of that. So, yeah, let's just hit F5. See if this compiles. See if it works. Okay, so we have an error undefined variable Y on
+25:25
+25 минут 25 секунд
+line 33. Okay. Yeah, why? So y is pixel cord doy. So let's just paste that in here. F5. Okay, that did not quite work.
+25:33
+25 минут 33 секунды
+Ah, here's a mistake. So pixel cord.x we're using twice. This is supposed to be pixel cord.y. I don't know how I wrote that. Seems suspicious. All right, let's hit F5. And there we go. It's working. So it's obviously upside down.
+25:44
+25 минут 44 секунды
+Now again, that's because in the original code, we're kind of going from top to bottom, but here we're going from bottom to top. So, the simplest way to flip this the right way up is probably
+25:53
+25 минут 53 секунды
+just going to be to change the way that we do this pixel chord Y stuff because ground chord and sky cord are where we write it into. So, instead of like
+26:01
+26 минут 1 секунда
+writing this pixel here, we just have to make sure that we write that pixel here.
+26:06
+26 минут 6 секунд
+So, we're just flipping the vertical coordinate of where we're writing the pixel into our output image. So, I think if we actually just come in here, we'll
+26:14
+26 минут 14 секунд
+make the sky be plus and the ground be minus and reload this. And there you go.
+26:20
+26 минут 20 секунд
+We're now the right way up. Now, you can probably notice here that it's running smoothly, unlike this version. But let's just like visually compare it. Oh, I
+26:28
+26 минут 28 секунд
+forgot about the fog. Let's quickly add the fog in. So, if we have a look at the fog that I added in that optimization video, it's just this. It's just lurping between the full value of that color
+26:36
+26 минут 36 секунд
+channel and the original value based on the sample depth. So, if we just copy this for a second. H, how should we do this? So, we should do this to probably like the the sky and the ground samples
+26:45
+26 минут 45 секунд
+here. So, I'm just going to use this for reference, but I think we should just be able to do this all at once. So, if I do RGB equals mix, which is like the blurp
+26:54
+26 минут 54 секунды
+function in JSL. So, we're going to mix between full white, which is basically this, like cuz we're doing it per channel, and then whatever sky sample.
+27:02
+27 минут 2 секунды
+RGB is, and then of course fample depth is the amount, and then ground sample.
+27:07
+27 минут 7 секунд
+So you can see this is like easier to do cuz like this swizzling and because these functions can handle all three at once. I mean we could have added that function as well but there you go. It's
+27:15
+27 минут 15 секунд
+just built into gl. So that probably is it. Hey, there we go. Okay. So the other difference I'm seeing here is I don't
+27:22
+27 минут 22 секунды
+know if you can see this probably this is using nearest filtering whereas this is actually blurping like it's using linear filtering which is why this looks
+27:30
+27 минут 30 секунд
+smooth this guy but this looks a bit pixy. So, what we could do, of course, is just go into the renderer over here inside our version and just set this
+27:38
+27 минут 38 секунд
+load texture, set this to like nearest instead of linear if you wanted the exact same result, which I think linear is probably better. So, you can see now
+27:45
+27 минут 45 секунд
+if we zoom in, we have that pixelated kind of nearest filtering. I'll just leave it on linear. I think that looks nicer. It's just harder to achieve because you have to do the filtering
+27:53
+27 минут 53 секунды
+yourself when you're not using OpenGL or any GPU rendering API for that matter.
+27:57
+27 минут 57 секунд
+But otherwise, you can see hopefully that I have pretty thoroughly and pretty effectively optimized this application and this specific scene within this
+28:06
+28 минут 6 секунд
+application. So, how fast exactly is this running? That is the question. I have my little timer over here, which is a gist on my GitHub. I'm going to copy
+28:15
+28 минут 15 секунд
+this and over here inside our app in the main file just up here, I'm just going to paste it in. So, we have this scoped timer class that we can use. So I'm just
+28:23
+28 минут 23 секунды
+going to put it into you know what let's just put it into the entire application loop. So not just compute even though we are dispatching it here and we're actually kind of waiting for it here
+28:31
+28 минут 31 секунда
+somewhat just to get rid of any potential GPU CPU synchronization events. We'll actually put it at each iteration of the for loop. So let's do
+28:39
+28 минут 39 секунд
+scoped timer. We'll call it timer main loop or something. And that's all we have to do. We can just drop it in. We are in debug but shouldn't really matter because we're running this on the GPU.
+28:49
+28 минут 49 секунд
+And you can see that we are at 6 milliseconds. Now, that's a lie. That's a complete lie. It's because we have vertical sync on. We are waiting for
+28:56
+28 минут 56 секунд
+that VSYNC. And this monitor is running at 144 hertz and 1,00 / 144 is about 6
+29:04
+29 минут 4 секунды
+to 7 milliseconds. So, that's the number you're seeing. If we scroll up a little bit, the GFW swap interval, we can get rid of that just by setting it to zero.
+29:11
+29 минут 11 секунд
+And now the real truth is revealed.
+29:14
+29 минут 14 секунд
+Isn't that insane? Isn't that absolutely insane? I think it might be even more dramatic if we actually have a look at like the FPS.
+29:23
+29 минут 23 секунды
+So, what I'm going to do is write a really simple like FPS timer here. Int FPS equals zero. At the very end here, we'll just do FPS++. And then maybe once
+29:32
+29 минут 32 секунды
+we calculate this, let's do float FPS timer. So, this will be like a little I'll call it seconds time. It'll just count up to a second. So, seconds timer plus equals TS, which is our time step.
+29:43
+29 минут 43 секунды
+I called it DT. Usually, I call it TS actually. I don't know why I called it DT, but whatever. And then if seconds timer, so it's just accumulating that time. If it's greater than, let's just
+29:51
+29 минут 51 секунда
+say or equal to 1 second, then we'll set it back down to zero. So it starts again. And we'll set our FPS back down to zero. And what should we do with
+29:59
+29 минут 59 секунд
+that? So whatever FPS it just accumulates, that's how many frames it managed to actually that's how many iterations of this while loop it managed to do within a second. Let's maybe set
+30:08
+30 минут 8 секунд
+the window title here. So we'll do GFW set window title. Now, this wants a window and a cring. So, let's do std
+30:17
+30 минут 17 секунд
+string title equals computer think was the name it was. And then let's just set that FPS into there. Then we'll do title
+30:24
+30 минут 24 секунды
+cring and we'll write in FPS. Okay. So, if we have a look at this now. Okay. Isn't that absolutely insane?
+30:33
+30 минут 33 секунды
+We're still logging. Let me get rid of the scope timer and we'll run it in release, which I don't know if that'll make any difference really cuz obviously we're doing the actual work on the GPU.
+30:41
+30 минут 41 секунда
+Yeah. Okay. It's it's a little it's a little faster. Okay. So this is, as you can see, hopefully this
+30:49
+30 минут 49 секунд
+is absolutely absurd to go from this, which is running at like 25 to 30
+30:56
+30 минут 56 секунд
+milliseconds, which is about like 40 to 30 frames per second, to like over
+31:02
+31 минута 2 секунды
+7,000. That's why it's so important that you understand like the problem of what
+31:10
+31 минута 10 секунд
+you're working on and the best tool or the best way to achieve that because it's not about like oh how can I speed
+31:17
+31 минута 17 секунд
+up my C++ code and tweak it a little bit to squeeze out every ounce of performance. Maybe the whole approach to what you're doing is just completely
+31:25
+31 минута 25 секунд
+wrong and there's just a much better way to achieve the thing that you're trying to achieve. Always use the best tool for the job. That's super important and I
+31:32
+31 минута 32 секунды
+think this is a really great example of that. Now, would this be even faster if we didn't go through like compute shaders? In fact, we're going through
+31:39
+31 минута 39 секунд
+twice as many pixels as we need to as I mentioned because well, for each pixel, we're writing out two, so that's not even necessary. I'm not even going to bother. That's a good exercise
+31:47
+31 минута 47 секунд
+potentially for you guys if you want to try and speed this up even more by doing that, but it doesn't really need it. I will quickly say that I am on an RTX 4080 Super. So, of course, that is quite
+31:55
+31 минута 55 секунд
+a powerful GPU. But I'm sure this would be pretty fast on well any GPU compared to a CPU. So, would this be faster if we
+32:03
+32 минуты 3 секунды
+didn't render it using that algorithm, but instead we actually just drew like two quads or something in 3D space and rendered it, I guess, not pseudo 3D, but
+32:12
+32 минуты 12 секунд
+like kind of real 3D. I mean, it's it's all 2D in the end anyway, right? But you know what I mean. I don't know. Uh, let me know if you want to find out. Maybe that's something I can do. Drop a
+32:20
+32 минуты 20 секунд
+comment below. I hope you guys enjoyed this video. If you did, please don't forget to hit the like button. If you have any other ideas for what I can like do to take this further, or if you're interested in other kind of GPU
+32:28
+32 минуты 28 секунд
+programming and optimization topics, then definitely drop a comment below.
+32:31
+32 минуты 31 секунда
+Thank you guys for watching. I'll see you next time. Goodbye.

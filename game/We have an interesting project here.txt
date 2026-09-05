@@ -1,0 +1,751 @@
+We have an interesting project here today. We have a multiplayer game engine that someone made that runs in both a client server architecture as well as a peer-to-peer architecture. I'm going to
+0:08
+8 секунд
+take it a little bit further than I do with normal code reviews. I'm actually going to try this out in a real environment and we're going to see if it holds up because a lot of these projects
+0:16
+16 секунд
+that people send me are usually quite good within like the small scale that they've been created in. However, if they were to exist in the real world, then unfortunately they tend to fall
+0:25
+25 секунд
+apart. Will the project that we're going to look at today suffer the same fate?
+0:29
+29 секунд
+Let's find out. Hi Cherno, I'm Joshua, currently pursuing a masters in computer science. Last fall, my friends and I developed a 2D multiplayer game engine
+0:36
+36 секунд
+using SDL2 and Zeromq as part of a university assignment. This is like a networking library. Below are the screen grabs from all the games built with this engine. So you can see there's a whole
+0:44
+44 секунды
+bunch of example games, which is really cool. Here's a link to the GitHub repository. While it's fine if our names appear on the video, since this is a university assignment, can we please keep link to the repository anonymous?
+0:54
+54 секунды
+We can. However, it is public on GitHub. So, but sure, we'll respect that and not provide the
+1:02
+1 минута 2 секунды
+link. PS, thank you for your content. I really appreciate the code review series. They've been a fun way to learn from your experience with regards Joshua Joseph. So, what we have in front of us
+1:10
+1 минута 10 секунд
+is a multiplayer game engine that's capable of running all of these different games. Let's go ahead and start with maybe the homebound one, and we'll try and get that up and running.
+1:19
+1 минута 19 секунд
+Okay, so here we are in Visual Studio building in release. I'm already noticing how many of the same file are being built again and again for
+1:26
+1 минута 26 секунд
+different projects. I just did a build all. So, it's actually building all of the projects. And it looks like immediately what I'm noticing is that every single game here actually includes
+1:35
+1 минута 35 секунд
+all of the engine CPP files in them. And it doesn't look like the engine actually is a separate like static library or
+1:42
+1 минута 42 секунды
+anything like that. It looks like it's not a separate module at all. It's just all inside every single executable, which is obviously a weird architectural
+1:51
+1 минута 51 секунда
+choice. Usually what we would do is all the common code for our engine in this case, especially since this is literally called a game engine, would be in a separate module, usually a static
+2:00
+2 минуты
+library and then every single game project would really just be like this one file probably, which contains the entire game. And then everything else would just be in that static library.
+2:10
+2 минуты 10 секунд
+That keeps everything a whole lot cleaner. But even for something like this, it means that we don't have to rebuild the same exact files so many
+2:17
+2 минуты 17 секунд
+times. The end result is also identical, meaning that because it's a static library, all of that code does get compiled into our executable. So it's
+2:25
+2 минуты 25 секунд
+not like it's a separate DL or anything like that that you might not want, it is still the same end result. And in fact, you even get all of the potential
+2:32
+2 минуты 32 секунды
+optimization that comes from building a static library rather than a dynamic library. However, it just keeps the actual project structure a whole lot cleaner. Now, obviously these files are
+2:41
+2 минуты 41 секунда
+not actually separate files. I say confidently without actually knowing the truth. No, they're not. So, we have our repository, then we have source and engine. So, all the engine files are in
+2:50
+2 минуты 50 секунд
+here. They're just simply included into every single game project. And then every single game project is just that specific game. So, that is literally my
+2:58
+2 минуты 58 секунд
+first piece of advice. Separate out your core engine into its own static library and then just link that to all of your executables. So to run the game binary
+3:07
+3 минуты 7 секунд
+in either client server mode or peer-to-peer mode and also as either the server or the client role, this is what we have to do. So we have some arguments
+3:14
+3 минуты 14 секунд
+here to pass in since we have to run both the client and the server. Let's get that running for this homebound game. And furthermore, if we just try
+3:22
+3 минуты 22 секунды
+and execute it, it's we're not going to find any of the assets. So what we need to do is basically create a couple of shortcuts that provide this executable
+3:29
+3 минуты 29 секунд
+with everything it needs. So to do that, let's right click on this and of course create shortcut is not in these options.
+3:35
+3 минуты 35 секунд
+So we have to click show more options and then create shortcut. Let's call this one client. And if we right click properties on that, which also alt enter does. Look at this. I turned up my
+3:43
+3 минуты 43 секунды
+scaling to 150% so that the UI would be bigger for you guys watching the video.
+3:47
+3 минуты 47 секунд
+But this very uh vital windows properties window does not scale. So it's all blurry. We're in 2025. Like
+3:55
+3 минуты 55 секунд
+come on. So target is what it's actually going to run and start in is the working directory. So you can see the start in is actually set to this current directory as you would expect, but we
+4:03
+4 минуты 3 секунды
+need the assets. So if we go back to the root of the repository and then source games and we find that homebound game
+4:11
+4 минуты 11 секунд
+that obviously has the assets directory in it. So let's just copy this path and then we'll just paste it in here. Now we also need the command line arguments. So we'll add them to the end here. This is
+4:19
+4 минуты 19 секунд
+our client. So we will add mode CS client server and roll client. And then we'll hit okay. That should be the client taken care of. Let's copy and
+4:26
+4 минуты 26 секунд
+paste that shortcut. Rename it to server. And then if we have a look at this, we'll just change the RO to server. Look at me making a tutorial on someone else's game engine who had this
+4:35
+4 минуты 35 секунд
+pinned for 2025. Okay, so it makes sense to run the server first. So let's open up the server. We're listening on port 5555. Note that there's no like GUI.
+4:43
+4 минуты 43 секунды
+There's no window. So that's obviously good. And then now let's open up the client. And looks like it worked. Let's resize this. Oh, it's resizable. First
+4:52
+4 минуты 52 секунды
+of all, it doesn't really quite resize nicely. But props to you for having a resizable window cuz that's something that I've seen so many projects sent to me not have. They're always like fixed.
+5:00
+5 минут
+So, let's put this over here. And then let's open up another instance of the client. And now hopefully, yep, there I am. I'm this character. So, let's move
+5:08
+5 минут 8 секунд
+around here. And you can see it looks like networking is in fact working.
+5:12
+5 минут 12 секунд
+Multiplayer is working. Oh, I died. I respawn. Okay. And then we got this character here. We got some enemies.
+5:19
+5 минут 19 секунд
+There's the house. Oh, you reach the house, you just close the game. Nice. That's funny. There you go. That works.
+5:27
+5 минут 27 секунд
+No crashes, no nothing. I mean, we don't know if it crashed or not because we don't have the debugger attached. And of course, it did just close the game when we got to the house, but pretty cool.
+5:35
+5 минут 35 секунд
+So, whilst we of course can run the server like this on Windows, since this is a game engine and presumably we would want to make more complex games that
+5:43
+5 минут 43 секунды
+might actually have their own dedicated server, how does that usually work?
+5:47
+5 минут 47 секунд
+Well, usually we'd be running on Linux and we wouldn't be running with any kind of GUI at all. For example, we might grab a VPS from Hostinger and then just
+5:55
+5 минут 55 секунд
+deploy our server onto there. According to the readme, we do in fact support Abuntu. As you can see, the specific version it lists here is 24. So, that's
+6:04
+6 минут 4 секунды
+really good. Let's try and actually run this server on Linux on an actual VPS and we'll see if that works. So, first of all, we need a server and for that
+6:12
+6 минут 12 секунд
+we're going to use Hostinger, the sponsor of this video. Whether I'm building a website or I just need a VPS, hosting is my favorite web host on the internet. Their servers are extremely
+6:20
+6 минут 20 секунд
+highquality, super fast with AMD epic processes and NVME SSDs, but they're also super affordable, making them really great value. Hosting as VPS's use
+6:29
+6 минут 29 секунд
+KVM virtualization, ensuring separate resources for each VPS. This is super important for performance and stability.
+6:35
+6 минут 35 секунд
+They give you full route access and enhanced security, such as their Vanguard DOS filtering. That along with their beautiful dashboard and excellent documentation make using Hostinger a
+6:44
+6 минут 44 секунды
+fantastic experience. Let's head to hosting.com/churno and then choose a VPS plan. The most popular one, as you can see, is KVM2.
+6:51
+6 минут 51 секунда
+You can scale across this really easily.
+6:53
+6 минут 53 секунды
+So, if you need more resources, just change your plan. Because of that, I generally recommend starting with something with less resources unless you're sure you're going to need a beefy
+7:01
+7 минут 1 секунда
+server. So, let's just go ahead and choose KVM2, which is their most popular plan. The process here is super simple.
+7:06
+7 минут 6 секунд
+You can choose how long you want the server for. And don't forget to use coupon code churno to get an additional 10% discount. Once you've got the survey, it'll appear over here in your dashboard. Let's go ahead and set it up.
+7:16
+7 минут 16 секунд
+So, the first thing we need to do is actually pick a location for it. You can see that hosting actually provides us with actual latencies to like where we are. Usually, when setting up a new
+7:25
+7 минут 25 секунд
+server, I like to pick the location that's closest to the majority of the users of either the app or the website that I'm building rather than necessarily closest to me. However,
+7:34
+7 минут 34 секунды
+since we are just testing out a game engine here, it makes sense to pick the best latency for us. Let's go ahead and pick Indonesia. Now, we need to pick an operating system for our server. There's
+7:42
+7 минут 42 секунды
+a whole bunch, as you can see, to choose from, but since this game engine we're reviewing specifically lists Abuntu, let's go ahead and pick that. And it did
+7:50
+7 минут 50 секунд
+also mention Abuntu 24, but either way, that's the LTS version. So, let's go ahead and pick that. From here, we just need to set a root password, and then we are done. There's our final setup. Let's
+7:58
+7 минут 58 секунд
+go ahead and click finish setup. That took like a minute. So, now that this is done, let's go ahead and SSH into our server.
+8:09
+8 минут 9 секунд
+And that's it. We're in. Go to hosting.com/churn to sign up. That link will be in description below. And don't forget to use code churn for an additional 10% discount. Huge thank you to Hostinger for sponsoring this video.
+8:19
+8 минут 19 секунд
+How do we get this game engine and first of all build it on Linux on this server and then run it as a server? So the
+8:27
+8 минут 27 секунд
+first thing that's actually a little bit concerning to me here, in fact a lot concerning to me is that both the client and the server use the same executable.
+8:35
+8 минут 35 секунд
+That's immediately incorrect. And the reason why that's incorrect is because you can see that the client has all of these dependencies such as you know SDL2
+8:44
+8 минут 44 секунды
+and SDL2 image which are to do with graphics and creating windows and well running the client. However, when we
+8:51
+8 минут 51 секунда
+launch the server, no windows are created. we just have this console here and that's it. So then how is it that we
+8:58
+8 минут 58 секунд
+just have this executable that obviously links all of these libraries because that's not going to work on a real server. The reason why is because SDL2
+9:07
+9 минут 7 секунд
+includes code to actually create a window which on Linux is most likely going to use something like X11, a windowing system that simply is not
+9:16
+9 минут 16 секунд
+going to exist here at all. Now there are dummy versions of these libraries that we can use to make this stuff work, but that's that's not ideal. So in other words, we clearly need a version of this
+9:24
+9 минут 24 секунды
+executable. I mean, it's not going to be exactly this executable. A version of this project that builds into an executable for Linux in this case that
+9:32
+9 минут 32 секунды
+does not include anything that might not work on our server. Generally, this version of your game engine or game or
+9:39
+9 минут 39 секунд
+application that does not require any windowing or rendering is called headless because it doesn't really have that, I guess, head to interact with and
+9:47
+9 минут 47 секунд
+see. I made a whole video on this headless thing a while ago. I'll have it linked up there. The first step generally to get this working is to trim all of the fat. Trim all of the stuff
+9:56
+9 минут 56 секунд
+that we don't actually need to run this in a server environment. So, first of all, how do we even know what we are using that we shouldn't be? Is there a way to have a look at what it is we're
+10:05
+10 минут 5 секунд
+using as far as dependencies go that we may not need? Yes. Yes, there is. My favorite way is an app called dependencies. Now, for those of you who
+10:12
+10 минут 12 секунд
+have been around for a while, and in fact, not even that long because I know about it, there's this legacy software called Dependency Walker, whose
+10:19
+10 минут 19 секунд
+development stopped around 2006. This thing I I remember using this. I think I was introduced to this at like EA or something, so a while ago. And to be
+10:27
+10 минут 27 секунд
+honest, it's great. I've actually been using it. I think last time I used it was last year. But there is this new thing here. I don't actually know how it's not that new, but it's new to me.
+10:36
+10 минут 36 секунд
+So, I'll have this repository linked in the description below. You can just click this button here to download it.
+10:39
+10 минут 39 секунд
+And once you have we have the dependencies gui.exe which we can open and then we can just grab our executable that we just built and drag it into
+10:47
+10 минут 47 секунд
+here. Now it will show us exactly what is being used which is important. So if we have a look at this list of DLS most
+10:55
+10 минут 55 секунд
+of them all of these actually are just operating system and compiler DLS right?
+11:00
+11 минут
+So we have some Windows libraries as well as the actual C and C++ standard library. So these three up here are what we are interested in. And you can see
+11:08
+11 минут 8 секунд
+that we have lib ZMQ which is that networking library that was used. And then of course we have SDL. Now if we click on any of these such as SDL2 image
+11:16
+11 минут 16 секунд
+DLL and we can see what's actually being used. So from that DL we're only using a single function image load. That's pretty straightforward. We don't need to
+11:24
+11 минут 24 секунды
+be loading images in our headless build for our server. And then in the SDL2 library you can see a lot of stuff is happening from initialization to
+11:32
+11 минут 32 секунды
+rendering polling for events and stuff like that. mostly just rendering window creation stuff that you would expect tied to that. And then from the networking library, we're obviously
+11:40
+11 минут 40 секунд
+doing socket and connection stuff as you would expect that we need since our server has to communicate. Using a tool such as this, I think is a really good
+11:48
+11 минут 48 секунд
+idea because it shows you exactly what it is you're using. If we had to go through all the code to figure out what we were using from all these things, that would be a little bit annoying. as
+11:56
+11 минут 56 секунд
+well as actually listing all of the DLS that we link to in the first place, especially on an unfamiliar project and especially if it happens to be a lot
+12:05
+12 минут 5 секунд
+bigger than this. So, this is a great way to just have a look at a glance at what you're dealing with. The more aggressive approach is just to be like,
+12:12
+12 минут 12 секунд
+delete SDL and then let's fix all the build errors, but this just gives us a look at what we're dealing with as I mentioned. Now, that being said, SDL2
+12:19
+12 минут 19 секунд
+does actually have a headless build mode, like a dummy video driver build mode. I had a quick look and if you just Google SDL2 dummy and look at the AI
+12:27
+12 минут 27 секунд
+overview, which generally I don't recommend you do, but in this case, I don't know. I just couldn't find uh too much actual documentation even though we did have some source code here. If the
+12:35
+12 минут 35 секунд
+SDL video drive environment variable is set to dummy, then it's not actually going to create any windows. It's basically going to use like this null
+12:43
+12 минут 43 секунды
+video implementation, which is definitely a good feature. It's definitely an important feature for frameworks such as SDL. However, it's
+12:51
+12 минут 51 секунда
+still not really ideal. If I was making something a bit more serious, then I would definitely prefer to possibly just not even have SDL2 at all. The goal
+13:00
+13 минут
+generally is to obviously have as little overhead as possible for your server and running through all of this SDL stuff that you know is going to go to this
+13:09
+13 минут 9 секунд
+like dummy video driver implementation, right? So it's not really going to do anything, but there is still obviously the overhead of linking in this library
+13:16
+13 минут 16 секунд
+and going through this much larger framework that is completely unnecessary. But again, not a huge deal.
+13:23
+13 минут 23 секунды
+And for a small like university project or a game, it's a really easy way to just build the serverside component because you literally don't have to strip any code out. You don't have to
+13:31
+13 минут 31 секунда
+have different, I guess, versions of your game. However, you are of course going to have to build SDL2 in that headless mode. Although, I don't know,
+13:39
+13 минут 39 секунд
+maybe if CMake doesn't find any windowing systems installed because you're trying to build it on a server like we're about to do, it might just automatically set that. But again, we're
+13:47
+13 минут 47 секунд
+going to find out in a minute because I'm going to try and build this game engine on the hosting a server that we just set up. When it comes to getting this project onto the server, you got a few different things you can do.
+13:55
+13 минут 55 секунд
+Obviously, the most straightforward way would probably be to just pull it from Git. However, I'm just going to keep things a little bit more simple because I don't have Git installed even on this new server. And I'm literally just going
+14:04
+14 минут 4 секунды
+to go ahead and transfer like all of this stuff to the server. Now, my favorite way to work with servers in this context is by using Visual Studio
+14:13
+14 минут 13 секунд
+Code. There is a great extension for VS Code called Remote SSH. Go ahead and install that and then if you hit F1, you
+14:20
+14 минут 20 секунд
+can add a new SSH host and then just connect to it and you'll be able to basically get yourself into this view here where we have an empty folder. If
+14:27
+14 минут 27 секунд
+we want to go ahead and spawn a terminal, we can create a new terminal.
+14:31
+14 минут 31 секунда
+And the point of this obviously is that we can just open up files as you're about to see in VS Code, edit them, control S, run them here, rebuild our project as if we were doing it locally.
+14:40
+14 минут 40 секунд
+So what I'm going to do is just grab all of this stuff. We obviously don't need build VS Code or GitHub and just drag it into the game engine directory that I just made. And then in a little bit, we should see all of our files over here.
+14:49
+14 минут 49 секунд
+So let's go ahead and go into that directory. I'll make a new directory called build like we did on Windows. And then I'll just call cmake dot dot. Now,
+14:58
+14 минут 58 секунд
+as you saw, this was a completely fresh new server. So, the things that I had to install were CMake and Clang. And that I
+15:06
+15 минут 6 секунд
+think that's literally it. I cut that out of the video cuz I don't think you guys need to see that. So, with CMake installed, obviously, let's go cmake dot
+15:13
+15 минут 13 секунд
+dot. And let's see if this compiles as expected without SDL2 being able to use uh the windowing systems. By the way,
+15:21
+15 минут 21 секунда
+obviously we're not compiling at this stage. We're just generating the make files, but still, we'll see if this works. Okay. I mean, that seemed to work. Let's have a look at the build
+15:29
+15 минут 29 секунд
+directory. So, yeah, we've got a make file. Okay, so let's just try and run make and we're going to compile. Oh, by the way, quick little little thing. You
+15:37
+15 минут 37 секунд
+should probably not just call make like that. If you add a - j and say 8 for eight cores, eight threads, it will compile much faster as you can see.
+15:46
+15 минут 46 секунд
+Okay, well that I mean somewhat surprisingly to me to be honest. Sorry guys. Built successfully. Um, so looks
+15:53
+15 минут 53 секунды
+like the executables would be inside this sub directory. Let's have a look at this. There it is. So let's go ahead and
+16:02
+16 минут 2 секунды
+try and run it. Now obviously we want to run the server. So we'll have to do this. Paste that in and enter.
+16:08
+16 минут 8 секунд
+It runs. Might be a little bit too early to celebrate though because well we haven't connected to it. So let's try and connect to it. If we go back to our client build directory, which is over here, we have the shortcut that we made.
+16:20
+16 минут 20 секунд
+According to the readme, you can use this d-server IP on clients. See how good it is to have a readme file. By the way, people take note. I'm probably like
+16:29
+16 минут 29 секунд
+going to stop reviewing projects without a readme in the future. So, if I paste in this uh IP address of the actual server, let's hit okay. And let's try and connect.
+16:44
+16 минут 44 секунды
+Okay, check it out. We're in um
+16:52
+16 минут 52 секунды
+Why is this running at like what is that like two two to three frames pers?
+17:00
+17 минут
+This had so much potential. I actually thought this would be great. Now, I didn't really expect this to run amazingly, but this is really, really
+17:08
+17 минут 8 секунд
+bad. This is way worse than, you know, just like what would happen if you didn't do client side prediction or
+17:15
+17 минут 15 секунд
+anything like that. It seems like this was totally fine when it was on local host, but then as soon as we have a remote server with some kind of latency
+17:22
+17 минут 22 секунды
+introduced, this obviously just entirely falls apart. Let me try and start up another client and see like if that works.
+17:30
+17 минут 30 секунд
+So, I'm up here.
+17:33
+17 минут 33 секунды
+I mean, I'm not even in the game. I think this guy is. This guy's still here. And then Oh, there we go. I've
+17:41
+17 минут 41 секунда
+appeared. So, it's like a few seconds delayed. Obviously, the ping to the server is nowhere near that bad. Okay, so unfortunately,
+17:49
+17 минут 49 секунд
+that's the way it is. Oh, also check this out. Look at how laggy this is. I actually think this whole game is
+17:56
+17 минут 56 секунд
+somehow running at low frame rate because even like pressing the close button was delayed. Okay, let's investigate this. The server itself seems to have run fine. It did great, I
+18:05
+18 минут 5 секунд
+guess. I'm just going to take a deeper look at the client. So, engine.cp seems to be where most of the stuff happens.
+18:10
+18 минут 10 секунд
+We have the main executable. I guess this will have the main function in it, which just uses the engine as a
+18:18
+18 минут 18 секунд
+singleton seemingly. It sets up everything here and then eventually starts it depending on what kind of mode
+18:26
+18 минут 26 секунд
+we're in. It will either we're doing client server, so it will either start the server. So, this is what the our server is going to be doing. or in our case being the client here on Windows.
+18:35
+18 минут 35 секунд
+It's going to start the client. Here's our main loop. Okay, I've already got some ideas as to why this may be an
+18:42
+18 минут 42 секунды
+issue. Um, what I'm interested in is how uh we actually deal with networking. So, it it literally does look like most of
+18:51
+18 минут 51 секунда
+the stuff is all in this one file. It's immediately a little bit uh hard for me to make sense of this because we're we're both the client and the server within one file, within one executable.
+19:01
+19 минут 1 секунда
+So, if you have a look at the header, I'm sure we'll see. Yeah, I mean, look at this. We have the server broadcast socket. We have a client update socket.
+19:08
+19 минут 8 секунд
+We have the client threads, which I'm guessing the server has like a thread per client or something in this case. We've got init client server server.
+19:15
+19 минут 15 секунд
+We've got init client. We've got peer peer host and peer. Like this is really really messy. Like this is I generally
+19:22
+19 минут 22 секунды
+don't mind having like large files. It's fine to combine even many classes into a single file if that makes sense. But
+19:31
+19 минут 31 секунда
+this is one of those cases where it really doesn't make sense because not only is a server and a client different concepts, they literally should be
+19:39
+19 минут 39 секунд
+different applications, they should be different executables. So having them all mixed up like this makes this like just a complete nightmare because if I I
+19:49
+19 минут 49 секунд
+mean if we look at the the broadcast like I'm typing in broadcast here and there's so much stuff so many functions come up. So we got like client receive
+19:57
+19 минут 57 секунд
+broadcast thread which I'm guessing the client uses to yeah receive messages like from the server. One thing I've noticed as well is there seems to be
+20:06
+20 минут 6 секунд
+Tracy being used here. Tracy is like a profiling tool. So immediately my strategy to understand this because I
+20:12
+20 минут 12 секунд
+mean I'm honestly feeling a little bit overwhelmed which isn't something I've said often in these code reviews but this is like this is like four
+20:21
+20 минут 21 секунда
+applications in one file. This is like the peer-to-peer and client server architectures host and client server and
+20:28
+20 минут 28 секунд
+client everything just in in one. So, if I launch um the appropriate version of Tracy, which I'll leave a link to Tracy, by the way, in the description below, uh I need to add the IP address as well.
+20:39
+20 минут 39 секунд
+Okay, that's done. Let's go ahead and run this.
+20:43
+20 минут 43 секунды
+There we go. If I go back to Tracy, then here is our client, which is pretty cool. By the way, one quick little thing about this particular project. Profiling
+20:51
+20 минут 51 секунда
+is hidden behind this if defaf. So, you need to have profile defined, otherwise it will just do nothing, which is good.
+20:58
+20 минут 58 секунд
+That's correct because you don't want profiling. you don't want this Tracy stuff enabled for your actual distribution builds. So over here in the CMake, I found that if profile is set to
+21:06
+21 минута 6 секунд
+on specifically, then it's actually going to link Tracy and obviously define that define as well. So that's one thing I had to do to actually get this to
+21:13
+21 минута 13 секунд
+work. But anyway, you can see that it's working here and our frame rate is well, it's terrible. It's seemingly around 400
+21:20
+21 минута 20 секунд
+or so milliseconds per frame, which is fun. But importantly, if we just pause this, you can see where that time is being spent, right? So as someone who
+21:29
+21 минута 29 секунд
+doesn't know this project very well, this is obviously a very useful tool.
+21:33
+21 минута 33 секунды
+But also for your projects, when software gets more and more complicated, even if it's something that you yourself have been writing and therefore it almost seems like you should know everything, that's not how it works.
+21:42
+21 минута 42 секунды
+Unfortunately, things scale up, things get very complicated. So even throughout your own code, using something like this can really help you understand what your
+21:50
+21 минута 50 секунд
+application is doing. Even if you're not using this specifically for profiling and like performance optimization or seeing where all the time goes within a
+21:57
+21 минута 57 секунд
+frame, it's actually really useful to just have a look at what's going on.
+22:01
+22 минуты 1 секунда
+Because for example, aside from telling me that this is the specific function that I should be looking at because it takes an absurd amount of time, a third
+22:08
+22 минуты 8 секунд
+of a second, it also tells me that there are exactly two threads that are persistently running here. We've got the main thread and then we've got this client receive broadcast thread. Now, I
+22:17
+22 минуты 17 секунд
+should also say that Tracy requires you to actually define your threads. You can see there's like a Tracy set thread name. So if the author of this game
+22:24
+22 минуты 24 секунды
+engine didn't actually specify the threads, then I guess we technically wouldn't see them here. But anyway, we'll give them the benefit of the doubt and assume that they've labeled all their threads. So we have the main
+22:32
+22 минуты 32 секунды
+thread and we have the client received broadcast thread. So first of all, look at this. There's a client send update that's happening on the main thread. Not
+22:41
+22 минуты 41 секунда
+really something I would do ever. But the fact that the actual client send update, which happens every single frame, takes 300 milliseconds, almost
+22:50
+22 минуты 50 секунд
+definitely tells me that it is specifically, very specifically waiting for a response from the server before it even moves on because there's no way
+22:57
+22 минуты 57 секунд
+that sending takes this long. When you are making a multiplayer game, especially a real-time multiplayer game like this one, you generally don't care
+23:06
+23 минуты 6 секунд
+about whether or not like your packet of data actually reached the server. like you're not waiting for any kind of acknowledgement from the server or any kind of response from the server because
+23:14
+23 минуты 14 секунд
+this is like a real-time game. And since you are sending so many updates as to like what you're doing, what the play is doing, what your position is, all of
+23:22
+23 минуты 22 секунды
+that stuff pretty much every frame. I mean, usually you'd decouple it from actual frame rate and stuff like that.
+23:27
+23 минуты 27 секунд
+You have a network thread running at a fixed sort of interval, but still, you know, you're sending like could be 30, could be 20, could be 60 updates per
+23:36
+23 минуты 36 секунд
+second. Clearly, the server doesn't actually need to receive and acknowledge every single update that it receives from you because if it misses one, then
+23:44
+23 минуты 44 секунды
+the next one will actually be even more up to date, which is even better. So, just by looking at this, what I suspect is happening is there has to be some
+23:53
+23 минуты 53 секунды
+sort of like server client communication that's blocking this thread because no way does sending data take anywhere near
+24:00
+24 минуты
+that much time unless you have a server that has a decent amount of latency on it. Because remember also locally this was instant, right? So it's clearly not
+24:08
+24 минуты 8 секунд
+like the CPU load. Not that we ever thought it was, I don't think. I don't know, maybe someone watching this was like packing the buffer for all of those entities probably does take a third of a
+24:16
+24 минуты 16 секунд
+second. No, no. Since this was running fine locally, it doesn't take a detective to figure out that maybe it's something to do with the server latency.
+24:25
+24 минуты 25 секунд
+But again, the server being far away does not equate to your game running at 3 frames pers, or at least it shouldn't.
+24:32
+24 минуты 32 секунды
+So that was enlightening. Let's have a look at this CS client CS client send update which seems to be in our engine and we've got a little try catch block.
+24:41
+24 минуты 41 секунда
+So what are we doing over here? We're basically just getting this client player. We've got the player position the name and then here it looks like we
+24:50
+24 минуты 50 секунд
+have some sort of update. So we're encoding the message and then we do client update send. But then after sending this update, it looks like we
+24:59
+24 минуты 59 секунд
+are waiting for a response server act, which I'm assuming stands for acknowledgement. So we're literally waiting for an acknowledgement back from
+25:07
+25 минут 7 секунд
+the server after sending this. And critically, this is on the main thread, which is kind of bizarre. So generally speaking, you don't really want to do
+25:16
+25 минут 16 секунд
+any kind of network operations on your main thread. However, the reason why this is running so slowly can't just be because we're sending data from the main
+25:24
+25 минут 24 секунды
+thread because that's usually really quick. It's because we're waiting for some sort of acknowledgement. So, it looks like this is almost like a TCP style connection where I mean, how do we
+25:32
+25 минут 32 секунды
+set up this socket? I'm not a big ZMQ like person. Um, but you can see that we have various different socket types.
+25:41
+25 минут 41 секунда
+There's quite a good page which I have flipped through which talks about like various patterns that they have for communication between sockets and
+25:48
+25 минут 48 секунд
+everything. But what I've basically sused out from that is that this is like a TCP style socket. Pub and sub is for
+25:56
+25 минут 56 секунд
+broadcast style patterns and push and pull is kind of a more UDP style thing.
+26:01
+26 минут 1 секунда
+So you can see like the server broadcast socket for example has this sub here which I'm guessing we're subscribing to this broadcast channel effectively. And
+26:09
+26 минут 9 секунд
+then client update should probably not be this, but if this is the actual client update, then it should be a push, I imagine. And then server side, we
+26:18
+26 минут 18 секунд
+probably want it to be like a pull. And then when it comes to actually sending the data, there are a few different send flags over here. Namely, one called don't wait, which means don't block this
+26:26
+26 минут 26 секунд
+thread, don't wait for anything, just send it. So if we get rid of the acknowledgement and we send it without waiting, our server is still running.
+26:34
+26 минут 34 секунды
+I'm assuming this won't quite work because again we need that pull from the server. But oh, look at this. We're
+26:41
+26 минут 41 секунда
+actually I mean the server is the server is kind of either not coping or something, but you can see we can actually kind of play the game more or
+26:49
+26 минут 49 секунд
+less properly. This is I'm sure happening locally, whereas these entities must be remote because they're kind of lagging a bit. Is our server
+26:57
+26 минут 57 секунд
+saying anything? No, our server seems pretty happy. We're not getting any exceptions. Anyway, I wouldn't quite call this fixed or anything. However, this does seem to be more along the lines of something you would expect.
+27:07
+27 минут 7 секунд
+Again, we are still doing this on the main thread, which is incorrect, but at least we're not, you know, blocking the actual main thread anymore, whilst waiting for that response, and we're
+27:16
+27 минут 16 секунд
+able to actually run our application smoothly. The way that I would probably set this up more realistically and how I would move it off of this main thread is
+27:24
+27 минут 24 секунды
+by having a separate network thread, which we seem to already have because we have this like client receive broadcast thread, which is a persistently running thread over here. Ooh.
+27:34
+27 минут 34 секунды
+Okay. One thing I just thought of that I noticed which is probably terrible is I'm not seeing any kind of sleeping going on here or any kind of timing.
+27:43
+27 минут 43 секунды
+Like this is just a while loop that seems to just run 100% CPU usage. Let's have a look at the server as well because that actually is quite
+27:52
+27 минут 52 секунды
+concerning. If I have a look at this engine CPP file here. So we have this CS server client thread which is probably the thread that the server creates for a
+28:01
+28 минут 1 секунда
+given client. And then this just has a Y loop. Yeah. Yeah. With no with no sleeping or anything. So, how fast is
+28:08
+28 минут 8 секунд
+this? Is this running? Let's go ahead and just see quickly. I'm just going to make a static end. We'll call it I.
+28:14
+28 минут 14 секунд
+We'll set it to zero. We'll do a print f. Uh, sure. We'll accept this. I don't really care about this though. Let's just do server update. We'll run make.
+28:24
+28 минут 24 секунды
+See, this is another reason why having the project set up like this is really annoying. I'm running make and I've modified one file, right? this engine.cp
+28:32
+28 минут 32 секунды
+file, but because it's not built as a static library and it's just manually included in every single executable, it effectively has to compile it all of
+28:40
+28 минут 40 секунд
+these times for each of the game projects. Now, obviously, I could just build a single target, but it would still be much faster to build and easier
+28:49
+28 минут 49 секунд
+to deal with if it was just a static library. All right, let's get back to our other terminal over here and we will rerun this and have a look at what it prints. So, obviously, we have to
+28:57
+28 минут 57 секунд
+connect first. So let's go ahead and connect and then let's go back here. So strangely I mean it it's not it printed
+29:04
+29 минут 4 секунды
+once and then it just stopped. So are we just paused over here? Like is it trying to receive or is it trying to send and
+29:14
+29 минут 14 секунд
+it's blocking it? I mean I think it's sending data because these entities are moving on the client. Uh one thing I might do as well maybe the broadcast is
+29:22
+29 минут 22 секунды
+what's moving that. I think maybe it's not it's failing to receive cuz remember how we made it a push. So we might have to change this to be pull. So up here
+29:31
+29 минут 31 секунда
+when we create the actual socket, let's make it a pull. And then I don't know.
+29:36
+29 минут 36 секунд
+I'm assuming we probably shouldn't wait for a result. I don't know. Let's try this. Let's just rebuild it quickly.
+29:42
+29 минут 42 секунды
+Okay. And if we run it again, launch our client. Oh, okay.
+29:49
+29 минут 49 секунд
+Look at these numbers, guys. And that's probably honestly why there's so many issues because obviously we're just completely overwhelming the socket. Now,
+29:58
+29 минут 58 секунд
+obviously, this wasn't an issue before because we were doing this kind of TCP connection style where we were literally
+30:05
+30 минут 5 секунд
+waiting for the server to acknowledge receiving something from the client. And that itself took so long that over overwhelming the socket was not an issue
+30:13
+30 минут 13 секунд
+at all because the latency of the actual connection as well as the fact that since we're waiting for an acknowledgement, we're waiting for a response, we're doing a round trip to
+30:20
+30 минут 20 секунд
+the server and back. That latency basically ensured that we weren't sending too much. But now we're actually we're kind of freeing ourselves and obviously it's running way too quickly.
+30:29
+30 минут 29 секунд
+So in this case we would have to add some kind of sleep or some kind of timing functionality here to make sure that we actually send updates at a fixed rate rather than as quickly as we can.
+30:39
+30 минут 39 секунд
+And it's not even just sending those updates. But I mean in this case it looks like we're trying to receive from the socket but then also send in this case which I guess the the reply was not
+30:48
+30 минут 48 секунд
+something we needed to do. probably why we're actually getting this error is because we're trying to I guess maybe send from a pool socket which is wrong.
+30:56
+30 минут 56 секунд
+And again, it's definitely easy to make that work locally where there is basically no latency. I mean, there is no latency. But you can see that as soon as we scale this up and we try it in a
+31:05
+31 минута 5 секунд
+real scenario where we have a server with latency, we run into issues. So, in summary, whilst I could maybe try and
+31:12
+31 минута 12 секунд
+fix this, like it's honestly it's such a mess that it doesn't really make me want to. But the main takeaways are basically number one don't do networking on the
+31:20
+31 минута 20 секунд
+main thread like ever and number two make sure that you have a distinction I guess between data that you just want the most upto-date version of versus
+31:28
+31 минута 28 секунд
+data that you reliably need to actually communicate between the client and the server. So, for example, a player moving the position as it's changing. That
+31:37
+31 минута 37 секунд
+should be totally fine to send via UDP basically where you don't need to wait for a response or make sure that it's received and if it's not like send it
+31:44
+31 минута 44 секунды
+again like no because by then you're somewhere else anyway. You can just send that and if you lose some packets, no big deal. Make sure you have a distinction between that kind of data
+31:52
+31 минута 52 секунды
+and other things like I don't know maybe like the player died or a chat message was sent. Stuff that like you you do actually need to receive properly. that
+32:01
+32 минуты 1 секунда
+can be TCP that can be done via that like you know soccer type wreck kind of thing but other game data such as like the player positions do really need to
+32:09
+32 минуты 9 секунд
+be sent in a much quicker and more efficient way. Let me know what you guys thought of this project in the comments section below. I actually thought it was I mean it worked on Windows. It wasn't
+32:17
+32 минуты 17 секунд
+too bad. The actual code itself I know I didn't really comment much on it. I mean you know using the this keyword unnecessarily is a little bit annoying
+32:25
+32 минуты 25 секунд
+but aside from that I think it's probably okay. Hey, and the fact that this again does work and has so many example games shows that it is like a pretty decent and serious project.
+32:33
+32 минуты 33 секунды
+However, as far as networking and multiplayer architecture goes, I think that there's yeah, like a lot of room for improvement here. If you guys want me to review your code, then send it
+32:41
+32 минуты 41 секунда
+into channel reviewgmail.com. That email address and some instructions will be in the description below. If you need a server to test out your networking applications in, then
+32:49
+32 минуты 49 секунд
+hosting.com/chenno. That link will be in description below and use coupon code churn for a 10% discount. Thank you all for watching. I'll see you next time.
+32:56
+32 минуты 56 секунд
+Goodbye.

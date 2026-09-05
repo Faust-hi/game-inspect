@@ -1,0 +1,238 @@
+Hazel. Lots of stuff going on in Hazel.
+0:02
+2 секунды
+Lots of minor stuff. Lots of major stuff. Not quite ready to reveal some of the major stuff, but there is a lot of minor stuff. And by minor, I don't mean
+0:10
+10 секунд
+stuff that we don't really care about. I just mean not massive new systems that bring something entirely new to Hazel,
+0:17
+17 секунд
+but rather really important and really valued improvements. Hazel is constantly in development, and this is a little look at some of the stuff the team has
+0:25
+25 секунд
+been up to. All right. So, taking a look at what we have in Hazel in the sandbox project that ships with the engine. This is the default scene. It's called
+0:32
+32 секунды
+animation test. As you can see over here, this is just a nice simple scene that showcases a lot of Hazel's systems.
+0:38
+38 секунд
+If you're trying to play around with the engine and you're not sure where to start, then take a look at this scene.
+0:42
+42 секунды
+And again, it should be the first thing that you see when you start Hazel because it's part of the sandbox project. Now, let me just hit play and we can sort of explore this scene and
+0:50
+50 секунд
+see what it has to offer. We just have this WD controls for our character here.
+0:55
+55 секунд
+We can move around with the mouse. We can sprint with shift. If we walk up to this gun, we can pick it up.
+1:02
+1 минута 2 секунды
+Jim put the scene together, by the way, who is our animation person. And then if I sprint over here and pick up this ammo, then I should be able to aim with
+1:11
+1 минута 11 секунд
+the right mouse button somewhere. And then if I click, I'm going to play a sound and fire these like this is like a
+1:19
+1 минута 19 секунд
+Nerf gun, so we'll fire like these pellets. And that's basically it. That's this scene as far as I'm aware. I mean, again, Jim made it, so maybe I'm missing something. Oh, look. Here's a target.
+1:28
+1 минута 28 секунд
+Let's sort of run up to it. Can we walk and aim? We sure can. Let me just aim over here.
+1:35
+1 минута 35 секунд
+And there we go. We're hitting the target. There we go. Right in the middle. Oh, I'm out of ammo. If we have a look at some of the systems I was talking about, um, on this player night,
+1:45
+1 минута 45 секунд
+we have an animation graph. So, if you're trying to learn how to do animations in Hazel and see kind of how that system's going, then this of course is an example of that. We've got like
+1:53
+1 минута 53 секунды
+this state machine, all these different states over here. That's pretty straightforward. I think we were also playing like sounds. So, there's some
+2:01
+2 минуты 1 секунда
+Yeah, Nerf gun shoot is an example of an audio graph of a sound graph. So, we have this input action over here. We've got all of these different sounds in
+2:09
+2 минуты 9 секунд
+this array. These are just different sound effects. So, the sound isn't the same every time we fire. So that's an example of our audio system. We've got
+2:17
+2 минуты 17 секунд
+these interactable interact zones set up. I think as a ridge body with a sphere collider in this case that'll all be triggered through C. If we open the
+2:25
+2 минуты 25 секунд
+Visual Studio solution, we can take a look at some of the code that's running behind this. Anyway, this is just a little taste of what you can expect from our latest dev branch. So if you do have
+2:33
+2 минуты 33 секунды
+access to Hazel through Patreon, then you can this is where we're at today.
+2:37
+2 минуты 37 секунд
+Now, all of this is a lot of work, and you can really only manage to achieve this within a reasonable time frame if you manage your time well. If you're not so good at that, or you want to improve,
+2:45
+2 минуты 45 секунд
+then I highly recommend you check out AFAFlow, the sponsor of this video.
+2:49
+2 минуты 49 секунд
+AFlow is a really well-made productivity and time management app built to help busy people make the most out of their time. All you have to do is just jot down whatever you need to get done, and
+2:57
+2 минуты 57 секунд
+it goes straight into your inbox. This is great because I don't really need to think about when to do it. I just need to get it down so I don't forget it. And
+3:04
+3 минуты 4 секунды
+this is made even easier with Acaflow's command bar, which is one of my favorite features. Anywhere on your computer, you just press a global shortcut. You open this bar, and you type in whatever it is
+3:12
+3 минуты 12 секунд
+that you want to get done. And if you're ready to schedule it, you can include when you'd like to get it done. And to speed things up even more, AFlow's AI can automatically categorize your tasks
+3:21
+3 минуты 21 секунда
+for you. And this AI feature is honestly really cool. Like, check this out. Mow lawn. It knows I'm talking about the
+3:28
+3 минуты 28 секунд
+house. Plan videos. YouTube sprint meeting. Hazel. How does it know? AAFlow has a ton of different integrations like
+3:35
+3 минуты 35 секунд
+Gmail, Slack, GitHub, Jira. Almost anything you're using can be integrated to automatically [music] add tasks. A lot of time management and productivity comes down to your mental state and how
+3:44
+3 минуты 44 секунды
+you're able to mentally process everything, which is why I really like rituals. AFlow's rituals let you reflect on how your day went and plan the next day with daily plannings and daily
+3:53
+3 минуты 53 секунды
+shutdowns. AFlow has some really great documentation that goes much more in depth about all of these features. Check out AAFlow today using my link in description below and you can even get
+4:01
+4 минуты 1 секунда
+an exclusive one-on-one on boarding call. Someone from AAFlow will help you take control of your time. Huge thank you to AAFlow for sponsoring this video.
+4:08
+4 минуты 8 секунд
+Now, let me talk about some of the new features that the team has been working on, namely our new volunteers who have joined the team. One of our goals for this year was to expand the team and I
+4:16
+4 минуты 16 секунд
+think last devlog I put out an application where people could apply to be volunteers on the Hazel core team. We received over 130 applications. So,
+4:24
+4 минуты 24 секунды
+thank you to everyone who applied. We have at this point onboarded a bunch of people and we're still kind of going through interviewing some of them. If
+4:32
+4 минуты 32 секунды
+you are interested, if you've got the time, if you think you could help out, I'll leave a link to the application in the description below. If you've already applied, feel free to apply again. This is just kind of like a running
+4:40
+4 минуты 40 секунд
+application. We have a spreadsheet and everything, so that's totally fine. So, Alexander, one of the new volunteers, has done a few different things. You may have noticed that first of all, the
+4:48
+4 минуты 48 секунд
+camera actually has like a frostm here made out of lines. So, that is new. We didn't used to have that. Furthermore, if we click on the camera, yes, we can
+4:57
+4 минуты 57 секунд
+click on the camera now. So, before you weren't able to select these sprites, you could only pick 3D objects in the scene like I'm doing right now. Now, you
+5:04
+5 минут 4 секунды
+can actually select icons. So, if we had, for example, a point light over here. Here's a point light. I can click
+5:11
+5 минут 11 секунд
+on the icon now. Revolutionary. I don't know why we didn't have this feature, but this is these are just all the little things that are not that difficult to add, but you still have to
+5:20
+5 минут 20 секунд
+go and add them. And that's where a lot of the new volunteers, the fresh blood, they can really help out and that's really really appreciated. Now, speaking
+5:28
+5 минут 28 секунд
+of the camera though, let me delete the slide. Speaking of the camera though, you also may have noticed that we have this new preview over here, this picture view. So, this is pretty cool because we
+5:36
+5 минут 36 секунд
+again didn't have this before and we didn't have this frostm before, which again is crazy, but it basically meant that you'd have really no way of positioning your camera. In fact, what I
+5:44
+5 минут 44 секунды
+used to do is hit play. Now, I've kind of messed up the camera, but I used to hit play and then find the camera over here and then kind of adjust it using
+5:51
+5 минут 51 секунда
+the controls during the runtime. At the moment, the script's resetting it, so it's kind of impossible. You probably have to like pause it and then go in.
+5:58
+5 минут 58 секунд
+And now you can like move the camera, rotate it around, which is obviously crazy. And now you can just click on it.
+6:04
+6 минут 4 секунды
+You can see exactly what it's going to look like over here. We can move around.
+6:08
+6 минут 8 секунд
+The frostm obviously helps a lot as well. So yeah, this is really cool. The other thing that Alexander did was revive our whole viewports situation.
+6:17
+6 минут 17 секунд
+So, we used to have multiple viewports in Hazel. I added that just on a whim like a few years ago. Didn't really support it. Didn't really finish it. He
+6:25
+6 минут 25 секунд
+took that, made it good. So, now we can spawn all of these different viewports.
+6:29
+6 минут 29 секунд
+So, let me just open up all four as an example. So, here's number four. Here's number three. So, we have all of these
+6:37
+6 минут 37 секунд
+different viewports that are completely independent. You can move around in them independently. They also have their own scene renderer. So you can, for example, let's show bounding boxes for all
+6:45
+6 минут 45 секунд
+entities. We can do that over here. In this one down here, we can show physics colliders for everything. We can keep this one over here clean. Anyway, you
+6:53
+6 минут 53 секунды
+get the point. We can also just take them off and put them onto another monitor. So it's on my other monitor now because of course Hazel supports multiple viewports using IMUI. So yeah,
+7:02
+7 минут 2 секунды
+we can tear out these windows, have them wherever we like, which is pretty awesome. So a huge thank you to Alex for all of his wonderful work. And he's not done yet. He's actually working on a
+7:11
+7 минут 11 секунд
+pretty big new feature which we will hopefully showcase soon. Another thing that's slightly different in this scene is actually how it's rendered. So, this used to be basically just like these
+7:20
+7 минут 20 секунд
+tiles. I don't remember how big they used to be, but they used to be individual entities with like static meshes that obviously when it comes down to rendering, they would be instanced,
+7:28
+7 минут 28 секунд
+but they were still like separate entities because that was really the only way to sort of create this world.
+7:34
+7 минут 34 секунды
+But now, if you have a look at how it works, we just have this floor entity which has tiles. And tiles is an entity which has the tile renderer component
+7:41
+7 минут 41 секунда
+which is something that I introduced around a year ago when I was working on Genesis 3D. This just allows you to have a mesh. So we have this plain mesh with
+7:48
+7 минут 48 секунд
+a material and then you can kind of set I guess how many instances of it you want. And you can see it sort of creates like this tile map. It's probably more
+7:56
+7 минут 56 секунд
+or less rendered in the same way as it used to be because if you have the same mesh but 20 different entities using it, for example, it will end up being a
+8:04
+8 минут 4 секунды
+single draw call with 20 instances because Hazel's renderer will take care of that. But obviously in this case, it's a lot easier to create one entity,
+8:11
+8 минут 11 секунд
+lay it out, and you also don't have that overhead of having so many entities for no reason. So that's pretty cool.
+8:16
+8 минут 16 секунд
+Something that Emily has been working on for a little while is the much needed undo system. So I can move this object- Z. Tada. Fine. We can even control Y to
+8:25
+8 минут 25 секунд
+sort of put it back. It's pretty cool having, you know, this functionality.
+8:29
+8 минут 29 секунд
+There's still a bunch of work needed to make it work like with moving entities around, creating, deleting entities, actual properties of components as well.
+8:37
+8 минут 37 секунд
+Like if I want to change the camera's f and then hit control- Z, that's not going to do anything, but it's a start and it's nice to even have something like that that you can just undo simple
+8:46
+8 минут 46 секунд
+changes. And finally, the way that our audio system is set up behind the scenes has changed a little bit because Jay's gone ahead and taken out the spatialization library that he wrote
+8:54
+8 минут 54 секунды
+that Hazel has been using. So, it's now public on GitHub. I'll leave a link to it in the description below. And this is now used as a subm module inside Hazel.
+9:01
+9 минут 1 секунда
+You can see that it's used as a sound specialization solution in Hazel Engine.
+9:05
+9 минут 5 секунд
+Anyway, that is a quick rundown of all the new things that have been happening with Hazel. It's been a while since the last update, so I just felt like I should make a little video and just
+9:12
+9 минут 12 секунд
+provide you all with an update as to what's going on. There are some other things that have been happening behind the scenes and some larger sort of
+9:19
+9 минут 19 секунд
+features that are almost done or planned, but it's really nice to see that Hazel is continually being developed. We have an amazing team of volunteers. As I mentioned, if you are
+9:28
+9 минут 28 секунд
+interested in volunteering on the Hazel team and you have the time and experience to do so, you think you'd be a good fit, then apply using the form in the description below.
+9:34
+9 минут 34 секунды
+patreon.com/thechern is how you can get access to Hazel and support the project.
+9:38
+9 минут 38 секунд
+Thank you all for watching. I'll see you next time. Goodbye.

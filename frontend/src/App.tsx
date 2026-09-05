@@ -196,7 +196,12 @@ export function App() {
         return <SimilarGamesScreen />;
       case 'plan':
         return (
-          <PlanScreen onExportJson={handleExportJson} onExportPdf={handleExportPdf} />
+          <PlanScreen
+            onExportJson={handleExportJson}
+            onExportPdf={handleExportPdf}
+            projectId={projectId || null}
+            onSave={handleSave}
+          />
         );
       default:
         return null;

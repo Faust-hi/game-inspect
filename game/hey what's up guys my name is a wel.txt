@@ -1,0 +1,731 @@
+hey what's up guys my name is a welcome back to my code review series series in which you guys send me your code and projects and I just roast them
+0:06
+apparently today I'm actually not in a roasty mood today I'm actually feeling a little bit kind today which is if you know me it's a bit rare so take it and I
+0:13
+came across this beautiful email in my inbox radar contact by Bogdan hello I've created a 2d air traffic controller game
+0:20
+using sfml as a project for University and I decided to continue the project this summer now this piqued my interest
+0:25
+because I I like planes in fact there was a time long ago where I flew planes and now I just sit here in this room and
+0:32
+judge people's code since the game is now in an advanced stage I would appreciate it if you could review The Source Code here's the link radar
+0:38
+contact okay we'll take a look at that in a minute radar contact is a game where you have to manage an airspace and control airplanes to arrive safely to
+0:44
+their destination airports avoiding collisions and thunderstorms you can modify the air speed heading and altitude of an aircraft the air traffic
+0:50
+in weather is fetched from real life the position accuracy of weather and air planes about 80 85 to 90% cool so I
+0:56
+guess he downloads like actual real air traffic and weather information that's pretty cool also you can play on 10 different regions thanks and here we
+1:02
+have the GitHub code repository I'll have this linked for you guys in the description below in case you want to check it out all right so if you know my
+1:08
+code reviews you know that my judgment begins here I judge the read me in fact there was once a code review where I
+1:14
+didn't actually make it past the read me if you guys watched like the last episode and you were like boy this guy didn't make it past the build system
+1:20
+well believe it or not there was an episode one day where I literally did not make it past the read me I'll try and find that and have it linked up
+1:26
+there so in other words we're doing quite well if we make it past this read me so let's talk about it download click on the latest tag available and release
+1:33
+Okay cool so we actually have a release version 3 12 wait is that 12 hours ago 12 hours ago damn fixed Iceland crash
+1:41
+when playing in offline mode this is lovely I love seeing active development like I like seeing projects being
+1:46
+actively developed in fact a lot of these commits are from like 11 hours ago this is pretty cool how to play so run
+1:51
+the game and select a region available regions got quite a few available regions here um looks like there's a little live data and offline button that
+1:58
+we can choose as well which is cool after that control your airspace give instructions to airplanes helicopters and hot air balloons that's cool to
+2:04
+arrive to their airports a flying entity will disconnect from your frequency when it's inside the arrival airport coverage
+2:10
+area so this yellow circle in order to disconnect some conditions required I'll CH most be below 10,000 ft and air speed
+2:15
+below 250 knots okay cool collisions be careful yep we know that planes can Collide data flying entity blue text
+2:21
+represents new flight data if any has been given and we got well call sign Sark we got
+2:27
+arrival I guess this is an airport um um air speed Shore heading altitude okay
+2:33
+cool and then this is just the new information that we can reroute to I guess okay interesting keybinds we'll
+2:39
+look into this in a minute once I get this thing running if I get this thing running we'll see some cool resources here I like the fact that this
+2:44
+integrates with like real life I guess that it's not just like some arbitrary game that makes up its own data it's
+2:50
+actually fetching data from like servers and it represents like what's really happening I guess at that given moment
+2:56
+I'm guessing once you retrieve the initial data of all of these planes that like in the skies are photo of this and same with this weather information as
+3:02
+well like it's all just retrieved I'm guessing from like actual real world data for that location and the planes I'm guessing as well at that given time
+3:09
+and then from there I guess you kind of take over that realistic depiction of the airspace and then try and get them
+3:14
+to land or leave the your airspace I guess depending on what the goal is for that particular aircraft that's pretty
+3:20
+cool like this this is out of all the stuff we've looked at this seems quite interesting and quite cool let's hope
+3:25
+that we can get it building now speaking of real world data and inevitably security let's talk about n pass
+3:31
+business the sponsor of this video NP pass business is an allinone solution to help you protect and manage your company's digital wealth now that does
+3:38
+sound fancy but really what I'm talking about is all the sensitive information that might revolve around your company that that is what Nord pass business
+3:45
+helps you protect and manage and even more specifically let's touch on two specific examples of these passwords and
+3:50
+payment information notar business allows you to easily Implement super strong passwords through companywide
+3:56
+policies as well as keep them organized and share them securely with anyone who might need them it also helps you quickly detect whether or not your
+4:02
+passwords have been involved in any recent data breaches super early payment information can also be securely stored
+4:08
+organized and shared whenever staff may need access to it and it's nice how all of this sensitive data can be filed
+4:13
+under certain projects and then easily shared with anyone who might need it probably my favorite feature you can see NP pass business in action now with a
+4:20
+generous 3-month free trial just go to NP pass.com thejo link will be in the description below and use code The Cho
+4:26
+huge thank you to n plus business for sponsoring this video now some ique on this read me page it's nice I like that
+4:33
+it it's even got like updates and like I guess new features and whatever are kind of shown here but it's got a little bit
+4:38
+of the same problem that the last code review I did had and that is the fact that it it just feels more of like a a
+4:43
+game landing page it has no information on the code or how to build it actually I take that back it has a little bit of
+4:49
+information about the code doesn't it because it's got resources and sfml and some other like I guess references are
+4:54
+listed here but aside from that like no no instructions on how to build it which is like how do I build this thing and
+4:59
+there's no like building you know MD like kind of page or file or anything like it doesn't it I'm kind of left on
+5:06
+my own here we got some sanitizers and valr which is actually pretty cool to see there's a cake file so I'm assuming we just build it based off that but
+5:11
+always include some kind of building like page or just like a little section here that just says how do you build
+5:17
+this project what platform is this to support actually it says Windows abun 2 and Mac OS but that's I guess that's to do with the release so whil yes if
+5:24
+you're just trying to play this I guess you can just grab this release for either Mac OS abun 2 or Windows but if
+5:29
+you're after building it really really important that you add some information on how that can be achieved okay so here
+5:36
+I have the checked out cloned repository of course I'm interested in the code as I'm sure you are as well that's why
+5:41
+we're not going to be downloading a release so let's see if we can get this thing building so I'm going to take you through the build process because I
+5:47
+don't know what the process is I can see a cake file so I'm assuming that I'm just going to make a build directory I'm going a CMD over here into this build
+5:54
+directory I'm going to type in cmake dot dot which is going to go back to the directory with that cake file hit enter
+6:01
+and hopefully this will work
+6:08
+294 seconds 5 minutes what on Earth how did this Take 5 minutes to generate
+6:15
+project files that's insane I thought this was like 2 3 minutes 5 minutes I've sat here for I need to like hire someone
+6:21
+to just vet these projects for me and like present present me with code that's already been generated or like whatever
+6:27
+the heck because this was just ridiculous okay I swear if this doesn't compile so radar contact we got the solution file finally after 5 minutes of
+6:34
+C making let's have a look at this and I swear like if this does not just with the amount of testing it seems to have
+6:40
+done here if this does not build I am going to be furious okay so there's radar contact let's set this as a
+6:47
+startup project let's just build a solution I'm guessing half of the complexity if not more of this game is
+6:53
+going to be just the networking and just being able to get stuff like download that real time or like real world
+6:59
+information for the weather and the traffic because C++ of course does not include any networking still to this day
+7:05
+which is odd could work committee so anything that that involves networking in C++ is is going to add quite a juicy
+7:12
+layer of complexity to the project okay finally build started radar contact this is the project we've been waiting for
+7:19
+after building all of those dependencies I'm so excited seems to be building like on a single core which is fun why is it
+7:26
+taking like it's not building the files in parallel that's I love to see that it seem everything else seem to be built in
+7:32
+parallel but I'm guessing like maybe this wasn't enabled on this project and this is this is this is taking a sweet
+7:37
+minute okay finally it's done that took forever especially in the last project so for those of you who wondering what
+7:43
+on Earth I'm talking about if you open up the project settings under cc++ General over here we have multiprocessor
+7:49
+compilation this should be set to yes okay so if I now take this let's do project only and we rebuild cuz if you
+7:56
+rebuild if you just do a rebuild it'll rebuild every dependen which is crazy cuz I don't want to go through all of
+8:01
+that again so we can just do project only which not many people know about rebuild only radar contact and so if we
+8:07
+look at this now it should hopefully do the multiprocessor compilation and you can see how it just did all of those at
+8:12
+once cuz I'm actually on like a this computer's like an old thread Ripper I think 1950 or something is that even
+8:17
+right I don't really want to be wrong yes thread Ripper 1950x 16 cores so my 16 cores of compilation we're just like
+8:24
+yep whereas before we were doing one file at a time which was crazy so make sure multiprocessor comp is on you'd
+8:30
+have to enable that obviously through cmake in this case cuz cmake is used but please make sure that is on okay are you
+8:36
+guys ready like do you think this will work I'm about to hit F5 I'm actually I'm lying I'm not about to hit F5 I'm
+8:41
+about to click this local Windows debugger button we're about to launch this is it going to
+8:47
+work the code execution cannot proceed because open Al 32.dll was not found
+8:52
+okay so openal for those of you who don't know is kind of like an audio driver it's not really a driver it's
+8:58
+kind of like open GL right but it's for audio instead it's like a some kind of crossplatform cross vendor way of like
+9:06
+accessing audio devices and all of that stuff uh it wasn't found now I'm assuming that it is part of the
+9:12
+dependency I'm pretty sure sfml uses openal so I'm pretty sure it has to be here so my strategy right now to fix
+9:17
+this cuz apparently we're fixing stuff now is I'm going to just going to open this up in this tool that I love using
+9:23
+called everything because it's like a it's like a searching tool but you can see how amazing it is I just typed in
+9:29
+that part or paste it in that path and it shows me literally every single file 8,600 objects within this directory
+9:35
+instantly like if I type in sln cuz I'm looking for a solution file you can see how quickly it searches through that so
+9:41
+highly recommend this tool I'll leave it in the description below I've used it a few times some people have asked about it it's great I use it all the time to
+9:46
+search stuff on my computer if you're using Windows search or any kind of built-in searching utility you you're just you're doing it wrong like use this
+9:52
+and I'm just going to type in openal32.dll and you can see we actually got two here so we got one inside what
+9:57
+looks like to be inside X8 and one inside x64 we are building x64 over here and you can see it's actually within
+10:04
+sfl's external Libs inside the dependencies that I guess cmake has pulled probably from the internet so
+10:09
+it's there it's present it's just for some reason not copied in to the bin directory I don't know why but that's
+10:14
+not my business I'm not going to actually fix that in cake I'm just going to copy this dll we're going to put it into um actually before I copy it let's
+10:21
+look at the output so both in build which is gone now and debug there is a path to the final binary that it's
+10:27
+actually well for debug it's OB obviously running it so this is what it has actually loaded that's the path so
+10:32
+I'm just going to copy the actual path itself here we're going to paste that in here it is radar contact. exe I copy
+10:39
+this openal and I'm going to paste it in here okay and that's going to fix that error presumably let's hit F5 see what
+10:45
+we did that just terminate straight away wonderful so I can't actually run this project let's have a go at assuming that
+10:52
+perhaps the reason why this is broken is because it can't load the resources we've got nothing in this directory I'm
+10:59
+assuming that this here is probably the like working directory right so the working directory at the moment is set
+11:05
+to the project directory which is in fact this directory based on this there's no files relative to this
+11:11
+whereas I'm sure there must be some kind of look resources so what do we have here we got flags we got fonts we got
+11:17
+all of this stuff right which is actually in the root directory of the repository so I'm going to just take a stab at this and just say what if we go
+11:22
+back a directory what if we change the working directory to that let's see if this works
+11:30
+we did it okay so little summary two things are wrong with this out of the box for me at least on running this on
+11:36
+windows with CMAC whatever the heck the openal dll which is seemingly the only required dll which I'm guessing means
+11:42
+that it's probably like either the rest is referring to DLS I just have installed in my system naturally or
+11:48
+probably more likely everything is compiled into this exe so everything is a static Library we can see 6 and A2 Meg
+11:54
+although that is debug no it's still pretty big 2.6 Meg right so and that's without resources clearly they're not
+11:59
+being packaged in cuz they're external so that's a decent amount the only dll that's required is not present not being copied into the bin directory so that
+12:06
+needs to be done and then the other thing obviously is that the working directory somehow is set incorrectly or
+12:11
+resources aren't being copied into the build directory which is another thing that maybe should have happened but didn't so that needs to be fixed all
+12:17
+right finally let's play this choose a region oh who do I like the most here let's go with Austria why not so the
+12:24
+first thing that I'm noticing that I don't like is there's no like I can't resize this which is a bit unfortunate
+12:30
+cuz it's a bit small like this is small for me right now someone with a 4K display would be up like I'm guessing
+12:35
+this doesn't support scaling that that would be even worse resizing or at least being able to zoom in well actually probably both and being able to play
+12:41
+this full screen I think would be cool as well so I'm not sure why resizing isn't a thing all right okay so I can hold left shift and I can tell him
+12:47
+actually you're going to go that way okay so he's beginning a turn so this must be heading over here in the middle um and then it's going to be safe uh I'm
+12:54
+I'm kind of disregarded where he's actually trying to get to though which is fun we got the altitude with this stuff I can make him descend wait that's
+13:00
+the altitude I thought the altitude was this SP is supposed to be left control okay so control is Altitude unless my
+13:06
+keep you know control is definitely altitude and then alt is I wonder if this guy maybe he's on Mac like he's on
+13:12
+Mac OS and he maybe he thought command or alt was different or something I don't know it's kind of fun though like
+13:17
+it's interesting let me just Land one plane and then we're going to look at the code I promise so let's focus on this guy T a53 I believe in you let's go
+13:25
+so this guy needs to go to LK so is kind of going to is is going into alcat at the moment which is here so he can
+13:31
+probably begin a descent so let's get that SP down let's get that altitude down to like sure just descend straight
+13:37
+away to 10,000 let's see if he land if he
+13:43
+disappears we did it we did it we landed a plane all right to be honest pretty cool game don't really have anything
+13:49
+against it little bit like hard to play though just because of like the usability I guess and like of it being
+13:55
+so small and not being able to zoom in and out the controls are a little bit weird as well takes a little bit of time to get used to it' be nice to see some
+14:00
+onscreen UI at least like both explaining what the controls are so I don't have to look at the read me but then also being able to like you know
+14:06
+maybe like when I click on a plane to select it seeing its altitude and air speed and all the stats in a separate
+14:12
+window that I could then just type in the number 10,000 or something into or just click buttons on screen to reduce
+14:18
+the altitude just because like dealing with a cable all the time like that is a little bit uh it just takes a little bit too long it'd be nice to have that on
+14:24
+screen kind of feedback and UI as well that's the only thing I would say other than that yeah this is kind of cool
+14:29
+project I honestly kind of like it so let's take a look at the code and hopefully it will be equally as good
+14:35
+okay so I found this main file here we can probably just start from here so we got like this header directory it seems
+14:40
+with all of our headers so let me just see what that looks like on disk first so yeah this is kind of a common thing
+14:45
+that some people do that I don't like doing and that is splitting up header files and source files uh or like
+14:52
+implementation files so we got theh files you can see are all in one directory and then we got all the implementation files and CPP files ear
+14:58
+in a completely different directory that's something a lot of people like to do I personally don't like to do it I like to keep my header files and CBP
+15:05
+files in One Directory so you'd have like window. CVP and window window. it's just in my experience it's a little bit
+15:11
+easier to deal with just because you're not having to keep track of two different directories if you want to give someone this file or like give them
+15:17
+a copy of it or something it's like you got to go back to a different directory track down the header file but one reason to do this though is because you
+15:24
+can have your implementation details as like a hidden kind of private you know section of the code and then you can have a public section which is your
+15:30
+headers which obviously dictate you know how to use that API so in that sense it's actually quite good so in
+15:35
+conclusion this is just something that I noticed is like it's a bit of a different way of doing things because we haven't seen it that often if anything I
+15:41
+would say it's a little bit more of like a professional thing to do you know if you can call it that not because of the
+15:46
+fundamental you know it's just something you see less often I I would say from like beginners or even intermediate
+15:53
+programmers because like the the reason really to do this is usually when you are trying to create that separation as
+15:59
+I said between private and public code but the reason why that kind of stood out to me immediately is because this is
+16:05
+in a directory called header which is odd because I would have assumed that that headed directory should just be in the compiler include directories and
+16:11
+then this would just work so it's a little bit weird that we have to kind of go into the headed directory I mean where is this relative to main anyway
+16:18
+right okay so main is actually not in the source directory yeah cuz this do slash like I'm not sure if that's like
+16:24
+necessary for Unix maybe or something but you know you don't obviously it's it's not going back at directory it's
+16:29
+just the current directory and then we're going SL header so that's a little bit interesting but yeah the main directory the main file for some reason
+16:35
+is just outside of source so that's a bit weird what I would probably do to to really clean this up is make a directory
+16:41
+called Source maybe inside that I'd make either a directory called header or public and then also private maybe
+16:47
+inside that Source directory so that all of your source is there including the main file and that way the root of your repository doesn't literally contain
+16:53
+like there's another header file here for some reason then we got Source then we got header this is all this all really should be inside like a
+16:59
+subdirectory to just keep this a little bit clean that's what I would do okay so got a try cach immediately in the main
+17:04
+and I'm guessing this exists because we have a custom kind of exception here custom runtime error called error
+17:10
+resources manager so that's actually what happened I think when we ran this and we got that error over here in the
+17:15
+output which was our only clue as to why the game was just closing immediately on being opened and that was because yeah
+17:20
+we had a resource manager error I guess it couldn't load that texture because the working directory was set incorrectly so that's what this is it
+17:26
+should have printed out what it was but for some reason we never saw a console we never had an actual terminal or
+17:31
+console be allocated after we ran this which is which is odd I'm not sure like why that's we can see why if that's been
+17:38
+deliberately disabled or if the system type maybe is set to something like Windows which would explain it whereas
+17:44
+it system oh system is set to Windows okay well yeah that would explain it so if we had this set to console then let
+17:50
+me see if I can emulate what we had before cuz I really want to see if this person had like some kind of error reporting or not so if I go back to
+17:56
+having the working directory set incorrectly let's run this and see what happen happens fail to load image resources General textures menu.png
+18:02
+unable to open file so and then texture error menu.png missing or corrupted this is weird right so the configuration here
+18:10
+the type of application you could say that this is being built into is a Windows application with no console however there's clearly logging going on
+18:17
+so where is it going is SE out writing to a file I didn't really find a log directory or like a log file so it's
+18:22
+just a little bit weird that um you know we have this situation here where clearly there's useful information it's
+18:27
+just being what sent into into the void like why is this this is potentially something that's only relevant to
+18:33
+Windows maybe on on Macos oronto which this also supports it's different there's always a console cuz obviously
+18:39
+this is literally Windows the subsystem I'm not sure but either way usually you would have this as like your distribution build cuz you don't
+18:45
+typically like start up the game with an actual console but like in Hazel for example we have three configuration well
+18:50
+three main configuration types debug release and dist and the dist configuration is the one we distribute
+18:57
+which which you know that's like our final game I guess or project and that has subsystem set to Windows like this
+19:03
+but then we have console for debug and release because they're both used for development purposes and we obviously
+19:08
+want to see kind of logging and error messages like that I mean Hazel Hazel also has a log file um several log files
+19:14
+actually that this would have ended up in but yeah just potentially a minor thing but just really stands out to me
+19:20
+as being weird Okay so the first thing we do I'm not loving these instances uh I'm also not not loving that this
+19:26
+doesn't have any kind of encapsulation of an application right so I like to stem these things from application um I
+19:33
+don't really like initializing core systems just here um like inside main I just think that main really should
+19:39
+strictly be like an entry point it's fine to Define maybe again obviously this is all my opinion but like I I
+19:44
+think it's fine to Define certain configuration settings that are very relevant like they're very important to the nature to the very nature to the
+19:51
+very core of the application potentially you could do that in main but it really should just kick off the application and the application itself should do things
+19:57
+like instantial maybe and load resources and like set up the state machine and whatever so I don't know I would I would
+20:03
+personally move this out of the main like file the main dop file especially because like you know I would also argue
+20:09
+that you probably should be using win main so the win main would kind of be it's not actually it's probably some weird you know Windows specific type or
+20:16
+whatever but like you would be using a different entry point most likely for Windows in fact it's a bit weird that it didn't require it that's interesting
+20:22
+isn't it it didn't system Windows didn't ask for winman interesting because I would have thought that it would have so
+20:29
+I'm not sure even why that worked to be honest I feel like usually if you if you use the windows subsystem it asks for
+20:35
+win main not just regular main but anyway that's another reason why like because you might have different entry points for different platforms and
+20:41
+different build configurations potentially uh it makes sense to kind of because this is obviously common for any entry point makes sense to kind of put
+20:48
+this into a more central location that's not specifically main which again to me is supposed to be like the entry point
+20:54
+okay so let's see what this does so we got some Singletons here again I don't love it I think there's very very very
+20:59
+little reason to ever use Singletons in C++ there are some valid reasons but I just don't know why resource manager is
+21:05
+a Singleton that is kind of also lazy loading meaning the first time we ask for an instance it's going to run
+21:11
+through and create this kind of static persistent instance of the resource manager kind of on the stack here but
+21:16
+it's in like some kind of static memory and then from then on it's going to return it all the time so this is just a kind of a nicer way to create a single
+21:23
+turn potentially then like if you just had this as a static up here or inside the class or whatever like you would
+21:28
+have to like in Java or c for example but this is C++ in C++ you don't need to
+21:34
+do this like what you can do is just grab this resource manager instance put it up here call it Global like this for
+21:42
+example and you're kind of done so you don't need this is what I'm what I'm basically saying so you get rid of this
+21:47
+this obviously going to cause a bunch of compilation errors I'm sure and then back in main instead of doing this you can just do this. load right and then
+21:55
+obviously you need access to this you need to know what this is somehow so you would probably have this in a header
+22:00
+file or you could just write something like X turn this and then load is with lower CASL but that's it right so that
+22:06
+would be a little bit more C+ plusy I think I just think having this instance kind of in direction for really no
+22:13
+reason is is more of like a Java and C thing potentially compared to C++ but
+22:18
+I'm going to undo all of this so that we can still kind of play around with this let's look at load and what it does we got all these textures being loaded
+22:23
+menu.png loading screen okay so yeah I don't like the fact that immediately there are lots of resources going on I
+22:30
+guess inside the resource manager or the resources manager and aside from all of this being you know kind of just
+22:35
+hardcoded in terms of all the paths and everything the directory as well is just being added like this so I got a few
+22:40
+things to say about that I don't know I think like for a small game like this it's probably not the worst I just
+22:46
+personally don't like I would never do this because I don't I I don't want to deal with textures using strings like I
+22:55
+don't want my primary way to identify it texture to be its Stringer to me like a
+23:01
+resource manager or an asset system would be it's just a system there's no data in there there's no commands or
+23:08
+instructions in there that are actually relevant to your specific usage or like your specific application so what I'm
+23:14
+talking about is that within the resource manager itself we have a whole list of commands to load assets and
+23:21
+resources specifically for this game right menu.png is obviously something
+23:27
+that is for this game it really begs the question of like why is this not external data why is data why is
+23:34
+specific data to this game buried inside the resource manager whereas it should probably be external and I think that it
+23:40
+would probably work a lot better if it was like that and the way that I think it would work and the way I would make
+23:45
+it work is at like a a light level so what what I mean here is that I don't want to over engineer this because this
+23:52
+is a relatively small game it's not like a full game engine where we might have to do something a bit more robust than
+23:58
+that or a little bit more scalable than that but this I think it's fine at the very least I would make like the menu
+24:03
+itself give the command of what to load so menu.png applies to the menu menu is
+24:10
+the only thing as far as I'm aware that actually requires it I can probably just search for menu. PNG and see that it's
+24:15
+only in two places the place where it's loaded and the place where it's used so I would basically consolidate that in a
+24:21
+way I'd be like okay this is the thing that is requesting menu.png and then I would simply get the resource manager to
+24:27
+see that incoming menu.png request in which case I probably also use the full path in this case and then internally
+24:35
+the resource manager could just be like okay I already have this menu.png so I'm going to serve you that asset and that's
+24:41
+it you can just use it or I don't have that loaded at the moment let me just load it first and then again I'll serve
+24:46
+you that asset so that you can use it instead we have like a central place where all of the assets are loaded and
+24:53
+then we refer to them I guess all throughout the codebase by the their
+24:59
+path but minus the directories I think it might be like a good exercise to write like a little resource manager or
+25:05
+an asset system just a really basic one not like the one we have in Hazel for example but like a a fairly basic one
+25:11
+that can almost be used like this but just as a little bit more external I guess with it data and perhaps more
+25:17
+applicable to to a wider range of applications than just like this system over here that's another thing that I
+25:22
+would say like I I feel like this is very very specific to this game and I don't think that's necessarily bad
+25:28
+but for something like a resource manager I'd probably make it a little bit more generic I think looking through this resource manager it's very like you
+25:35
+can see pretty quickly this is not just a generic resource manager it's specifically built for this game I mean there's region radius zoom level no idea
+25:42
+why this stuff to be honest is part of the resource manager but there's also other stuff like you know loading like
+25:48
+some kind of long L like coordinates or or something there's like a list of airports that get loaded which I'm
+25:54
+guessing can probably come well okay yeah so there's a there's a direct free and it loads those specific like a list
+26:00
+of airports that we need to display so that all falls under this load region function which will load all the data
+26:06
+associated with that region we've got like weather tiles and everything being loaded like this is very specifically for this game and I think that's fine
+26:12
+because again it's a small game you don't really need to write everything within your code base to be generic and
+26:18
+applicable to anything cuz we're not trying to make some kind of generic game engine here but specifically with this as I was saying it kind of just
+26:24
+simplifies the code a little bit more because you only ever refer to that resource where you need it and then the
+26:30
+resource manager behind the scenes will take care of it and it doesn't care because it just it sees the identifier string like that identifies that
+26:37
+resource and that's it it doesn't have to know anything else about it it doesn't need to explicitly be told that oh yeah by the way I want you to load
+26:43
+this because that will come later the one advantage I can see here potentially is that you do all of your loading up
+26:48
+front rather than like you know in my system what would happen is when you open the menu that's when it loads the
+26:54
+texture and then I guess what would happen later is when a plane landing or at least when that you know class that has to play the plane landing sound
+27:00
+effect when that maybe gets initialized maybe in it's Constructor it would load that that could potentially cause it's
+27:05
+like a stutter or something during game play because it's only getting loaded when it's needed if you know what I mean
+27:11
+if that's the first time that it gets loaded whereas this does all the loading up front but if you have to rename this
+27:17
+file or like change it move it to a directory I don't know what what happens but if something like that happens then obviously you now have to go everywhere
+27:24
+and change it because it's kind of repeated in multiple locations and with this region for example I think I would
+27:30
+I would also maybe move this into like a region file that deals with regions
+27:36
+right because there seems to be quite a bit of functionality around them like there's this region box I think we had
+27:42
+regions Zoom levels like what does this have to do with the resource manager I think the resource manager should be kept a little bit more like a resource
+27:49
+manager that is just your asset system basically that serves you assets that you ask for and then all of these other
+27:54
+gameplay systems probably shouldn't be here now I can also quickly here with paths that when you combine paths you're
+28:01
+just doing this as a string let me just see what version of C++ we even in here so we're actually on latest we're
+28:07
+actually on preview so we're like C++ 23 here so yes in that case make sure that
+28:12
+instead of this you use the file system API you use the path inside there because that kind of lets you do
+28:19
+something similar like this it's just that you don't have to worry about like slashes for example you can just replace
+28:24
+them with this which is like a the same as a slash but you're putting it over here here actually I think in this case
+28:29
+you might have to surround this with a path so that the overload overloaded operators work or I don't know there
+28:35
+might be other ways to do it you could just set this initially and then add that on later but the point is I would use this instead because that will
+28:41
+create a path that is first of all valid for your operating system just in case you want to use back slashes or forward slashes it'll normalize all of that and
+28:47
+then also it's just harder to make mistakes because you don't have to worry about slashes and if there's a trailing or leading slash or not cuz if M
+28:53
+selected region had like a slash that would create a double slash that wouldn't really work so path is just the more kind of standard thing to to use
+29:00
+and you can see that if stream for example will obviously take in a path I don't know why it's presenting it like
+29:06
+this but it's obviously got a Constructor that will take in path as well so it's not like you have to convert that back into a string for the
+29:11
+actual C++ file API that obviously works with these fast system paths so I would really recommend to everyone to use this
+29:18
+fast system path API instead of strings like for all of your paths okay I want to take a look at the sa machine and
+29:23
+then we'll probably call it a day I might there might be a part two to this code review cuz there's quite a lot I'm interested in the networking stuff that
+29:29
+we're not going to be able to get to today either there's like the weather stuff this stuff seems really cool so I think we will continue it let me know in
+29:34
+the comments if you want to see a part two to this specific code base but let's take a look at the state machine like class and whatever because I keep
+29:41
+talking about State machines I think I've mentioned them a few times in my Cod of viw series just because they're really good they're a really nice way to
+29:46
+kind of structure your application because something like a game typically has multiple States you might have like a a main menu State like this game has
+29:53
+then you pick like the flag or the country or the region you want to fly in or control whatever and then it progresses I guess to the next state
+29:59
+which is the actual game you might have like a game over State you might you there's lots of different states and instead of just having like you know
+30:05
+your main like game Loop filled with if statements or switch statements that deals with it having like a properly
+30:10
+organized State machine is a pretty good idea and I've actually said before that I wanted to make a video showing how you
+30:16
+can convert like this mess of like branches and everything into a stay machine CU that can really clean up
+30:21
+still haven't done that sorry let me know if you want to see that in the comment section below but let's take a look at this St machine or I don't know
+30:27
+if I noticed this this before but there are these header guards man what is this the '90s use pragma once instead I think
+30:33
+is that still not technically official I don't know every single compiler supports it use pragma once much cleaner
+30:39
+you don't need these like weird header guards okay so we got a saate machine we've deleted both the copy Constructor
+30:46
+and the uh I guess copy assignment operator or whatever it's called and we just have a Singleton right and then we got a private Constructor yes so this is
+30:52
+like a textbook Singleton which again you don't need you don't need to have a
+30:58
+Singleton in C++ it adds complexity as you can see for no real good reason I'm
+31:03
+guessing instance is the thing that again like the resource manager and whatever will actually oh right cuz I
+31:08
+think this is yeah the state machine is the other thing we saw here so load loads the resources initially so we got
+31:14
+them all in memory now what does this initialize sfml what initializes sfml I
+31:19
+don't even know actually how that gets initialized does sfml need to get in initialized I'm not sure I haven't
+31:26
+really used SFL properly before but either way instance run okay so we got apparently we've got States already in
+31:31
+fact the Constructor creates a window State called menu see I don't like this there's so much coupling in this code
+31:37
+there's so many systems there's so many classes that could be used somewhat generically but they're in like the code
+31:44
+is intruded them the specific code for this game and for this kind of application of the game I guess and of
+31:50
+the system has actually been included within the system itself which generally you want to avoid and to be honest like
+31:56
+you can kind of see a little bit why like State machine instance run what is that going to do you have to look within
+32:02
+that system to actually see what the system is doing specifically you generally want to structure these things
+32:07
+in software development as these kind of like black boxes right so you have these systems that you don't need to know the
+32:13
+implementation of this is actually even weirder because this game this project actually made like a specific point of
+32:20
+separating the headers which is like the public API with the source which is like the private API it's the implementation
+32:27
+details and yet we have so much vital stuff within those implementation
+32:33
+details that dictates how this game actually works right so instead of that like I would make this external you'd
+32:39
+have your state machine Constructor be completely empty and then instead of just doing run you cuz this is does this
+32:45
+have like a push yeah it does have a push state so why not just make it like this instead so you do your state
+32:51
+machine like I don't even know if you need instance um because instance will create it so let's just say that over
+32:56
+here in instance we had an empty Constructor right and then this makes shed menu State over here we just push
+33:02
+the state like this and then we run it right like this is how this would be intended to be used I would think and
+33:09
+the powerful thing here is that it completely separates our data from the system right so we're not actually
+33:15
+linking our system and its implementation details with specific data to like one way that we might want
+33:21
+to run that system so I am definitely seeing a lot of that and I would like really recommend I guess reducing that
+33:28
+so let's take a look at the Run function over here so while the states are not empty we'll simply pop off the top state and then we'll run the top state and
+33:34
+then okay so if the current state is a menu State then we will specifically
+33:39
+check to see if the resource instance has been set to nothing which means the game has been closed very interesting
+33:45
+way to close a game right so what's happening over here is current state run I'm guessing each state has to have some
+33:50
+kind of loop basically so if we look at like the window run function yeah there's the while loop what will happen
+33:57
+is that the menu state will either pick a flag or obviously just hit the close button or something and if you hit the
+34:02
+close button it means that your selected region hasn't been set it's empty and and so I guess when the menu State
+34:08
+ceases to run it's finished running if we haven't set which region we want to play because we've like hit Escape or
+34:14
+closed or whatever then it will actually break out of this and the obligation will terminate so that's an interesting
+34:19
+way to do that I guess but you can probably see from the way this is put together how it's actually working with a state machine so it's it's just
+34:26
+separated the game into these different Windows what that's the other interesting thing right if we run this you can see that this is one window but
+34:32
+then when I pick something it opens another window so this is another state and this state unfortunately okay this
+34:37
+is still active and I guess close it what does that do okay that kind of that I guess that worked so I guess they're two different Windows even though this
+34:43
+one stops running cuz it's obviously been popped off so it's gone not really sure how that works but yeah this this
+34:50
+game literally has different windows for different states which is why the states are just shed pointers of windows of
+34:58
+window classes like in a stack so that would mean that the menu is a window and then so how okay so I'm guessing if we
+35:05
+hit like if we pick something right so these are the region buttons handle event and then we click so Mouse button
+35:11
+pressed it'll probably push in our region and then yeah data fet stuff which I'd love to get into next time and then it pushes this game State into it
+35:18
+as well okay all right and then the game and everything is is also where the rest of the juice is so I don't know I I'm
+35:24
+not sure if this is really I wouldn't really call this a state machine um because it's not really like it's just really just it's just a stack of Windows
+35:31
+really it's a window stack it's like a stack of Windows that we want to get get through and run like one at a time which
+35:37
+I like I don't think it's put together uh too poorly or anything again I probably shouldn't be a Singleton and I also do find it a little bit weird that
+35:43
+like there are specifically different windows for all of these different like layers I guess or different like states
+35:48
+of the game but sure what do you guys think do you think that's weird all right I think we're going to leave it here uh what do you guys think of this
+35:54
+code base in general did I miss anything obviously we haven't looked through rest of the code I think we'll get to that in a part two the game itself as I said I
+36:01
+enjoyed the code like the biggest thing really that sticks out to me is just like that tight coupling of like having
+36:07
+data within systems like I don't know on one hand it's I think it's okay to do
+36:13
+stuff like this sometimes in a small project like this where obviously every system you design is specifically for
+36:20
+the one single use case like of this game like I think that's okay and yet I still think you can easily improve and
+36:27
+easily just architect the code a little bit better by moving data out so that if anything like it's just clear to to see
+36:34
+that separation that honestly would probably help me as a programmer and also like any other developers like
+36:40
+looking at this code base but yeah let me know your thoughts in the comment section below also don't forget to check out nordp pass business using my link
+36:46
+over here in the description below as well and I will see you guys next time goodbye

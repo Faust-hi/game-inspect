@@ -1,0 +1,659 @@
+Oh wow. Okay. So right from the beginning. And actually when did the uh full-time production start on 007 First
+Light? must be like six years um and it's been expanding the team but it was
+a small team started and then just grew and grew. You have a continuity there in terms of
+FPS target over time but what other glacier technology from the beginning in
+Which Glacier Engine features were carried over and which were added?
+terms of rendering fe features lighting features uh actually bridge that continuity to make the current game 007
+first light possible. We we have a presentation actually maybe we can just share it and um Alexander
+maybe you can Müer you can go through it some of the rendering features we have so you can just have the the big picture
+so we tell the whole story. Yeah. So uh in general what what we're seeing is that we have some core
+technology that we kept from Hitman um in Glacia but we definitely did large
+amount of new tech for 007. Um we updated a large amount of our lighting
+systems. For example, we have fully real-time global illumination. Um, we
+have uh new volumetric systems for volutric effects, but also for volumetric fog. Um, we improved our
+material shading models. Um, we updated our shadow mapping. Um, so pretty much
+across the board, we we updated the entire lighting pipeline um that we that we had. Um, but we still see some tech
+that we we developed for Hitman that we modernized. like there's I think we
+don't have a single piece of tech that we didn't touch in in any way. Um but you still see some something like um
+the cascaded shadows for the sun, right? Like some tech that we we didn't change um that we updated um and then like all
+this new tech that we Could you actually go into the differences between the global illumination systems between Hitman and
+What are the differences in Global Illumination?
+First Light? Yeah, so on Hitman the global illumination system was very basic. Um
+essentially we had box reflections um and those box reflections had a diffuse and a specular component and that was
+used for the for the bounce lighting. Um on 007 we have a fully real-time system.
+So we have um two components to it. We have a screen space component um which
+is not really the typical setup you would see like a lot of other engines tend to do screen space probes. Um but
+we weren't really happy with like some of the drawbacks we saw uh from that in terms of the some of the artifacts you
+can see on those in those case typically. Um so we still have a per pixel solution um that we depending on
+the quality settings and which platform you're on run either at full res or at half res. Um so that's our screens with
+scatter pass. And then we have um GI probes like the typical DDGI style
+probes um that we use as a fallback. And what you can see here as well like that is also something that is somewhat
+unique to our system is we do it like we trace our race for the DDGI entirely in software. Um so we decided like early on
+to not use hardware rate tracing for that. Um which really comes down to the
+platforms we wanted to reach with the feature. Um. Mhm. And also to some extent performance like
+we have a very optimized rate tracing pipeline uh in software there and we can shoot an insanely large amount of rays
+and update a lot of probes each frame. Um and that allows us to to scale the system a lot better and we we're trying
+to avoid situations where we build like a system that we can only run off on a
+part of our target platforms. We really want to have like scalability in our systems. Uh because we don't really want
+to have our artists spend time setting up data for two different systems. Um if we can have one that that scales. So
+that's why we we decided to go that path. I'm seeing that right now that you both have mesh SDFs, voxels, and distant
+fields there. So that's what it is tracing on against presumably at different like LOD scales or what
+exactly is it tracing on? is like an equality settings thing or like because
+voxels and SDFs two very different things. Yeah, exactly. So like we we trace against the distance fields um to find
+our intersection points for for our race. Um and the voxil structure we could use that for tracing um but we in our case
+only use it to have the material data. Um so essentially we uh find out where
+we hit our wall or our objects in the scene uh with the distance fields and then we look at the boxes to figure out
+what the surface looks like. That's interesting. So does that just cover diffuse rays or also specular rays?
+That covers both to some extent. Like we we store ear radians and radians in our
+probes. Um but for 007 we only use the ear radiance for uh volumetrics and like
+the the sort of effects we don't where we can't use our screen space scatter pass. Um and then we use the radiance to
+feed into the screen space scatter pass. um but we aren't using it for reflections at this point. So for
+reflections we have um three different systems. We can either use this mirror technology that we kept from Hitman that
+were like uh is pretty pretty popular and we extended that one as well. We made sure that we boost the quality that
+we added new features to that. Um and then we have a combination of screen space reflections and box reflections to
+fall back on. So, another thing we did on on the direct lighting side um is
+that we have artists that like to place a lot of lights in our scenes. Um but
+the technology is not quite there yet. I think where we where we do like the infinite light we steel based systems
+because it's extremely high-end like it's an extremely high-end feature. It doesn't scale to low-end platforms really well. Um it comes with a lot of
+noise in some cases. Um, but we still want to support our artists to have as many lights as possible in the scene.
+Um, so we invested a lot of time and effort as well into our culling logic. So compared to Hitman where it was like
+a 2D tilebased system um that we used for our light culling, uh, we built full
+clustered lighting. Um, and we built a very modern platform for that. So we utilize all the the fancier hardware
+features on on shader side like wave intrinsics and so on to get like really optimal coloring results and that way we
+have like depending on on which scene we are we are in like in a scene like this we have around like 1,500 lights in the
+entire environment and then in view we that those get called down to like 100 to 200 and then the clustered lighting
+cuts them down um to actually a manageable amount that we can render. So as part of real-time lighting, you have
+What about real-time shadows?
+also real-time shadowing there from like either directional lights or omni lights or uh Q map lights. How exactly is the
+shadowing done for them? And how is it decided? Is it like distance? Do they cache occasionally uh after a certain
+period of time? How exactly is real-time shadowing done? So we have static shadow maps for every
+single light source in the environment unless the artist specifically turn it off for for some lights. Um, and then we
+have a certain amount of dynamic shadows on top of that. Um, so we have a budget for that and we prioritize the lights in
+our scene that want to have a dynamic shadow. Um, and based on which light gets the highest priority, those get to
+get to have a slot in this in the shadow budget. Um, and that is mostly based on
+the visibility of the light on screen. So it's not just the bounding shape, but it's more like in terms of how many
+pixels are actually affected by the light. So the cluster lighting helps us a lot with that because we can literally
+count how many clusters that actually have a surface in there like actually have a pixel in them um are affected by
+the light and that way we can pretty efficiently figure out which lights actually have the most impact on screen.
+How have the AI Crowds changed for 007: First Light?
+Well thank you for that Alexander. Um one thing looking at the scenes you just showed us off in that video there is
+that the the crowds from Hitman appear to be here. Can you talk about what was brought over from Glacier as it we've
+previously seen it and what was added to it now to make 007 first light actually possible?
+So at its core the crowd system has actually survived all the way since Hitman Absolution where we kind of
+introduced it as a way to fill the scene with many characters and [clears throat] that uh type of crowd was a very moving
+crowd. So people would be moving in the marketplaces and so on. Throughout the Hitman trilogy, that crowd became more
+and more orchestrated or uh manually placed into smaller groups, smaller groups. So, we go for a less dense
+crowd, but hopefully with more advanced behavior in in each character and [snorts] that is brought over here to uh
+to W7. Uh so, we can see in the gala people are standing there. Uh in terms of new
+technology, uh we add support for crowd characters to be holding props now. for
+instance uh glasses or whatever else. Uh we have um much more advanced facial
+animation system for for the crowd characters uh head IK and so on so forth
+so they look much more believable uh up close as well. And we also decided to to
+narrow the gap between uh the meshes that were used. Whereas in Hitman there's a quite obvious lower quality
+mesh being used for crowd characters out of necessity. But uh in in this in this
+game we have managed to to bridge the gap so they look pretty much identical
+to to the real NPCs if we can call them that. So essentially
+enabling a higher fidelity of similar character systems that you already had before because with things like head IK,
+they're going to actually now be looking at your character presumably as they walk by or other characters as they walk by and things like that. Um, I have
+actually a question now since you did talk about real-time lighting and the rendering features which did seem especially with the GI and the lighting
+solution based upon now doing a lot of things in real time and I'm curious how much that extends over to the editing
+How is the engine's editing environment?
+environment uh in your engine and uh essentially how live the builds are. Are you guys waiting days for builds to come
+in or is it something that just happens within the blink of an eye? Our editor consists of of two processes,
+right? we have the editor and the engine. The engine is basically the game. Uh and when we work in editor
+mode, uh one of the coolest features that we have is that uh the memory and the uh ownership of the entities is on
+the editor and not on the game. Right? So that means that if you encounter for instance a crash while you're editing
+things, everything is kept as it is. You don't lose any work. uh you just reboot
+the game and you have everything there again, right? Uh and this is of course it comes with uh certain complexity
+because if uh the editor's there or it's not there, right? There are certain differences but in general it it works
+pretty pretty well, right? Uh we have um I would say a principle right to to uh
+empower content creators over other I mean over programmers or or or things like this, right? We want uh iteration
+times to be really really fast. Uh most of the things can be edited even when playing. Uh so it's it's really it's
+really impressive. You can inspect all the properties also in real time. Uh everything that is going on, right? And
+uh we are uh we base our our building systems in uh in mainline. So we work in
+trunk uh based uh uh source control approach, right? Uh so we have uh a lot
+of bills per day, right? So basically every 10 15 submissions we get a new build. Uh the turnar around for editor
+bills I mean builds that you can use from the editor it's uh around 15 to 30
+minutes tops. So you can have a lot of them uh for uh when it comes to the uh
+what we call the sushi build the standalone build right the the build that you play full screen which is uh
+playable at at greatest and late with latest and greatest things. Uh the turnar around is about 1 hour 1 hour 30
+minutes, right? So we are pretty fast at this. Uh all our packing systems are super fast and actually you every time
+that you do uh things in the engine, you're actually updating things in real time, right? And the power that uh
+entity templates brings to us also in order to just update specific parts uh
+of the game and this applies everywhere and uh we can also keep uh things
+smaller, right? more manageable more for people that working in the editor. So all these things together I think it
+makes makes uh the iteration times quite quite fast. You mentioned essentially everything
+being real-time editable with this entity system entity template system. Now one thing we've seen in games that
+How does Glacier keep the performance up while using node-based editing?
+use like flowraph or anything like that uh is that sometimes when you have too many of these things across a level
+these actors or whatever you may call them uh that performance is bogged down. So, how do you as a studio maintain this
+level of real-time flexibility and editing and also keeping performance up in a in a limited environment where
+hardware can only do so much? So, one of the great things about the engine is just not a model engine, right? It's a very quite model engine
+compared to our Unity. Our engine is made of like three different components. We have a editor as you see on the
+screen now and then we have the runtime and with resource server and then they all connect each other calls. So like
+the David so what if if one of them crash you don't lose your content you can actually rec you can correct there
+error and you can reconnect and it gives us a lot of lot of u you know um possibilities during the being able to
+connect to different runtimes being able to run different consoles at the same time through the editor or being able to
+uh do hot reload continuously uh and do all this kind of stuff. I guess do you
+want to tell a little bit about like the whole architecture of U? Yeah, sure. Sure. So, um, we always
+build our levels from an very large amount of entities. Uh, to put things into perspective, uh, one of the big
+hitman levels, the Mumbai level, it it contains more than 2 million uh, entity
+objects in the scene that are all loaded at the same time and all simulated and available at the same time. So the way
+we achieve that is of course to from the very beginning to have a an extreme focus on memory layouts uh you know
+making sure that there's as little overhead as possible in any any operation that we do u once a set such
+as Mumbai like with these two million entities are loaded into memory and our
+content creators start to edit them in the in the editor they they don't really
+feel any cost that scales with the total amount of entities because at any given time they really only are touching those
+specific objects that they are manipulating at the at the moment, right? Uh sometimes uh if if they select
+something and deletes it or moves it around, it can have a side effect. Uh and our editor uh is able to actually
+calculate a graph of all the affected entities that depend on a certain operation and then only update those. Uh
+so that means that each of certain operations can take longer than others but uh relatively speaking it's always
+operating at sub 1% like like whale is it's a very small amount of entities
+that it has to touch per operation. So it's not really [clears throat] a big problem for us to to manage the amount
+of entities. Mhm. That that's surprising because one of the things that we've recently seen
+with specifically Unreal Engine 5 games is that the entities and the actor system in that game has or in those
+engines has been kind of a bottleneck to CPU performance for a long time. Either when you traverse a level and a number
+of them actualize in one frame causing a big frame type spike or just the general
+heaviness of any of the levels that have multiple AIs or movable objects in them. and your games in the past haven't had
+that issue and it's always fascinating to see as to why that is the case here. Now, one thing that you guys are
+mentioning as part of this, can you give me like a demonstration of one of the main benefits of this entity component
+What are the benefits of the "BRICKs" system for game players?
+system or this brick system? Because if designers are sharing assets across
+levels, what are those assets usually like and how do they benefit the the gameplay from the player perspective? So
+uh again coming back to uh the kind of the amount of entities and how it
+compares to perhaps other engines the overhead of having an entity object by
+itself is extremely small. I think the the base class is uh around 32 bytes out
+at the moment. So that's a tiny tiny object. So we can afford to use entities for more than the obvious stuff like
+light sources and models and that type of stuff. So we also use it to set up logic. Uh we had that all the way back
+from hypnotion. This kind of node based scripting visual scripting system we can
+call it that. Obvious example could be uh to have a a rotator entity which is
+very basic that points to something that is actually visible and [clears throat] and designers can this is the way one
+way for designers to set up a small script that will rotate something. But for 007 we decided to take that like way
+way way further and invest in building a set of almost programming language like
+building blocks. So now we have uh nodes for if statements you know flow controls
+uh iterators all types of logic. So when I say there are two million uh entities
+in a in a level, it might actually at the moment be split in a
+70 30 percentage of 70% being logic based and and 30% being more of the
+traditional kind of entities like models and lights and so on. Mhm.
+But what you can see here on the
+that this is a like and BFX artist together with environment artists or prop artists making some canisters. They
+put up a logic together and then someone else just putting another kind of a
+another template of different entities coming together. And actually this has happened just
+before we make the demo. uh uh last time we show it the first time. So if you go
+to the next one um so someone from the design team really like this thing and
+say hey we should empty them fill up with the canisters and then put it into the to the game without any programmers
+involved and then uh they just uh make it happen.
+You get this and you get everything interact with each other. Um, so I'm
+getting a sense of how the the the technical legacy of Hitman affected 007.
+But when you watch gameplay videos pre-release or you were at one of the preview events, for example, one thing
+How was character animation improved for 007?
+you can definitely notice is that the engine visually beyond the GI system and all the other things we talked about
+earlier has also advanced in other areas. For example, uh, Bond is a rather
+fluid moving character. If you've played the Hitman games, you know that it is very, I would almost say, binary in the
+way you interact with the environment at times. You know, you contextually move uh and hit a button to interact with
+something and then Hitman goes into some sort of almost static looking animation, but here it looks much more fluid. So,
+can you detail the changes to the animation system to the game to allow to to allow for this kind of more fluid
+movement? Yeah, we actually um rewrite the our animation pipeline and we have
+another Alex with us here and he can walk you through it what we have done. Alex, go ahead.
+Yeah. So, probably the the best way to summarize what happened since Hitman is that we added a lot more full body
+gameplay animations to the characters to player and NPC. Uh because for such a story game uh Bond
+can be in different contexts like license to kill and social
+uh and it has to move with different speed and different visuals in in those different contexts.
+Um for example, Heathman uh moving uh in the open space it probably is using
+around 10 animations while Bond moving in the gala is is 100.
+uh and that that is just uh to make him walk. Uh in other areas you would also
+need to run and sprint and go into cover and all of those is a lot of full body
+animations which is actually what what is uh bringing quality.
+Wow. Um and so to manage all of that um we set to uh work on the new animation
+system. Uh, Hitmon used a middleware uh solution uh that is no longer
+supported. Um, and being a middleware, it also
+means that it has to be integrated with the engine which uh for sure leaves some boundaries between uh middleware and
+engine and eventually making the workflow of animation team worse. Um, because the new animation system is
+not really a standalone thing. It's part of the engine. We were able to build a integrated set of tools
+um a great debug and and uh uh improve the iteration for for animations team a
+lot. uh as a way to uh organize all these uh increased complexity uh we
+chose to use motion matching approach um which is what is is running when when
+bond is doing locom motion uh agility uh and yeah like a general navigation
+uh besides that that is that is forming a base layer of the character it's like any animation system would have movement
+as a case um uh on top of this uh there is other layers uh like things that we
+cannot uh do as full body it might be too expensive
+um procedural modifications like uh lookouts um and uh adjusting character to uneven
+surfaces placing feet on the ground. Uh we have also improved a lot on uh
+powered and partial ragd doll simulation for uh for bond. Uh when explosions
+happens happen or when characters uh are dying uh animation team can now uh
+uh can now author uh in a completely datadriven way all these behaviors.
+One of the key for us was always just like giving the empowerment to the designers. Everything we take as like a
+principle we just want to expose as much as to the designers so they can decide it about the and express their way of
+storytelling right that's like that's kind of a core component for us maybe can um Alex the other Alex can
+also talk about the uh close combat I think it's also something that uh we
+hear that people are super excited about it close combat is um one of the layers on
+top of the movement Um it also has a lot more full body
+animation. It relies on uh motion warping technology. Um which
+means that uh uh we can say that all all these animations when characters are hit
+into environment they're sort of like mini cinematics in in a way like a
+pieces of action. uh uh and they have to be adjusted to the gameplay environment.
+uh like essentially we have like a couple of options for the environment and when
+it happens in random places in in the level uh you have to adjust that and the tools for that that that we developed is
+um uh is IK systems uh that are needed to connect characters
+um together uh and uh motion warping uh which is the tool to kind of close
+the distance between characters and and make them move to the precise uh requested positions.
+You probably noticed that everything we showed so far to you that it all happens on the same visual scripting layer. So
+everybody in the in the company they use the pretty much the engine in the same
+way they is everything is note based everything is the same logic. So a level
+designer can understand what environmental arts doing is an AI programmer can understand what another
+programmer doing. So that's just like that's just like it's become a kind of a campfire for us bringing everybody
+together so they can actually work together and that's one of the key things for us that
+creating that storytelling that people need to work together all the time and that iteration speed working together
+understanding each other what they're doing is crucial to us. So but we can also talk about AI um um and how we did
+the AI part. Sure. So we have um different ways to
+Fluid AI interactions, scripting, context
+approach AI. We have a more systemic uh type of AI which is of course when you
+enter into confrontation and you escalate to combat. Uh
+in that case uh we use uh more uh programming oriented technology. uh
+while uh when it comes to drama moments where what it was called drama moments in Hitman I think uh here we call it
+story lines is uh drama moments on eststeroids let's say right um this
+thing is uh basically a way to script things that happen uh like dialogues
+like interactions with other characters uh with B and other characters but also between characters um in the world uh
+also for companions and these type of things right uh the systemic part is uh we're using HTN uh so we uh basically uh
+create uh composition uh classes that we
+can put together in order to create archetypes of certain complexity. uh
+this is uh multi-layered system right so we can have like three four different uh
+chains of thought happening at the same time on each one of the NPCs right let's imagine that you want to go to cover but
+you are in the middle of a shootout so at the same time you want to keep line of sight with bond at the same time you
+need to be aware of where your uh other uh NPCs are who is shooting uh etc right
+so we have different lines of of thought so if you end up not going to the cover, you still keep the line of sight, you
+make decisions based on all these all these things, right? Um, so this allowed us to uh express very complex behaviors
+uh where you go in the videos that we showcase today, right? You go from a social space like this party uh into
+something that is more in uh confrontational. Let's say someone notices that you are not in the right
+place, right? And you have options to decide what to do that it can escalate or deescalate. Uh and we are basically
+switching uh this chain of thought in real time, right? Uh to an extent that
+if you are in a shootout and you start running away, there are uh maybe enemies
+following you, trying to catch you, communicating between them, you know. So this is when it comes to the systemic
+approach, right? So basically designers define areas, define certain markups. Uh
+particularly one of the things that probably you notice in videos is all the contextual attacks that we have. Uh so
+we have a lot of things at our disposal. We can smash uh enemies against a mirror
+or take a mag and throw the mag or even the weapons and all these things right. So all these things are designed in in
+the spaces. Um and uh when it comes to the drama moments uh or this story line
+thing, right? uh it's uh basically that we pick uh certain uh situations like let's imagine
+that uh I want to share a glass of water with uh two more people right we can
+decide whether these two more people is anyone in the room that passes by you or
+some people in a specific right so you want to have a dialogue with a companion of course you need to have the companion
+in the story line otherwise someone that is passing by can talk to you or give
+you something or these type of things, right? And this is set up all in core logic again in this gra visual graph uh
+language that we have. So, uh you can easily access every other part of the
+game, right? I think that the power is that that that you are not limited to the area that you're working because
+everything's there, right? So, you can basically from a story line trigger a canister uh explosion or whatever you
+want to do. [laughter] That's a that's a very Hitman like logic to things. I love that. Um, so that you
+guys are talking about like the systemic interactions in gameplay, but Bond is a cinematic universe and it has existed
+How were cinematic character modeling and animation improved?
+obviously in games in the past, but more now more than ever due to the the heights of fidelity we have these days,
+uh, you can see Bond as if it were a film through um, cinematic sequences at
+the beginning, tail end, middle of a level, whatever have you, flowing seamlessly between gameplay. And that's
+something that the Hitman games in the past have kind of had, but definitely wasn't their core strength or a core
+focus. It was really about everything in the levels. So, can you talk about exactly what was needed to get that
+cinematic quality of cutscenes that we didn't see in Hitman,
+but we definitely see here? I think the one of the the improvements
+we have is the the facial animation. Um, so I'm just going to pass it to Alex
+again uh to talk a little bit about that. There's again an increase in the bone count where we're using a bone based
+facial animation. Um, it's more bones um
+where uh we have kind of like a stack of poses uh that are blended according to
+the activation curves uh in in in the animation. And now for this, was this
+something that was written internally or did you have to I know you talked about not wanting to leverage middleware
+before, but just bootstrapping this for the first time sounds like a a big deal. So this must have been a large part of
+the project's development. Yeah. Yeah, that's also internal development between um animation system
+and uh uh dcc teams. Um, so beyond that for character
+fidelity, uh, maybe the other Alexander has some insight into this, but things like, um, subsurface scattering or you
+said more bones, but is there more to it just than more bones too? Is there also like I don't know blushing and whatnot
+in the game? Like how exactly is the character fidelity pushed in other ways
+beyond animation? Uh, yeah. So, we have a bunch of tech
+artists, especially one specific one, who are spend a lot of time making sure that our characters look uh look just
+right. So, you can see that we we have scans of of the actors. They spend days
+like side by side between like a picture. They took a reference picture and making sure that the visuals uh hold
+up. We in general pushed um what we would expect in terms of the
+straightforward quality, right? the texture quality, we see the material work, we uh you see um but then we have
+the subsurface scattering on top. Um we have developed a very specific light
+model that we use for uh for skin shading. Um that helps us get the to make the skin way more realistic. Uh we
+improved the eye shading, uh which is also a big part of it. Um and also spend
+a lot of time improving the the quality of the hair rendering. Um making sure that that holds up. Um, it's also driven
+by our cloth simulation. So, you can see Bond in a lot of a lot of situations. Like there's this one sequence I think
+that we showed before also where he's like upside down in in one of the cutscenes and you can see the hair like
+reacting as you would expect, right? And that's like it's all the little details that kind of coming together. That's
+they make him look like extremely extremely realistic I think. Yeah. a lot of secondary motion on top
+of the primary animation that is quite visible especially in like a lot of the suits and stuff being worn by by Bond
+and whatnot. So yeah, so the cinematics are one part of Bond, but another thing if you watch the films at least that in
+certain sequences in some of the films there's a heck of a lot of explosions and smoke and whatnot. So I'd love to
+How were effects work (smoke, fire, particles) enhanced for 007 (Smolder System)?
+know you did talk about earlier advancements to the volutric rendering in the engine and I'm presuming that also ties into things like explosion
+effects. So, if someone would take over that, I'd love to hear about it. Alex, you want to go for it?
+Yeah. I mean, I can I could talk about that one for for a couple of hours. Uh, let's do it. I got ours. Let's
+You have video, right? You you want to share it on your I have the engine running. I could show it in engine. I think that would be the
+best way to show it.
+Yeah.
+Yeah. Yeah. I I think that's that's perfectly fine. Like maybe Jonathan can keep track
+of all the all the additional things we we want to deliver and then we can just record that after the fact. For sure.
+Yeah. Um Okay. So for
+um for 007 we did a bunch of the the typical volumetric systems that you would expect right volutric fork uh the
+typical like fxal based system like the frost malign voxal system and also an atmospheric system and so on. Um but we
+also wanted to push in the volumetric effect um quality direction. Um and this
+is where we built a system that we internally call Smolder. Um where we are trying to like push the volumetrics uh
+like or volumetrics in general forward uh in terms of what's what's out there. Um because what you can see kind of like
+like volumetrics have been popping up in recent years quite a lot in various games but they tend to be very
+purpose-built for for specific things. Um, so volumetric clouds are very
+popular, right? Or you can see volumetrics in certain games like for in
+very tightly controlled areas in specific boss fights or where the artists can hand place the lights and
+make sure that it looks good. You make sure that you have no transparency around because they tend to not blend as well and and those sorts of things. Um,
+so but we were like trying to aim for a system that can do that. Um so essentially there's like three aspects
+that we we had we had to solve. Like there's the performance side of it. Um that's a big one obviously. Um but then
+it's about like kind of integrating the effect into the environment. Um so there's the integration in terms of the
+just the blending the composition with the scene. Um and in our case that means we can take those those smaller
+volumetrics that we have and they integrate seamlessly with our transparent objects and also with the other volumetrics. Um and the reason why
+we can do this also is that on transparent side we have order independent transparency and that's kind
+of allows us to like build like this unified um function that that allows to
+integrate those things seamlessly. So we can have transparent objects and particles specifically that we use in the explosions heavily um and they will
+just order incorrectly and the artists can go in and build those effects the way they want. Um, and the other thing
+that's important is the lighting integration side. Um, so smaller in is
+fully integrated with every single lighting system we have in the game. So every single direct light affects it.
+Um, the GI affects it. Um, and the like
+the kind of thing that makes it makes it especially cool in my in my opinion at least is that every single light source
+in the game cast a shadow from it as well. And you can kind of see this here. like I have like a a volume here.
+Um we can just like move around. You can see the shadow on the ground. It's like the shadow that it casts on that the
+volume cast onto itself, the self shadowing, but also like the the shadow on the environment. Um and we can like
+go through the animation. You can see how the shadow like builds up dynamically, right? Um, and this is what
+makes it really powerful because the the thing that we want to avoid and that kind of ties into the workflows we have,
+the scalability we want to have is we do not want to have systems that you have
+to spend time setting up to make it make them work. And we also don't want to have systems that you have to set up for specific uh platforms. So, we need
+something that the artist can just drop in and that that kind of gets the job done. Um,
+and for us like smaller does all of those things. And in 007 the extra
+requirement that made that especially hard is that we also give those effects
+into the hands of the players. So we can't control where they are placed. Um, Bond has a gadget that is uh like the
+smoke gadget where he can create like this area of smoke like similar to like a smoke grenade. Um, and we do not
+control where the player uses this effect. uh he can throw that into any corner he wants and we just have to
+handle that. Um so it also allows us on top of the works allows us to create gameplay effects with it um that we
+couldn't couldn't do otherwise. Um and I can kind of show the the effect a bit of
+of when we have this um the volumetric on here like I can for example just turn
+off the shadows and you can see how much that does to just having like more more light and I have like
+around here. Yeah, I have a second effect. They can just overlap. They can they can plant with each other. Um, and
+we can just move this guy around and you can see how it just picks up the local light where wherever we are.
+I'm curious actually. So, what is the primitive that is under the underlying
+thing underneath all this? Uh, you mentioned earlier uh but what is this
+in terms of the rendering or in terms of the shape you see? Both. Let's do both. [gasps] So in in
+terms of the rendering um it is at some point goes down to ray mulching. Um but
+traditionally um volutric scale extremely bad uh in terms of like
+scaling to higher quality um scaling to multiple light sources. Um so that's
+something that we that we solved with the algorithm um that we created for it.
+Um, and then under the hood, and I can't go into too much detail there, but
+essentially we we developed originally we developed smaller not for um 77, we developed it for one of our other
+projects internally, but then we uh had the need for the smoke grenade uh type of gadget um and had to bring it over.
+Um and that that decision was made like early last year where we didn't have that much time in development left. Uh
+so we decided to play a slightly more safe there. Um and essentially the uh
+let's see if I can get that intensity down a bit. Um
+essentially like those um effects the the actual shape is simulated in an
+external tool. Um so we generate like those little little voxels like in a 3D
+grid structure. Um and for that we utilize the open VDB format uh which is
+like a pretty like more or less well-known format. It's like the the volumetric cousin of
+open USD uh more or less um which enables our artists to just use whatever tool they want to use for the job. We
+mostly use emberg genen. We really like the the workflow in it. Uh but you can use Houdini, you can use Blender, you
+can use Maya. Um you can really use any tool to create these effects. Um but
+that means for for 007 essentially the shape is pre-baked and then all the lighting, all the rendering is happening
+in in real time. Um, does the technology also lend itself to non pre-baked shapes
+like in the future? I'm just curious like it might. Yeah. Yeah, it might. That's what it sounds like. Yeah, like it it is definitely something
+that we are we are working on, but like for 007 it was a bit too late in the process for us to to actually ship it.
+Um, but what we what we also and I I looked at it the other day is we in the original Neo board where we had a
+meeting and discuss it. Um it was we we were planning on using it for for the smoke gadget. Um but then because you
+can like it kind of pointed like how well the workflow works. Um
+and basically we're at this point we have like over 400 of them in the game. Uh because artists just place them
+everywhere. They use them for everything. Like it was supposed to be like this one single use kind of thing to solve our problem of getting higher
+fidelity. Um I think I think first time they I think
+we put to the first ever um when we showed the game it was last year when the bone jump with his car. It goes
+through the smoke. I think that was the first time that we put it in. Uh yeah,
+we have it in various cutscenes. We have I think we have around 30 of those in our intro in the first cut scene in the
+game. Um you we and the artists just went crazy with them a bit to some
+extent like to and did stuff that we didn't really expect like we they used them for volumetric clouds when Bon
+jumps out of the plane in uh the section we showed uh last year as well. Um yeah
+they're all over the place uh that's fantastic. Do you do you see this becoming a replacement for the
+ubiquitous Billboard particle which has such a long storied history? And it's always a little sad that I see them, you
+know, 35 years later. [laughter] Yeah. I mean, uh, for us it's a it's a combination. We have a very powerful GPU
+particle system, uh, that we also built new after Hitman. So that's the 007
+first is the first game where we ship with that particle system and that allows us to do amazing things. So,
+we're kind of like seeing it more as like them complementing each other. Uh because the billboards are like
+obviously for something like like the uh like the smoke effect here, right? Where you actually want to go into the smoke
+and have it like be volutric, they fall apart very easily. So, you kind of definitely want to go for for smaller.
+But if you have something that is like very far away or that needs like this extreme sharpness in it, right, then you
+might want to go for billboards or like for traditional particles. And since they integrate, seems like you can just
+use whichever one you want, right? It's really up to the artists what they what they want to use.
+That's awesome. Uh, I guess the last thing that I want to talk about is the levels. So, Hitman levels were kind of
+How were the *much* larger streaming worlds added into Glacier Engine?
+like a stage usually with limited borders. But one thing you even saw in the demo that I, for example, saw at
+Gamescom last year is that the level evolves from being like a manor house into a driving sequence that goes very
+far, very long, and then ends at a tarmac, for example, as a plane is
+taking off seamlessly. So the question is, what was needed to make that possible? Because the level
+size seems greatly enlarged and also there's no reason to have the manor still running in the
+background. I'd presume afterwards after you get away from it. So, so, so what
+level of streaming is occurring here? Yeah, we also did a lot of work there and just probably you're the right one
+for that. And uh I think that so for Hitman we introduced the brick system that you may have uh investigated before, but uh the
+Hitman games were always level based, right? So you were in a main menu and you would boot into a certain level and
+the bricks that was tool that we had that that allowed us to combine
+a a location with a mission and so on so forth. So to to kind of make different variations of of level for elusive
+targets and game modes and so on, but the bricks themselves were always required to be specified when loading
+into a level. Uh so what we did now is that we have fully dynamic brick loading
+and unloading uh while the game is running. So that that's really the new thing uh for streaming which was
+incredibly difficult to achieve to be completely honest because when you build something like a texture streamer that's
+a close domain where you can you can build the tech you can kind of reason about is this thread safe or not. You
+understand exactly what this piece of tech is going to do. But when you start streaming level logic in uh entities
+that are created by by gameplay programmers, some are even composited by the visual scripting language. They are
+going to execute certain initialization logic as part of that kind of loading in
+and it's impossible for me as an Indian programmer to make any guarantees about
+what they do when they initialize. Right? So we had to invest very heavily into systems that would solve this
+problem. Uh and uh and that involves of course every now and again they need to
+go on the main threat and do small things. Uh so the big challenge was of course to make sure that was frame split
+uh correctly and that no single function call in the entire kind of loading or
+unloading part would ever take longer than the 2 milliseconds that we have available per frame for for streaming on
+the main thread. Uh but essentially that is what's going on and um so the
+combination of targeting 60 fps and having uh completely seamless level streaming that was tough for sure but I
+think uh [clears throat] we managed to do it. So I I hope once you get your hands on the game yourself you're not
+going to find too many uh places where we are going to drop frames when streaming
+for the the people that curious about the brick system itself I think is also something that is quite unique to us.
+Maybe you can about that. So again as we talked about before we built uh all our
+content up of entities at the kind of lowest level that's a single thing like
+a model or light source and so on. The next layer so to speak is what we call
+templates that is like a collection of entities building something like
+you know a prop chair with impact effects and whatnot that can be placed many times in a level.
+uh those are then combined into what we call bricks and and bricks that's more like a layer of the scene. So imagine
+for instance here we might have one brick that contains just the geometry with no characters in it. We would
+consider that the uh location and then in another brick we might add the gala
+that's going on right now uh to be loaded on top of that uh level and on
+top of that again maybe we have a certain mission for bond to do inside that gala that uh that again is layered
+on top and all of these can be mixed and matched. So we could very easily make a different version of the building that
+did not no longer contain a gala but would contain something else. That's what we do in Hitman very often, right?
+Where we have the fashion show here, but we could can come back later and do something else. Uh and and these bricks,
+they allow for modification of whatever is kind of beneath them, so to speak. So
+it's not just an additive thing where you add more stuff into the level. A brick can also specify that it wants to
+remove certain things in the bricks under it or can override certain property values, override certain of the
+scripted behavior and so on so forth. So it it really is a system that is super powerful and allows us to get a lot of
+use out of the content that we have as demonstrated with all the guess hundreds
+of exclusive targets and and game modes that we shipped in Hitman. I think that
+uh when I when I joined and we were uh working on the streaming system and they
+said we're going to use the brick system to build the streaming system. I consider this a genius idea, right?
+Because we don't create another system that somehow overlaps uh partially with with
+the systems that we have. We just take advantage of what we have in order to make something bigger. Right. uh in the
+case that you mentioned the the airfield well the all the uh drive section the
+the mansion then the airfield etc is basically this uh bricks going in and
+out right so we have uh full control everything is again happening from the visual uh scripting system right so
+everything is about entities so you can work in the in the same graph and
+designers can make decisions about what to activate deactivate load and load at any time Um so it's in full control of
+the people that are designing the different setups uh to make things happen one way or the other.
+Okay. So you guys have built a whole bunch of new tech and it some of it sounds extremely expensive from a
+runtime perspective or a real-time perspective especially stuff like volutrics and GI. So how are you
+How was the game optimised on CPU and GPU to hit 60 fps (live PS5 demo)?
+maintaining your performance uh GPU and CPU wise especially GPU wise now given
+all those effects on something like a base PlayStation 5. So let's just show it to you. Uh we have u Alex is sitting
+on his desktop and connected to a PlayStation and he will u show you the game and on the right bottom corner you
+can see the FPS. So So can you get go a bit I know you're playing at the same time but could you go a bit into actually maintaining 60
+what does that require in terms of like resolution and occupancy handling and
+all these other aspects? Yeah. So, we set a a target like pretty pretty early
+on um that on PS5 Pro, we want to run 1440p upscale to 4K um so internally
+render at 1440p um at 60 fps. Um on base PS5, we do the same in quality mode at
+30 fps. Um and then for performance mode, we target like 1080p internally and upscale that. Um, and Series X is is
+equivalent to to the base PS5 there. Um, at the same time, we also like built the
+the game when the artists build the game, they built it with the expectation is that the real-time GI is in there and
+like all the all the fancy features we built in there. So, we had to make sure they are running on console because like
+this is the sort of game where like a lot of the people will play it on a base PS5, on an Xbox, right? Um, so we have
+to make sure like all of our all of our features are in there. um we
+essentially built a bunch of like core tech that allowed us to scale uh very aggressively and then we also paid
+attention that like all of the the features we built have the scaling that we need built in. Um so
+we have modernized the the core of our renderer from Hitman and we have a frame graph system which uh has become pretty
+pretty common in in some engines. So essentially we have a a graph that uh includes all the dependencies of all the
+resources within our frame. Um so that allows us to schedule our individual passes very efficiently. Um we very
+aggressively use async compute uh as well. So on PlayStation we have uh up to
+four async compute pipelines running in parallel. So we make sure that like we fill up the GPU at every every single
+moment. Um at the frame allows us to to do that very yeah very very
+aggressively. Um and then on top of that we built like this a lot of like core tech that allows
+us to scale in the systems like I mentioned the clustered lighting before that we built but it also means that like all of the systems that have a
+dependency on lighting uh can benefit from that. So volutric lighting is is one of those cases uh that benefited a
+lot from it. Our regular lighting pipeline with this those really large light counts that we use in the engine.
+Um then we uh had optimized our various
+systems that we have in the pipeline. So mentioned the order dependent transparency that is not a cheap system by default. So we had to spend a lot of
+work to make sure that this scales well um to our low-end platforms. Um and also
+like that it runs well on on the PlayStation, right? Um and then it was
+beyond that it was just uh a lot of optimization work as well. Like it's the the typical thing like there's no real
+magic bullet to it, right? At some point it's just like we had automated performance runs. Um we had create
+performance runs. Um you have to look at the capture, you have to spend the time uh figure out what's not working and we
+we had a very good content team who who helped us out with that. Like our tech artists helped us out a lot with that. Our environment artists um and we
+basically just fle the issues we had um and then went from there for the systems
+we built new like the volumetrics right like I mentioned we have them everywhere. like I wasn't wasn't quite joking like in the the plane here I
+think we also have like five or 10 of them. Um the systems we built new we just
+built with the scalability from the start. Um so we have like this thought internally that if basically if a system
+can't scale down to uh our minsspec that we want to run down the line then we don't do it and we knew from the start
+that our minsspec is below 20 series. So we our midspec now is a 1660 um on
+Nvidia side and RDNA1 on AMD side um and we want to
+make sure that we reach that right we also we are shipping to on switch 2 later this year um and we do not want to
+cut any of those features and we don't want to rebuild features or anything. Yeah. So uh as you know we we use a
+common kind of tech base for all productions within within IO but still each game can decide to have its own
+approach to to build on top of it. And one of the issues that we faced
+for a while was that the it had the it's using an
+kind of an entity component system that had to integrate with the normal kind of
+frame update systems of the Glacia engine. that's fine, but it just means that when you go into optimization mode
+and and have to reach the 60 FPS, we got into situations where one system might have be waiting on a job uh while
+something that was in the other kind of uh kind of side of the fence, so to speak, could execute at that at that
+time. So, one of the things that um that we worked on was uh making new systems
+that allowed these two to merge seamlessly together, right? So, so we can per project now configure which part
+of the base pleasure engine we would actually like to execute from within that uh entity component system and then
+on top of that of course it's a lot of the the usual suspects we needed to make sure that as many uh as possible of the
+expensive systems that would be physics simulation AI innovation [clears throat] to to the as much as as possible we need
+to make sure that runs off the critical path uh so off main thread and on onto workers and in parallel and that's just
+a lot of work when you have uh you know uh [clears throat] thousands of of systems uh to look at. So it took a
+while but uh but now we are we are there and generally speaking I think performance is super solid for uh for
+for main thread. I mean like it's actually running a good part of the
+game is running like way above 60 fps for for the kind of CPU power side of
+things. Um so so that's pretty you're pretty confident that that's going to run really well on all our supported
+platforms. So beyond the main thread, how high do you scale usually like uh before you
+start seeing diminishing returns uh because uh PC CPUs get very wide at some
+point? Yes. So um on the consoles we have eight worker threads uh going on and that has
+been uh you know what we have uh built for uh to to make life easier for
+ourselves. So internally uh on our office PCs we tend to run like that but
+it's not something that's enforced in the game. So we're going to scale to all the available course uh uh that of
+course at some point as you as you uh as you say that's going to be you know one
+part of the of the engine that's going to be a limiting factor to to how how much further you can uh you can scale.
+But uh honestly with the graphics fidelity we have going on in the game I think we're going to that it's going to
+be limited for for many people uh right so yeah
+that's very typical for a lot of modern high-end games that the GPU becomes the limiting factor before the CPU and
+that's a good thing that's what you really want anyway from a fluidity perspective. Um since I'm the PC guy
+this is a bit of a left field question but I just thought about it. Um you mentioned you know a lot of uh CPU
+How does 007 First Light handle shader compilation on PC?
+optimizations and also making sure that the frame times are clean. One thing that has plagued PC games for the last
+couple years, half a decade, full decade is uh kind of pipeline state objects and
+compilation in real time. How does uh Glacier handle it in this game? And uh
+yeah, how is it done? I think this is human.
+So yeah, like it's we are we're not an exception, right? We also have to compile our our PSOS. Um the way we
+handle it um like on on a more of a design side um is we avoid from the
+start that we get into the situation where we have an enormous amount of shader permutations. Um, and the way we
+avoid it is that we consciously uh avoid having any sort of static branching in our shaders that would create this those
+permutations. Uh, because you probably know like they like scale exponentially, right? Like you have your first branch
+and you have two and like with your with your fourth branch uh you're up to like 16. Um, and so if we create like a
+permutation manually, uh, even for our internal shaders, it's a very conscious decision. Um, so we try to keep the the
+overall amount of of PSOS low. Um, and then on top of that, we we do uh
+pre-caching for our for shaders. So on on first boot on PC, you will have to compile shaders. Um, that doesn't take
+too long. Like on on regular PCs, like we're not talking about like like ours here is like a couple of minutes at
+most. like on on my PC, which is to be fair like a fairly fairly beefy machine.
+It's it's definitely a lot lower than a than a minute. Um but it it really depends, right? Um but yeah, it's
+unfortunately still we're still not in a in a great situation there, but apparently Microsoft is working on it a
+bit. So hopefully in the future we can improve that. That's what I'm always hoping to hear. And um is the is the gathering process
+manual to get all the ones that you need? No, it's automated. It's automated. See, that's that's what
+I love to hear. [laughter] Yeah, because uh I've always found that manual gathers for games tend to be very
+very incomplete usually after the first level. Yeah. Uh and uh yeah, so that is an excellent thing to hear. Um, so that's a that's a
+high-end PC process. And you guys already talked about scaling. I mean, even lower than PlayStation 5, GTX 1660
+and stuff like that, RDNA1, things that necessarily don't get the most updated driver branches these days even. Um, but
+how about scaling to the high end? Uh, the game has been announced to be supporting path tracing, and I was
+Why and how was path tracing added to 007?
+curious if that is built on your engine's previous um iterations of ray tracing that we saw
+in the past in Hitman 3 and then World of Assassination or is this something entirely new? Uh, exactly what is the
+the genesis and path of path tracing in Glacier?
+So, to be completely honest, there's not a lot left from the rate tracing in Hitman. Um it was one of the earlier
+rate tracing implementations. Uh the technology has evolved quite a bit since then. Um so there is some low-level
+directx code around that is still the same. Um but it's very much rebuilt from
+from back then. Um we are also uh working to get the engine into a more
+and more GPUdriven rendering state. So especially for for the path tracing um we utilize that quite heavily. So when
+it comes to um having bindless resource when it comes to having our materials uh
+all on the in the on the GPU and managed by GPU when it comes to having our meshes there the instance data there and
+so on um and then from like just a like a higher level side in
+terms of path tracing I think it's there there's multiple things to us for for us in the render team specifically uh we
+have a extremely high interest in in having that in our engine um even just for our internal workflows
+um because we can use it as a reference mode. Um these days when you try to be as as physically based as possible um
+it's extremely important to have some sort of reference you can use to make sure that you can validate uh what
+you're seeing in your engine. Um but I think also from a from a player perspective I think Bond is just also
+like a really good game for path tracing. We have like every mission is a completely different environment. Um
+like it's a very realistic kind of game. It also works well in terms of the expectation you have. You have for a
+bond game. Um, so yeah, I think it's it's a good match. Yeah, I'm excited to get the hands-on
+with it and see what it brings to the table. But but judging by the fact that the game is already using trace GI,
+it'll be interesting to see what level of fidelity that brings over it and uh also how it plays with other systems in
+the game like volumetrics. Um, but yeah, so
+I guess uh one last question. questions I want to ask that I always ask at the end of these interviews because we've
+What was your favourite aspect of developing the tech for 007 First Light?
+touched on so many different points and I would love to hear from every single person if you could would be what's one
+aspect of while working on bond or glacier for this that you were really proud of happy with or just something
+that was satisfying I would love to hear from each and every person if you could
+let's start it uh from Alexander Shao Shao
+I'm of course very happy about our new animation system and the quality and
+fidelity that we were able to to achieve um in comparison to Hitman. Uh and uh uh
+it's also really really good engine toh to do that. Mhm. Um [clears throat]
+there's a lot of great systems like a resource system and asset system um that all kind of technologies up the
+stack rely on. Uh it's very good. Yeah. Yeah, I mean for me it's it's smaller our our volutric effects. Uh
+that's that's my baby. I'm very happy how it's how it came together. Very happy how the artists use it. Um that
+they they adopted it. Um and they seemingly like like working with it. Um
+it's also like we on doing the Hitman games like Hitman
+one, two, and three. Um like a lot of the render tech was not as didn't get
+developed as quickly. There were the team wasn't that big. Um there was a lot of maintenance in terms of platform support, adding the rate tracing
+support, that sort of stuff. Um so for for bond we had to modernize a lot of the engine and some areas catch up. But
+now we're also like at a point where we can like push ahead and like like that is one of them. So that's that's always
+very fun. Mhm. Volutric rendering is a new frontier. So it's going to be incredible
+to see how Smolder develops. As a director, I'm generally not very
+much into coding these days. uh if if if it goes to coding uh I coded I I I
+simplified the camera collision system a lot and I'm very happy about how it
+ended. uh but I think that from a director point of view I think that the synergies that we have created between
+the different teams uh with the AI tech team, the gameplay tech team also
+animation which have runoff I think that has been uh very healthy and uh the team
+of course grew up a lot uh in the latest years just because we wanted to bring
+this quality to this game right so uh it has been very easy for me to work with them and uh yeah this synergies and
+building up the team and see people growing inside the team I think is the most satisfying thing for me.
+Yeah, I have to go with the level streaming because it was no easy task to
+retrofit the streaming onto something that was from the beginning made for load screens
+and uh have that run smoothly at 60 fps. That's uh I'm happy about that.
+Yeah. when I'm so I started IO in 2005
+then I work um 7 and a half years then I left 10 years then I'm back in the last
+two years uh so but I've been out uh doing other stuff as well like other engines uh one
+thing that I'm so proud to come coming back is that to see the passion that
+each individual engineer that we have in IO and IO is also especially I think is
+We are very uh how do you say it's very hard to get a job in IO and everyone we have in the
+company are their best in what they do and just like having a just chance to work with very
+competent people every single day like you can throw out any kind of a problem and someone will have an idea about how
+to solve that complex problem is amazing right working in a company where just
+not driving but driven by technology but driven by games that you know um uh
+first game right we we here to build something that eventually will be in the
+hands of the users right and having everybody to working together to make that happen not just about one
+technology but everything working in a harmony creating the the fun in the game play creating the immersion on the world
+building and then making it run on the platform so that's efficient and possible and you pretty much you capture
+all game development right and That's that's what we're here for. Uh just to make things happen.
+Yeah, it sounds like a harmonious effort and I'm very grateful to have learned a little bit behind the scenes here and in
+some cases a lot and I actually want to learn a lot more. So I hope you guys have some presentations at either SIGRAP
+or GDC at uh for some of the various core technologies but driving this game because it sounds incredible. Um but
+yeah uh thank you everyone for joining me today. Thank you very much. Thank you. Thank you.

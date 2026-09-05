@@ -1,0 +1,838 @@
+to those of you in the northern
+hemisphere where it's currently winter
+I envy you it's about 30 degrees in the
+office but the ray tracing series must
+go on hey so guys my name is John and
+welcome back to the New Year to the ray
+tracing series we're gonna have a bit of
+a chill episode today we're just going
+to talk about some kind of performance
+optimization things and more importantly
+answering the question of how do I find
+out what the bottleneck is how do I find
+the Slow part so last episode we talked
+about multi-threading what we did is we
+took our currently running code and we
+made it scale across all of the CPU
+cores we have available to us
+we did that using this kind of STD for
+each function with the parallel
+execution policy and we even have a
+little Define here that lets us kind of
+toggle that on and off and our
+performance with that running with the
+multi-threading was around like 26 or so
+milliseconds per frame on my laptop
+which for reference is running an AMD
+ryzen 9 5900 HX CPU and you can see all
+of the cores here being fully saturated
+now it doesn't take a genius to see that
+a performance of like 26 to like 30 or
+so milliseconds
+using that many threads and that many
+cores versus if I just shut off
+multi-threading versus about 60
+milliseconds like
+you know that's about twice as fast
+maybe a little bit more than twice as
+fast which doesn't really make sense
+when you take a look at what this looks
+like like the CPU is mostly idle so how
+does throwing that much more Hardware at
+it result in such a such an incremental
+performance boost I mean it's not that
+incremental twice as fast as still good
+but it's definitely not like eight times
+as fast which is something that I would
+kind of expect what's interesting as
+well is that if we actually take a look
+at our code the part that we are
+specifically interested in measuring the
+performance for and what that timer
+represents that's not just one frame of
+our application if we actually take a
+look at Walnut app dot CPP here you'll
+see that that specific timer
+last round of time which let's scroll up
+over here that last render what that
+actually represents is a timer that we
+start at the beginning of the render
+function and we then get its elapsed
+milliseconds at the end of the render
+function so these three functions are
+really what we're measuring here now on
+resize is doing nothing right because
+there's no resize necessary so if
+there's no resize necessary you can see
+we have a very kind of early out over
+here a very short path and over here as
+well if nothing's changed we just return
+so really it's just this function that
+we're measuring and this function
+consists of what exactly well I mean a
+little memset maybe here some
+assignments that doesn't really count
+and then the big kind of meat of it is
+this kind of for Loop and then we just
+do set data which will upload those
+pixels to the GPU and then we do some
+other kind of housekeeping here so
+really it's either this function or it's
+the for Loop that's taking up most of
+the time so then if it is the for Loop
+and we do in fact compute it in parallel
+now we should expect a rather large
+increase in performance and if we don't
+then there's probably something else
+that's stopping us it's probably another
+culprit and specifically with
+multi-threading when you go and you take
+something and you make it multi-threaded
+and you don't see a huge increase in
+performance you can be pretty sure
+there's something inside that
+multi-threaded code
+might not be as straightforward and as
+innocent as it seems and today what
+we're going to do is we're going to
+investigate we're going to be a bit of a
+code detective if you will it's like I'm
+making the series for children I need to
+find my monocle now I'm going to show
+you guys how we can investigate this a
+little bit further and figure out what
+exactly the slow part of this is but
+first I want to thank brilliant for
+sponsoring this video and this Ray
+tracing series brilliant is an amazing
+website filled with many many courses on
+various stem topics they're a sponsor
+that's actually really really useful for
+what we're doing here if you want to
+learn more about all of the math that
+goes into Ray tracing brilliant are one
+of the best places in the internet to do
+so because they have a large number of
+really high quality well-made math
+courses that cover pretty much all of
+the math that you need for Ray tracing
+like for example their linear algebra
+course or their calculus course these
+are all things that you need to know and
+whilst they can be rather complicated
+topics brilliant does a really good job
+at simplifying them and presenting them
+in such an easy to follow way with all
+these like widgets you can play with to
+visualize how the mouth is actually
+working they'll quiz you after each
+lesson to make sure that you're actually
+learning the content and they've
+packaged up these classes into just
+really bite-sized consumable chunks if
+you just have 15 minutes at the end of
+the day you can progress you can learn
+another amazing thing is that you can
+get started for free just go to
+brilliant.org the channel link will be
+in the description below and check it
+out for yourself see if you like it and
+if you do brilliant have been nice
+enough to offer the first 200 of my
+subscribers 20 off an annual membership
+huge thank you as always to Brian for
+sponsoring this video so now that we
+have our detective hat on let's see what
+we can do so one of the things with
+optimization that's really really
+important is you have to fundamentally
+understand what what is going on if
+you're not sure what your code is doing
+exactly and that also applies to like
+you know Distributing your code across
+cores as well if you're not sure exactly
+what your code is doing then this is
+going to be much harder and possibly a
+bit of a waste what I'm talking about is
+if we just scroll down here so I can
+draw we know all ultimately that Ray
+tracing is kind of just a bunch of math
+what we're really doing like if this
+little box here is all of the kind of
+code that has to run for one frame to
+render a frame we know that most of it
+is just kind of all of these
+mathematical equations we also know that
+these mathematical equations have to
+like largely like most of them have to
+be done per pixel that we're rendering
+what that means is that if we have like
+an image that's say like 1920 by 1080 we
+know that that is about 2 million or so
+pixels so we know that we have to go
+through this math two million times now
+again this might not be all of the math
+like if we hit like you know if we don't
+hit anything for example then we just
+like go to that Miss function and we
+just return the sky color that's pretty
+easy and on the other side of the
+spectrum if we actually hit like say
+this sphere and then we bounce and we
+hit this sphere and we go somewhere else
+and obviously we have to do a little bit
+more math because that kind of Bounce
+rate is going to intersect with
+something else which means we have to
+run through that math again so the the
+amount of math that we do per pixel
+actually like will vary but the point is
+when you have like math that needs to be
+done many many times and it's not
+dependent on each other that is a really
+good kind of candidate for optimization
+via multi-threading because since
+there's no kind of dependency they just
+all need to be done at the end of the
+frame so that you can present your image
+you can dispatch them across really any
+number of threads and we kind of talked
+about this in the last multi-threading
+episode this is more of a recap but I
+want to go too deep into that if you
+haven't checked out that video though I
+highly recommend you do it's also why we
+can for example dispatch this on the GPU
+and it's going to be much faster because
+the GPU will have thousands of cores not
+just like 8 or 16 or 32 or whatever and
+this as you can see is a very good
+candidate for parallelization now why am
+I talking about this we've already done
+it why am I talking about this because
+it's important for us to understand
+exactly what we've done if we know that
+we have all this math to do and it's so
+easily divisible into like so many cores
+then we know that if the math itself is
+the thing that is taking up the most
+time and we suddenly go ahead and we
+basically reduce that like let's just
+say we decide for now we'll make four
+threads right if the math takes as it
+did about 60 milliseconds per frame and
+we decide that you know what let's split
+this up into four cores what does that
+mean that means that each core is now
+responsible for four times less math
+because we've taken that entire like
+mass of math that we have to do and
+we've divided it across four different
+Chords it's kind of like I don't know
+maybe you're at a party and you need to
+like I don't know put some plates down
+the table there's like 100 guests and
+you have to put 100 plates down if you
+get three of your friends to help you
+out then you can just give them 25
+plates each and you'll each hand out 25
+players you've reduced that kind of work
+by four times you now have 25 plates to
+place rather than 100 each of you have
+25 and you could of course do that
+simultaneously as long as you don't like
+crash into each other so that's
+basically the same thing as what we've
+done here by enrolling like four cores
+total instead of one we've gone ahead
+and we've taken the 60 milliseconds
+worth of math supposedly and we've kind
+of divided it by four and 60 divided by
+four of course is 15. so what we kind of
+would expect is that each one of those
+threads should take 15 milliseconds now
+because they have a quarter of this work
+that is 60 milliseconds and because
+they're running concurrently at the same
+time that total operation now should
+take 15 milliseconds and not 60. now
+what we are seeing is a lot more than
+four cores we're throwing eight cores
+and 16 kind of threads at it so if we
+have eight cores we've thrown like you
+know twice as much into this so again
+you can probably take that 15 divided by
+2 and you get about 7.5 milliseconds or
+so and again technically even faster if
+we take advantage of the other kind of
+hyper threading situation that we have
+so then when we see something that is
+between 26 and 30 that should raise some
+eyebrows and I'm kind of going through
+this like the long way there's obviously
+a much easier way like if this was a
+speed run to get from like having this
+problem to salute to solution I probably
+wouldn't go down this much thought but
+again I'm kind of using this as like a
+bit of a teaching example just so that
+you understand what's going going on and
+why why these numbers don't look
+reasonable now when you see something
+like this
+the first thing that I would think of is
+that this is not as independent as it
+looks so we know that theoretically this
+math should not have any dependency on
+the other math that's occurring what I
+mean is like one pixel that we're
+processing should not be dependent on
+another pixel but
+these numbers are telling me that there
+might actually be some kind of a link
+between them some kind of dependency
+between them that's actually slowing
+this down now the most like common thing
+I can probably think of is restricting
+access to a particular resource so
+sometimes when you have something that
+is needed by all of these cores
+probably should have picked a different
+color like red uh this kind of resource
+will say that's needed by all of these
+cores means that when one of these
+instructions from these cores actually
+requests this a number of different
+things can happen such as for example a
+lock and when a lock happens it means
+that until this core has received its
+answer and it's got its results it's got
+whatever it needs from that resource
+nothing else can continue everything
+else has to wait because if they're all
+kind of waiting on that resource and
+then one of the cores has locked it then
+that means that that's it everything
+kind of stalls until it unlocks it and
+then the next core kind of one at a time
+can actually go there it's kind of like
+if a bunch of people have to enter or
+leave a stadium and there's just kind of
+one doorway and you have to all get
+checked by the security guard so it's
+like single file you might have like so
+many people that can obviously move
+around the stadium at once and
+everything's fast but as soon as they
+have to get through that that doorway
+they have to go single file and they get
+checked one at a time it's kind of the
+same thing I think my camera is about to
+overheat we better hurry this up and I
+hope it makes sense why I'm saying that
+that's one of the most likely candidates
+because again theoretically speaking if
+we truly have a bunch of independent
+math that needs to be done like CPUs
+exist to do math right CPU cores they
+can they each can do math there's no
+restrictions there if you have data
+flowing in and out and you have four of
+those cores you do math four times
+faster it's that simple because
+everything you need to compute that
+particular thing is contained like
+within that core and it's happy to just
+get to work what starts to become an
+issue is when you have to communicate
+say to and from memory and it's some
+kind of like shared memory that may need
+to be locked in some way and like the
+the kind of access to it has to be you
+know restricted but if you if you kind
+of BYO data and you output to something
+that is also not kind of potentially
+locked for writing then that's it you
+just flow through very quickly nothing
+gets in your way so that being said
+where could the culprit be now we could
+go through all of this code you know and
+try and work out what it is that we're
+doing that is a little bit suspicious
+but of course there's a much easier way
+and that is why don't we just let like a
+profiler do that for us because what a
+profiler will do and specifically just
+you know a normal sampling kind of
+profiler we don't need like any
+instrumentation or anything too deep
+here but just a normal sampling profiler
+what it will do is it will collect
+samples throughout our entire
+application and by samples what I mean
+is it will more or less just ask the
+program hey where are you currently
+and it will do that a lot and obviously
+if we're inside a function say per pixel
+and we're spending a lot of time here if
+I ask you uniformly over the course of
+one second if I ask you 1 000 times
+where you are and like ninety percent of
+the time 900 times you tell me I'm
+inside the per pixel function then I
+know that out of that one second you
+spend this much time in per pixel and if
+I increase the number of times I ask you
+so I increase the sampling frequency
+I'll get more detailed results and if I
+decrease it I'll get less detailed
+results and it will just show me like an
+overall picture so that's kind of how a
+sampling profiler works and visual
+studio has one built in if we just go to
+debug and then performance profiler and
+we select CPU usage over here and just
+hit start what it will do is it will
+launch make sure you're in release mode
+for this that will give you much better
+results now at the moment we are kind of
+running in that not multi-threaded mode
+so actually what I want to do before we
+do that we can take a look at it now but
+it makes more sense to do it in that
+kind of multi-threaded version because
+it will really highlight exactly what's
+wrong so if I go ahead and rebuild that
+and now I'll go to debug performance
+profiler and start you can also go
+relaunch performance profiler so about
+27 or so milliseconds I'll let it run
+for like a few seconds and then I'll
+just hit the close button that will
+automatically kind of stop this
+diagnostic session and read the
+profiling data for us and here we go so
+we have the very start of the
+application where it just kind of starts
+up that's kind of boring what we can
+actually do is we can kind of select a
+region here that we know is like the
+part we want to focus on these are the
+samples we're interested in taking a
+look at
+and then you can see well you can see
+immediately where the problem is and we
+have like this hot path over here uh but
+you can all there's a bunch of different
+ways you can investigate this you can go
+into for example this kind of open
+details over here and then there's a
+bunch of different uh ways you can look
+at this one of my favorites and what I
+think is probably the most useful is
+this call tree what you can do here is
+you can just press this like expand hot
+path a few times and it will just show
+you exactly where most of the samples
+were recorded So we ran this for
+I don't know like five or six seconds or
+so you can see we collected 58 000
+samples and all this tells us is the
+distribution of those samples so we know
+that out of like 100 of the samples you
+know 52 000 of them 90 of them were
+spent inside like this STD run available
+chunked work which is almost certainly
+part of our kind of for each Loop okay
+we'll we kind of expect that per pixel
+makes up for 74 of those samples which
+again makes sense that's mostly what
+we're doing now here is where it gets
+interesting random float makes up for 52
+percent of the samples so 30 000 of
+those samples were recorded inside this
+function that means that this function
+accounts for 52 percent of our total
+kind of usage that is seeming pretty
+extreme and if we actually go into here
+a little bit further now we can double
+click on this at any time and it will
+show us the actual code and what's cool
+about this is it shows us like exactly
+how long kind of each line of codex and
+where the samples were recorded uh if we
+go back to perp excellent fact we'll see
+a bit more detail
+you can see that for this entire per
+pixel function which which is where we
+know all of the math takes place right
+that's like what we drew there that is
+the per pixel function that will be
+called per pixel we can see exactly that
+like the complete distribution of how
+long stuff takes which is really cool
+now again this is a sampling profiler so
+sometimes like it would be more
+beneficial and more accurate for you to
+actually up your samples I think we were
+doing it says here 1000 samples per
+second you can change that to say 10 000
+and you'll get much more detail at the
+expense of potentially slowing down the
+program a bit but you can actually see
+here with varying kind of degrees of red
+intensity here where like the slow Parts
+kind of are and obviously the
+overwhelming slow part in this entire
+function is this 53 percent over here
+which is Ray Direction equals this kind
+of reflect now if you actually follow
+this along it's it's kind of this whole
+section here because we know that it's
+specifically going to be this it's not
+the actual reflection and we know this
+just by looking at this call stack a
+little bit more closely we know that
+it's going to be random float now
+interestingly there's also this self CPU
+so visual studio actually does a pretty
+good job at explaining this if you just
+hole your mouse over this it says CPU
+time spent executing code in this
+function
+excluding time and functions called by
+this function so what that means is
+stuff that is actually happening in that
+function itself
+is not taking up much time at all but it
+must call a function that does take up a
+lot more time and specifically you can
+see it calls this so inside that random
+function when we actually do s
+distribution s random engine this is
+taking up a lot of time so we know that
+generating random numbers for some
+reason is taking up a lot of time now if
+we double click on this to view it in a
+little bit more detail all right well my
+camera overheated and died so this is
+like a week later ah now where were we
+um yeah so we're inside the random
+number generator and we can see that get
+bits is exceptionally hot like 49 28 000
+samples inside get bits now if we go
+down the rabbit hole a little bit we
+need to figure out what exactly get bits
+is so get bits is a function I'm inside
+like the X utility Header by the way
+this may be different depending on what
+like platform and compiler you're using
+I'm using msvc of course in Visual
+Studio on windows so that's why if you
+look at the location of this header file
+you can see it's inside that msvc
+compiler the implementation that you're
+using May of course vary so if we scroll
+down a little bit we can see the
+implementation of get bits over here now
+the main thing that it's doing apart
+from just like you know trying to find a
+value within the range and eventually
+returning it is calling this like ref
+thing which looks like a function but
+actually you can see it's a reference to
+U R and G which is a class so this is
+actually the kind of call operator on
+that class so this is actually calling a
+function inside this class and what is
+this exactly well it's like the template
+argument for this so to see what this
+actually is we kind of have to do a
+little bit of digging if we go into
+walnuts this is becoming like a we
+really are going down the rabbit hole we
+can see we're using a random engine here
+called
+mt19937 and if we look at that you can
+see it's the messen
+Twister engine this is actually the kind
+of like pseudo-random number generator
+we're actually using if we take a look
+at the implementation of that and you
+can see it has a base class over here
+you'll eventually see that we find this
+call Operator over here so this is the
+function that's actually being called
+from get bits this is supposedly the
+slow part and if you don't have much
+experience with this kind of thing it
+can be a little bit difficult to
+actually see what the issue is here
+because if you take a look at this
+function there's nothing really that
+suspicious there I mean we have like
+refill upper Henry for lower which does
+like what seems like a bunch of math
+most of it's behind like an if contact
+spur so this stuff gets kind of compiled
+out potentially but then all we're kind
+of doing here is
+seemingly accessing some kind of array
+so we have some kind of state that's
+actually part of this class and then
+we're doing like some exclusive ores
+like some bit operations basically
+shifting left right you know ending that
+kind of stuff now the issue here is that
+it is in fact true that most random
+number generators have some kind of
+state they hold some kind of state and
+you can see it really clearly over here
+we have an entire array of state whose
+index gets incremented the index we
+access it at gets incremented every
+single time we call this function and
+this is obviously very important this
+value that we're retrieving from that
+state because what we're doing is then
+doing a bunch of operations with that
+value that we need to retrieve and this
+state itself whilst we're not actually
+writing to it from within this function
+refill upper and refill lower if we
+scroll down a little bit you can see we
+are in fact writing to that state now
+ordinarily that's fine what's wrong with
+doing that nothing however this is no
+ordinary use case what we're doing is
+using this exact State the single
+instance of the state across every
+single core and thread on our CPU and
+what did I say earlier in the video one
+of the most common reasons that we'll
+have some kind of slow bottleneck here
+is because we have some kind of resource
+we have some kind of resource here
+that's being accessed by many different
+accesses like many different threads
+essentially are accessing this one
+resource and what does that require that
+requires some kind of resource
+management now in this case there's no
+lock on it there's no mutex there's no
+like it's not gonna there's no spin lock
+it's not gonna wait until it gets access
+to it however because we have so many
+threads and don't forget this CPU that
+I'm using here has eight cores and 16
+kind of hyper threads which is part of
+something called smt simultaneous
+multi-threading we're not going to
+discuss like CPU architecture here just
+yet but basically if we have like 8 or
+16 or whatever cores trying to read and
+write from this single array of memory
+how do you suppose that that's going to
+work well first of all ignoring any
+potential errors we might actually
+experience from that the real problem
+here that's actually causing this slow
+performance is because all of the CPU
+cache across all of these cores has to
+be invalidated whenever we reach for
+this variable what would usually happen
+if we were accessing this from just one
+core is this kind of array would be very
+happily sitting inside our CPU cache and
+it'd be fast to read it would be fast to
+write everything would be wonderful
+however since we have so many threads
+attacking this memory it has no choice
+but to kind of flush that CPU cache and
+retrieve the value again now technically
+we do have a shared cache between cores
+L3 cache is usually shared so it's
+probably not quite as bad as like an
+entirely cold memory rate from Ram
+however the individual cache that lies
+inside each CPU core cannot possibly
+contain this value because other cores
+are also modifying it now this is
+actually a really really interesting
+topic and to be honest I'm considering
+making a video are just talking about
+this and writing some code that will
+demonstrate more clearly what is
+actually happening here but long story
+short in this Ray tracing series let's
+just cut to the solution how do we fix
+this problem well the simplest fix the
+easiest thing that we can do is just to
+say why on Earth would we have 16
+threads or sharing this kind of single
+random number generator state if we can
+just get each chord that needs to
+Generate random numbers to have its own
+random number generator state so in
+other words if each coil if each thread
+was just to have its own instance of
+this random number generator engine then
+we wouldn't have this issue because the
+state is going to be local to that core
+the state is going to be inside of CPU
+cache and this will be miles faster so
+how do we do that in a simple way well
+if we go back to like our renderer what
+we could do is just say if we know that
+we have like I don't know eight threads
+we could just create eight versions of
+this kind of random engine here if we
+had eight instances of that that we kind
+of manually created and we assigned one
+per core then that would be totally fine
+however we're kind of dispatching these
+using std4h so there's like even though
+we could technically get like the threat
+ID and do all of this kind of manual
+stuff behind the scenes there's actually
+a much simpler way to make this work and
+that is all we need to do is if we go to
+the random class over here where we
+actually declare this we can actually
+use a keyword called thread underscore
+local and what that will do is basically
+create an instance of this per thread
+rather than just one kind of global
+instance across everything now we also
+need to make sure that we go to the uh
+definition of that I don't know why the
+definition is split up this could have
+just been inline static but whatever if
+you do have your definition split up
+like this then you also have to make
+sure that you declare it as thread local
+here in the actual definition so with
+that one change just adding thread local
+to this s random engine let's see the
+difference wow look at that
+10 milliseconds 10 milliseconds per
+frame that's a rather big difference if
+I get rid of thread local
+just so that we can go back and compare
+it quickly that was like 30 milliseconds
+so that's a huge difference all because
+we now have one instance of this per
+thread with the main point here being
+that those CPU cores can actually take
+advantage of their local cache and there
+you go
+amazing now there's lots I could
+continue talking about here this is a
+very deep topic but I want to kind of
+wrap this up by just saying this the
+main giveaway here that leads right to
+this being the problem is the back one I
+talked about every single Pixel having
+all of this independent math to do it
+was really easy to see how
+multi-threading would dramatically speed
+that up but what we found is that the
+calculation for each given pixel was not
+in fact as innocent as it seemed in the
+sense that it was completely independent
+of anything else technically to work out
+every actual like closest hit that we
+had including like the bounces and
+everything when we cast a single Ray so
+for each pixel to calculate its color we
+would actually need to have that
+reflection rate happen which meant that
+we needed to generate a random number
+and in fact I think three random numbers
+if we go back to the renderer quickly
+over here inside per pixel when we
+actually do this reflect so if we don't
+hit anything we obviously break and we
+get like the sky color and stuff but if
+we do actually hit something we're kind
+of in here and you can see we call
+Walnut random vect3
+which cause float three times which
+gives us three random numbers by using
+that random number engine and so instead
+of our pixels being completely
+independent they suddenly now had a link
+between them because to get those random
+numbers we would have to kind of write
+to and read from a kind of shared state
+that that single instance of that random
+number generator actually had and so
+suddenly these weren't completely
+independent operations that each core
+could actually kind of take charge of
+they were now kind of bound by shared
+memory that had to be somewhat kind of
+sensibly accessed right you had to
+invalidate the cache because otherwise
+if another core writes to it and you've
+got something in your local cache you
+wouldn't actually see those changes and
+that would be wrong and so by breaking
+these links and giving each kind of
+pixel its own random number generator
+sounds crazy each pixel its own random
+number generator but remember it's
+because technically that is what's
+happening it's not like we're
+calculating all like 2 million pixels at
+once we're handling those pixels by like
+these eight cores so if we give each
+caught its own random number generator
+that means at any given time when the
+pixels are being calculated
+simultaneously they are all accessing
+their own independent random number
+generators and that means that that can
+be cached like correctly more
+effectively and everything is great now
+the last thing I want to say is that I
+did actually create this issue in the
+ray tracing repository to just ask
+people about whether or not there would
+be another kind of faster way to
+dispatch all the threads we'd need to
+actually process like the
+multi-threading and a lot of you did
+suggest like some certain things however
+I believe the consensus is that the 4-H
+implementation is actually pretty good
+so I am still interested if anyone can
+in fact be what we've got right here and
+inside this very issue is where a lot of
+people did also point out that the
+random kind of number generation was the
+issue and some thread local random
+number generators were also kind of a
+good idea which is definitely very
+helpful even though the issue was mostly
+about the multi-threading side of things
+but nonetheless it was nice to see the
+community doing some digging and seeing
+like what this parts of this code
+actually are so thank you hope you guys
+enjoyed this video if you did please
+don't forget to hit the like button as I
+mentioned I might make an actual like C
+plus plus video discussing like the
+intricacies of why exactly this was in
+fact so slow and that's why this series
+is just such a great way to kind of dive
+into C plus and learn about optimization
+Ray tracing is just a great candidate
+for this kind of stuff don't forget to
+check out brilliant using my link in
+description below and I will see you
+guys next time goodbye
+[Music]
+[Music]
+thank you

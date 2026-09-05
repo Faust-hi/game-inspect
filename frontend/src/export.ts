@@ -55,6 +55,12 @@ export function buildProjectExport(
   };
 }
 
+/** Выгружает произвольный текстовый файл (пресеты движков). */
+export function downloadTextFile(filename: string, content: string, mime: string): void {
+  const blob = new Blob([content], { type: `${mime};charset=utf-8` });
+  triggerDownload(blob, filename);
+}
+
 /** Выгружает проект в JSON: файл пригоден для повторной загрузки и для контроля расчёта. */
 export function exportProjectJson(
   profile: ProjectProfile,

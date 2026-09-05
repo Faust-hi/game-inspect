@@ -97,6 +97,11 @@ SOURCES: dict[str, dict[str, str]] = {
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/level-of-detail-in-unreal-engine",
         "date": "2025-01-01",
     },
+    "UE_SCALABILITY": {
+        "title": "Unreal Engine: Scalability Reference",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/scalability-in-unreal-engine",
+        "date": "2025-01-01",
+    },
     # --- Unity ---------------------------------------------------------
     "UNITY_OCCLUSION": {
         "title": "Unity Manual: Occlusion Culling",
@@ -166,6 +171,16 @@ SOURCES: dict[str, dict[str, str]] = {
     "UNITY_LIGHTMAPPER": {
         "title": "Unity Manual: Progressive Lightmapper",
         "url": "https://docs.unity3d.com/Manual/progressive-lightmapper.html",
+        "date": "2025-01-01",
+    },
+    "UNITY_SRP_BATCHER": {
+        "title": "Unity Manual: SRP Batcher",
+        "url": "https://docs.unity3d.com/Manual/SRPBatcher.html",
+        "date": "2025-01-01",
+    },
+    "UNITY_DRAW_CALLS": {
+        "title": "Unity Manual: Choose a method for optimizing draw calls",
+        "url": "https://docs.unity3d.com/Manual/optimizing-draw-calls-choose-method.html",
         "date": "2025-01-01",
     },
     # --- Godot ---------------------------------------------------------
@@ -280,6 +295,11 @@ SOURCES: dict[str, dict[str, str]] = {
         "url": "https://en.wikipedia.org/wiki/Deferred_shading",
         "date": "2025-01-01",
     },
+    "CLUSTERED_SHADING": {
+        "title": "Clustered Deferred and Forward Shading (Olsson, Billeter, Assarsson)",
+        "url": "https://www.cse.chalmers.se/~uffe/clustered_shading_preprint.pdf",
+        "date": "2012-01-01",
+    },
     "WIKI_TAA": {
         "title": "Temporal anti-aliasing",
         "url": "https://en.wikipedia.org/wiki/Temporal_anti-aliasing",
@@ -318,6 +338,22 @@ SOURCES: dict[str, dict[str, str]] = {
     "WIKI_DOD": {
         "title": "Data-oriented design",
         "url": "https://en.wikipedia.org/wiki/Data-oriented_design",
+        "date": "2025-01-01",
+    },
+    # --- Проверенные практические источники (книги, библиотеки) -----------
+    "GPP_OBJECTPOOL": {
+        "title": "Game Programming Patterns: Object Pool",
+        "url": "https://gameprogrammingpatterns.com/object-pool.html",
+        "date": "2025-01-01",
+    },
+    "GPP_DATALOCALITY": {
+        "title": "Game Programming Patterns: Data Locality",
+        "url": "https://gameprogrammingpatterns.com/data-locality.html",
+        "date": "2025-01-01",
+    },
+    "MESHOPT": {
+        "title": "meshoptimizer: mesh optimization library",
+        "url": "https://github.com/zeux/meshoptimizer",
         "date": "2025-01-01",
     },
     "WIKI_LIGHTMAP": {

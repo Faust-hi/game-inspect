@@ -1,0 +1,721 @@
+o another episode of  coding adventures. Today, I’d like to dive into  
+0:07
+the world of fluid simulations. So, to begin with,   let’s draw a circle. Very nice. This circle represents a tiny bit  
+0:21
+of water, or whatever fluid we want to  imagine, and it’s going to move around   in response to various forces, for instance:  gravity is probably a good place to start.  
+Gravity and Collisions
+0:31
+So back in the code, I’ll add in a gravity  variable, and let’s also keep track of the   particle’s position and velocity. Each timestep, we’ll then want it to  
+0:41
+be accelerated downward by gravity, and to  then move according to its new velocity.  
+0:47
+Let’s take a look. Okay, not bad, but it is  falling off the screen which is a bit annoying,  
+0:55
+so I’ve added a tiny function that just checks  if the particle has moved outside of a box,   and if so we shove back into the box, and send  it bouncing off in the opposite direction.  
+1:06
+I’d actually also like to multiply the  velocity by some collision damping factor   between 0 and 1 here, so that we can control  how much energy it loses with each bounce.  
+1:15
+Alright, so now we can set up our little  bounding box here, and turn on the gravity   again, and off we go bouncing. By the way  I also made it so that we can control the  
+1:26
+display size of the particle here. Okay, let’s then also try out our  
+1:33
+collision damping setting — and we can see the  particle now bounces lower and lower each time,   until it comes to a stop. Believe it or not though,  
+1:41
+one particle is not enough particles to simulate  a fluid, so I’ve quickly upgraded our position  
+1:47
+and velocity variables to instead store a whole  array of positions and velocities, which we can  
+1:53
+then loop over and just do the same update as  before to each of them. I’ve also created a  
+1:59
+simple function that runs tt the beginning to set  up the particles in a little grid arrangement,   just so they’re not on top of one another So let’s make a bunch of particles… and  
+2:10
+I’ll quickly tweak the size and spacing  over here to something more reasonable,   and then we can let this run. Okay, there’s a pretty clear problem  
+2:20
+though, which is that the particles are all just  collapsing on top of one another, so I guess we   need some sort of force to push them apart. I’m curious to learn how this is typically  
+2:29
+handled in the fluid simulation world,  so I’m going to do some reading.   I found a bunch of intriguing particle-based  fluid papers, and I’ve just been spent the last  
+Smoothed Particles
+2:38
+few hours trying to work my way through those. Honestly, most of the maths has gone well over my  
+2:44
+head, as it very often does, but the broad  ideas at least are encouragingly simple.  
+2:49
+So I think my goal for today is not to try and  make some amazingly accurate simulation, but just  
+2:54
+to build a rough starting point, from which we  can delve deeper into the maths and physics in the   future, when I’m hopefully a little bit smarter. Anyway, the first step to fixing that overlapping  
+3:05
+particle problem we were having, is to be able to  estimate the density of our fluid at any point.  
+3:11
+So I’ve just scattered our particles around  randomly for this example, and of course since   we’re imagining that this represents some kind  of fluid, in reality there should be way more  
+3:20
+particles than this, but we’re always going to be  limited by what our computers can handle — so to  
+3:26
+approximate reality we can just cheat a little bit  by blurring or smoothing out the few that we have,  
+3:32
+so that it appears more as a continuous  field than a bunch of individual points.  
+3:37
+This simple idea is the basis of “Smoothed  Particle Hydrodynamics”, a technique introduced  
+3:42
+back in the 70s to help solve astrophysics  problem and further our understanding of   the universe. Which today we’ll be using for the  equally lofty goal of making some little pixels  
+3:52
+go splish-splash for our amusement. Alright, so to see how we’re going to   calculate this sort-of density field we have  here, let’s zoom in on a single particle,  
+Calculating Density
+4:01
+and define a smoothing radius, which gives us this  circle of influence around the particle, where it  
+4:07
+will have maximum influence at the centre, falling  off to no influence at all at the outer edge.  
+4:13
+Let’s draw a little graph, of this behaviour. So  on the x axis we’ll have the distance from the   centre of the particle, and because negative  distance doesn’t make a huge amount of sense,  
+4:22
+I’ll just make the left side of the graph will  just be a mirror of the positive side. Then   the y axis will represent the influence of the  particle at any given distance. And let’s say  
+4:33
+for now that our smoothing radius is just 1. So a super simple function we could use would  
+4:38
+be something like this: just subtracting the  distance from the radius, and clamping it to never   go below zero. And here’s what that gives us. This is not very smooth though, so we could take  
+4:50
+that straight line, and cube it for example,  which’ll ease it out as it approaches zero.  
+4:57
+Another option, if we wanted it to be smooth at  the start as well, would be to also square the   radius and distance before subtracting  them, and here’s how that comes out.  
+5:06
+Obviously we could also try different  powers, or different functions altogether,   I think it’s mostly a case of just  playing around and seeing what works best,  
+5:14
+but let’s go with this one for now. So I’ve used that to write this little   density function, which takes in the point  we want to find the density at, and then for  
+5:23
+each particle it gets the distance to the sample  point, which determines how much influence the   particle has at that location, and then it simply  increases the density by the particles’ mass,  
+5:33
+multiplied by the influence value. And the mass  I’ve just defined to be one for simplicity.  
+5:40
+So let’s test this quickly with an evenly  spaced grid of particles. And I’ll just   try sampling the density at the centre  here with a radius of 0.5 for example.  
+5:51
+Now at the moment, the density is about 0.48…  but if we squish the particles closer together,  
+5:57
+we can see that the density value goes  up, which is good, and if we move them   further apart it goes down of course. But what about if we increase the smoothing  
+6:07
+radius? Well our density value has just shot  up through the roof, which is very concerning,  
+6:13
+because making the radius bigger should  only make the result more ‘blurry’,   which for this uniform grid of particles, should  actually have no effect on the density at all.  
+6:23
+So let’s think about this a bit… For each  particle, we’re calculating an influence value,  
+6:28
+which we could draw as a height,  and here we can of course see   the shape of our smoothing function emerge. Now we’re effectively just adding all of these  
+6:36
+heights together to create our density value, but  it’s kind of helpful to note that if we were to   first also multiply the heights by the width and  breadth of these little boxes I’ve drawn here,  
+6:46
+what we’d actually be doing is estimating  the volume of the smoothing function.  
+6:52
+So with that in mind, I think it’s reasonable  to say that if we want the density to stay the   same as we change the smoothing radius,  then what we need to do is make sure that  
+7:01
+the volume of our smoothing function remains  the same when we change the smoothing radius.  
+7:06
+That means we’re going to need to calculate it’s  volume, or make wolfram calculate it for us at any   rate — aaaand that has come out to pi times the  smoothing radius to the power 8, divided by 4.  
+7:17
+So we can then just go back to our smoothing  function, and calculate the volume in here,   and then simply divide the output by  the volume, which means that now the  
+7:26
+new volume of the function will always be 1. Let’s make sure this is working quickly… so  
+7:32
+the density is 187 at the moment, and now if  we change the smoothing radius that should  
+7:37
+stay the same.. which it does! Of course if we  make the radius too small the results will get  
+7:43
+a little dodgy since there just aren’t enough  particles, but apart from that, we now have a   nice way of determining the density at any point,  with whatever smoothing radius we choose to use.  
+The Interpolation Equation
+7:54
+Okay, so let’s return to our  random arrangement of particles,   and we can now properly visualize the density  values here as I increase the smoothing radius.  
+8:04
+Now we’re claiming that this represents a  fluid, so one would probably assume it’s a   gas at the moment, because we have all these  regions with different densities. But I’m  
+8:13
+more interested in simulating liquids today,  which in practical terms are ‘incompressible’,  
+8:19
+meaning their molecules are packed together  as tightly as they can be, and so we’d   expect the density to be the same everywhere. For our simulation to behave at least somewhat  
+8:28
+like a liquid then, we’re going to need to  rapidly correct these density differences,   by moving particles from areas of high  density towards areas of lower density.  
+8:37
+So we need to figure out how to calculate  that, but I started to get a bit confused   at this point while I was doing my research,  so I’d like to take a step back for a moment,  
+8:47
+and just play around a bit with an abstract  example to try wrap and wrap my head around   some stuff first, and then we’ll come back and  apply what we’ve learned to our actual problem.  
+8:57
+So here’s a simple little function that takes in  a point in 2d space, and outputs a single value,  
+9:02
+which looks like this. And what it  represents is… nothing at all — it’s   just a made-up function that we’re going to try  and represent with particles, to hopefully gain  
+9:12
+a better understanding of this whole smoothed  particle business we’re working with today.   So, I’ve now added some code that spawns in a  bunch of particles at random positions, and each  
+9:22
+of these just looks up the value of the example  function at its location, and stores that in this  
+9:27
+vaguely named ‘particle properties’ array. Now we’re going to pretend that we no longer  
+9:33
+have access to that example function, so  we only know the values at the particle  
+9:38
+positions — and our first goal is to  simply approximate the missing values.  
+9:43
+To do that, we’ll use the same smoothing idea  from when we calculated the density earlier. So  
+9:48
+I’ve made this little ‘CalculateProperty’ function  that takes in a point in space, loops over all the  
+9:54
+particles, and just adds up the values of their  properties — multiplied by the smoothing function,  
+10:00
+since again that just tells us how much influence  the particle has at the current point. And then   also multiplied by the mass since that effectively  *scales* how much influence the particles have.  
+10:11
+Let’s see how that comes out… So here’s the  original function again — just for reference,   and here’s our approximation.  Obviously the shape isn’t perfect,  
+10:20
+but we could simply use more particles to improve  that. What’s more concerning though is that the   values are clearly being greatly exaggerated. Now we could try to correct this by reducing  
+10:30
+the particle mass, but that just reveals a  deeper problem, which is that the values are   being particularly exaggerated in regions of  high particle density, since obviously more  
+10:41
+values are being added together there than  in regions of low density. So to fix that,  
+10:46
+all we actually need to do is calculate the  density at each particle using the function   we wrote earlier of course, and then divide  each particle’s contribution by its density.  
+10:56
+Now our approximated result looks like this,  without needing to make any adjustments to   the mass, which is a whole lot better — and  reasonably close to the original function.  
+11:07
+So what we’ve arrived at here, is actually one  of the core equations of this whole technique,   which says that to calculate some property ‘A’  at any position x, we just need to loop over all  
+11:18
+the particles and add together: the value of  that property that’s stored in each particle,  
+11:23
+multiplied by the particle’s mass, divided  by its density, and finally multiplied by  
+11:29
+the smoothing function, given the distance  between the particle and the sample point.  
+11:35
+What’s interesting to note here is, say  the ‘property’ we want to calculate with   this equation is the particle’s density. In that  case we replace ‘A’ with the density, which then  
+11:46
+cancels out with the density over here, leaving us  with just mass times the smoothing function, which  
+11:51
+is exactly what we came up with in the beginning.  So that bit of maths seems to check out at least.  
+11:57
+Okay, that’s nice and all, but what we’re more  interested in right now than calculating the   value of a property at any point, is calculating  in which direction it’s most rapidly changing,  
+Gradient Calculations
+12:08
+since that’s essential to our problem  of correcting the density in our fluid.   So I’ve started writing this little  calculateGradient function to do that — and  
+12:16
+all this does is define a tiny step size, and then  figure out how much the value changes if we take  
+12:22
+that tiny step along the x and y axes, using the  CalculateProperty function we just wrote. Then the  
+12:29
+estimated gradient is just those two changes, each  divided by the size of the step that we took.  
+12:34
+Let’s try it out, so I’ve drawn in some  little arrows to visualize the gradients   at different points, and just visually it  looks like these are all correctly pointing  
+12:43
+along the direction where the values are  most rapidly increasing, so that’s great!  
+12:49
+What’s less great is that it’s taking  almost 20 seconds to calculate all of   these, which is ridiculously slow. Fortunately though, there is a more  
+12:57
+efficient approach. Imagine we have just a single  particle — and I’ll draw in the smoothing radius  
+13:03
+here as well — and we’re trying to calculate the  gradient of whatever property at this point over  
+13:08
+here. Well first of all the direction in which  that property will most rapidly be increasing,  
+13:14
+is either directly towards the particle,  or directly away from it if the property is   negative — so that’s easy enough. The gradient  doesn’t only tell us the direction though,  
+13:24
+but also how fast the property is changing. And  that depends purely on our smoothing function.  
+13:30
+At the current distance, we can see that  the smoothing function isn’t very steep,   which means that the property will be changing  quite slowly over here. Whereas of course if  
+13:38
+our sample point was over here for example,  then it would be changing a lot more rapidly.  
+13:43
+So after struggling to remember how basic calculus  works for a few minutes… I finally figured out  
+13:54
+the equation for the slope of the smoothing  function, which I’ve just translated into   code over here. And that means that we can now  easily look up the slope value at any distance.  
+14:05
+So let’s return to our first attempt at the  gradient function, and I’ll delete the old code,   and replace it with our CalculateProperty code,  since it’s almost exactly what we need — except  
+14:15
+since we want to know the gradient here, we’ll  multiply not by the smoothing function, but by   the slope of the smoothing function, and then also  by the direction towards the current particle. By  
+14:29
+summing up all these individual gradients, we  should logically get the overall gradient.  
+14:35
+Then if we return to our little visualization  and just run it again — it should look exactly   the same. Which it doesn’t — I guess I got the  direction back-to-front — so I’ll just stick a  
+14:45
+minus sign in there quickly — I come from the  trial-and-error school of mathematics — but   now it does look the same as before. This optimization has taken us from 20 seconds,  
+14:55
+down to about 5 — which is still uselessly slow,  but headed in the right direction at least.  
+15:02
+Okay, I’ve just been having another look at our  gradient function — and we definitely need to stop   calling calculateDensity all the time — I somehow  forgot already that that’s also looping over all  
+15:10
+the particles. No wonder this is so slow! So what we can do is just create an array  
+15:16
+of density values, and then pre-calculate  those for each particle, so that we can use   those cached values in our gradient function. That brings our computation time down from 5  
+15:28
+seconds to 18 milliseconds. I probably should  have started with that! Anyway, that’s still  
+15:34
+not fantastic, but it’s at least usable for now. So let’s return at last to our little density test  
+The Pressure Force
+15:40
+over here, and see if we can apply this gradient  stuff to make the density be the same everywhere.  
+15:46
+So in the code, I’ve defined a  targetDensity that we want to aim for,   along with a pressureMultiplier, which  is just how strongly we’re going to push  
+15:54
+the particles to try and reach that density. Then I’ve also added this little function for  
+15:59
+converting the density to a kind of ‘pressure’  value — and this just looks at how far away the   density is from what we want it to be, and then  multiplies that by the pressure multiplier. As  
+16:10
+I understand, this isn’t really a super realistic  way to calculate pressures in a liquid — it moreso  
+16:15
+describes the behaviour of gasses — but it still  seems to be a popular choice for it’s simplicity,  
+16:21
+so let’s stick with it for now at least. I’d like to quickly visualize these values — so  
+16:26
+I’ve set up 3 different colours over here: one  for the regions where it’s negative, just meaning   that the density is lower than we want it to  be. Another for where the value is positive,  
+16:35
+meaning of course that the density is higher  than we want it to be. And finally one for the   boundary between them where the density is just  right. I’ll also change the particle colour to  
+16:45
+black so that it stands out a bit better here. Okay, so let’s finally get these particles moving  
+16:50
+along the pressure gradient — and for that we can  just use the gradient function we wrote — which   I’ll rename to CalculatePressureForce…. and  then the property we’re interested in here  
+17:00
+is the pressure, so let’s substitute  in our little pressure calculation.  
+17:06
+Then our simulation update loop now looks  like this — we still have the gravity,   position, and collision stuff from before,  but I’ve added in that density-caching we  
+17:15
+decided to do. We still need to actually  apply the pressure forces here though.   So I’ll make another loop quickly to calculate  those for each of the particles, and then we  
+17:24
+know that force = mass * acceleration, so  acceleration is force / mass. So my first  
+17:31
+thought was to just calculate the acceleration  like this — but actually, we’re thinking about   the movement of tiny volumes of fluid here, and  density is the mass per volume, so it’s in fact  
+17:42
+the density that we want to use instead. Alright, all that’s left then is to just   increase the particles’ velocity by this  acceleration, and we can finally try it out.  
+17:52
+This has been a long time coming, so  let’s get a little drum-roll going! Ah,  
+18:01
+the curse of the drumroll continues. Okay, the positions are all Not a Number I see,  
+18:06
+so most likely we’re dividing by  zero somewhere. Oh, of course,   we’re being given the position of a particle  here, but then we’re also looping over all the  
+18:15
+particles and finding the distance between those  two — and that’s where everything’s going wrong.  
+18:21
+I guess what I’ll do is just have this function  take in the particle index instead of the   position — and that way we can very easily just  skip over the case where the two particles are  
+18:29
+the same. Okay, I just need to fix this up  quickly — and I suppose it is technically  
+18:36
+possible for two different particles to be in  the same position, so if that edge case occurs,  
+18:41
+let’s just pick a random direction then. Alright, let’s try this out again. Well, at  
+18:50
+least everything hasn’t blinked out of existence  — but the particles are getting more dense,   which is the opposite of what we want. I guess I  need to stick another minus sign in somewhere.  
+19:00
+Let’s see if this works now the third time… Okay that’s… That was — looking promising for  
+19:07
+a moment there, but there’s still a lot  more red areas than I’m hoping to see.  
+19:14
+Ideally the whole screen should turn white,  since that represents our target density.  
+Trying to Make it Work...
+19:19
+So to try figure out what’s going on, I want  to see what happens if, instead of adding   the acceleration to the velocity, we just  assign it directly. So we’re removing any  
+19:29
+inertia from the particles, they’re just moving  purely based on the current pressure force.  
+19:34
+Okay, if we run this now… nothing happens. But  that’s fine, we aren’t accumulating velocity   any more, so I guess we just need to turn  the pressure multiplier up really high.  
+19:45
+Alright, that looks interesting. I am a  bit surprised by how close together some   of these particles are… Although they seem  to gradually be pushing each other apart.  
+19:54
+And I actually I remember one of the papers  mentioning this potential problem with the   smoothing function we’re using — since it’s slope  becomes very shallow as the distance becomes  
+20:03
+small — meaning that our pressure force will also  be small when the particles are close together.  
+20:09
+That seems odd, so let’s maybe ditch this nice  smooth curve for the spiky version instead,  
+20:15
+since of course the slope of this one just  gets steeper towards zero. So I had to do   the volume and derivative calculations again,  but ended up with these two functions here.  
+20:25
+Plugging those in, we can see our little  map looks just ever-so-slightly different,   and then I’m going to just turn up the pressure  multiplier again now, and see what happens.  
+20:36
+Okay, that’s looking a lot better actually!  The question now though is what this’ll look   like if we put the acceleration  back to how it’s supposed to be.  
+20:44
+So I’ve changed it back, and I’m going to run this  again. Let’s maybe try increasing the pressure  
+20:52
+multiplier a bit so that the particles can react  more quickly. That’s looking reasonably good I  
+20:58
+think… Although, maybe I’m imagining this,  but it seems to be getting worse over time.  
+21:08
+Okay I’m definitely not imagining it. Alright, so,  another thing we need to think about is Newton’s  
+21:13
+3rd law of motion: every force has an equal and  opposite reaction force. So when we’re adding  
+21:25
+on this pressure force between the current  particle and some other particle, we want to   make sure that the other particle experiences  the same force, just in the other direction.  
+21:35
+I’ve seen a bunch of different suggestions  on how to actually do this, but a nice simple   version is to calculate this shared pressure  — which is literally just the average of the  
+21:45
+pressure values calculated at both particles. So, let’s try that out quickly — and I’ll just  
+21:52
+increase the pressure multiplier again — and this  does seem to have made a pretty big difference. I  
+22:01
+guess maybe that Newton guy was onto something. Now we’re only dealing with a few hundred  
+Optimizing Particle Lookups
+22:07
+particles at the moment, which is not very many,  so let’s ramp this up to a few thousand instead.  
+22:14
+Aaand this is running at 5 frames per second. So, we’d better start optimizing — and by far  
+22:20
+the most critical place to do that is when we’re  calculating the densities and pressure forces,  
+22:26
+we should really avoid looping over all  the particles that lie outside of the   smoothing radius, since those don’t contribute  anything, and they’re slowing us down immensely.  
+22:36
+To achieve this, we’re going to need  to chop space up into a nice grid,   and we’ll choose the size of the grid cells  to be the same as our smoothing radius,  
+22:44
+since that means — if we imagine there’s a bunch  of particles on here — that means that to find the   particles inside of the smoothing radius, we only  need to consider the 3x3 grid of cells around the  
+22:55
+centre of our circle. And in that way of course  we cut out a huge amount of unnecessary work.  
+23:05
+Now to actually implement this, we could say that  each cell has its own list that grows or shrinks   to hold however many particles are currently  inside of it. But we’re probably going to want  
+23:14
+to convert the whole simulation to a compute  shader at some point, and on the GPU we do need  
+23:20
+to specify ahead of time how much memory we’re  going to use. So I’d like to experiment with a  
+23:26
+different, GPU-friendly approach, which I’ve  been reading about in this paper here. I’m  
+23:31
+going to modify it very slightly though, so that  we don’t need to know the dimensions of the grid   ahead of time, meaning that particles can travel  anywhere in the world, and it’ll still work.  
+23:42
+So what we can do is create single array, with  at least as many entries as we have particles.  
+23:48
+So here it has 10 entries, meaning  we can have at most 10 particles.  
+23:53
+Then for each of these particles, we’re going to  calculate the coordinate of the cell that it’s in,   so for example, particle 0 — which happens to  be this one over here — is in the cell 2,0.  
+24:04
+We need to turn that coordinate into a single  number to make it easy to work with though,   so we can just do something like multiply the  x and y by two different. prime number and add  
+24:14
+them together to get some arbitrary hash value. We  can then wrap that around the length of the array,  
+24:20
+so that it becomes a valid index — 3 in  this case, and let’s call that our cell   key. Not to be confused with the… seal people. So since this was point zero, we’ll store the cell  
+24:30
+key over here at index 0 in the array. Then the  next point, it turns out, has a key of 6, and so  
+24:38
+we’ll record that in the next place. And so on and  so forth for all of the particles that we have.  
+24:48
+Now we want the points that share a cell,  to be next to one another in this array,   so that we can efficiently loop over them. Of  course if they’re in the same cell, they’re  
+24:56
+going to have the same cell key, so we can simply  sort the list based on those keys, to do that.  
+25:03
+And now we can easily see from this  array that particles 2, 5, and 7 are   all together in the same cell, particle  0 is in a cell all by itself, and so on.  
+25:14
+Anyway, let’s call this array our ‘spatial lookup’  because that sounds nice and fancy, and then  
+25:19
+the final thing we need to do is create a second  array of ‘start indices’, which looks like this.  
+25:25
+To understand this second array, let’s just  do a quick example. So say we want to know   which points are in this cell over here. We first  calculate the cell’s key like before, which is 9  
+25:37
+in this case. We then proceed to look up the  ninth element in the array of start indices,  
+25:43
+which is this last one here — the number 6. That lets us know that we need to head over   to index 6 in the spatial lookup in order  to find the first entry with the cell key  
+25:53
+that we’re interested in. We can then simply  loop over all of those, to get the indices   of the particles that are in that cell. Unfortunately, it is possible for different  
+26:02
+cells to end up mapping to the same key, which  would mess with these results — but we’re anyway  
+26:08
+going to need to do distance checks to see  which points are actually inside the smoothing   radius — and so that’ll get rid of any mistakes. Obviously, having to check extra particles from  
+26:19
+some other random cell that just happens to have  the same key does waste time, but that’s what we   get for trying to implement an infinite grid,  with a sadly non-infinite amount of memory.  
+26:30
+Anyway, turning this concept into code  didn’t go as smoothly as it possibly could   have… but after a bit of frustration,  here’s what I finally ended up with.  
+Spatial Grid Code
+26:39
+We have a function for updating the  lookup whenever the points have moved,   and this just calculates the cell key for every  particle, and records that along with the particle  
+26:49
+index. The array is then sorted based on those  keys, and lastly the start indices are calculated,  
+26:55
+simply by testing if each key is the same as  the key that came before it, because if not,  
+27:01
+then it must be the first occurrence of that key,  and we can record its index as the start index.  
+27:07
+Here are the little helper  functions by the way for   calculating the cell coordinate, hash, and key. Then finally, there’s a function that allows us  
+27:16
+to actually find all of the points within  the radius of some given sample point. This  
+27:22
+just works by looping over the 3x3 block of cells  around that sample point, and calculating each of  
+27:28
+their keys. Each key is then used to lookup  the start index for that cell, so that we can  
+27:33
+loop over all points in that cell, and of course,  once we reach a point that has a different key,   we just exit out of the loop. All that remains  then is to do a quick distance check to make  
+27:42
+sure the point is actually inside the circle,  and then we can do whatever we want with it.  
+Position Predictions
+27:48
+Trying this out now, we’ve gone  from barely 5 frames per second,   up to 120. So that was a reasonable success,  but I’d be a lot happier about it if our  
+27:58
+simulation wasn’t in total chaos over here. One clunky way I found to improve this is to  
+28:06
+simply start off with a really low pressure  multiplier. This way the particles don’t have  
+28:11
+such a huge initial burst of acceleration,  and they can spread out a little, and then   we just gradually increase the multiplier,  and it seems to work a bit better at least.  
+28:21
+That’s not really a useable solution though,  so I’ve just implemented an idea I read about  
+28:26
+where we basically predict what the next  position of each particle is going to be,   simply based on the current velocity — and use  those predicted positions when calculating the  
+28:36
+densities and pressure forces. I guess this  could help the particles to better react to  
+28:42
+upcoming situations, and maybe compensate  a bit for the fact that time is obviously  
+28:47
+not continuous in a computer simulation,  but rather broken up into discrete steps.  
+28:53
+Okay let’s try it out. I honestly don’t see  it making a big difference though. Never  
+29:01
+mind! It’s actually making a pretty massive  difference! Well, that’s a nice surprise.  
+29:07
+Just for fun, I’ve quickly gone into the  particle rendering code I have here — and   just set it up so that we can visualize the  speed of the particles with a colour. Then  
+29:16
+here’s a little gradient I made for that —  so the slowest particles will appear blue,   fading to red for the fastest particles. I also added in some simple controls for  
+29:27
+things like pausing the simulation, stepping  through frame by frame, and resetting it. Okay,  
+29:41
+let’s see what this looks like with the colours. Alright, I’ve been playing around with this some   more, and one thing I’ve noticed is  that it behaves very inconsistently  
+29:46
+at different simulation framerates. Here’s a little grid of simulations I set   up to observe this problem — so we’re going from  60 simulation steps per second on the top left,  
+29:57
+to almost a thousand steps per second on  the bottom right — and as we can see here,   if the number of steps is higher, meaning  the timestep is smaller — and thus we’re  
+30:07
+predicting less far into the future — the  particles take longer to settle down.  
+30:12
+So even though this feels a bit wrong to me,  I’m going to try removing the delta time here,  
+30:17
+and just use a constant look-ahead factor  instead. Let’s then run the same comparison  
+30:23
+again… and interestingly it is actually  behaving a lot more consistently now.  
+30:28
+Well okay, I guess we’ll go with that then! Now I think it’d be fun if we could interact  
+Mouse Force
+30:34
+with the particles in some way — so I’ve written  this little function that basically just pulls   nearby particles in towards the mouse, or pushes  them away if the input strength is negative,  
+30:44
+which is controlled by left or right clicking. So let’s give it a shot! I’m going to start  
+30:49
+by pushing these particles outwards… And  then let’s try slicing through the fluid.  
+31:00
+Alright, I feel like this is  slowly starting to get somewhere.   Clearly, we haven’t really succeeded in our  goal of making this fluid incompressible —it’s  
+31:09
+certainly compressing and expanding all over the  place! But the density does even out over time,  
+31:14
+so that’s something at least — and  we can look into fancier methods   to try and solve this better in the future. Anyway, now that this seems to be -somewhat-  
+31:23
+working at any rate, I think it’s time  we brought gravity back into mix.  
+31:29
+So I’ll reset this quickly, and let’s bring  in our settings window. I also feel like   the target density maybe needs to be set a  bit higher, so I’ll turn that up — and then  
+31:38
+let’s get the simulation going again. Okay, I guess that’s a little too high  
+31:44
+now… so I’ll dial it back down a bit. Then, let’s turn on the gravity! Wait  
+31:56
+that’s upside down. Let make  it go the other way instead.   The particles are quite wild at the moment,  so I’ll also increase the pressure multiplier  
+32:04
+to try and reign them in a little. Okay, let’s try picking up a ball of  
+32:12
+water…. And dropping it back in. Splash! This is actually working surprisingly well  
+32:25
+I’d say. I mean I realize I’ve been droning  on for over half an hour already, but all that   we’ve really done is made a bunch of points that  don’t like to be too close together — but not too  
+32:35
+far apart either. And while this is obviously  far from being super realistic or anything,  
+32:40
+I think it’s still quite fascinating that this  fluid-like behaviour has already emerged from   just the few little things we’ve implemented. Anyway, let’s see if we can still improve  
+32:57
+this at least a little bit more today, and  perhaps even venture into the 3rd dimension.  
+33:02
+So, a few issues are jumping out to me at the  moment. For example, there’s the fact that the   particles are really tightly squeezed together  along the edges here, and that’s causing a gap  
+33:12
+between the rest of the particles, since they’re  trying to get away from that overly dense region.  
+33:17
+And a similar effect seems to be happening  along the surface of the fluid as well.   Another thing is that, in cases where we  have fast-moving particles — such as when  
+Artificial Viscosity
+33:26
+starting up the simulation for instance  — the fluid seems to be overly chaotic.  
+33:31
+For example, if we zoom in on a single  frame here, we can see from these colours   how the velocities are all over the  place, even between nearby regions.  
+33:40
+For this last problem at least, I think  it’d be a good idea to try to add a bit   of friction between the particles in the  fluid — more commonly called viscosity.  
+33:50
+So let’s actually take a moment to look  at the famous Navier-Stokes equations   for incompressible fluid flow — which  underpin everything that we’ve been doing.  
+33:59
+First of all, this equation here just says that  the density of the fluid must remain the same   everywhere. And, I mean, we’re trying. Then the other equation tells us that  
+34:09
+each tiny little volume of fluid is  accelerated down the pressure gradient,   and that it responds to external forces such as  gravity, and mice — so we’ve done both of those  
+34:20
+terms. But then this slightly scary-looking  term here is the viscosity — and essentially  
+34:26
+what it does is cause the velocities of nearby  regions of fluid to become blurred together.  
+34:32
+Now we could implement it this way, but for today  at least I actually want to go with a different   approach I’ve seen that seems much simpler,  but still achieves the same sort of thing.  
+34:42
+So I’ve added this little function  here which just takes in the index of   a particle, and loops over all the other  particles within the smoothing radius.  
+34:50
+For each of those, it then calculates the  difference between the velocities of the   two particles, and adds that on to the  viscosity force — meaning that over time,  
+34:59
+each particle’s velocity will become more  like its neighbours’. And nearby neighbours   have more influence as usual, which is done  using this viscosity kernel — for which I’ve  
+35:09
+simply used that nice smooth function that we  were originally using for the pressure force.  
+35:14
+Okay, let’s try it out! Oh — my settings have  been reset, so we’re back to no gravity at  
+35:19
+the moment — but let’s see what that looks  like. Currently our viscosity is at zero….  
+35:25
+So let’s turn it up. I’m not sure what a good  value would be, so… let’s just try 5 maybe.  
+35:31
+No, definitely not, that looks very weird. My  guess is that the viscosity is just way too high  
+35:36
+at the moment, and so some of these particles are  almost exactly matching one another in velocity,  
+35:42
+and that’s causing them to clump together  weirdly. So let’s reduce it to maybe 0.5  
+35:47
+instead, and see how that goes. Okay, this is looking pretty good  
+35:53
+actually — we can see how the particle  velocities are more smoothed out,   and so we no longer have those few particles with  super high velocities shooting off on their own.  
+36:03
+I want to see how this looks with gravity  enabled again, so I’ve set up a quick   comparison here with a range of different  viscosity values. And let’s see how it goes.  
+36:17
+I’d say the top right one looked best to me, but  let’s see that again quickly. And I’ll freeze it  
+36:26
+here actually — because this gives us a nice view  of the increasingly smoothed out results we get   with this new artificial viscosity term. Obviously we don’t want to smooth out too  
+36:35
+much detail though, so I’m going  to keep the value pretty low.   Now I’m not quite sure yet how to tackle that  boundary problem I mentioned earlier, so I’m  
+36:44
+going to just ignore that for now, and instead  work on something else that’s bothering me.   If we lift up a bunch of water, and then let it  go — we can see how it quickly splits up into  
+Pressure Problems
+36:55
+these little droplets with just a few particles  each. Which is a bit strange I think. We could get  
+37:02
+rid of this behaviour by simply clamping the  pressure values so they can’t go below zero,   meaning that the particles won’t  pull each other together anymore.  
+37:10
+So let’s try that out… but now the particles  are just raining down individually,  
+37:17
+which doesn’t look right either. I guess,  allowing that negative pressure was giving us   a very crude kind of surface tension effect,  and so I think, until we implement a more  
+37:27
+accurate version of that — in a future video  perhaps — we should probably hang onto it.  
+37:32
+So I’m going to undo that change, and instead  I want to try an interesting workaround one of   the papers suggested, which is simply to have a  second pressure force purely for pushing apart  
+37:43
+particles that are very close to one another. So this the shape of the smoothing function we’re  
+37:48
+using for our density calculation at the moment,  and what the paper recommends is to use another,  
+37:54
+even spikier version, to calculate  what they call the ‘near’ density.  
+37:59
+From this near density, we calculate the  ‘near’ pressure, simply by multiplying it   by some constant — meaning that this  will be a purely repulsive force.  
+38:09
+Let’s try it out quickly, and just for fun  I’m going to see what happens if we make the   near pressure multiplier negative. Okay,  so they just collapse in on one another,  
+38:18
+which makes sense. So let’s then try a positive  value. And now, I want to try picking up a ball of  
+38:25
+fluid again and dropping it — and as we can see….  this time it’s able to hold its shape a lot better  
+38:35
+since the particles are no longer getting pulled  together into those tiny clusters we saw before.  
+38:41
+So I think we’ve succeeded in improving the fluid  a bit with these last two changes — although   I’m certainly not entirely happy with how it’s  behaving yet. For example something that bothers  
+38:51
+me quite a lot is how it often appears to sort  of ‘bounce’ — more like a jelly than a liquid.  
+38:56
+This happens pretty much all the time, but  we can see a dramatic example if I just   let the fluid come to a rest, and then  change the target density for example.  
+39:07
+Now we could get less jiggly results simply by  increasing the pressure multiplier — which is   why it’s often actually called the stiffness  constant by the way — so here I’ve set up a  
+39:17
+little test where it has a value of 1000, and  if I change the density now, we can see that  
+39:23
+it does settle down a lot more quick. This does  not come for free though, because the greater the  
+39:29
+forces in our fluid, the more simulation  steps we need to run per frame, to avoid   things devolving into chaos. For example if I just  lower the number of steps by one… we can see that  
+39:40
+already we’re on the brink of pandemonium. Anyway, I’m sure we’ll learn about ways to  
+39:48
+overcome or at least improve this problem in the  future — but for right now, what I’d like to do is  
+Bugs
+39:53
+finally convert the whole simulation to a compute  shader as I was talking about before — so that   we can run it on the GPU, which excels at doing  loads of tiny tasks in parallel, which should be  
+40:02
+a perfect fit for our particle calculations. I doubt that’ll take very long,   so I’ll see you in a minute! Okay, I kept find new and creative  
+40:50
+ways to mess everything up, but this  finally seems to be running properly in   a compute shader. I still need to test the  performance with more particles, but just  
+40:59
+glancing at the FPS counter looks promising so  far — hovering at around 500 frames per second.  
+Parallel Sorting
+41:06
+By far the trickiest part was translating  just one line of code — the “Array.Sort”  
+41:11
+from our neighbourhood search. I ended up  spending quite a while trying to figure   out how to implement a parallel sorting  algorithm called bitonic merge sort.  
+41:21
+In particular I was trying to generate  this pattern of lines — and generalize   it for any number of inputs. The inputs here are represented by  
+41:29
+the horizontal lines, and we have 16 of them in  this case— meaning that this network can sort 16  
+41:35
+values. Let’s actually assign a random value  to each input so we can see how this goes.  
+41:41
+Then, each of these little vertical lines  represent a pair of inputs that we’re going   to compare, and potentially swap around. So to start with, we’re going to look at  
+41:51
+each of the 8 pairs we have over here — and  let’s say we want to sort from high to low,   so in this first pair we have 5 on top and 3  on the bottom, which we’re happy with, so that  
+42:02
+can stay unchanged. In the next pair though,  we see 7 on top, and 8 on the bottom. So the  
+42:07
+bottom is a higher number, which is obviously very  scandalous, and we’ll need to swap them around.  
+42:12
+So we can look at all these pairs  in parallel, figure out which need   to be swapped, and then swap them. Of course  this alone is probably not going to sort the  
+42:20
+list — so we need to continue to the next stage. Here the pairs are arranged a little differently,  
+42:27
+but the operation is still exactly the same.  We can see this first pair has 5 on top,  
+42:32
+7 on the bottom — so it will need  to swap. As will this pair with   3 on top and 8 on the bottom, and so on. This pattern has been carefully devised — by  
+42:48
+some clever person — such that following it will  do all the comparisons required to guarantee that  
+42:53
+the result is fully sorted by the end. For anyone interested, I’ll quickly show  
+42:58
+the rough implementation I came up with — so  this part runs on the CPU, and is responsible   for simply looping through each of those  patterns, and telling the GPU to sort the pairs.  
+43:09
+And then here is the code that actually does  that pair-wise sorting. So it starts by just   figuring out which pair of numbers it’s  actually looking at — and then it compares  
+43:16
+them to see if they need to be swapped.  And if they do, it of course swaps them!  
+43:21
+Alright, I’ve been doing some testing with  different amounts of particles — so here is 100  
+Some Tests and Experiments
+43:26
+particles for example… And I think it’s kind of  cute watching these little droplets wobble about.  
+43:32
+Then after that I tried a  hundred thousand particles,   but my computer was not happy about that. So  definitely a lot of room left for optimization.  
+43:42
+Here’s a test with about 40000 particles though,  which seems to be running okay — Although I’ll   have to finetune the settings of course,  because at the moment there’re some weird  
+43:50
+tendrils shooting out of the liquid, and I really  don’t know why. Or perhaps we could just call   this a speculative simulation of how liquids  might behave on an alien planet! The settings  
+44:01
+are definitely very finicky at the moment though. Here’s another little test I’ve set up by the way,  
+44:10
+and this one has an obstacle over here,  with a gap beneath it, because I just want   to see if the simulation is able to keep the  height of the liquid the same on both sides.  
+44:22
+So I’m just going to start bucketing some of this  liquid over to the other end here. And then let’s   grab another blob. Aaand another! And then let’s  just wait a little bit for this to settle down,  
+44:32
+but already we can see the height gradually  leveling out. So even if our simulation is far   from being super realistic — it’s nice to see at  least that it’s not entirely unrealistic either.  
+44:44
+Okay now, as always, there’s so much more I  still want to do — but to end with for today,   let’s see if we can get this working in the third  dimension. This basically just means replacing a  
+The Third Dimension
+44:53
+bunch of float2s with float3s in the compute  shader, updating the scaling factors of the  
+45:00
+various smoothing functions and their derivatives  — and making sure our neighbourhood search is   aware of this brand new dimension as well of  course! I’ve also updated the collision function  
+45:10
+to work in 3d, and I tweaked it to account for  the bounding box being moved or rotated, as well  
+45:16
+as scaled, simply by transforming the points and  velocities to its local coordinate system — then  
+45:22
+resolving those same as before — and finally  transforming them back into world coordinates.  
+45:30
+My first attempt at running this did not go  particular well, but after some trial and   error with the settings, I managed to get this  rather goopy-looking result, and with a few more  
+45:39
+tweaks from there, I was finally able to get  something that I was reasonably happy with.  
+45:48
+So, let’s just play around with this bit.  I’m going to try squeezing it together…   And what’s nice about how we implemented  the neighbourhood search stuff, is that  
+45:56
+we aren’t constrained to any predetermined  bounds — so we can stretch this out however   much we want as well, and it should still work. Those little wave were looking quite nice think  
+46:11
+—so let’s actually smoosh this together  again, and then try that out once more.  
+46:27
+Now, another thing to add to my list of a million  things I want to improve of course is how the   fluid is actually rendered. These little  balls are good for seeing what’s going on,  
+46:37
+but it would be nice to make it actually look more  fluid-like, and I guess raymarching is probably a  
+46:42
+good way to approach that, but we’ll see. So let me just make a quick note here of  
+46:51
+sort-of my wishlist for this project. I want the  simulation to be more stable and performant so we  
+46:57
+can have more particles. I want the parameters  to be less finicky, so it’s easier to get good  
+47:02
+results, and I want the particles to behave  better along the boundaries, because it looks   really odd at the moment. I’d also love to be able  to put little boats on the water and watch them  
+47:15
+bob about — and other such mutual interactions  between objects and the fluid simulation. Then   finally of course, there’s the rendering  stuff I just mentioned as well.  
+Outro
+47:23
+So, plenty of work for the future  — but until then — I hope you’ve   enjoyed following along with the process so far.  
+47:29
+Okay, that’s all for today — let me know if  you have any suggestions for this project,   or for anything else you’d like to see.  Alright, thanks for watching, and goodbye!

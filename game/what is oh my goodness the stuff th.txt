@@ -1,0 +1,811 @@
+what is oh my goodness the stuff that is going here wo this just took a turn oh no no no no no oh wo so last time
+0:08
+8 секунд
+someone sent in some code for me to look at as part of my code review series it's this game called Skyward scammer you steal balloons and scam people out of balloons it's weird the game itself was
+0:17
+17 секунд
+pretty simple it's just like a 2d top down pixel game but then at the end there was this this like floating through space with the balloons and we
+0:26
+26 секунд
+had like the original Mario kart track on the bottom and then some py tiling Sky texture off the top and this was like wo like completely different from
+0:33
+33 секунды
+the rest of the game let's just Chuck in like a little 3D raycasting type renderer it kind of reminds me of Celeste actually because the game
+0:41
+41 секунда
+Celeste is like this 2D platformer but then like the the menu SL progression of the game itself is like this full 3d
+0:50
+50 секунд
+rended World and so it's just funny to think that cuz that game's made without an engine it's like they had to include a full on 3D renderer just to get like the menu essentially done so that's kind
+0:58
+58 секунд
+of cool and it's the same thing I guess as what's happening here so I thought the code for this 3D section deserved its own code review so that's what we're going to do today we're going to take a
+1:07
+1 минута 7 секунд
+look at this code now firstly a bunch of you pointed out that the source for all of this pseudo 3D plane drawing code is
+1:14
+1 минута 14 секунд
+one loan coder on YouTube and to be fair so did the author of the original code for the code review also mentioned that Javid dx9 I don't know how to pronounce
+1:23
+1 минута 23 секунды
+that was an inspiration and actually you can find this exact project and this exact code from a video called programming sudo 3 pry PLS AKA mode 7
+1:31
+1 минута 31 секунда
+C++ from him 6 years ago back in 2018 pretty old and you can see it's kind of the same effect in fact it's the same I don't know if the sky texture is the
+1:39
+1 минута 39 секунд
+same but the ground texture obviously is the same it's the original like Mario Kart track and if you look at some of the code then you can see that like it's
+1:47
+1 минута 47 секунд
+exactly the same now this is for like the console game engine and in fact if we look in we can probably start to see like there's console game here and then we've also got console game engine here
+1:56
+1 минута 56 секунд
+so you can start to see like the influence for this actual code itself but of course of course it has been adapted because his code is running as part of his console game engine whereas
+2:03
+2 минуты 3 секунды
+this is like something separate entirely and so some of the functional calls are different but the math and everything is pretty much the same so what I'm not going to do in this video is explain how
+2:12
+2 минуты 12 секунд
+the actual pseudo 3D rendering works because David has done a pretty good job of explaining that uh in the actual video which I'll have this video Linked In the description below in case you
+2:21
+2 минуты 21 секунда
+guys want to see like the kind of math I guess and he does some experimenting in this video I watched this video he does some experimenting in this video as well as far as like playing with the new near
+2:30
+2 минуты 30 секунд
+clipping planes far clipping planes like the frost them itself and adjusting the field of view seeing what effect that has to like the rendering so I recommend you watch this video if you're
+2:38
+2 минуты 38 секунд
+interested more in this specific topic what I'm going to do instead is I'm going to look through this code from the lens of like a code reviewer slash
+2:45
+2 минуты 45 секунд
+person who I guess rites game engines and so we're going to see first of all what I think of the code itself if there's any issues I have with it and perhaps some optimizations improvements
+2:54
+2 минуты 54 секунды
+we can make now as an exercise to some of you who keep asking me to give you exercises so that you you can practice programming have a look at this function
+3:01
+3 минуты 1 секунда
+I'll have this this exact file actually I'll link in the description below you basically don't need anything except for this file like you don't need the rest of the game this skyboard scammer game
+3:10
+3 минуты 10 секунд
+or whatever because this function is pretty like self-explanatory it loads two images up here that's the resources you need and obviously in this case it
+3:17
+3 минуты 17 секунд
+uses like sdl to draw the image so if we look at game Eng and draw point it uses sdl to actually draw like a pixel but
+3:24
+3 минуты 24 секунды
+this itself can be implemented completely Standalone so you shouldn't need the rest of this to understand this potentially spot issues so just have a look at this and see what you think
+3:33
+3 минуты 33 секунды
+write down some notes and then you can compare that to what I think in this video and see if some of our things overlap and maybe you thought of stuff that I didn't and vice versa now another
+3:41
+3 минуты 41 секунда
+exercise you can do to improve your programming and math is check out brilliant.org the sponsor of this video because they currently have an amazing 30-day free trial that you can use to explore their entire platform bror is an
+3:50
+3 минуты 50 секунд
+amazing website filled with lots and lots of really high quality courses on various stem topics the short of it is I think they're pretty much the best place on the internet to start learning
+3:59
+3 минуты 59 секунд
+programming because first of all they don't lock you into a specific language they instead teach you how to think like a programmer which I think is really important in the long run and gets you
+4:07
+4 минуты 7 секунд
+started on the right foot but then also their courses are super engaging and interactive they're very visual they let you like drag these blocks around to
+4:14
+4 минуты 14 секунд
+learn how a program flows that way of teaching I think is first of all a lot more fun than just watching videos and trying to practice exercises yourself
+4:23
+4 минуты 23 секунды
+but then also in my experience helps you remember what you're being taught a lot better and once you have those Basics locked down you you can move on to using
+4:30
+4 минуты 30 секунд
+an actual programming language like python with again the same way of teaching math is another thing that brilliant does super well and the thing
+4:37
+4 минуты 37 секунд
+about math is it benefits so much I think from being taught visually so it really does fit in well with brilliant's teaching style you can see for example
+4:45
+4 минуты 45 секунд
+with these Advanced topics such as calculus being able to play with these widgets on screen to see how the math is actually working is just such a great way to learn and as I mentioned they
+4:54
+4 минуты 54 секунды
+have a 30-day free trial that you can use to check out their entire platform and see if you like it just go to br // theano link will be in the description
+5:01
+5 минут 1 секунда
+below and if you do go on to like it brilliant have been nice enough to offer 20% off a premium annual subscription with that link below huge thank you to brilliant.org as always for sponsoring
+5:10
+5 минут 10 секунд
+this video okay so first and foremost before we start looking at this code we know that this is like this the way this is rendered the way this works is it's a
+5:17
+5 минут 17 секунд
+victory condition so if the player wins it plays this I've just set player one to true so that we can skip the actual game and just go straight into this so
+5:26
+5 минут 26 секунд
+if you're playing along with the original coach you'll have to do that as well also just comment out the sound because we don't need that so this line of code over here bull result equals
+5:34
+5 минут 34 секунды
+Victory scene. update this is of course what is calling this and doing all of the math and everything to display those
+5:41
+5 минут 41 секунда
+3D planes now the first thing I want to do before I start looking at the actual code is I want to see how fast it's running because some of the stuff we're going to talk about today is going to be
+5:49
+5 минут 49 секунд
+optimization we're going to talk about what we can do to make this function faster and if we have no way of measuring that then what's the point so
+5:57
+5 минут 57 секунд
+what I usually do around about this time in the video video is I open Hazel and I steal a timer from Hazel and I'm like ah I'm just going to take this timer here
+6:05
+6 минут 5 секунд
+it is because I need a timer so I can see how long this is taking so what I did instead today is I thought I thought I would cut that out instead I made a
+6:12
+6 минут 12 секунд
+gist on GitHub 19 minutes ago it's just like timer. H I'll have a link to it in description below it's just this code
+6:20
+6 минут 20 секунд
+over here that we can just copy and it includes just a normal timer that you can call you can just construct it and then query the elapsed seconds and
+6:28
+6 минут 28 секунд
+milliseconds like this but it's also got this scope timer thing which lets you supply a name and in the destructor you can see it will automatically print out the result in milliseconds so this is
+6:37
+6 минут 37 секунд
+going to be really handy for us just to quickly see how long that function is taking and print it to the console so I'll copy this I'll just go to the top
+6:43
+6 минут 43 секунды
+of this CPP file which is RPG game. CPP and I'll just paste it in and that should just work and compile if it doesn't or if there's some issues feel
+6:52
+6 минут 52 секунды
+free to just leave a comment on the gist and I will address it and then over here what we can do is well we just want to see how long this function takes one
+6:59
+6 минут 59 секунд
+thing we could do is we could we could have just stuck the the actual scope timer in here but just to make it a little bit clearer I'm going to make a
+7:07
+7 минут 7 секунд
+scope for this which means that we'll have to bring out results I'll just set it to false and then we'll assign it here and then we can just do scope timer
+7:14
+7 минут 14 секунд
+give it whatever name we want and just say something like I'll just do pseudo 3D plane I'll just paste that in as a string and now if we hit F5 it should
+7:23
+7 минут 23 секунды
+print every every frame every time this is called it should print our result over here to the console and you can see what it is now this this is running
+7:29
+7 минут 29 секунд
+quite slowly because we are in a debug build there's a couple of different ones here there's release release with debug info doesn't really matter which one we
+7:38
+7 минут 38 секунд
+use cuz we don't really need the symbols like the debug info stuff if you were profiling with Visual Studio to see how slow this was and you were going like
+7:45
+7 минут 45 секунд
+you know build know debug I think and performance profiler I would do a build with debug info otherwise you won't get any symbols you won't see what functions
+7:53
+7 минут 53 секунды
+are slow that's a decent starting point I don't think we're going to get too deep into Visual Studio debugging here today we'll just see what we can spot with our eyes so I'm just going to set
+8:01
+8 минут 1 секунда
+it to release and we're going to build and run this again okay so now you can see it's running a little bit faster we're at about 23 milliseconds 22 23
+8:08
+8 минут 8 секунд
+milliseconds with this so it is running kind of slowly uh I mean one thing to mention here I think is that this is
+8:16
+8 минут 16 секунд
+rendering I think it's around 700 or whatever is the width if I go back to debug which we'll use probably a bit more often here just so we can break the
+8:24
+8 минут 24 секунды
+debugger and everything if we go into sudo 3D plane I'll just set a break point like over here for example we'll run this just so we can see the window width and height so the height is 384
+8:33
+8 минут 33 секунды
+and the width is 720 so 720 * 384 is 276,000 times we're going through the for loop it's actually window he divided
+8:41
+8 минут 41 секунда
+by two so it's even less than that so it is running in my opinion quite slowly even considering that it's going through I don't even know it's going through
+8:49
+8 минут 49 секунд
+like 100 something thousand pixels so it is a mystery it's not necessarily a mystery I haven't actually looked at the code yet so we might see some obvious things but the point is I'm sure that
+8:57
+8 минут 57 секунд
+there is going to be room for improvement but but as a side note I want to quickly quickly mention that if you are looking at this and you're being
+9:05
+9 минут 5 секунд
+like okay 23 22 milliseconds to render something like this is obviously completely absurd in 2024 whenever
+9:14
+9 минут 14 секунд
+you're rendering Graphics the best thing to do always is to just to use the GPU that's what it's for so obviously if we were looking at this even if we wanted
+9:23
+9 минут 23 секунды
+this exact look even if we wanted this exact code we would not be using the CPU for this we would be using our gpus and
+9:32
+9 минут 32 секунды
+if you want to see me do that if you want to see some kind of video where I show how to take something like this and actually have it run on the GPU in like
+9:40
+9 минут 40 секунд
+probably under a millisecond let me know in the comment section below cuz I haven't done anything like that I was going to do that with the ra tracing series but never really got around to it so let me know in the comment section
+9:47
+9 минут 47 секунд
+below but anyway I just wanted to mention that as like the first step kind of in optimizing this is to take a look at this and be like what Hardware is
+9:56
+9 минут 56 секунд
+this going to be running on does that Hardware have a GPU yes so therefore use it and that's going to make the biggest impact in terms of
+10:04
+10 минут 4 секунды
+performance compared to anything else I could probably possibly do here CPU side now before we actually do pop into optimizing this let's have a bit of a
+10:12
+10 минут 12 секунд
+look at the code itself and I'll provide some commentary on it all right so the first thing we do is we calculate the corners of the frost so we have
+10:19
+10 минут 19 секунд
+basically you know these far x x y1 and two situation so these are basically the corners of our Frost because we're just
+10:27
+10 минут 27 секунд
+referring to everything here as individual floats like we're not storing these variables as like VC 2s which I probably would that would make this a
+10:34
+10 минут 34 секунды
+little bit easier we have this like X1 y1 situation which I think is going to refer to like this coordinate over here X and Y well actually that's the far one
+10:43
+10 минут 43 секунды
+clearly so this will be this one here this will be this one here and then we have X2 far which refers to this one
+10:51
+10 минут 51 секунда
+over here and then near X2 Y2 is this one over here so we have like these four corner pins basically which dictate what the frust them actually look looks like
+10:59
+10 минут 59 секунд
+you'll note that they are in two-dimensional space meaning that first of all there's no XY Z and also there's no depth to this Frost right so a normal
+11:08
+11 минут 8 секунд
+froom would kind of look like this actually would come from one point over here as well and it would look like that in a 3D world because obviously it would have like depth this doesn't because
+11:17
+11 минут 17 секунд
+this is kind of pseudo 3D it's not exactly 3D and again this is explained in more depth in javid's video from like six years ago which I'll have a link in the description below so okay this is
+11:25
+11 минут 25 секунд
+pretty straightforward I don't really have anything to pick whenever I look a code like this so this is running every frame you have to kind of break down this function and think about what is
+11:33
+11 минут 33 секунды
+running every frame versus like every pixel because obviously the stuff that's in here is running every pixel versus this stuff is running every frame so
+11:41
+11 минут 41 секунда
+that's not too bad because the the thing that does kind of stick out to me a little bit is the use of trigonometry functions right so we got cosine we got s over here it's also sticking out to me
+11:50
+11 минут 50 секунд
+because these are the C versions of the functions so they're not from a library like glm or a dedicated math library that always makes me nervous because that means that it's dependent on what
+11:58
+11 минут 58 секунд
+compil tool chain you're using I prefer using math libraries because they're generally optimized for Speed or at least they can be they can also take
+12:06
+12 минут 6 секунд
+advantage of things like s if they need to and of course if you've configured them to and also they provide an implementation that you can actually yourself more or less look at that isn't
+12:15
+12 минут 15 секунд
+compiler dependent so I would use something like glm here you know would look like that it would look the same basically but it's going to be using a
+12:22
+12 минут 22 секунды
+library such as glm that's what we use in Hazel but otherwise you could maybe look at caching these values the reason
+12:30
+12 минут 30 секунд
+why is because trigonometry functions can be a little on the slower side and this if we have a look at what this is so this is half of our field of view
+12:37
+12 минут 37 секунд
+which we don't really expect to change and if it does change then it wouldn't be something that changes every frame presumably and then F World a is I
+12:46
+12 минут 46 секунд
+believe our angle our rotation angle right so we can rotate the camera along basically what is the Zed axis I guess
+12:53
+12 минут 53 секунды
+so this is the Zed axis up and down then we can kind of rotate our camera like I'm rotating on this chair right now but that is fixed in this game right so we
+13:01
+13 минут 1 секунда
+saw that as we're flying through the world it's just fixed so therefore we could be like all right there's no need for us to calculate this stuff over and
+13:09
+13 минут 9 секунд
+over again you can see just even in this alone it's doing the exact same calculation twice here so if you're not planning to rotate I would at least
+13:17
+13 минут 17 секунд
+bring these out into local variables the problem with caching and I've wanted to make a video about this since 9 years ago and I kid you not I've had this
+13:25
+13 минут 25 секунд
+video idea on my mind for 9 years and I'll tease it here a little bit but the point is intermediate programmers tend to have this thing they do where they're
+13:33
+13 минут 33 секунды
+not beginners anymore they know about caching they know that you shouldn't just recalculate everything so let's just cash things and they tend to go
+13:40
+13 минут 40 секунд
+crazy with that what I mean by that is cash everything because why do any math like why do any math at all when you
+13:47
+13 минут 47 секунд
+could just do it once and then cash it somewhere in memory and they feel really smart smarter than everyone else because you look at all the This Is Me by the way I'm talking about myself like 10
+13:55
+13 минут 55 секунд
+years ago so when I'm bringing up this example of like a programmer who thinks they're cool and does I'm really talking about myself at least in the past they start
+14:03
+14 минут 3 секунды
+cashing everything and they're like yeah this is I'm so much better than everyone else because this is clearly going to make everything faster everything's great but then when they just get past
+14:10
+14 минут 10 секунд
+that hump of like intermediat a little bit and they just have a little bit more experience and understand how things work a little bit more you begin to
+14:17
+14 минут 17 секунд
+realize that the act of retrieving data from a cache is itself kind of like math not in the sense of like there's that
+14:25
+14 минут 25 секунд
+much arithmetic and stuff involved but in the sense that there's a cost associ with that just like there's a cost with adding and like multiplying and dividing
+14:33
+14 минут 33 секунды
+and subtracting or whatever you might be doing here just like there's a cost with these trigonometry functions there's also a cost of having to reach into a
+14:40
+14 минут 40 секунд
+memory cache and pull out that already calculated value that's not free caching stuff retrieving stuff from cashes is not free you still have to retrieve it
+14:48
+14 минут 48 секунд
+from the cash and a lot of the time if that cash doesn't happen to be on the CPU cache right so it's basically something we call a cold memory read I
+14:56
+14 минут 56 секунд
+think I don't know if this changed actually I haven't looked it up in a something like 200 CPU Cycles to just get that value 200 CPU Cycles is often a
+15:04
+15 минут 4 секунды
+lot more than it might cost to just recalculate that value especially cuz a lot of these operators like two 2 3 4
+15:10
+15 минут 10 секунд
+like CPU Cycles potentially versus potentially 200 that is why when I'm looking at this I'm not immediately
+15:18
+15 минут 18 секунд
+thinking okay let's just replace these static trigonometry calculation static in the sense that I guess they're constants right let's replace that with
+15:27
+15 минут 27 секунд
+an already cached value not immediately thinking that because if that cash value is I don't know where it would actually live in memory having to retrieve that
+15:36
+15 минут 36 секунд
+every time instead of recalculating it might not give us any performance Improvement it might actually reduce the performance worst case and I mean best
+15:44
+15 минут 44 секунды
+case obviously it improves the performance but it might not do anything and I suspect in this case it is probably not an optimization that I would be willing to make and so I think
+15:53
+15 минут 53 секунды
+that in this case it's probably not going to give us any tangible benefit but then you can see that this line of code is exactly the same as this line of
+16:01
+16 минут 1 секунда
+code so this stuff I would bring out okay then we go down here and we're going to iterate through vertically but divided by two so half the screen right
+16:09
+16 минут 9 секунд
+if this is the screen we're only iterating through like this half I think 0 0 is the top left not the bottom left so we're just iterating through this
+16:17
+16 минут 17 секунд
+section over here and we'll see why in a minute we're working out like this sample depth which is just this value divided by the max value that's it's
+16:25
+16 минут 25 секунд
+going to be so we just get a value between 0 and one that's a float instead of between 01 window height divid two then we've got these points which just
+16:33
+16 минут 33 секунды
+determine what kind of scan line we're going to be looking at and we go through the width now pixel by pixel the full width we again get a value between 0 and
+16:40
+16 минут 40 секунд
+one and then a couple values that we're going to use eventually to sample the actual texture that we have the ground and the sky texture and draw it
+16:47
+16 минут 47 секунд
+somewhere on the screen so first of all note what's happening here we' got ground pixel we got Sky pixel we're doing them both right and that's where
+16:55
+16 минут 55 секунд
+this divided two comes in because we've basically got like the sky and the ground and they're not really mirrored
+17:03
+17 минут 3 секунды
+by The Horizon mirrored in the sense of coordinates though along that Horizon which is right in the middle of the screen because we're mirroring it we can
+17:12
+17 минут 12 секунд
+just retrieve the pixels using the exact same samples but then just draw them at
+17:18
+17 минут 18 секунд
+plus Y and minus y so window he / 2 gives us the center of the screen vertically so we get this over here and
+17:27
+17 минут 27 секунд
+then you can see we can either add y to then start drawing pixels over here or we can subtract y to start drawing
+17:34
+17 минут 34 секунды
+pixels up here and it's going to draw them like this seems pretty clever seems pretty nice we don't have to Loop through everything a bunch of times but I'm here to tell you that it's actually
+17:43
+17 минут 43 секунды
+it's not it's bad it's bad the reason why it's bad is because you can hopefully by me just drawing this pick
+17:51
+17 минут 51 секунда
+up on the fact that we're not really going through a buffer in a row we're doing the correct thing here we're
+17:58
+17 минут 58 секунд
+moving pixel pixel by pixel everything is great but then over here right the buffer if I just draw it in Orange starts up here I mean first of all the
+18:05
+18 минут 5 секунд
+buffer I'm talking about is a screen right so we have a screen that's like this and how is it laid out in memory it's just this kind of like single dimensional array that's really really
+18:13
+18 минут 13 секунд
+long and zero the first like bite or bytes of that image of that texture are right over here and obviously as we go
+18:21
+18 минут 21 секунда
+forward we're going this way now this this concept of like wrapping around is more or less automatic because it's just a single dimensional r so then what
+18:29
+18 минут 29 секунд
+we're doing here is obviously since we got this like second point that we're drawing over here and we're basically going like that through it we're going
+18:36
+18 минут 36 секунд
+horizontally through the rows really well but then we have to pop up a row and that's obviously in terms of our single Dimension array means that we're
+18:45
+18 минут 45 секунд
+going back so this let's just label this as X might be over here x was something X was not a good thing to pick because
+18:54
+18 минут 54 секунды
+I've been drawing X's but anyway the green X might be somewhere here right and then to pop up over here to the red
+19:00
+19 минут
+x that might be somewhere here so we're actually going backwards in that buffer why is that bad because usually when we
+19:09
+19 минут 9 секунд
+fetch memory from RAM and we have to like we fetch a bunch of it and we store it in our CPU cache where it's hot that means it's quick to access what will
+19:17
+19 минут 17 секунд
+happen is when you request this bite of memory or bytes it will just prefetch a whole bunch for you and you can tell that this is perfect if we're iterating
+19:26
+19 минут 26 секунд
+through an array in order right from like a low index to a high index but you can see from this that when it does actually fetch us this memory it's
+19:34
+19 минут 34 секунды
+obviously not fetching anything behind it it's fetching from the address that you've specified forwards so if we then are like actually no I need this we
+19:42
+19 минут 42 секунды
+actually have to go back and this act of going back could result in a cold memory read which would cost you a lot more Cycles than if the memory was already
+19:50
+19 минут 50 секунд
+accessible in the CPU cache so that's something that also sticks out to me just like when I see Loops like this especially nested Loops that are dealing
+19:57
+19 минут 57 секунд
+with pixels you want to optimize for cache coherency right you want to optimize for having all of this data and I don't just mean the writing the data I
+20:06
+20 минут 6 секунд
+mean reading as well so we can talk about these textures and where the actual memory for them is located but this immediately just stands out to me
+20:13
+20 минут 13 секунд
+because if we did have a scenario in which we could just iterate through all the screens pixels like this in order as it appears in the buffer and memory that
+20:21
+20 минут 21 секунда
+would make me feel a lot better about this whether or not we'll actually get any tangible benefit if we change that we'll explore that a little bit later in this video the other thing the the last
+20:28
+20 минут 28 секунд
+thing I'll point out just visually from this that I don't like uh in terms of like high priority things that I don't like f mod here because it's unnecessary
+20:36
+20 минут 36 секунд
+that's why I don't like it what does fod do well it's kind of like the modulus operator right we have a modulus operator but we know that that only
+20:43
+20 минут 43 секунды
+works for integers in C++ in languages like C you can use it on floats but in C++ if you want to do something like
+20:50
+20 минут 50 секунд
+this which is kind of what's Happening Here that's not going to work right if this was an integer then it would work right no problems with that that's we
+20:59
+20 минут 59 секунд
+people do that all the time that works this doesn't work just because I guess that operator isn't overloaded for this use case or whatever so instead we just
+21:06
+21 минута 6 секунд
+use a function called mod does the same thing now I want to also point out that doing a mod with an INT versus a float also kind of does different things
+21:15
+21 минута 15 секунд
+because this code over here you would never really use this because every integer is divisible by one which means
+21:23
+21 минута 23 секунды
+that your answer would just always be zero because there's no remainder ever so this isn't something you'd write but why would you write this because we're
+21:31
+21 минута 31 секунда
+just trying to get the remainder of the fraction part of it since if it was a whole number there would be no remainder
+21:38
+21 минута 38 секунд
+right so 5 Mod 1 would just give you zero if there's something else like 5.5 the remainder is going to be 0.5 so
+21:46
+21 минута 46 секунд
+we're essentially just extracting the fractional part of this can you think of a different way that we could extract just the fractional part of a float
+21:54
+21 минута 54 секунды
+without having to go through the complexity and cost of a function such as F mod because F mod obviously will work with anything right so it's not as
+22:03
+22 минуты 3 секунды
+simple as just I it's not just used for I want to extract the fractional part and the answer is there's a couple ways the simplest way like what I would
+22:11
+22 минуты 11 секунд
+probably rewrite this code to is basically just F sample x minus int F sample X so what this will do is it will
+22:19
+22 минуты 19 секунд
+cut out the fractional part because I'm casting to an INT so if this was 5.5 then casting this to an INT gives me 5
+22:26
+22 минуты 26 секунд
+and 5.5 minus 5 is of course 0.5 what I want if you want to be a little bit more I don't know um clear maybe you could
+22:34
+22 минуты 34 секунды
+use floor instead I just would just cast to an in honestly and that's kind of it and of course I guess you could rewrite
+22:41
+22 минуты 41 секунда
+it like that and that uh I actually think because it's inside the inner loop will probably give us an actual
+22:48
+22 минуты 48 секунд
+performance benefit we can see so let's quickly compare that okay so this is running at like 22 23 milliseconds with fod so let's comment out fod let's
+22:57
+22 минуты 57 секунд
+compare it with this hopefully it will give us the same visual result of course so that looks visually the same and then look at that we're down to like 9 it's 19 20 21 milliseconds instead of like 22
+23:06
+23 минуты 6 секунд
+23 so just something as simple as that gives us this result now while we have this open one of the things that I pointed out immediately when I saw this
+23:14
+23 минуты 14 секунд
+for the first time in the last code review video where I took a look at the rest of this code and the game as a whole was this black line on the horizon
+23:21
+23 минуты 21 секунда
+that just immediately stuck out to me now black like pixels black lines stuff like that the graphics programmer part of me is saying there's probably a nan
+23:30
+23 минуты 30 секунд
+somewhere so I would start my investigation by just switching to debug and then putting a break point here and just seeing what we get now nans frequently happen because you divide by
+23:38
+23 минуты 38 секунд
+zero and dividing by zero happens a lot of the time on the very first iteration of a for Loop when you set something like yal 0 so to be honest we probably
+23:46
+23 минуты 46 секунд
+don't even need to run this through the debugger to see that we start this by of course setting y to zero and then if we look at F sample depth that's fine
+23:54
+23 минуты 54 секунды
+that's zero but then if we look at any of these you can see it says INF and negative INF so we got infinity negative infinity and if we look at what's going on here it's because we're dividing by F
+24:03
+24 минуты 3 секунды
+sample depth which is zero so that is what's causing this to basically give us invalid values and if we have a look at
+24:10
+24 минуты 10 секунд
+the pixel that I guess we end up writing it's just zero here and that's because you know like these variables as you can see are like negative Nan we've broken
+24:19
+24 минуты 19 секунд
+everything now in the original Javid video where he writes all of this he solves this solves this by just adding
+24:26
+24 минуты 26 секунд
+like a cyan line in the middle that was his kind of cheat solution as he said we can do something a little bit better than that because honestly I didn't
+24:34
+24 минуты 34 секунды
+really like the look of that of that San line what we can do is we can just say that if Y is zero which is going to
+24:41
+24 минуты 41 секунда
+cause that let's just use these near points instead right so I'll write it like this I'll just say if y equal 0 else actually let's just rewrite it to y
+24:49
+24 минуты 49 секунд
+greater than Z that'll be better I'll bring out all of these floats up here and then I'll get rid of in the other branch of Y not being greater than zero
+24:57
+24 минуты 57 секунд
+meaning it's it's zero or it's negative but most likely it's just going to be zero I mean it can't be negative in this case we're just going to use those near
+25:05
+25 минут 5 секунд
+kind of clipping planes and so if we have a look at that you can see it's gone from the middle right and it's replaced by a line that is kind of Al
+25:13
+25 минут 13 секунд
+almost sign as well like it's blue cuz it's kind of going from the sky but you can see that it's also got other colors mixed in with it because we're just clamping it to one side of this using
+25:22
+25 минут 22 секунды
+something like far would probably be better actually just because uh now that I think about this not in a programming sense it's the Horizon Which is far so
+25:31
+25 минут 31 секунда
+if we look at it now yeah I mean it's kind of a similar result uh this is coming from the balloon strings actually these Brown bits here but yeah you can
+25:39
+25 минут 39 секунд
+see we've got some white over here then it transitions into a blue anyway I think it looks a lot better than just a Canan line now speaking of the Horizon
+25:46
+25 минут 46 секунд
+in general this just looks ugly to me the reason why is because as we get further away from the camera obviously what's happening is we have a lot less
+25:54
+25 минут 54 секунды
+resolution a lot less Fidelity to kind of deal with pixels usually in modern 3D pipelines we would use texture filtering so we would use something like linear
+26:02
+26 минут 2 секунды
+filtering to kind of use low resolution mips or lower resolution versions of the actual texture that have been linearly filtered when they've been down sampled
+26:10
+26 минут 10 секунд
+which will just create a much more kind of smoothie blurry look that you would much prefer to having very sharp kind of nearest filtering sampling stuff that
+26:19
+26 минут 19 секунд
+clearly doesn't have enough sampling resolution to actually show you what's there and then because it's on an angle like this an isotropic filtering would
+26:26
+26 минут 26 секунд
+be something else that would exist in 3D pipelines however the best thing I think the easiest thing we can do here to make this look better would be to introduce
+26:34
+26 минут 34 секунды
+some like fog right some like render kind of like Minecraft Alpha Minecraft I'm just thinking of like old school Minecraft Minecraft does this now as well but you set like the render
+26:42
+26 минут 42 секунды
+distance like the absolute closest Value because your computer sucks as like me back in 2010 and you just have like this white fog so black or white fog is
+26:50
+26 минут 50 секунд
+something that we can look at so we will take a look at that in a minute I'll just slap in some fog and see what it looks like but first if we switch back to release let's just take another look
+26:58
+26 минут 58 секунд
+look at optimization and performance so this is about 20 milliseconds or so let's just try to maybe I think the
+27:05
+27 минут 5 секунд
+easiest thing we can do is just to not go through this the way that we're going through this because again we're going through this backwards which might be
+27:13
+27 минут 13 секунд
+necessary like I'm sure we could restructure some of the math so that we don't have to go through it like this we'd have to change probably the samples
+27:20
+27 минут 20 секунд
+but at a very very base level let's do this instead when we're iterating through the horizontal scan line from left to right like we are here these
+27:28
+27 минут 28 секунд
+functions are drawing to the same buffer so if we look at what draw Point does it does render draw Point using this renderer I'm guessing like onto the
+27:36
+27 минут 36 секунд
+screen or something and the screen is just a buffer of memory so the problem with these function calls and what I would say is completely wrecking
+27:45
+27 минут 45 секунд
+everything is not just the fact that we're going like backwards over here it's the fact that we're kind of jumping between areas of the buffer right so
+27:53
+27 минут 53 секунды
+this one pixel we write over here in the buffer and then because this is at a completely different location vertically we're suddenly probably writing
+28:02
+28 минут 2 секунды
+somewhere here in the buffer and then next iteration we're writing here and here and so it's just kind of like jumping around the buffer that's really
+28:10
+28 минут 10 секунд
+most likely causing an issue here so I think the simplest thing we could do is just duplicate this for Loop which might sound crazy but bear with me let's
+28:19
+28 минут 19 секунд
+duplicate this for Loop and then from this one I'm going to remove like the sky for example we obviously don't need to work out what the sky pixel is either
+28:27
+28 минут 27 секунд
+and from this one I'm just going to remove the ground so let's get rid of the ground and so we have like sky and ground in two separate Loops we are
+28:35
+28 минут 35 секунд
+doing stuff more than once right we're doing all of this math twice now just keep that in mind and our current
+28:42
+28 минут 42 секунды
+performance was about 20 maybe 19.9 20 21 that was basically our average performance so let's see just by separating out this Loop just by doing
+28:50
+28 минут 50 секунд
+it twice now but not into leaving our buffer rights let's see what we get okay if we take a look at our results you you
+28:58
+28 минут 58 секунд
+can see that just by doing that it's marginally faster now it was a lot more faster on a this is a 1950x thread Ripper so the single core performance is
+29:06
+29 минут 6 секунд
+not the best and actually we can talk about multi-threading this renderer which would make it a lot faster as well but you can see we're hitting 18
+29:13
+29 минут 13 секунд
+millisecs now and it's usually 19 right before we were usually on 20 to 21 sometimes hitting 19 now we're hitting
+29:22
+29 минут 22 секунды
+sometimes 18 and we're usually around that kind of 19 20 Mark so it is a little bit faster just by doing that
+29:30
+29 минут 30 секунд
+even with doing the math effectively twice now if you wanted to take this whole buffer coherency like not jumping around buffers further you could also
+29:39
+29 минут 39 секунд
+have a look at what you're doing with the actual reading of the textures because at the moment the textures we have this sky and we have this ground texture they're two completely separate
+29:47
+29 минут 47 секунд
+textures whose buffers are stored like if we have a look at ground surface they're just sdl surfaces and sdl surfaces internally have this pixels
+29:55
+29 минут 55 секунд
+buffer they would be stored in presuming presumably random locations in memory what we could do is we could create some kind of memory pool or something for the
+30:04
+30 минут 4 секунды
+two textures so they live side by side you could also look at making like a texture outlas or a Sprite sheet out of this but this is effectively the same thing because the way the textures work
+30:13
+30 минут 13 секунд
+in these kind of CPU applications is different to GPU programming but anyway having the memory closer together usually tends to improve the performance
+30:20
+30 минут 20 секунд
+as well so I would look at just making sure that all the memory that you access in this function would actually be as close together if not just uous because
+30:29
+30 минут 29 секунд
+that will make things a lot better now finally let's take a look at the fog right so as we get further I would like to basically just fade right so we can
+30:37
+30 минут 37 секунд
+fade it to Black we can fade it to White and that will introduce this element of fog this is dead simple to do in this current setup because we actually don't
+30:44
+30 минут 44 секунды
+have any like vertical walls or anything so we don't actually need a depth buffer or like a zed buffer we just purely need to know how deep we are into this and we
+30:52
+30 минут 52 секунды
+obviously know that because we're doing a bunch of math to project it like that and specifically sample depth is y / this window height ID 2 so it's
+31:00
+31 минута
+basically y / the max value which again gives us a 0 to 1 where 0 is right on the horizon and as we get further away
+31:08
+31 минута 8 секунд
+from the Horizon we grow and we get up to one so if we did something like 1 minus we'd actually get our depth between 0 and 1 now it would just be a
+31:16
+31 минута 16 секунд
+linear depth but that's good enough to do any kind of fog that we might want to do so just by using this sample depth what we can do is have a look at the
+31:24
+31 минута 24 секунды
+colors that we're about to draw for our ground for example sample so we're getting them over here that's how we're getting these variables so we got red
+31:32
+31 минута 32 секунды
+green and blue so what we can do with the red is we can just take the red and multiply it by this sample depth and then we'll cast it back into an INT
+31:40
+31 минута 40 секунд
+let's repeat this for the green and the blue Channel and then if I copy and paste this down into our sky as well let's replace G with s for sky and let's
+31:48
+31 минута 48 секунд
+have a look at what that achieves all right look at that we got some like nice fog and you can play with the curve of the sample depth what I mean by that is
+31:56
+31 минута 56 секунд
+at the moment as you go down in the scan lines is just linear it just goes from like 0 to one completely linearly as you progress from you know one scan line to
+32:05
+32 минуты 5 секунд
+the next it will increase by the same amount you could try and make this like exponential or like do like a square root of it do some other curve with it whatever you might want have it start at
+32:14
+32 минуты 14 секунд
+a particular value instead of immediately because this actually starts fading to Black immediately so you can see even this is a bit darker right you
+32:21
+32 минуты 21 секунда
+might not want that so that's something you could definitely experiment with because obviously this is just getting dark way too quick now I would also say that fading to Black is probably not going to look as good as fading to White
+32:29
+32 минуты 29 секунд
+for something like this so we could Fade to White instead so the strategy of what I would do to Fade to White here would be basically linearly interpolate from
+32:38
+32 минуты 38 секунд
+the color to white and that's cool because you can actually provide any color you want and then as the depth increases you'll kind of blend in mix in
+32:46
+32 минуты 46 секунд
+that value that you're aiming for more and more so if you just Google lurp and then we go down to Wikipedia linear interpolation and we scroll down a
+32:54
+32 минуты 54 секунды
+little bit you can see under programming language support that this there's this here that's the imprecise method here's a precise method honestly it doesn't
+33:02
+33 минуты 2 секунды
+matter which one you use let's just copy this one and then if we scroll up I'll just write static as well so it's locked to this file just to Habit and then we've got lurp which we can use so we're
+33:10
+33 минуты 10 секунд
+going to be luring based on Sample depth which goes from 0 to one right so we'll call lurp with gr then the value we want
+33:17
+33 минуты 17 секунд
+to get to based on Sample depth so the higher the depth now here's the other thing though this remember starts like
+33:25
+33 минуты 25 секунд
+zero here is the actual Horizon so zero will be a gr so we actually want to flip this if we want the Horizon to be this
+33:33
+33 минуты 33 секунды
+otherwise we'll we can also do minus if that makes more sense to negate this but I guess I'll just write it like this so if I copy all of that and then just
+33:40
+33 минуты 40 секунд
+change this to G and B and again I'll copy and paste this to here replacing this with s then now hopefully we should
+33:47
+33 минуты 47 секунд
+be fading to white instead of to Black and you can see that's what it looks like so I think that looks much better right you could do something like this but again you could also Fade to like an
+33:56
+33 минуты 56 секунд
+arbitrary value so we could Fade to Pink for example magenta if we just do 255 255 you can see our fog is now pink
+34:04
+34 минуты 4 секунды
+right so it's kind of cool that I guess by luring we just have a little bit more control cuz we're not just multiplying by like a scaler which will darken it because it's going to reduce the value
+34:12
+34 минуты 12 секунд
+of the actual color Channel instead we can do this now here's where you can have some fun right so you can for example Square this and it's going to
+34:20
+34 минуты 20 секунд
+give us even more aggressive fog kind of like that Minecraft render distance that I was talking about earlier but in general I think this looks a lot better than it did before and this also kind of
+34:29
+34 минуты 29 секунд
+removes the need for us to handle that N I guess cuz you really won't see it at the horizon line anymore but yeah that's our little pseudo 3 scene uh the tiling
+34:36
+34 минуты 36 секунд
+of the texture is also very upsetting I don't know if that's it's probably just a source texture I'm I'm expecting unless it's being like rotated randomly or or weirdly but yeah that's pretty
+34:45
+34 минуты 45 секунд
+much my thoughts on this the other thing that I did mention was multi-threading because we're simply like kind of going
+34:51
+34 минуты 51 секунда
+through this and like the math I guess and probably the buffer rights and reads to be honest are taking most of the time
+34:58
+34 минуты 58 секунд
+here one thing we could try is we could try to for example split the screen up into like four or at least maybe into like the sky and the ground kind of like
+35:06
+35 минут 6 секунд
+I have I'm going through um you know the sky and the ground in separate for Loops here because they have nothing to do with each other and in fact every single
+35:15
+35 минут 15 секунд
+Pixel that we calculate here has nothing to do with the neighboring pixel which is why again this works so well on a GPU because this can just be done in parallel and everything's going to be
+35:23
+35 минут 23 секунды
+much much much better much much much faster we could take regions of this and just off load them to other cores or like this full loop maybe these two like
+35:31
+35 минут 31 секунда
+X Loops could be on different cores on different threads we did something really similar in the ray tracing series I'll try and find that video and have a linked up there but otherwise let me
+35:38
+35 минут 38 секунд
+know if you guys enjoyed this look and want to see more stuff like this in the future let me know what your thoughts were about this code I asked you guys in the beginning as like a little exercise
+35:46
+35 минут 46 секунд
+to just have a look at this code and see what you think did it match up with what I said did you think of stuff that I didn't say let me know in the comment section below and finally if you want to send in your code for me to take a look
+35:55
+35 минут 55 секунд
+at send it in to Chanel review gmail.com they there will be some instructions in the description below I'll see you guys next time goodbye

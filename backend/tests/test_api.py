@@ -76,12 +76,25 @@ def test_track2_drafts_stay_out_of_public_catalog(client):
     """Трек 2 (фуроры для отчёта) — черновики: не влияют на рекомендации."""
     public_titles = {item["title"] for item in client.get("/api/catalog/examples").json()}
     assert "Tetris" not in public_titles
+    assert "Pong" not in public_titles
     assert "Fortnite Chapter 4 (UE5)" in public_titles
 
     # Черновики живут в базе (видны в сводке), но не в публичном срезе.
     overview = client.get("/api/admin/overview").json()
     assert overview["counts"]["game_examples"] >= 160
     assert len(public_titles) < overview["counts"]["game_examples"]
+
+    # Топ-40 влиятельных игр — отдельным файлом трека, все с источниками.
+    import json
+    import pathlib
+
+    top40 = json.loads(
+        (pathlib.Path(__file__).resolve().parents[1]
+         / "app" / "seed" / "data" / "track2" / "furor_influential.json").read_text(encoding="utf-8")
+    )
+    assert len(top40) == 40
+    assert all(item.get("source_url", "").startswith("http") for item in top40)
+    assert "Shenmue" not in public_titles
 
 
 # ---------------------------------------------------------------------------
@@ -120,7 +133,65 @@ def test_recommendations_respect_selected_functions(client, profile):
     data = client.post("/api/recommend", json={"profile": profile, "basket": []}).json()
     allowed = set(profile["functions"])
     for item in data["recommendations"]:
-        assert item["function_code"] in allowed
+        # None — общие методы без функции: они видны во вкладке «Общие методы»,
+        # а релевантность им задают requires_features и правила, а не фильтр.
+        assert item["function_code"] is None or item["function_code"] in allowed
+
+
+def test_general_methods_are_visible(client, profile):
+    """Методы-сироты участвуют в выдаче, а не лежат в базе мёртвым грузом."""
+    data = client.post("/api/recommend", json={"profile": profile, "basket": []}).json()
+    codes = {item["method_code"] for item in data["recommendations"]}
+    assert "quality_tier_scalability" in codes
+    assert "ml_frame_generation" in codes
+
+
+def test_gated_methods_require_their_function(client, profile):
+    """Сетевые методы видны только с multiplayer_netcode, иначе — в исключённых с причиной."""
+    base = dict(profile, functions=["open_world_streaming"])
+    data = client.post("/api/recommend", json={"profile": base, "basket": []}).json()
+    codes = {item["method_code"] for item in data["recommendations"]}
+    assert "tickrate_budgeting" not in codes
+    excluded = {item["method_code"]: item for item in data["excluded"]}
+    assert "tickrate_budgeting" in excluded
+    assert excluded["tickrate_budgeting"]["excluded_reasons"]
+
+    online = dict(base, functions=["open_world_streaming", "multiplayer_netcode"],
+                  multiplayer=True, player_count=32)
+    data = client.post("/api/recommend", json={"profile": online, "basket": []}).json()
+    assert "tickrate_budgeting" in {item["method_code"] for item in data["recommendations"]}
+
+
+def test_unity_only_method_visible_on_unity(client, profile):
+    base = dict(profile, engine="unity", functions=["post_processing"])
+    data = client.post("/api/recommend", json={"profile": base, "basket": []}).json()
+    assert "srp_batcher_discipline" in {item["method_code"] for item in data["recommendations"]}
+
+    other = dict(base, engine="custom")
+    data = client.post("/api/recommend", json={"profile": other, "basket": []}).json()
+    codes = {item["method_code"] for item in data["recommendations"]}
+    assert "srp_batcher_discipline" not in codes
+
+
+def test_gta_example_is_published(client):
+    titles = {item["title"] for item in client.get("/api/catalog/examples").json()}
+    assert "Grand Theft Auto V" in titles
+
+
+def test_tiled_light_culling_is_visible_with_conditions(client, profile):
+    data = client.post("/api/recommend", json={"profile": profile, "basket": []}).json()
+    codes = {item["method_code"] for item in data["recommendations"]}
+    assert "tiled_clustered_light_culling" in codes
+    item = next(i for i in data["recommendations"] if i["method_code"] == "tiled_clustered_light_culling")
+    assert any("десятках" in reason for reason in item["reasons"])
+
+
+def test_stylization_flags_concept_change(client, profile):
+    """Стилизация видна в выдаче и честно помечена изменением концепции."""
+    data = client.post("/api/recommend", json={"profile": profile, "basket": []}).json()
+    item = next((i for i in data["recommendations"] if i["method_code"] == "art_direction_stylization"), None)
+    assert item is not None
+    assert "may_change_concept" in item["flags"]
 
 
 def test_priority_changes_ranking(client, profile):

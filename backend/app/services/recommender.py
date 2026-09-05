@@ -31,14 +31,14 @@ from ..schemas.catalog import (
     BasketConflictOut, CriterionScore, LoadProfileOut,
     RecommendationOut, RecommendationResult, RiskOut, SimilarGameOut, input_fingerprint,
 )
-from . import gower, hardware, rules, serializers
+from . import gower, hardware, rules, sensitivity, serializers
 from .serializers import label_of as _label
 from .serializers import link_out
 from .topsis import Criterion, criterion_matrix_rows, topsis
 
 #: Версия алгоритма. Меняется при любом изменении формул, весов или правил
 #: отбора: по ней можно понять, какой версией получен сохранённый результат.
-ALGORITHM_VERSION = "2.0.0"
+ALGORITHM_VERSION = "2.0.1"
 
 #: Версия набора данных. Меняется при обновлении базы знаний, влияющем на
 #: ранжирование (пересчёт индексов оборудования, пересмотр оценок эффекта).
@@ -299,9 +299,13 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
 
     calculated_at = timeutil.utcnow_iso()
 
-    # 3. Кандидаты: методы для выбранных функций.
+    # 3. Кандидаты: методы для выбранных функций плюс общие методы без функции.
+    # Общие методы (kind=optimization, function=None) проходят тот же фильтр
+    # правил: нерелевантные отсекаются через requires_features и applicability,
+    # а не молчаливым отсутствием в выдаче.
     selected = set(profile.functions)
-    candidates = [m for m in all_methods if (m.function and m.function.code in selected)]
+    candidates = [m for m in all_methods
+                  if (m.function is None or m.function.code in selected)]
 
     # 4-5. Исключение и оценка применимости.
     evaluated: list[tuple[Method, rules.Applicability]] = []
@@ -378,12 +382,18 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
     order = sorted(range(len(evaluated)), key=lambda i: (-scores[i], evaluated[i][0].code))
     total = len(evaluated)
 
+    # Устойчивость рангов: тот же тай-брейк, что и выше, иначе вилка врёт.
+    stability = sensitivity.analyze(
+        matrix, criteria, [method.code for method, _ in evaluated],
+    )
+
     recommendations: list[RecommendationOut] = []
     for rank, idx in enumerate(order, start=1):
         method, applicability = evaluated[idx]
         recommendations.append(_build_recommendation(
             db, method, functions, applicability, scores[idx], rank, total, rows[idx],
             profile, comparable=result.comparable, compare_reason=result.reason,
+            stability=stability.get(method.code) if stability else None,
         ))
 
     tail = _tail(db, profile, basket_methods, basket_codes, methods_by_code, conflicts, engines, examples)
@@ -585,6 +595,7 @@ def _build_recommendation(
     db: Session, method: Method, functions: dict, applicability: rules.Applicability,
     score: float, rank: int, total: int, criteria_rows: list[dict], profile,
     *, comparable: bool = True, compare_reason: str = "",
+    stability: sensitivity.Stability | None = None,
 ) -> RecommendationOut:
     # Метод сюда попадает только применимым, поэтому «не рекомендуется» здесь
     # возможно лишь по абсолютному признаку — окно внедрения закрыто стадией.
@@ -617,6 +628,11 @@ def _build_recommendation(
         flag_labels=[FLAG_LABELS[f] for f in flags],
         reasons=reasons,
         criteria=[CriterionScore(**row) for row in criteria_rows],
+        stability=(
+            {"rank_min": stability.rank_min, "rank_max": stability.rank_max,
+             "stable": stability.stable}
+            if stability is not None else None
+        ),
         engine_support=support,
         engine_alternatives=alternatives,
         summary=method.summary,

@@ -235,6 +235,44 @@ export interface CriterionScore {
   kind: string;
 }
 
+export interface RankStability {
+  rank_min: number;
+  rank_max: number;
+  stable: boolean;
+}
+
+export interface SuggestedMethod {
+  method_code: string;
+  reason: string;
+}
+
+export interface ProjectImport {
+  profile: ProjectProfile;
+  filled: string[];
+  suggested: SuggestedMethod[];
+  detected: string[];
+  warnings: string[];
+}
+
+export interface PresetFile {
+  name: string;
+  language: string;
+  content: string;
+}
+
+export interface FeedbackVote {
+  public_id: string;
+  method_code: string;
+  up: number;
+  down: number;
+}
+
+export interface FeedbackSummary {
+  projects_with_feedback: number;
+  methods: { method_code: string; up: number; down: number; total: number; helpful_rate: number }[];
+  suggestions: { method_code: string; current_confidence: number; suggested_confidence: number; reason: string }[];
+}
+
 export interface Recommendation {
   method_code: string;
   method_name: string;
@@ -246,6 +284,7 @@ export interface Recommendation {
   flags: string[];
   flag_labels: string[];
   reasons: string[];
+  stability?: RankStability | null;
   excluded_reasons: string[];
   criteria: CriterionScore[];
   engine_support: MethodEngineLink | null;

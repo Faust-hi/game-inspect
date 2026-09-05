@@ -1,0 +1,322 @@
+hey what's up guys my name is jonah welcome back to my ray tracing series so last time was a very exciting episode
+because we actually drew something we rendered this sphere using the power of ray tracing if you haven't seen that
+video yet i highly recommend you watch it first link will be up there as well as in the description below there were quite a few kind of unanswered questions
+in that video there was a lot more that i wanted to show however we didn't get the chance to explore everything that i
+kind of wanted to so what we're gonna do today is we're gonna dive even deeper into what we did last time because you
+guys were very excited about the depth of the series and we're going to explore a little bit more about what it actually
+means to like cast a ray like what how does that work it's quite
+a difficult task to actually draw this as a diagram and that's one of the reasons why i didn't really want to explain it last time today though what i
+have in front of me is hazel we're going to actually write some code here using
+hazel the big version of hazel which you guys can access on patreon.com we're going to use hazel to visualize
+these rays in 3d space and be able to kind of interact with them and fly around them which i think will be just a
+much better way of explaining this than obviously drawing it on paper now you could also use something like unity to
+visualize all of this stuff but we're going to use hazel because it's actually going to be a lot easier and faster to work in hazel as you'll see now before
+we get started i want to mention that this video and this whole series actually is sponsored by brilliant which is an absolutely fantastic place to
+learn all about the math that you'll need to follow along with this series it's so good that i've actually
+personally been using it to revise some of the calculus that we'll need for later on in this series so i'm very
+serious when i say that it is my favorite place on the internet to learn math the biggest thing i think that sets
+brilliant apart from the rest of the competition is the fact that all of their courses are extremely engaging and
+interactive they don't just try and present you with information they get you to engage and interact with it and
+they also present things very visually i mean we're literally going to spend today talking about rays and presenting
+them visually because i think it's just such a good place to learn and brilliant is full of that kind of stuff aside from
+math they've also got plenty of courses on various stem topics such as computer science data structures actual practical
+applied science you know that kind of stuff and you can get started with brilliant for free just go to my link in the description below that's
+brilliant.org the churno brilliant have also been nice enough to offer the first 200 of my subscribers 20
+off an annual membership if you sign up using my link in the description below huge thank you as always to brilliant for sponsoring this video so without
+Setup in Hazel
+further ado let's check out our setup for today okay so what i've got over here is hazel i've just made a new
+project in hazel again if you want to follow along with this you don't have to use hazel even though i recommend that
+you do you can use something like unity and the process should be fairly similar you should be able to replicate this
+pretty much exactly inside our scene we just have a basic skylight a camera and an entity and the entity is hooked up to
+this kind of ray tracing series.mainscript class which is what you see over here the plan here really
+is we're going to implement some of the code that we actually wrote last time so this is in the last episode we had this
+kind of pink sphere being rendered it looks like it's kind of in 2d space but as we'll see today it is in fact in 3d
+space we'll see a bunch of extra information about this which is really cool we're basically going to kind of recreate this setup but we're actually
+going to draw like each ray as a line because that's what we're doing we're just essentially creating these lines
+and then seeing where they intersect certain defined geometries such as in this case the sphere and this is exactly
+what we talked about in episode 2 which is where we covered all the math so now we're going to see like how those lines
+actually exist in a 3d space so the first thing that i want to kind of pay attention to is obviously this render loop here
+Casting rays
+because this is the basis for the rays that we cast this per pixel function is just what we do to each ray to figure
+out whether or not that ray actually hits the sphere and then we respond in a certain way in this case by returning a
+color such as pink if it hits and just black if it doesn't but this is kind of the real meat of it because what we do
+here is we go through every pixel in our image and for each pixel once per pixel we cast a ray we work out
+a coordinate between negative one and one and then we pass that into this per pixel function to do the rest of the
+calculations so this is kind of the rate creation code so what i want to do back here inside our kind of hazel setup is
+basically the same thing like i just want to basically grab this and then i'll come over here and just paste it in
+now obviously this is written in c plus we'll translate this in a minute but the idea is for each of these kind of pixels for each of these rays that we cast i
+want to physically draw a line inside this kind of 3d space so how do we set that up well first of all i mean final
+image get with get high let's just set some kind of arbitrary width and height we'll start we'll start pretty kind of
+sparse here i might make a width of 50 and you know what maybe we'll make the height the same thing we didn't really
+deal with aspect ratio last time we probably will cover it today but for now we can set a width of 50 and a height of
+50 which will be two and a half thousand rays that will actually cast here i'm just going to translate the rest of this
+into c sharp and into this kind of setup that we have here okay and now we have
+this coordinate we have this coordinate which is supposed to be between zero and one so i'm just going to make it a
+vector 2 because that's hazel's vector 2 type and then replacing the width and height with the width and high variables
+we get this we can we can still multiply it by 2 and subtract 1 as we did except this time instead of just setting an
+image data i'm actually going to use hazel's debug renderer to draw a line so what we're going to do is we're going to
+draw a line from some kind of origin point now if we go back to this ray
+tracing setup you can see that our ray origin was 0 0 2 and our ray direction was that
+coordinate x and y and a negative one so let's copy this code as well and then back over here i'll paste it and change
+this to be a vector 3 and we're left with this so we still have like a ray origin and array direction
+now i can actually put the ray origin into like the starting point of the line the ray direction will be like the
+ending point of the line however a direction by itself is a bit weird so we'll kind of grab the origin and scale
+it along the direction by some kind of length now this length i'm just going to declare up here this is like the
+visualized length of our line it doesn't really matter too much but this is going to affect what we actually see obviously
+when we render this so this will kind of dictate the length of the line ray direction isn't normalized so this length is not going to be like you know
+two meters in this case but it will be some like arbitrary length and then finally we need some kind of color so
+i'm just going to pick a nice magenta kind of pink color for that line all right now if i build this
+come back over here hit play let's actually hide that scene hierarchy panel and then i'll go back to
+like the editor camera but in play mode you can see we have a whole bunch of rays now they're a little bit hard to see i think what i might do is let's
+just define like some kind of ray color here and what i want to do
+is i'll make it black and i'll set the alpha to be like 0.5 or something slightly transparent and then we can
+just hit ctrl shift b and it will kind of live recompile as you can see and we have all of our rays here let me just make
+them full black here so it's a bit more clear i'm also going to just set the line width to be maybe like a bit
+thicker like three or something there we go so now you can kind of see each ray now each of these rays is just
+generated using of course this coordinate it has like an origin which obviously is over here which we've set
+to be a zero zero and two and then we're shooting them in this kind of negative direction if we actually show the grid
+here you can see that this is kind of the origin of our 3d world we've stepped back two units so two meters to get to
+this point here because that's our origin and then we're shooting the rays kind of back in the direction that we
+stepped back into if that makes sense we're shooting them kind of backwards if this was positive two obviously that's the negative z axis and we're shooting
+the rays that way now in the last episode we were able to actually like visualize the coordinates by simply
+Visualizing ray direction
+setting the pixel to be the color of the coordinate we can do the exact same thing here we can just
+set the ray color to be coordinate now we have actually done the times two minus one thing here so i'm going to go
+back to just coordinate times point five plus point five for x and four y to get
+into a zero to one space and then we can just leave blue at zero ctrl shift b and we'll change that to coordinate y and
+you can see we basically get the same result now which is pretty cool we can kind of see
+the bottom left corner of the image that we used to see being black and then as we go higher it gets more green as we go
+more to the right it gets more red and of course more to the right i'm kind of referring to from the perspective
+obviously of this right so if we if we look at it this way this kind of matches what we actually had in the previous
+episode initially now the density of this is obviously a bit um
+sparse right so what i could do is increase this to something like 500 by 500
+and we get a solid image now performance is going to be a little bit bad here because we're drawing like 250 000 lines
+but uh you can see that we get like a solid image right so i will be using like some slightly smaller numbers just
+so that it performs a little bit better like even that's fine so overall i think this is a really good way to visualize what we're
+actually doing per pixel in the code that we wrote last time and again making this a little bit more sparse we'll make
+things like a little bit easier to understand i mean if i even set this to like 20 which might be spot too sparse here what we're doing is from the camera
+which the moment is just like this fixed kind of little point right in 3d space that's what we've done we've set it to
+be like the ray origin from there we're kind of spitting out all of these rays
+in in different directions which kind of ends up being like one for every pixel that we actually have on our screen and
+Visualizing sphere intersection
+as these lines kind of get sent out from this point we test each one of these
+lines to see whether or not they actually intersect this sphere that we've mathematically defined so let's go
+ahead and add that functionality over here i want to see that sphere that we've actually created inside the code
+last time so if we go back to our code from last time we have this kind of defined radius basically from here i'll
+just copy all of the code and we'll use that as like our starting point let's make this a little bit bigger so what
+i'm going to do is paste it into here i guess we can drag the radius out this will be like our our sphere radius
+we're going to replace uh the dot product into what hazel's api currently looks like which is just vector three
+dot dot over here over here and over here you can see the code is generally the same right so now we actually have
+the redirection right and we have all of this kind of worked out and we have a valid discriminant now it's just about what we want to do with the discriminant
+right what do we want to do with the information of whether or not we've hit the sphere well what we're going to do in this case is just change the ray
+color so i'm actually going to make the red color black as it is originally i'm not going to set the right color to be
+based on this coordinate anymore however what i will do is just set that ray color to be
+pink just like we did for the sphere if it actually hits the sphere so otherwise we'll set it to be
+black and if i hit ctrl shift b then you can see back here in hazel now the kind
+of lines in the middle here the rays in the middle are all pink and if i increase the amount of rays here let's
+just move this over if i increase this back to being like 200 by 200 then you can see we have that
+sphere image just like we did in the last episode but now we're kind of drawing it with these lines and you can
+see that if we fly into here actually what i'll do is i'll i don't really like the way this is set up let's just bring
+this ray color down here we'll set the ray color like initially to this black value and then we'll just get rid of
+this branch entirely i just want to make it like slightly transparent maybe like point two or something just so that we
+can kind of see now this obviously depends on the order that's drawn in that's why we can't see everything but you can see that we can we can still
+kind of see through it um you can see these rays kind of originate if i can go slow enough these rays kind of originate
+from obviously where all the rays originate and then we just have these kind of lines which go across and these
+pink rays are the ones that end up intersecting the sphere has nothing to do with where they intersect the spheres just did they or did they not that is
+what the discriminant is telling us and that is kind of that final image that we get now what about aspect ratio what if
+we didn't have like a one by one viewport i guess well let's try and like create something that's 16 by nine so
+320 by 180 is a 16 by 9 aspect ratio if i just rebuild it with that in the beginning we get the same kind of result
+but the distribution of rays is actually different there's less race vertically than there are horizontally the reason
+why this is the same and we didn't get like some stretch thing is because obviously we're just drawing stuff based on the rays that we shoot and they're
+like this now in our original code when we actually stretch the viewport obviously now we're filling in colors
+over a greater area right that's not what's happening here we're just mathematically shooting rays
+so you can kind of see that if we adjust this aspect ratio here like if i go dramatic and make this like 18 then you
+can see that there's just physically less rays obviously vertically than there are horizontally you can see all
+of the individual kind of rays here but vertically we only have 18. and then if we kind of map that onto this area we
+get a stretched image but the math you can see isn't really stretched you're just controlling how many rays you
+actually send out so let's set this back to 180 but to actually map this to a larger area and for it not to be
+stretched out here we basically just need to take this x coordinate and multiply it
+with this aspect ratio so let's calculate the aspect ratio that's just going to be width divided by height i'll
+just make that a float and then we'll multiply x with aspect ratio and now you can see let me just
+close this now you can see move our code out of the way now you can see that we
+have like a wide screen view but this is obviously still like a sphere it has not
+been stretched and so if you apply the same code to the code from last time you'll get the same result okay cool so
+this is looking pretty cool hopefully this gives you guys just a deeper understanding of how we actually shoot
+these rays out now there are a lot of a lot of problems from shooting out rays from just a single point like this if
+you're familiar with a camera frostum you know there is such thing as like a near clipping plane and essentially the
+frosting you create is almost never like one point for that reason we're not going to stick to this kind of thing
+forever we'll move to a more traditional camera system which will have like a near clipper far clip a field of view
+that kind of stuff and that's going to be really important because as we start to kind of move this around if we were to which we're not doing at the moment
+the distortion is going to be not that pleasant so with this current setup let's go ahead and see if we can
+Calculating and visualizing sphere hit coordinates
+actually figure out where these rays intersect the sphere because now all we're really drawing is whether or not a
+ray intersects a sphere if it doesn't it gets this kind of black color and if it does it's pink but what about drawing
+like a sphere in 3d space how does that work well if we go back to our math from episode 2 then we know that once we have
+the discriminant worked out we can just continue to complete the quadratic formula to get our actual intersection
+points and once we have the intersection points we can feed them in to that original ray equation to get like an x
+and y coordinate in this case or an x y and z coordinate in our 3d case so let's go ahead and do that so we know that the
+rest of the quadratic formula is minus b and then plus minus the square root of the discriminant which we already have
+divided by 2a i'm just going to write that down over here i probably should get that like latex plugin or whatever for for the
+visual studio comments but anyway so we have minus b plus minus square root of discriminate divided by 2a so let's go
+ahead and implement that we obviously only need to do this if we know that the discriminant is greater than zero
+because otherwise we don't hit anything and also we probably don't want to square root a negative number so our t value we're actually going to have two t
+values i'll label one of them as t zero because we have a plus minus here but t 0 is going to be minus b we'll make this
+like the smaller one so we'll do minus the square root of the discriminant divided by 2 times a and i'll just put
+this into parentheses as well that's going to be our t0 that's like the minus variance of this quadratic formula and
+t1 is going to be the plus variance we'll just change this to be a plus those are our two solutions now we might
+only have one solution that is technically possible although pretty rare because that will be like a a ray
+exactly tangent to the actual sphere but in that case these will be identical so once we have these two things let's go
+ahead and plug them into the original equation which is ray origin plus ray direction times length and this length
+is going to be t0 or t1 now these are both three component vectors so therefore this is
+really just a scalar along them and the result we get is also going to be a three component vector which is going to
+be our hit position now we do need to calculate this twice if we have two hit positions i'm just going to go ahead and
+put these in local scopes like this and then for each of these intersections i
+also want to draw something now i'm not going to draw a line i'll draw this quad billboard which is basically just a quad
+that faces the camera at all times and we're going to draw it at hit position now we need some kind of size which i do
+want to control so let's go ahead and say vector 2 quad size
+we'll make it like 0.1 or something this will be in meters and then we'll paste in quad size and then we
+need some kind of color so for now i'm just going to write vector for sphere color and we'll make it like i don't
+know green maybe back to four zero one zero one that's green we'll paste that
+in and then i'll copy this and paste it here as well okay let's hit ctrl shift b
+and look at that we have a sphere looks like uh that size is probably big let's
+make it a bit smaller okay this is cool so now we can see an
+actual sphere i mean if i hide the line rendering for a second then this is the
+result like we've just drawn a sphere and if i make this a little bit bigger over here let's make it like 0.5 or
+something i mean yeah you can see we have a sphere and it's obviously in 3d space now not in 2d space there's our
+grid you can see also it obviously is to scale and everything we made the sphere have a radius of 0.5
+each one of these grid cells is a 1 by 1 meter grid cell so you can see that the
+radius is in fact 0.5 it is in fact centered at the origin everything obviously computes correctly as we would
+expect but wait we can actually take this further since we've actually got all of the hit positions over here let's
+Calculating normals
+see if we can apply some basic lighting to this for that we need something called a normal a normal is basically
+like a directional vector that is going to be that's actually bigger than i intended
+that's going to be perpendicular to a surface so in other words in this case if i just zoom in here and show you guys
+a normal for like this area over here would basically be a vector pointing this way for something here it might be
+pointing that way right it's like the direction that that face points so how can we figure that out
+well in this case it's actually very very easy because we obviously have like the hit position like we know that it
+hits here because we're drawing a quad there and we also know the origin of the sphere in this case it's actually just
+the middle here which is zero zero zero so what we can actually do is just
+basically subtract like these two points i mean subtracting zero is not going to do anything but you will need to
+subtract it just in case this isn't literally centered at the origin of the world if we subtract these two things so
+if we take this like hit position and then just do minus the origin of the sphere we're going to get a vector
+pointing this way and if we want we can normalize it to get like an actual direction but since we've kind of
+created this vector you can see that if we i mean it's just a direction so we can move it anywhere but if we put it here it is literally the normal and this
+will work everywhere so it's very very easy to actually calculate the normals of a sphere as long as you like know
+where you intersect it so let's kind of put that into practice what i'm going to do is actually make like an array out of
+this first first of all just because i don't want to have to do all of this stuff twice so these are kind of our two
+solutions and then i can just write a for loop that goes through this stuff
+i and hopefully that will give me the same result so what i want to do is calculate the normal now so the normal
+is going to be as i mentioned the hit position minus the origin now the sphere
+origin right now is zero right i don't really have to write this obviously i'm going to anyway just so
+that it makes sense in fact i'm going to make it a variable called sphere origin this is next level programming making
+variables for absolutely no reason but again it's just so that it actually makes sense sphere origin okay so we have that
+sphere origin at zero and that's how we calculate the normal now the next step with normal is we're going to normalize
+the normal and then what i want to do to verify this is actually use the normal as like the color for that specific quad
+which represents the hit position so what i'll do is for the color here i'm just going to write new vector 4 normal
+times 0.5 plus 0.5 so again i'm kind of converting it into that 0 to 1 space
+because otherwise it'll be between negative 1 and 1 ultimately and we don't want negative colors that'll just be black that's boring and then we'll just
+leave the alpha as one all right and if we ctrl shift b that you can see we now
+get our normals now it's a little bit hard to see because i actually don't remember where these rays are coming from okay so they're coming from this
+point over here which means that if we look at this you can see that we get beautiful
+normals these colors just represent the normal of each hit position of the sphere so each intersection we're
+drawing the normal as a color so with these normals in mind how about we add some lighting to our original sphere
+Lighting
+color so what i'm going to do is simply compute the dot product between this
+normal and a light direction which i haven't actually defined yet so let's go ahead and define a direction for our
+light vector 3 light direction is going to be
+let's make this like maybe negative x negative 1 negative 1
+on y as well because it's going down and then maybe like one on zed um i'll then
+take it and normalize it then we'll come back here and we'll do negative light direction because obviously we're trying
+to if i go back to my little drawing view which is pretty cool you can see that for this what if our
+light is like over here and it's coming down we're obviously not trying to compare the coming down vector which is
+what light direction is with the normal vector because you can see this this comparison will give us this kind of
+angle right we don't want that instead what we want is we want to compare it with a vector going towards the light
+like that because that will give us a more a more useful angle so the dot product of these will actually give us
+whether or not this is kind of facing the light and if it is it'll be like above zero the result of that dot
+product it is again if you guys don't know how any of this works math brilliant click my link in description below it's honestly brilliant anyway so
+this will give us uh a more kind of a more useful result that's why i'm negating it to kind of invert it so
+instead of going this way it's now going that way and i also don't really want it to go below zero so we're just going to use a
+max here to make sure that it doesn't go below zero so it'll pick the maximum between these two if this is negative
+we'll just get zero so this is going to be basically like our our light like multiplier intensity whatever you want
+to call it and so what we'll do is we'll multiply this light with
+our original sphere color now i don't really want to affect the alpha channel though so let's just do light times
+sphere color dot x y z and then we'll obviously make a new vector four out of it by the way if you use the z plus plus
+and you're seeing this new keyboard everywhere and you're freaking out don't worry these are just structs and then c-sharp structs will just be allocated
+on the stack so these are most definitely not heap allocations don't worry um okay so we have light terms for
+color xyz um and then obviously one uh for the alpha so let's go ahead and build that
+and you can see now that we have some pretty cool lighting and if i make the size of these quads even bigger so like
+maybe 0.3 or whatever you can see that like check this out we've got a lit sphere made out of like ultimately lines
+and little quads that we've drawn in hazel using seizure honestly i love this stuff one more thing i want to show you
+Visualizing rays and hit points
+guys is if we make this a little bit smaller here i'll bring back the rays that we cast in the first place
+because it may not have been immediately evident here but if we make them a little bit longer so again this is just affecting the visualization
+right if we make them a little bit longer if i zoom into the right place here you can hopefully see
+that for each of these pink rays that hits the sphere you can see how they kind of pierce the quads that we're
+drawing it's going right through the middle of this quad because that's kind of at the end of the day what we're doing we're seeing which rays actually
+hit this sphere and then where and we're just drawing like a little quad in that
+in that exact location and the rays obviously kind of they can keep going i mean we can define like a maximum and do
+all that stuff but at the moment we're just visualizing lines at an arbitrary length so this isn't really that like
+mathematical but in the case of this sphere and everything you can see hopefully how that's kind of working and
+Only evaluating one solution
+by the way if we chose to for example not evaluate both solutions of the
+quadratic equation so let's just say um but we kind of just wanted this this one over here and we just i mean i guess
+i can just set this to to 1. um then you can see we only get half the sphere
+right we get this side and then if we set this to be two and maybe set this to one so we see the other side that's what
+the other side looks like right so we need to evaluate both of these in order to actually get this kind of complete
+sphere if we're interested in both sides which you might be you might not be up to you now the final thing that i want
+The effect of normalisation
+to show is um and i could talk about this stuff all day honestly and play around with it i recommend you guys do i might publish this code somewhere and
+obviously if you've got hazel you can just open this kind of ray tracing series project that i've kind of created
+but otherwise i'm sure you could easily adapt this c sharp code to unity or something like that if you want but i want to show the effect of normalizing
+the direction so ray direction dot normalize so what
+happens if i normalize this radiation because i mentioned it might be a good idea to normalize it if you want accurate hit distances stuff like that
+but again you don't really need to normalize it but what happens if we do so if i build that what you might see
+over here and it can be a little bit hard to see maybe what i'll do is i might make this a bit sparser and also
+where's the color i want to make the color solid i'll just set it to look one what's happening here as you can see is
+down the middle the rays kind of reach this point but as we get further up they don't quite go as far well it's because
+they actually do go exactly as far the length of them is all one now it's it's going to get scaled by this length so in
+other words they're all of length 4 meters in this case if i put the grid on you can see that the rays that go right
+down the middle they terminate exactly at this grid cell which is four and if i just set the length to one so
+we kind of essentially don't multiply it by length or if i remove the length from here then you'll see that they all kind
+of get to just exactly one meter here and then obviously the ones that are diagonal they're also now one meter in
+length that's why they don't get to the very end here because otherwise that would be greater than one meter in length so that's the effect of
+normalization now i saw a couple comments last time i don't really want to talk about this now i saw a couple comments last time mentioning that if we
+To normalize or not to normalise
+normalize the ray we don't really have to do this a calculation because the dot
+product of a unit vector with itself is just going to be one so in other words we can just label this as one and be
+done with it as you can see we get the same result now whilst true we don't need to do that normalizing a
+vector is a lot more expensive than just calculating a dot product remember dot product is just the multiplication of
+each component and then summed up whereas to get ray direction you need to work out the magnitude of a vector and
+that requires using a square root there's division involved in that so the performance actually ends up being a lot
+worse i don't really want to talk about optimization at this stage but just to kind of show you guys what i'm talking
+about if we go back to our original code from the last episode of the ray tracing series you can see over here that in
+release mode my render time's around three milliseconds if i just grab the title bar you'll see maybe 3.3 3.1
+something like that right if i change this to be normalized but then don't do this calculation let's
+take a look at the effect on performance look at that now it's four milliseconds
+that's significantly slower it's like 30 slower so yes ultimately don't normalize
+unless you really really have to because just know that normalization i mean it's not the most expensive thing
+in the world but it's obviously more expensive than a dot product and that's why i'm kind of not doing it and you can
+see in this case if i bring back uh let's not make this as sparse and again the rays are going obviously further we
+see the complete sphere we're just not visualizing them further than this point here but ultimately when we look at something like this you can see that
+whether or not it's normalized or not so if i just comment out this normalization control shift b
+it's doesn't matter this field still looks exactly the same all of our normals are correctly calculated everything is fine
+so in this case we actually don't need to normalize it but in general regarding optimization and stuff like that i'm not
+Some notes about optimization
+writing this with optimization in mind obviously if it gets to completely ridiculous frame rates and like it's
+very very slow i will have to do some of that but ultimately we'll we'll talk about optimization like
+at the very end it's much more important that you guys understand the math and as you can see it's more than fast enough at the stage that we're currently at but
+in general regarding optimization and like performance we'll get there don't worry i don't want to kind of start off
+with putting too much emphasis on that because as you can see things are more than fast enough at their current state
+and it's much more important that you guys understand the math and make sure that like it's all written
+out properly you understand it before you start you know taking shortcuts and trying to remove certain things or whatever because in a lot of cases when
+you're kind of presented with that final optimized version it's so difficult to see the original math in there that it
+just looks like magic code and no one knows how it works and that's bad and that's obviously what i want to avoid for this series but yeah i hope you guys
+enjoyed this episode i wasn't exactly planning to make this episode but i thought that it would just be so cool to
+visualize some of this stuff one of the reasons why i actually made hazel in the first place was because i wanted a nice platform like this to be able to
+visualize things and teach you guys so hopefully you enjoyed this hopefully there'll be some more episodes kind of
+like this in the future as well next time we're going to take the code that we've kind of more or less written today
+here put it back into our original kind of ray tracing application and then we'll be able to get into some seriously
+exciting things thank you guys for watching don't forget to hit the like button below if you enjoyed this video and also don't forget to check out brilliant using my link in the
+description below i will see you guys next time goodbye
+[Music]
+you
