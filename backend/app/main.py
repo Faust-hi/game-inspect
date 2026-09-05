@@ -15,6 +15,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .api import admin, catalog, project_exchange, recommend
@@ -112,8 +113,6 @@ def _register_health(app: FastAPI) -> None:
 
     @app.get("/api/health", tags=["Служебное"], summary="Состояние сервиса")
     def health():
-        from sqlalchemy import text
-
         db = SessionLocal()
         try:
             try:

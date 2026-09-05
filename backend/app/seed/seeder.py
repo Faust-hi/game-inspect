@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 from ..config import DATA_DIR
 from ..models.entities import (
     Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU,
-    Method, MethodEngineLink, PublicationLog, ValidationIssue,
+    Method, MethodEngineLink, ValidationIssue,
 )
 from ..models.enums import Status
 from . import engines_data, functions_data, methods_data
@@ -269,7 +269,7 @@ def validate_knowledge_base(db: Session) -> list[dict]:
             add("conflict", c.b_code, "error", f"Метод {c.b_code} в конфликте не найден.")
 
     # 4. У каждого метода должна быть связь хотя бы с одним движком.
-    linked = {db.get(Method, l.method_id).code for l in db.scalars(select(MethodEngineLink))}
+    linked = {db.get(Method, link.method_id).code for link in db.scalars(select(MethodEngineLink))}
     for m in methods:
         if m.code not in linked:
             add("method", m.code, "warning", "У метода нет связей с инструментами движков.")

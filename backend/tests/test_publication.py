@@ -116,6 +116,8 @@ def test_public_catalogs_expose_only_published(client, db, endpoint, key):
     }[endpoint]
     if model is not None:
         victim = db.scalar(select(model).where(model.status == "published"))
+        assert getattr(victim, key) in codes
+
         victim.status = "reviewed"
         db.flush()
 

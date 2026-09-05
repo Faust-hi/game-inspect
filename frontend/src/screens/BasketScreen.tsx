@@ -2,6 +2,7 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '../store';
 import { Badge, Callout, Card, Empty, ImpactGrid } from '../components/ui';
+import { ConflictEntry, DependencyEntry, SynergyEntry } from '../components/Compatibility';
 import { MethodCard } from '../components/MethodCard';
 import { methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
 import type { Method } from '../types';
@@ -109,18 +110,7 @@ export function BasketScreen() {
           hint="Набор содержит решения, которые взаимно исключают друг друга или требуют дополнения."
         >
           {result.basket_conflicts.map((item, index) => (
-            <div key={index} style={{ marginBottom: 12 }}>
-              <Callout tone={item.severity >= 3 ? 'danger' : 'warn'}>
-                <strong>
-                  {item.a_name} ↔ {item.b_name}
-                </strong>{' '}
-                <Badge tone={item.severity >= 3 ? 'danger' : 'warn'}>{item.conflict_label}</Badge>
-                <div style={{ marginTop: 6 }}>{item.description}</div>
-                <div style={{ marginTop: 6 }}>
-                  <strong>Что делать:</strong> {item.resolution}
-                </div>
-              </Callout>
-            </div>
+            <ConflictEntry key={index} item={item} />
           ))}
         </Card>
       )}
@@ -128,18 +118,7 @@ export function BasketScreen() {
       {result && result.basket_dependencies.length > 0 && (
         <Card title="Зависимости набора" hint="Решения, которые осмысленны только в паре.">
           {result.basket_dependencies.map((item, index) => (
-            <div key={index} style={{ marginBottom: 10 }}>
-              <Callout tone="info">
-                <strong>
-                  {item.a_name} → {item.b_name}
-                </strong>{' '}
-                <Badge tone="info">{item.conflict_label}</Badge>
-                <div style={{ marginTop: 6 }}>{item.description}</div>
-                <div style={{ marginTop: 6 }}>
-                  <strong>Что делать:</strong> {item.resolution}
-                </div>
-              </Callout>
-            </div>
+            <DependencyEntry key={index} item={item} />
           ))}
         </Card>
       )}
@@ -147,14 +126,7 @@ export function BasketScreen() {
       {result && result.basket_synergies.length > 0 && (
         <Card title="Усиливающие сочетания" hint="Решения, которые выгодно применять совместно.">
           {result.basket_synergies.map((item, index) => (
-            <div key={index} style={{ marginBottom: 10 }}>
-              <Callout tone="ok">
-                <strong>
-                  {item.a_name} + {item.b_name}
-                </strong>
-                <div style={{ marginTop: 6 }}>{item.description}</div>
-              </Callout>
-            </div>
+            <SynergyEntry key={index} item={item} />
           ))}
         </Card>
       )}

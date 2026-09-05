@@ -682,7 +682,44 @@
   "performance_outcome": "Legacy: GTX 660 / i5-3470 / 8 ГБ для 1080p high 60 FPS; Enhanced: RTX 3060 / Ryzen 5 3600 / 16 ГБ. technical.city: требовательность 1.2/10, RTX 3060 быстрее GTX 660 в 4.2 раза, 1080p ultra — 104 FPS.",
   "source_title": "Grand Theft Auto V PC system requirements (Rockstar Support)",
   "source_url": "https://support.rockstargames.com/articles/lMQXeP2Z1mN3g9oZiBZFR/grand-theft-auto-v-pc-system-requirements",
-  "source_date": "2025-12-10",
-  "verified_by": "dev_blog"
- }
+   "source_date": "2025-12-10",
+   "verified_by": "dev_blog"
+  },
+  {
+   "title": "Dragon's Dogma 2",
+   "year": 2024,
+   "developer": "Capcom",
+   "engine": "RE Engine",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "large",
+   "platforms": [
+    "PC",
+    "PS5",
+    "Xbox Series X|S"
+   ],
+   "target_resolution": "1080p",
+   "target_fps": 60,
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "multiplayer": false,
+   "player_count": 1,
+   "features": [
+    "open_world_streaming",
+    "crowd_simulation",
+    "ai_pathfinding",
+    "character_animation",
+    "physics_simulation",
+    "dynamic_shadows"
+   ],
+   "optimizations_used": [
+    "temporal_upscaling"
+   ],
+   "summary": "Антипример CPU-бюджета толпы: каждый NPC города индивидуально симулируется процессором (наследство линейного RE Engine), игра занимает 6-8 ядер полностью, четырёхъядерные процессоры без SMT захлёбываются. Апскейл в городе почти не помогает — сцена упирается в процессор, а не в видеокарту: даже RTX 4090 в 4K ждёт CPU в столице Вернворт. Официальные требования (GTX 1070 / RTX 2080) описывают видеокарту, но реальный минимум — современный 6-ядерный CPU с многопоточностью.",
+   "performance_outcome": "1080p/low: около 39 FPS средних и 20 FPS 1% low в городе даже на сильном CPU; выход из города поднимает FPS на 30-100%. Минимум по Capcom: i5-10600 / GTX 1070; рекомендуемые: i7-10700 / RTX 2080 — на практике их стоит читать как нижнюю границу.",
+   "source_title": "Dragon's Dogma 2 performance analysis: It'll take everything your PC has and still want more (PC Gamer)",
+   "source_url": "https://www.pcgamer.com/games/rpg/dragons-dogma-2-performance-analysis/",
+   "source_date": "2024-03-20",
+   "verified_by": "technical_analysis"
+  }
 ]

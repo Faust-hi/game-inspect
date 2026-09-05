@@ -1,5 +1,5 @@
 /** Корневой компонент: навигация по этапам работы, экспорт и административный раздел. */
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useEnsureResult, useStore } from './store';
 import { api } from './api';
 import { Callout, Loading, Toast } from './components/ui';
@@ -52,6 +52,19 @@ const STEPS: StepDef[] = [
 /** Этапы, которым необходим уже выполненный расчёт. */
 const RESULT_STEPS: StepKey[] = ['risks', 'load', 'hardware', 'similar', 'plan'];
 
+/** Каркас экранов-заглушек: загрузка каталога и ошибка без сайдбара. */
+function ShellMessage({ children }: { children: ReactNode }) {
+  return (
+    <div className="app">
+      <div className="layout">
+        <main className="content">
+          <div className="content-inner">{children}</div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
 export function App() {
   const {
     profile,
@@ -92,7 +105,7 @@ export function App() {
     [hasFunctions, hasResult],
   );
 
-  // Экраны 8–11 строятся по результатам расчёта, поэтому при переходе на них
+  // Экраны, строящиеся по результатам расчёта, при переходе на них
   // расчёт выполняется автоматически, если он ещё не был сделан.
   useEnsureResult(!showAdmin && hasFunctions && RESULT_STEPS.includes(step));
 
@@ -140,37 +153,25 @@ export function App() {
 
   if (catalog.loading) {
     return (
-      <div className="app">
-        <div className="layout">
-          <main className="content">
-            <div className="content-inner">
-              <Loading text="Загрузка базы инженерных знаний…" />
-            </div>
-          </main>
-        </div>
-      </div>
+      <ShellMessage>
+        <Loading text="Загрузка базы инженерных знаний…" />
+      </ShellMessage>
     );
   }
 
   if (catalog.error) {
     return (
-      <div className="app">
-        <div className="layout">
-          <main className="content">
-            <div className="content-inner">
-              <Callout tone="danger" title="Не удалось загрузить каталоги">
-                {catalog.error}
-              </Callout>
-              <p className="muted" style={{ marginTop: 12 }}>
-                Убедитесь, что backend запущен и доступен по адресу <code>/api</code>.
-              </p>
-              <button className="btn btn-primary" onClick={() => void reloadCatalog()}>
-                Повторить
-              </button>
-            </div>
-          </main>
-        </div>
-      </div>
+      <ShellMessage>
+        <Callout tone="danger" title="Не удалось загрузить каталоги">
+          {catalog.error}
+        </Callout>
+        <p className="muted" style={{ marginTop: 12 }}>
+          Убедитесь, что backend запущен и доступен по адресу <code>/api</code>.
+        </p>
+        <button className="btn btn-primary" onClick={() => void reloadCatalog()}>
+          Повторить
+        </button>
+      </ShellMessage>
     );
   }
 

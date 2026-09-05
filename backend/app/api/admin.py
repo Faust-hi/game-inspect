@@ -54,9 +54,12 @@ def overview(db: Session = Depends(get_db)):
         "projects": db.scalar(select(func.count(Project.id))),
     }
     issues = db.scalars(select(ValidationIssue).order_by(ValidationIssue.severity)).all()
-    counts["published"] = repositories.published_snapshot_counts(db)
     return {
         "counts": counts,
+        # Снимок опубликованных записей — отдельным полем, а не внутри counts:
+        # фронт рендерит каждое значение counts как число, вложенный словарь
+        # ронял вкладку администрирования («Objects are not valid as a React child»).
+        "published": repositories.published_snapshot_counts(db),
         "issues": [
             {"entity": i.entity, "entity_code": i.entity_code, "severity": i.severity, "message": i.message}
             for i in issues

@@ -428,6 +428,16 @@ def test_admin_overview_and_validation(client):
     assert data["issues_by_severity"]["error"] == 0
 
 
+def test_admin_overview_counts_are_scalars(client):
+    """Все значения counts — числа: вложенный словарь ронял вкладку
+    администрирования (React не рендерит объекты). Снимок опубликованных
+    записей отдаётся отдельным полем published."""
+    data = client.get("/api/admin/overview").json()
+    assert all(isinstance(v, (int, float)) for v in data["counts"].values())
+    assert isinstance(data["published"], dict)
+    assert all(isinstance(v, (int, float)) for v in data["published"].values())
+
+
 def test_new_material_is_created_as_draft(client):
     """Новый материал всегда черновик, даже если в запросе передан статус.
 
@@ -513,7 +523,7 @@ def test_admin_status_workflow(client):
 
     for status in ("draft", "reviewed", "published"):
         response = client.patch(
-            f"/api/admin/methods/tmp_workflow_method/status",
+            "/api/admin/methods/tmp_workflow_method/status",
             json={"status": status},
         )
         assert response.status_code == 200, response.text

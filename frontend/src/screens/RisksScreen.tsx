@@ -1,29 +1,16 @@
 /** Экран рисков проекта (шаг 2 алгоритма раздела 4). */
 import { useEnsureResult, useStore } from '../store';
-import { Badge, Callout, Card, Empty, Loading } from '../components/ui';
+import { Badge, Callout, Card, Empty, Loading, severityLabel, severityTone } from '../components/ui';
 import type { Risk } from '../types';
-
-const SEVERITY_TONE: Record<string, 'danger' | 'warn' | 'info'> = {
-  high: 'danger',
-  medium: 'warn',
-  low: 'info',
-};
-
-const SEVERITY_LABEL: Record<string, string> = {
-  high: 'высокий',
-  medium: 'средний',
-  low: 'низкий',
-};
 
 const SEVERITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
 function RiskItem({ risk }: { risk: Risk }) {
-  const tone = SEVERITY_TONE[risk.severity] ?? 'info';
   return (
     <div className="method-row">
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
         <strong>{risk.title}</strong>
-        <Badge tone={tone}>{SEVERITY_LABEL[risk.severity] ?? risk.severity}</Badge>
+        <Badge tone={severityTone(risk.severity)}>{severityLabel(risk.severity)}</Badge>
       </div>
       <p className="small muted" style={{ marginTop: 6 }}>
         {risk.description}

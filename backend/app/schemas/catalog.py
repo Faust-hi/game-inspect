@@ -8,12 +8,15 @@
 """
 from __future__ import annotations
 
+import hashlib
+import json
+import math
 from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from ..models.enums import (
-    DevStage, EngineCode, GameFormat, Level3, Platform, Priority, Resolution,
+    DevStage, EngineCode, GameFormat, Platform, Priority, Resolution,
     Quality, Scale, WorldType,
 )
 
@@ -170,7 +173,6 @@ def _effective_count(value: int | None, level: str, field: str) -> float:
     """
     if value is None or value <= 0:
         return _LEVEL_FALLBACK.get(level, 0.55)
-    import math
 
     low, high = _COUNT_BOUNDS[field]
     # «Низкий» и «высокий» уровни — за пределами этой логарифмической шкалы.
@@ -581,9 +583,6 @@ class FeedbackSummaryOut(BaseModel):
 
 def input_fingerprint(profile: ProjectProfile, basket: list[str]) -> str:
     """Устойчивый отпечаток входа: одинаковым данным — одинаковый ключ."""
-    import hashlib
-    import json
-
     payload = json.dumps(
         {"profile": profile.model_dump(mode="json"), "basket": sorted(basket or [])},
         sort_keys=True,

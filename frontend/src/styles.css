@@ -462,6 +462,12 @@ textarea:focus {
 }
 .table tbody tr:hover { background: var(--surface-2); }
 
+/* Ячейки с действиями: селект не должен растягиваться на всю ширину
+   (глобальное select { width: 100% } разносило строки таблицы методов). */
+.table .cell-actions { white-space: nowrap; }
+.table .cell-actions select { width: auto; min-width: 132px; max-width: 100%; }
+.row-actions { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+
 .bar-track {
   position: relative;
   height: 8px;

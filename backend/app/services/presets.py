@@ -8,8 +8,6 @@
 """
 from __future__ import annotations
 
-import json
-
 from ..schemas.catalog import ProjectProfile
 
 QUALITY_TIER = {"low": 0, "medium": 1, "high": 2, "ultra": 3}

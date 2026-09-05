@@ -1992,7 +1992,7 @@ EXTRA_METHODS: list[dict] = [
                   "глубины; пересечение выгоды — порядка тысяч источников.",
       problem="Десятки динамических источников в forward-рендере умножают стоимость шейдинга.",
       level="algorithm", recommended_stage="prototype", late_cost="medium",
-      impact_gpu=-1,
+      impact_gpu=-1, impact_vram=-1,
       performance_gain=0.6, implementation_cost=3, complexity=3, confidence=0.8,
       requires_prototype=True,
       requires_conditions=["Окупается при десятках источников света; при единицах — оверхед"],

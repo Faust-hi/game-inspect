@@ -173,11 +173,6 @@ SOURCES: dict[str, dict[str, str]] = {
         "url": "https://docs.unity3d.com/Manual/progressive-lightmapper.html",
         "date": "2025-01-01",
     },
-    "UNITY_SRP_BATCHER": {
-        "title": "Unity Manual: SRP Batcher",
-        "url": "https://docs.unity3d.com/Manual/SRPBatcher.html",
-        "date": "2025-01-01",
-    },
     "UNITY_DRAW_CALLS": {
         "title": "Unity Manual: Choose a method for optimizing draw calls",
         "url": "https://docs.unity3d.com/Manual/optimizing-draw-calls-choose-method.html",

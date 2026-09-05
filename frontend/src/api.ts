@@ -104,6 +104,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
+/** POST с формой (импорт файлов): без JSON-заголовка, boundary ставит браузер. */
+async function postForm<T>(path: string, form: FormData, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${BASE}${path}`, { method: 'POST', ...init, body: form });
+  await throwIfError(response);
+  return (await response.json()) as T;
+}
+
 export const api = {
   health: () => request<{ status: string; version: string; database: string }>('/health'),
 
@@ -144,12 +151,7 @@ export const api = {
   importProject: async (files: File[]) => {
     const form = new FormData();
     for (const file of files) form.append('files', file);
-    const response = await fetch(`${BASE}/project-import`, {
-      method: 'POST',
-      body: form,
-    });
-    await throwIfError(response);
-    return (await response.json()) as ProjectImport;
+    return postForm<ProjectImport>('/project-import', form);
   },
 
   presets: (profile: ProjectProfile, basket: string[]) =>
@@ -185,11 +187,9 @@ export const adminApi = {
   importEntity: async (entity: string, file: File) => {
     const form = new FormData();
     form.append('file', file);
-    const response = await fetch(`${BASE}/admin/import/${entity}`, {
-      method: 'POST',
-      body: form,
-    });
-    await throwIfError(response);
-    return (await response.json()) as { entity: string; created: number; updated: number; skipped: number };
+    return postForm<{ entity: string; created: number; updated: number; skipped: number }>(
+      `/admin/import/${entity}`,
+      form,
+    );
   },
 };

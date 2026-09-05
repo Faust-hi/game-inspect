@@ -163,6 +163,27 @@ export function Flag({ code, label }: { code: string; label: string }) {
   return <Badge tone={FLAG_TONE[code] ?? 'neutral'}>{label}</Badge>;
 }
 
+/** Серьёзность риска — единый тон и подпись (было продублировано в экранах). */
+const SEVERITY_TONE: Record<string, 'danger' | 'warn' | 'info'> = {
+  high: 'danger',
+  medium: 'warn',
+  low: 'info',
+};
+
+const SEVERITY_LABEL_RU: Record<string, string> = {
+  high: 'высокий',
+  medium: 'средний',
+  low: 'низкий',
+};
+
+export function severityTone(severity: string): 'danger' | 'warn' | 'info' {
+  return SEVERITY_TONE[severity] ?? 'info';
+}
+
+export function severityLabel(severity: string): string {
+  return SEVERITY_LABEL_RU[severity] ?? severity;
+}
+
 export function Bar({ value, tone = 'accent' }: { value: number; tone?: 'accent' | 'ok' | 'danger' }) {
   const color = tone === 'ok' ? 'var(--ok)' : tone === 'danger' ? 'var(--danger)' : 'var(--accent)';
   return (

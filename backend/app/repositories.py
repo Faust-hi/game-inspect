@@ -100,27 +100,16 @@ def method_links(db: Session, method_id: int) -> list[MethodEngineLink]:
 
 def published_snapshot_counts(db: Session) -> dict[str, int]:
     """Число опубликованных записей по сущностям — для диагностики развёртывания."""
-    from .models.entities import (
-        Conflict as _Conflict,
-        Engine as _Engine,
-        EngineTool as _EngineTool,
-        GameExample as _GameExample,
-        GameFunction as _GameFunction,
-        HardwareCPU as _HardwareCPU,
-        HardwareGPU as _HardwareGPU,
-        Method as _Method,
-    )
-
     def _count(model) -> int:
         return db.scalar(select(func.count(model.id)).where(model.status == PUBLISHED)) or 0
 
     return {
-        "functions": _count(_GameFunction),
-        "methods": _count(_Method),
-        "engines": _count(_Engine),
-        "engine_tools": _count(_EngineTool),
-        "conflicts": _count(_Conflict),
-        "examples": _count(_GameExample),
-        "hardware_cpu": _count(_HardwareCPU),
-        "hardware_gpu": _count(_HardwareGPU),
+        "functions": _count(GameFunction),
+        "methods": _count(Method),
+        "engines": _count(Engine),
+        "engine_tools": _count(EngineTool),
+        "conflicts": _count(Conflict),
+        "examples": _count(GameExample),
+        "hardware_cpu": _count(HardwareCPU),
+        "hardware_gpu": _count(HardwareGPU),
     }

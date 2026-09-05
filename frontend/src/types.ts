@@ -385,6 +385,8 @@ export interface ValidationIssue {
 
 export interface AdminOverview {
   counts: Record<string, number>;
+  /** Снимок опубликованных записей по сущностям — вне counts, т.к. там только числа. */
+  published?: Record<string, number>;
   issues: ValidationIssue[];
   issues_by_severity: { error: number; warning: number };
 }

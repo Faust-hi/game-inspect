@@ -19,7 +19,6 @@
 """
 from __future__ import annotations
 
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .. import repositories, timeutil
@@ -42,7 +41,7 @@ ALGORITHM_VERSION = "2.0.1"
 
 #: Версия набора данных. Меняется при обновлении базы знаний, влияющем на
 #: ранжирование (пересчёт индексов оборудования, пересмотр оценок эффекта).
-DATASET_VERSION = "mvp-1.1"
+DATASET_VERSION = "mvp-1.2"
 
 # Веса критериев в зависимости от приоритета пользователя.
 WEIGHT_PROFILES: dict[str, dict[str, float]] = {

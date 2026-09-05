@@ -18,8 +18,8 @@ from ..models.enums import (
     Platform, Priority, RelationType, Scale, SolutionLevel, Status, WorldType,
 )
 from ..schemas.catalog import (
-    ConflictOut, EngineOut, EngineToolOut, GameExampleOut, GameFunctionOut, HardwareCPUOut,
-    HardwareGPUOut, MethodOut,
+    ConflictOut, EngineOut, EngineToolOut, GameExampleOut, GameFunctionOut,
+    MethodOut,
 )
 from ..services import serializers
 from ..services.serializers import label_of as _label
@@ -87,7 +87,7 @@ def method_to_out(
         application_steps=m.application_steps or [],
         used_in_projects=used_in if used_in is not None else [],
         status=m.status, source_title=m.source_title, source_url=m.source_url,
-        engine_links=[link_out(db, l) for l in links],
+        engine_links=[link_out(db, link) for link in links],
     )
 
 

@@ -164,9 +164,11 @@ export function AdminScreen() {
         ) : (
           overview && (
             <div className="stat-grid">
-              {Object.entries(overview.counts).map(([key, value]) => (
-                <Metric key={key} label={COUNT_LABELS[key] ?? key} value={value} />
-              ))}
+              {Object.entries(overview.counts)
+                .filter((entry): entry is [string, number] => typeof entry[1] === 'number')
+                .map(([key, value]) => (
+                  <Metric key={key} label={COUNT_LABELS[key] ?? key} value={value} />
+                ))}
             </div>
           )
         )}
@@ -282,8 +284,8 @@ export function AdminScreen() {
                         </Badge>
                       </div>
                     </td>
-                    <td className="no-print">
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <td className="no-print cell-actions">
+                      <div className="row-actions">
                         <Select
                           value={method.status}
                           options={STATUS_OPTIONS}

@@ -12,8 +12,11 @@ import {
   Loading,
   Metric,
   SourceLink,
+  severityLabel,
+  severityTone,
 } from '../components/ui';
 import { impactsOf, methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
+import { ConflictEntry, DependencyEntry, SynergyEntry } from '../components/Compatibility';
 import type { Method } from '../types';
 
 /** Порядок внедрения: от архитектуры к настройкам. */
@@ -35,12 +38,6 @@ const STAGE_ORDER: Record<string, number> = {
   beta: 5,
   release: 6,
   post_release: 7,
-};
-
-const SEVERITY_LABEL: Record<string, string> = {
-  high: 'высокий',
-  medium: 'средний',
-  low: 'низкий',
 };
 
 interface Props {
@@ -126,11 +123,7 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
             <div key={risk.code} className="method-row">
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
                 <strong>{risk.title}</strong>
-                <Badge
-                  tone={risk.severity === 'high' ? 'danger' : risk.severity === 'medium' ? 'warn' : 'info'}
-                >
-                  {SEVERITY_LABEL[risk.severity] ?? risk.severity}
-                </Badge>
+                <Badge tone={severityTone(risk.severity)}>{severityLabel(risk.severity)}</Badge>
               </div>
               <p className="small muted" style={{ marginTop: 4 }}>
                 {risk.description}
@@ -217,50 +210,31 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
           hint="Конфликты требуют выбора одной из альтернатив, зависимости — сохранения обоих решений."
         >
           {result.basket_conflicts.map((item, index) => (
-            <div key={`c-${index}`} style={{ marginBottom: 10 }}>
-              <Callout tone={item.severity >= 3 ? 'danger' : 'warn'}>
-                <strong>
-                  {item.a_name} ↔ {item.b_name}
-                </strong>{' '}
-                <Badge tone={item.severity >= 3 ? 'danger' : 'warn'}>{item.conflict_label}</Badge>
-                <div style={{ marginTop: 6 }}>{item.description}</div>
-                <div style={{ marginTop: 6 }}>Что делать: {item.resolution}</div>
-              </Callout>
-            </div>
+            <ConflictEntry key={`c-${index}`} item={item} />
           ))}
           {result.basket_dependencies.map((item, index) => (
-            <div key={`d-${index}`} style={{ marginBottom: 10 }}>
-              <Callout tone="info">
-                <strong>
-                  {item.a_name} → {item.b_name}
-                </strong>{' '}
-                <Badge tone="info">зависимость</Badge>
-                <div style={{ marginTop: 6 }}>{item.description}</div>
-                <div style={{ marginTop: 6 }}>Что делать: {item.resolution}</div>
-              </Callout>
-            </div>
+            <DependencyEntry key={`d-${index}`} item={item} />
           ))}
           {result.basket_synergies.map((item, index) => (
-            <div key={`s-${index}`} style={{ marginBottom: 10 }}>
-              <Callout tone="ok">
-                <strong>
-                  {item.a_name} + {item.b_name}
-                </strong>
-                <div style={{ marginTop: 6 }}>{item.description}</div>
-              </Callout>
-            </div>
+            <SynergyEntry key={`s-${index}`} item={item} />
           ))}
         </Card>
       )}
 
       <Card title="Сводный профиль нагрузки">
         <div className="stat-grid">
-          <Metric label="CPU" value={result.load_profile.cpu.toFixed(0)} hint="50 — без изменений" />
-          <Metric label="GPU" value={result.load_profile.gpu.toFixed(0)} hint="50 — без изменений" />
-          <Metric label="RAM" value={result.load_profile.ram.toFixed(0)} hint="50 — без изменений" />
-          <Metric label="VRAM" value={result.load_profile.vram.toFixed(0)} hint="50 — без изменений" />
-          <Metric label="Диск" value={result.load_profile.disk.toFixed(0)} hint="50 — без изменений" />
-          <Metric label="Сеть" value={result.load_profile.network.toFixed(0)} hint="50 — без изменений" />
+          {(
+            [
+              ['CPU', result.load_profile.cpu],
+              ['GPU', result.load_profile.gpu],
+              ['RAM', result.load_profile.ram],
+              ['VRAM', result.load_profile.vram],
+              ['Диск', result.load_profile.disk],
+              ['Сеть', result.load_profile.network],
+            ] as const
+          ).map(([label, value]) => (
+            <Metric key={label} label={label} value={value.toFixed(0)} hint="50 — без изменений" />
+          ))}
         </div>
       </Card>
 
