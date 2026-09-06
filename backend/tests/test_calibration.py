@@ -28,6 +28,28 @@ def _estimate(client, basket=(), **overrides):
     ).json()
 
 
+def test_reference_is_desktop_for_desktop_profile(client):
+    """Референс десктопного профиля — десктопное железо, а не мобильное.
+
+    Раньше оценка могла вернуть мобильную карту (напр. RTX 3050 Laptop) как
+    референс для pc_windows: по баллам она подходит, но купить её в десктоп
+    нельзя. Теперь сначала ищется десктопный пул, мобильный — только фолбэк.
+    """
+    est = _estimate(
+        client, world_type="procedural", scale="small",
+        object_count_level="medium", npc_count_level="low",
+        functions=["character_animation", "ai_pathfinding", "particle_systems",
+                   "dynamic_shadows", "volumetric_effects", "post_processing",
+                   "multiplayer_netcode", "save_system"],
+        multiplayer=True, player_count=5,
+    )
+    gpu = (est["reference_gpu"] or {}).get("model", "").lower()
+    cpu = (est["reference_cpu"] or {}).get("model", "").lower()
+    assert "laptop" not in gpu and "mobile" not in gpu
+    assert "uhd" not in gpu and "hd graphics" not in gpu and "iris" not in gpu
+    assert not cpu.endswith("h") and "van gogh" not in cpu
+
+
 def test_2d_small_is_entry_class(client):
     """Крошечная 2D-игра не должна требовать больше начального класса."""
     est = _estimate(

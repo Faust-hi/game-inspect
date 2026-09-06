@@ -52,14 +52,6 @@ export interface ProjectProfile {
   gpu_budget?: string | null;
   ram_budget?: string | null;
   vram_budget?: string | null;
-  geometry_detail?: string | null;
-  texture_quality?: string | null;
-  view_distance?: string | null;
-  lighting_complexity?: string | null;
-  physics_complexity?: string | null;
-  simulation_complexity?: string | null;
-  npc_update_rate?: string | null;
-  network_update_rate?: string | null;
 }
 
 export interface GameFunction {

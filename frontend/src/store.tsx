@@ -52,14 +52,6 @@ export const DEFAULT_PROFILE: ProjectProfile = {
   gpu_budget: null,
   ram_budget: null,
   vram_budget: null,
-  geometry_detail: null,
-  texture_quality: null,
-  view_distance: null,
-  lighting_complexity: null,
-  physics_complexity: null,
-  simulation_complexity: null,
-  npc_update_rate: null,
-  network_update_rate: null,
 };
 
 /** Упорядоченная сериализация: одинаковым данным — одинаковая строка. */

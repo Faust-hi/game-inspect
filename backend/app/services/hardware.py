@@ -6,6 +6,8 @@
 """
 from __future__ import annotations
 
+import re
+
 from sqlalchemy.orm import Session
 
 from .. import repositories
@@ -129,6 +131,27 @@ def _load_indices(profile: ProjectProfile, methods: list) -> dict:
     }
 
 
+# Маркеры мобильных и встроенных решений в названиях моделей каталога.
+# Референс для десктопного профиля обязан быть десктопным: мобильная карта
+# в ответе вводит в заблуждение (её нельзя купить в десктоп). Анкета целевой
+# форм-фактор не спрашивает, поэтому правило одно: сначала десктопный пул,
+# при отсутствии подходящего — весь пул (лучше мобильный ориентир, чем никакого).
+_MOBILE_GPU_MARKERS = (
+    "laptop", "mobile", "uhd", "hd graphics", "iris", "vega",
+    "radeon 780m", "radeon graphics", "(tm)",
+)
+_MOBILE_CPU_RE = r"h$|van gogh"
+
+
+def _is_mobile_gpu(model: str) -> bool:
+    name = (model or "").lower()
+    return any(marker in name for marker in _MOBILE_GPU_MARKERS)
+
+
+def _is_mobile_cpu(model: str) -> bool:
+    return bool(re.search(_MOBILE_CPU_RE, (model or "").lower()))
+
+
 def _pick_gpu(
     pool: list[HardwareGPU], index: float, *, required_rt: bool,
     vram_limit_gb: float | None, vram_gb: float,
@@ -152,14 +175,21 @@ def _pick_gpu(
     if not candidates:
         return None, False
     # Из подходящих выбираем наиболее скромную по классу и производительности.
-    return min(candidates, key=lambda g: (g.perf_class, g.raster_score)), False
+    # Десктопные карты предпочтительнее мобильных и встроек: мобильный референс
+    # для десктопного профиля вводит в заблуждение. Если десктопа нет — честно
+    # берём из всего пула (см. комментарий к _MOBILE_GPU_MARKERS).
+    desktop = [g for g in candidates if not _is_mobile_gpu(g.model)]
+    chosen = desktop or candidates
+    return min(chosen, key=lambda g: (g.perf_class, g.raster_score)), False
 
 
 def _pick_cpu(pool: list[HardwareCPU], index: float) -> HardwareCPU | None:
     candidates = [c for c in pool if c.multi_thread_score >= index]
     if not candidates:
         return None
-    return min(candidates, key=lambda c: (c.perf_class, c.multi_thread_score))
+    desktop = [c for c in candidates if not _is_mobile_cpu(c.model)]
+    chosen = desktop or candidates
+    return min(chosen, key=lambda c: (c.perf_class, c.multi_thread_score))
 
 
 def _alternatives(rows, reference):

@@ -81,14 +81,6 @@ class ProjectProfile(BaseModel):
     gpu_budget: LevelValue | None = None
     ram_budget: LevelValue | None = None
     vram_budget: LevelValue | None = None
-    geometry_detail: LevelValue | None = None
-    texture_quality: LevelValue | None = None
-    view_distance: LevelValue | None = None
-    lighting_complexity: LevelValue | None = None
-    physics_complexity: LevelValue | None = None
-    simulation_complexity: LevelValue | None = None
-    npc_update_rate: LevelValue | None = None
-    network_update_rate: LevelValue | None = None
 
     @field_validator("name")
     @classmethod

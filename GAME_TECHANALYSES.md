@@ -856,3 +856,175 @@ Fall Guys, OW тики, Hollow Knight GC, Hades атласы, Elden Fossilize.
   IGN про CPU-зависимость
   (https://www.ign.com/articles/dragons-dogma-2-pc-performance-is-a-mess-but-it-didnt-have-to-be),
   PDF-интеграция v2 (раздел 4).
+
+---
+
+## Партия 7 (кооп/мультиплеер, список 3 — первая дюжина)
+
+### 54. BattleBit Remastered (2023, SgtOkiWeird / Unity)
+
+- **Движок:** Unity. Low-poly/воксельный стиль + 2 ГБ установка: запуск на GTS 450 / i5-2310 (мин), GTX 600 / i5-4xxx (рек), 6–8 ГБ RAM. Серверы до 254 игроков, режимы 254/128/64/32, разрушаемость, техника, proximity voice, EasyAntiCheat + Epic Online Services.
+- **Релиз (EA 15.06.2023):** взрыв (~87K онлайна) → просел бэкенд: патч 1.7.2 (backend/CPU/client-оптимизации), хотфикс 1.51 (packet loss и хитрег), 1.5 (DDoS-файрволл), 2.0 (Community Server API).
+- **Причина репутации:** реализация (масштаб малой ценой) + процесс (патчи сети по живому).
+- **Решения:**
+  - `+` Масштаб за счёт арта, а не железа: 254 игрока на GTS 450.
+  - `+` Community Server API: контент без роста клиента.
+  - `−` Бэкенд — бутылочное горлышко (сбросы прогресса, очереди).
+  - `−` Деструкция × 254 игрока: пики CPU/сети, хитрег правится костылями.
+- **Влияние:** сеть — stat-sync и очереди как отдельный бюджет; арт — low-poly как перфоманс-стратегия.
+- **DSS:** `network_relevancy_priority`, `tickrate_budgeting`, `headless_dedicated_server`, `art_direction_stylization`, `delta_compression_state`.
+- **Источники:** Steam (https://store.steampowered.com/app/671860/BattleBit_Remastered/), патчноуты (https://battlebit.wiki.gg/wiki/Patch_Notes), Unity-движок (https://joinbattlebit.com/upcoming-operation-overhaul-playtest/).
+
+### 55. Squad (2020, Offworld / Unreal)
+
+- **Движок:** UE4 на старте → UE5.5 (патч 9.0, 2025): Nanite, Chaos, Metasounds; DX11 отброшен, нужен Shader Model 6. Карты до 4×4 км, 100 игроков 50v50, VoIP, стройбат, SDK/моды.
+- **Релиз/эволюция:** CPU-bound с рождения (single-thread, тени/листва); миграция на UE5 усугубила на старом железе (скоп-прицелы в ноль, негативные ревью), лечится сбросом кэша. Актуальные требования Steam: мин 1060/i5-8400/8 ГБ, рек 3060/i5-12400/16 ГБ.
+- **Причина репутации:** функционал (combined arms без скриптов) + реализация (Offworld Core, моддинг).
+- **Решения:**
+  - `+` Системный геймплей вместо скриптов: реиграбельность бесплатно.
+  - `+` SDK/моды продлили жизнь (фракции из модов).
+  - `−` 100 игроков + техника + PiP = просадки; низкие пресеты чище для видимости.
+  - `−` Мажорные миграции ломают моды/кэш (UE5, storage format).
+- **Влияние:** сеть — тик vs масштаб; процесс — миграции планировать с запасом на моды.
+- **DSS:** `network_relevancy_priority`, `tickrate_budgeting`, `headless_dedicated_server`, `agent_update_budget`, `time_sliced_pathfinding`.
+- **Источники:** Steam (https://store.steampowered.com/app/393380/Squad/), 100-player battles (https://www.joinsquad.com/game-features/100-player-battles), 9.0 notes (https://www.joinsquad.com/updates/squad-9-0-release-notes).
+
+### 56. Payday 2 (2013, Overkill / Diesel)
+
+- **Движок:** Diesel 2.0 → Diesel 3.0 (Update 247, 2026): 64-bit, DX11, компрессия установки 86→32 ГБ. Кооп 4 (+NPC), CRIMENET-хабы, Workshop.
+- **Релиз/эволюция:** 13 лет на 32-bit/DX9: OOM-крэши с модами, sober-перфоманс на MT-железе. Diesel 3.0 — глубокая модернизация без смены контента ценой полного ре-даунлоада и поломки модов/Linux-ветки.
+- **Причина репутации:** процесс (поддержка 13 лет) + реализация (поздняя модернизация).
+- **Решения:**
+  - `+` 64-bit + DX11 + перепаковка: продление жизни без нового контента.
+  - `+` Мелкие хабы переиспользуют AI/лут.
+  - `−` 13 лет техдолга: OOM, DX9, MT не используется.
+  - `−` Каждый мажор ломает моды, сейвы, платформы.
+- **Влияние:** менеджмент — модернизации закладывать окном совместимости; контент — хабы дешевле миров.
+- **DSS:** `differential_patch_pipeline`, `build_size_startup_budgets`, `async_loading_pipeline`, `tickrate_budgeting`.
+- **Источники:** Steam (https://store.steampowered.com/app/218620/PAYDAY_2), Update 247 (https://www.paydaythegame.com/news/payday2/2026/08/payday-2-update-247-changelog), требования (https://support.starbreeze.com/hc/en-us/articles/38124173572113-PAYDAY-2-PC-System-Requirements).
+
+### 57. Dead by Daylight (2016, Behaviour / Unreal)
+
+- **Движок:** UE4 → UE5 (патч 7.7.0, 2024) намеренно без смены картинки: только фундамент + компрессия (−18 ГБ). Асимметрия 4v1, процедурные пиллары карт. Сеть: killer-hosted P2P в прошлом, выделенные серверы с ~2020.
+- **Релиз/эволюция:** P2P-телепорты и хитрег («100-foot machetes»); CPU-bound тики, A-pose регрессии каждый чаптер. Живой сервис: Tome, баланс перков, ремастер ассетов под 4K/60.
+- **Причина репутации:** функционал (асимметрия + реиграбельность малой картой) + процесс (консервативные миграции).
+- **Решения:**
+  - `+` Процедурная раскладка целей: реиграбельность без стриминга open world.
+  - `+` Миграции без смены картинки сохраняют low-spec аудиторию.
+  - `−` P2P-наследие: хитрег зависит от хоста.
+  - `−` Контент-зоопарк (30+ киллеров) усложняет баланс и QA.
+- **Влияние:** сеть — топология как часть дизайна; процесс — миграция без визуала как стратегия.
+- **DSS:** `deterministic_lockstep`, `client_prediction_reconciliation`, `tickrate_budgeting`, `headless_dedicated_server`.
+- **Источники:** Steam (https://store.steampowered.com/app/381210/Dead_by_Daylight), 7.7.0 (https://forums.bhvr.com/dead-by-daylight/kb/articles/445-7-7-0-mid-chapter), дизайн асимметрии (https://www.gamedeveloper.com/design/crafting-an-asymmetric-multiplayer-horror-experience-in-i-dead-by-daylight-i-).
+
+### 58. Ready or Not (2023, VOID / Unreal)
+
+- **Движок:** UE 4.27 → UE5.3 (Vol.74, 2024): PSO-precaching, DLSS 3.7, FSR3, TSR. PhysX, FMOD, Epic Online Services. Кооп 5, CQB-уровни, behavior trees AI.
+- **Релиз 1.0:** статтеры и просадки даже на 3060/3080 одинаково на low/high и DX11/DX12; EA шёл плавнее. Требования скромные: мин 960/i5-4430/8 ГБ, рек 1060/R5-1600.
+- **Причина репутации:** функционал (тактика + ROE-скоринг) против реализации (шейдер-статтер).
+- **Решения:**
+  - `+` Переход на UE5.3 ради PSO-precaching и апскейлеров вместо вечных патчей.
+  - `+` Behavior trees + perception для AI.
+  - `−` Тяжёлый CQB-стриминг без агрессивного PSO-вармапа: CPU/GPU 30–40% и статтер.
+  - `−` P2P/EOS-лобби без добора ботов: масштабирование только модами.
+- **Влияние:** оптимизация — PSO warmup обязателен в DX12; процесс — UE5-миграция ломает мод-инструменты (bounty).
+- **DSS:** `pso_precaching_warmup`, `temporal_upscaling`, `agent_update_budget`, `time_sliced_pathfinding`.
+- **Источники:** Steam (https://store.steampowered.com/app/1144200/Ready_Or_Not/), Vol.74 (https://voidinteractive.net/ready-or-not-vol-74-development-briefing/), PCGW (https://www.pcgamingwiki.com/wiki/Ready_or_Not).
+
+### 59. Arma 3 (2013, Bohemia / Real Virtuality 4)
+
+- **Движок:** RV4: DX11, PhysX, звук со скоростью звука. Altis 270 км², редактор Eden, моды (DayZ вырос отсюда). Официально лимита игроков нет, типовые сценарии 2–64 (пример 60v60).
+- **Релиз/эволюция:** крайне CPU-bound: 90–95% работы на одном потоке, 20–30 fps на сильном железе; лечится только IPC/частотой и урезанием Objects/Terrain/Visibility (тени Standard = на GPU, Low = на CPU). Патчи до 2.22 (2026).
+- **Причина репутации:** реализация (симуляция) + экосистема (моды/серверы).
+- **Решения:**
+  - `+` Стриминг огромного террейна + техника + ragdoll в одном кадре.
+  - `+` Dedicated server Win/Linux + Eden: Wasteland/Domination/Antistasi.
+  - `−` Главный поток + DX11-драйверный оверхед: GPU-апгрейд не лечит.
+  - `−` View-distance линейно грузит CPU; MP-фрейм зависит от сервера/AI.
+- **Влияние:** оптимизация — настройки маппить на подсистемы (тени→GPU, дистанция→CPU); сеть — сервер как часть перфоманса.
+- **DSS:** `multithreaded_physics_jobs`, `agent_update_budget`, `time_sliced_pathfinding`, `hierarchical_lod`, `network_relevancy_priority`.
+- **Источники:** требования (https://arma3.com/requirements), движок (https://arma3.com/features/engine), мультиплеер (https://arma3.com/features/multiplayer), перфоманс-гайд (https://community.bistudio.com/wiki/Arma_3:_Performance_Optimisation).
+
+### 60. HELLDIVERS 1 (2015, Arrowhead / Bitsquid)
+
+- **Движок:** Bitsquid (куплен Autodesk 2014 → Stingray, закрыт 2018). Top-down twin-stick, процедурные миссии, кооп 4 локально+онлайн с drop-in/drop-out, friendly fire.
+- **Релиз ПК (2015):** на удивление чисто: стабильно даже на AMD A6+iGPU; баги — backend/firewall, не fps. Требования: мин 512 МБ/9800, рек 1 ГБ/GTX 460, 4 ГБ RAM.
+- **Причина репутации:** реализация (лёгкий движок) + функционал (кооп-формула).
+- **Решения:**
+  - `+` Нишевый лёгкий движок: низкие требования, shared-screen без серверов.
+  - `+` Процедурность + friendly fire: реиграбельность малыми средствами.
+  - `−` Ставка на Bitsquid заложила техдолг серии (виден по Helldivers 2).
+  - `−` Общая камера без зума: читаемость в коопе страдает.
+- **Влияние:** движки — удобство команды vs долг поддержки; дизайн — камера как перфоманс.
+- **DSS:** `art_direction_stylization`, `particle_pooling`, `tickrate_budgeting`.
+- **Источники:** Steam (https://store.steampowered.com/app/394510/HELLDIVERS_Dive_Harder_Edition/), кооп (https://www.co-optimus.com/game/4041/pc/helldivers.html), порт-репорт (https://www.destructoid.com/pc-port-report-helldivers/).
+
+### 61. Phasmophobia (2020, Kinetic / Unity)
+
+- **Движок:** Unity (2022 ветка; план Unity 6: PCVR Foveated, DX12, Forward+, новый бейк света). Voice recognition, OpenXR, Steam Audio, Vivox, Burst/IL2CPP. Кооп 4, хаб-локации, baked light. Мин specs — для VR.
+- **Релиз (EA):** виральный хит с джанком: краши/фризы, UnityPlayer.dll, Citrix-конфликты. Лечится драйверами/верификацией файлов. Патчи: Ascension, Eventide, Crimson Eye (консоли + кроссплей + Upgraded Physics), QOL-пакеты.
+- **Причина репутации:** функционал (голос как геймплей) + процесс (соло-инди live-service).
+- **Решения:**
+  - `+` Middleware-набор (Photon/Vivox/OpenXR/Steam Audio): кроссплей без AAA-бюджета.
+  - `+` Маленькие хабы + baked: хоррор на звуке/свете, а не полигонах.
+  - `−` Физика дверей/игроков тикала на low-fps клиентах (провалы сквозь пол) — только оверхол v0.11.
+  - `−` Каждый мейджор ломает баланс/UX.
+- **Влияние:** аудио — голос как механика; физика — тик vs клиентский fps.
+- **DSS:** `physics_lod_sleeping`, `fixed_timestep_physics`, `lightmap_atlas_baking`, `tickrate_budgeting`.
+- **Источники:** Steam (https://store.steampowered.com/app/739630/Phasmophobia), Kinetic (https://www.kineticgames.co.uk/phasmophobia), Unity-кейс (https://unity.com/blog/thrilling-indie-horror-games-halloween), PCGW (https://www.pcgamingwiki.com/wiki/Phasmophobia).
+
+### 62. Raft (2022, Redbeet / Unity 2018)
+
+- **Движок:** Unity 2018.3.5f1, DX11, FMOD. Бесконечный океан + острова-хабы, кооп, сейвы World/*.rgd + Steam Cloud. Требования: мин GTX 700/i5/6 ГБ, рек GTX 1050.
+- **Релиз (1.0 после EA 2018):** спокойно; техдолг — старый движок без современных апскейлеров и мультитред-улучшений; кооп-сеть без заявленного тика.
+- **Причина репутации:** функционал (выживание на плоту) + доступность.
+- **Решения:**
+  - `+` Низкий порог (DX11 без RT): покрытие слабых ПК.
+  - `+` Детерминированные сейвы мир/игрок + Cloud.
+  - `−` Unity 2018: нет апскейлеров, старый мультитред.
+  - `−` Сеть непредсказуема на больших плотах.
+- **Влияние:** контент — острова-хабы вместо бесшовности; сейвы — детерминизм.
+- **DSS:** `open_world_streaming`, `water_simulation`, `physics_lod_sleeping`, `tickrate_budgeting`.
+- **Источники:** Steam (https://store.steampowered.com/app/648800/Raft/), PCGW (https://www.pcgamingwiki.com/wiki/Raft).
+
+### 63. Golf With Your Friends (2020, Blacklight / Unity 2021)
+
+- **Движок:** Unity 2021.3.28f1, с 2020 только D3D11+64-bit. Симультанный гольф до 12 игроков (local+online), uncapped FPS, MSAA, FOV, редактор + Workshop, Rewired/Opus. Требования: мин GTX 460/i3/2 ГБ, рек GTX 960/4 ГБ.
+- **Релиз:** спокойно; техболь — зависание меню MS Store-версии, рассинхроны физики на 12 игроках, хрупкий сингл-файл сейвов.
+- **Причина репутации:** функционал (пати-спорт + редактор) + доступность.
+- **Решения:**
+  - `+` Симультанная физика мячей + UGC: дёшево по CPU, реиграбельно.
+  - `+` Uncapped FPS + MSAA из коробки.
+  - `−` Физика на P2P-подобной сети: рассинхроны, тик не заявлен.
+  - `−` Сейв одним файлом: повреждения статистики.
+- **Влияние:** сеть — симультанность vs детерминизм; сейвы — изоляция файлов.
+- **DSS:** `deterministic_lockstep`, `physics_lod_sleeping`, `tickrate_budgeting`, `fixed_timestep_physics`.
+- **Источники:** Steam (https://store.steampowered.com/app/431240/Golf_With_Your_Friends/), PCGW (https://www.pcgamingwiki.com/wiki/Golf_With_Your_Friends), Team17 (https://www.team17.com/games/golf-with-your-friends/).
+
+### 64. Among Us (2018, Innersloth / Unity)
+
+- **Движок:** Unity (билды 2019→2020→2022), D3D11 (+force-d3d12), 32-bit exe, Vsync cap 60. До 15 игроков (online/local WiFi), EOS, кроссплей, Rewired. Требования: HD 4600/GTX 650, i3-4330, 1–4 ГБ.
+- **Релиз/взрыв 2020:** тихо → вирально. Техболь: статтеры при polling rate мыши >1000 Гц, 4K показывает четверть экрана без DPI-фикса, чужие движения capped 30.
+- **Причина репутации:** функционал (социальная дедукция) + доступность (идёт везде).
+- **Решения:**
+  - `+` Векторное 2D + мизерные требования: идеал для теста netcode.
+  - `+` EOS + room-code + local WiFi: дешёвый authoritative-лайт.
+  - `−` 30fps-репликация + polling-зависимость: плохой input-путь.
+  - `−` Тики/античит не заявлены: читаемость сети низкая.
+- **Влияние:** сеть — тик как контракт с игроком; ввод — polling rate как перфоманс.
+- **DSS:** `tickrate_budgeting`, `deterministic_lockstep`, `art_direction_stylization`.
+- **Источники:** Steam (https://store.steampowered.com/app/945360/Among_Us/), Innersloth (https://innersloth.com/gameAmongUs.php), PCGW (https://www.pcgamingwiki.com/wiki/Among_Us).
+
+### 65. Totally Accurate Battle Simulator (2021, Landfall / Unity 2018)
+
+- **Движок:** Unity 2018.4.13f1, D3D11, FXAA/SMAA, без капа FPS. Wobbly ragdoll-физика сотен тел, Workshop (юниты/карты/фракции), online PvP. Требования: мин GTX 660/i5/8 ГБ, рек GTX 970/i7/8 ГБ.
+- **Релиз (EA 2019 → 1.0):** спокойно; техболь — CPU-bound толпы, нестабильность при сотнях тел, звуковые регрессии, 10 МБ Cloud-лимит.
+- **Причина репутации:** функционал (физика как геймплей) + UGC.
+- **Решения:**
+  - `+` Wobbly-физика масштабируется числом юнитов, деградирует весело.
+  - `+` In-game Workshop без пересборки билда.
+  - `−` CPU-bound толпы на Unity 2018: threading-модель не заявлена.
+  - `−` Звук и Cloud-лимит хрупки для песочницы.
+- **Влияние:** физика — деградация как фича; UGC — редактор как контент.
+- **DSS:** `physics_lod_sleeping`, `agent_update_budget`, `crowd_instancing_impostors`, `particle_pooling`.
+- **Источники:** Steam (https://store.steampowered.com/app/508440/Totally_Accurate_Battle_Simulator/), PCGW (https://www.pcgamingwiki.com/wiki/Totally_Accurate_Battle_Simulator).

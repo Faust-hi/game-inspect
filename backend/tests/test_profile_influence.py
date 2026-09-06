@@ -172,6 +172,21 @@ def test_size_limit_excludes_disk_heavy_solutions(client):
     assert len(tight["excluded"]) >= len(loose["excluded"])
 
 
+def test_netcode_without_multiplayer_flag_warns(client):
+    """Сетевая функция при выключенном мультиплеере — несогласованный вход."""
+    flagged = recommend(
+        client, multiplayer=False,
+        functions=["open_world_streaming", "multiplayer_netcode"],
+    )
+    assert any(r["code"] == "network_without_flag" for r in flagged["risks"])
+
+    consistent = recommend(
+        client, multiplayer=True, player_count=4,
+        functions=["open_world_streaming", "multiplayer_netcode"],
+    )
+    assert not any(r["code"] == "network_without_flag" for r in consistent["risks"])
+
+
 def test_engine_affects_support(client):
     """Движок определяет, насколько решение «родное» для выбранной технологии.
 

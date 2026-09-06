@@ -27,14 +27,6 @@ const BUDGET_FIELDS: { key: keyof ProjectProfile; label: string }[] = [
   { key: 'gpu_budget', label: 'Бюджет GPU' },
   { key: 'ram_budget', label: 'Бюджет RAM' },
   { key: 'vram_budget', label: 'Бюджет VRAM' },
-  { key: 'geometry_detail', label: 'Детализация геометрии' },
-  { key: 'texture_quality', label: 'Качество текстур' },
-  { key: 'view_distance', label: 'Дальность видимости' },
-  { key: 'lighting_complexity', label: 'Сложность освещения' },
-  { key: 'physics_complexity', label: 'Сложность физики' },
-  { key: 'simulation_complexity', label: 'Сложность симуляций' },
-  { key: 'npc_update_rate', label: 'Частота обновления NPC' },
-  { key: 'network_update_rate', label: 'Частота сетевых обновлений' },
 ];
 
 export function StageScreen() {
