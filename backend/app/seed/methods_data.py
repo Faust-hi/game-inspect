@@ -1146,6 +1146,11 @@ FORMAT_OVERRIDES: dict[str, list[str]] = {
     "deterministic_lockstep": ["3D", "2.5D", "2D"],
     "tickrate_budgeting": ["3D", "2.5D", "2D"],
     "quality_tier_scalability": ["3D", "2.5D", "2D"],
+    # Сейвы не зависят от размерности картинки: Plague Inc: Evolved и
+    # Geometry Dash (обе 2D) используют слотовые сейвы (подтверждено FULL225).
+    # Дефолт M() — ["3D"], поэтому заданы явно.
+    "snapshot_slot_saves": ["3D", "2.5D", "2D"],
+    "async_incremental_saves": ["3D", "2.5D", "2D"],
 }
 
 # ---------------------------------------------------------------------------
@@ -1256,8 +1261,13 @@ EXTRA_METHODS: list[dict] = [
       impact_cpu=1, impact_ram=1, impact_disk=1,
       performance_gain=0.7, implementation_cost=4, complexity=4, confidence=0.85,
       applicable_formats=["2D", "2.5D"],
-      applicable_world_types=["open_world", "procedural", "sandbox"],
-      min_scale="large",
+      # Метроидвании и хабовые 2D-игры тоже грузят карту чанками/комнатами
+      # (Hollow Knight, Prince of Persia: The Lost Crown — подтверждено
+      # калибровкой FULL225): ограничение только open/procedural/sandbox
+      # ложно исключало их реальные решения. Список приведён к sibling-методу
+      # tilemap_layer_culling, у которого hub/linear уже разрешены.
+      applicable_world_types=["open_world", "procedural", "sandbox", "hub", "linear"],
+      min_scale="medium",
       pros=["Снимает ограничение на размер 2D-мира", "Позволяет параллелить наполнение"],
       cons=["Требует переработки уже собранных уровней", "Возможны задержки подгрузки"],
       limitations=["Требует строгого контроля зависимостей данных"],
@@ -2396,14 +2406,6 @@ EXTRA_CONFLICTS: list[dict] = [
         "source_key": "WIKI_DLSS",
     },
     {
-        "a_code": "destruction_geometry_cache", "b_code": "async_loading_pipeline",
-        "conflict_type": "dependency", "severity": 2,
-        "description": "Кэши разрушений тяжёлые: без асинхронной подкачки их появление "
-                       "останавливает кадр.",
-        "resolution": "Стримить кэши общим конвейером загрузки.",
-        "source_key": "DOOM_ETERNAL",
-    },
-    {
         "a_code": "tiled_clustered_light_culling", "b_code": "depth_prepass_early_z",
         "conflict_type": "synergy", "severity": 2,
         "description": "Forward-вариант кластеризации строится на min-max отсечении по глубине: "
@@ -2758,6 +2760,29 @@ METHOD_ENGINE_LINKS: dict[str, dict[str, tuple[str, str, str]]] = {
 
 # ---------------------------------------------------------------------------
 # Конфликты, зависимости и усиления (MVP: не менее 10 записей)
+#
+# Удалённые связи (калибровка FULL225, см. CALIBRATION_FULL225.md):
+# связь признаётся ложной, только если реальные shipped-игры доказывают
+# обратное. Удаление здесь НЕ чистит старые БД (сидер делает upsert):
+# удаление выполняет миграция alembic (см. versions/*_drop_false_conflicts.py).
+#  - baked_occlusion_culling × world_partition_streaming (conflict):
+#    Fallout 4 previs — по-ячеечная запечённая видимость в стримимом Бостоне.
+#  - dynamic_resolution_scaling × temporal_upscaling (conflict):
+#    штатная связка DRS+TSR/DLSS (Forza, Remnant II, Jedi Survivor, SH2).
+#  - fixed_timestep_physics → multithreaded_physics_jobs (dependency):
+#    направление перепутано; однонитевый фикс-степ — норма
+#    (Undertale, Geometry Dash, файтинги). Обратное направление тоже ложно
+#    как универсальное (Fortnite/Chaos), поэтому строка удалена, а не развёрнута.
+#  - client_prediction_reconciliation → fixed_timestep_physics (dependency):
+#    UE4-предикт работает на переменном шаге через timestamped replay
+#    (DBD, Sea of Thieves, PAYDAY 3). Для rollback — см. cons метода.
+#  - ecs_data_oriented_crowd → gpu_skinning_compute (dependency):
+#    сотни агентов штатно анимируются на CPU (BG3, Overwatch — 12 героев).
+#  - headless_dedicated_server → client_prediction_reconciliation (dependency):
+#    авторитетные серверы без предикта — норма (WoW, Terraria, Factorio).
+#  - destruction_geometry_cache → async_loading_pipeline (dependency,
+#    в EXTRA_CONFLICTS ниже): линейные игры предзагружают кэши на загрузке
+#    уровня (MGR:R, Teardown) без асинхронного стриминга.
 # ---------------------------------------------------------------------------
 CONFLICTS: list[dict] = [
     {
@@ -2777,14 +2802,6 @@ CONFLICTS: list[dict] = [
         "source_key": "UNITY_LIGHTPROBES",
     },
     {
-        "a_code": "baked_occlusion_culling", "b_code": "world_partition_streaming", "conflict_type": "conflict",
-        "severity": 2,
-        "description": "Запечённая окклюзия рассчитывается для статического уровня и плохо сочетается "
-                       "с динамической подгрузкой ячеек открытого мира.",
-        "resolution": "Для открытого мира использовать отсечение на GPU или HLOD вместо запечённой окклюзии.",
-        "source_key": "UNITY_OCCLUSION",
-    },
-    {
         "a_code": "cascaded_shadow_maps", "b_code": "distance_field_shadows", "conflict_type": "conflict",
         "severity": 1,
         "description": "Два механизма теней для направленного света дублируют стоимость и дают "
@@ -2801,52 +2818,12 @@ CONFLICTS: list[dict] = [
         "source_key": "WIKI_SKINNING",
     },
     {
-        "a_code": "dynamic_resolution_scaling", "b_code": "temporal_upscaling", "conflict_type": "conflict",
-        "severity": 1,
-        "description": "Одновременное динамическое изменение разрешения и временное масштабирование "
-                       "дают нестабильную резкость и артефакты истории кадров.",
-        "resolution": "Зафиксировать один механизм изменения разрешения и управлять только его коэффициентом.",
-        "source_key": "WIKI_FSR",
-    },
-    {
         "a_code": "static_shadow_caching", "b_code": "hardware_raytraced_gi", "conflict_type": "conflict",
         "severity": 2,
         "description": "Кэширование теней предполагает неизменное освещение, тогда как аппаратная "
                        "трассировка строится на полностью динамическом освещении.",
         "resolution": "Кэшировать только тени статических источников света.",
         "source_key": "UE_VSM",
-    },
-    {
-        "a_code": "fixed_timestep_physics", "b_code": "multithreaded_physics_jobs",
-        "conflict_type": "dependency", "severity": 3,
-        "description": "Распараллеливание физики требует детерминированного шага: без фиксированного "
-                       "шага результат зависит от порядка выполнения потоков.",
-        "resolution": "Внедрить фиксированный шаг до распараллеливания физики.",
-        "source_key": "UNITY_JOBS",
-    },
-    {
-        "a_code": "client_prediction_reconciliation", "b_code": "fixed_timestep_physics",
-        "conflict_type": "dependency", "severity": 3,
-        "description": "Сверка предсказания с сервером возможна только при воспроизводимой симуляции "
-                       "с фиксированным шагом.",
-        "resolution": "Заложить фиксированный шаг на этапе прототипа.",
-        "source_key": "WIKI_PREDICTION",
-    },
-    {
-        "a_code": "ecs_data_oriented_crowd", "b_code": "gpu_skinning_compute",
-        "conflict_type": "dependency", "severity": 2,
-        "description": "Тысячи агентов в кадре невозможно анимировать на CPU: требуется перенос "
-                       "скиннинга на GPU.",
-        "resolution": "Планировать GPU-скиннинг одновременно с переходом на ECS.",
-        "source_key": "WIKI_ECS",
-    },
-    {
-        "a_code": "headless_dedicated_server", "b_code": "client_prediction_reconciliation",
-        "conflict_type": "dependency", "severity": 2,
-        "description": "Авторитетный сервер без графики предполагает клиентское предсказание: "
-                       "без него управление становится неотзывчивым.",
-        "resolution": "Разрабатывать серверную и клиентскую часть одновременно.",
-        "source_key": "UE_NETWORKING",
     },
     {
         "a_code": "virtual_texturing", "b_code": "heightmap_compression", "conflict_type": "synergy",
