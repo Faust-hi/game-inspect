@@ -1484,6 +1484,37 @@ EXTRA_METHODS: list[dict] = [
       verification_tools=["Unreal Insights", "PIX"],
       source_key="UNITY_SHADERLOAD"),
 
+    M("managed_gc_alloc_budget", "Нулевой бюджет аллокаций в горячем цикле",
+      None,
+      summary="Горячий цикл кадра работает без аллокаций в управляемой куче: пулы, "
+              "переиспользуемые буферы, обновление по событию вместо опроса.",
+      description="Каждая аллокация в Update — будущая пауза GC.Collect: сборщик останавливает "
+                  "код на миллисекунды. Решение — бюджет 0 байт на кадр: вынос аллокаций "
+                  "из циклов, пулы и переиспользуемые буферы, отказ от строк, массивов "
+                  "и замыканий в горячем пути. Контролируется колонкой GC.Alloc профилировщика.",
+      problem="Управляемые движки аллоцируют в куче каждый кадр: сборка мусора даёт "
+              "периодические пики времени кадра.",
+      level="production", recommended_stage="prototype", late_cost="medium",
+      impact_cpu=-2, impact_ram=-1,
+      performance_gain=0.5, implementation_cost=2, complexity=2, confidence=0.8,
+      applicable_formats=["3D", "2.5D", "2D"],
+      # Только управляемые рантаймы (Unity Mono/IL2CPP, Java-подобный custom):
+      # в C++-движках управляемой кучи нет, рекомендовать там нечего.
+      applicable_engines=["unity", "custom"],
+      pros=["Убирает периодические пики GC", "Дешевле рефакторинга рендера"],
+      cons=["Требует дисциплины всего кода", "Ошибки пулов дают утечки и stale-состояния"],
+      limitations=["Не лечит тяжёлую логику кадра", "Замер только на целевом железе (Editor врёт)"],
+      application_steps=[
+          "Записать базовый прогон: кадры GC.Alloc и пики GC.Collect.",
+          "Найти аллокации каждого кадра (строки, массивы из API, замыкания).",
+          "Вынести аллокации из циклов, ввести пулы и переиспользуемые буферы.",
+          "Перевести опросы на события (обновление только при изменении).",
+          "Повторить замер: GC.Alloc — 0 байт на кадр в горячем цикле.",
+      ],
+      verification_method="Колонка GC.Alloc профилировщика: 0 байт на кадр; отсутствие пиков GC.Collect.",
+      verification_tools=["Unity Profiler"],
+      source_key="UNITY_GC_BEST_PRACTICES"),
+
     M("audio_occlusion_propagation", "Аудио-окклюзия лучами и HRTF",
       None,
       summary="Слышимость считается по геометрии: луч от источника к слушателю даёт "
@@ -2009,6 +2040,109 @@ EXTRA_METHODS: list[dict] = [
       verification_method="Время прохода освещения при целевом числе источников.",
       verification_tools=["RenderDoc", "Unreal Insights", "Unity Profiler"],
       source_key="CLUSTERED_SHADING"),
+
+    M("snapshot_slot_saves", "Слотовые снапшоты мира (синхронная запись)",
+      "save_system",
+      summary="Полный снимок мира сериализуется в слот синхронно: просто и целостно "
+              "для маленьких данных.",
+      description="Состояние систем собирается в объект сохранения и пишется в слот целиком "
+                  "(синхронный SaveGameToSlot; бинарь + GZip режут размер). Запись блокирует "
+                  "поток: для меню и паузы незаметно, для автосейва в геймплее — фриз.",
+      problem="Прогресс должен пережить выключение; частичная запись хуже потери часа.",
+      level="production", recommended_stage="preproduction", late_cost="high",
+      impact_cpu=1, impact_disk=2,
+      performance_gain=0.3, implementation_cost=2, complexity=2, confidence=0.85,
+      pros=["Простота и предсказуемость", "Целостный файл легко проверять"],
+      cons=["Фриз на записи больших данных", "Размер растёт с прогрессом"],
+      limitations=["Без версионирования патч ломает сейвы", "Синхронная запись — только для меню и паузы"],
+      application_steps=[
+          "Отделить модель сохранения от рантайма (плоские данные, стабильные ID).",
+          "Завести слоты и поле версии формата.",
+          "Сериализовать в бинарь + сжатие, писать атомарно (temp + rename + checksum).",
+          "Проверить загрузку сейва прошлой версии миграциями.",
+          "Замерить фриз записи и размер файла на позднем прогрессе.",
+      ],
+      verification_method="Замер фриза записи и размера файла; загрузка сейва прошлой версии.",
+      verification_tools=["Unreal Insights"],
+      source_key="UE_SAVEGAME"),
+
+    M("async_incremental_saves", "Асинхронные инкрементальные автосейвы",
+      "save_system",
+      summary="Грязные данные снимаются в immutable-снапшот на игровом потоке, сериализация "
+              "и запись — на воркере; пишется только изменившееся.",
+      description="Разделение capture/encode/write: быстрый снимок на игровом потоке, тяжёлая "
+                  "работа на воркере (рекомендованный путь от фризов). Dirty-флаги пишут только "
+                  "изменения; ротация слотов и атомарная запись страхуют от битого файла.",
+      problem="Автосейв в геймплее не должен останавливать кадр.",
+      level="production", recommended_stage="preproduction", late_cost="high",
+      impact_cpu=1, impact_ram=1, impact_disk=1,
+      performance_gain=0.6, implementation_cost=3, complexity=3, confidence=0.8,
+      pros=["Нет фриза в геймплее", "Малый размер инкремента"],
+      cons=["Синхронизация потоков и снапшотов", "Миграции версий сложнее"],
+      limitations=["Сериализация живого мира с воркера — гонка и битые сейвы",
+                   "Один слот без ротации уязвим к обрыву записи"],
+      application_steps=[
+          "Разделить capture (игровой поток, immutable) и encode/write (воркер).",
+          "Ввести dirty-флаги систем и ротацию слотов.",
+          "Писать атомарно с checksum и fallback на предыдущий слот.",
+          "Прогнать миграции версий на старых сейвах.",
+          "Замерить отсутствие фриза при автосейве в геймплее.",
+      ],
+      verification_method="Профайлинг кадра в момент автосейва; краш-тест записи и восстановление.",
+      verification_tools=["Unreal Insights", "Unity Profiler"],
+      source_key="SAVE_PATTERNS"),
+
+    M("screenspace_light_shafts", "Экранные световые валы (пост-процесс)",
+      "post_processing",
+      summary="Световые валы как экранный пост-процесс: радиальный блур от ярких источников "
+              "без предрасчёта сцены.",
+      description="Пост-процесс суммирует сэмплы вдоль луча к экранной позиции источника "
+                  "с затуханием (вес, плотность, экспозиция). Не требует настройки сцены, "
+                  "работает на любом анимированном кадре; оценка окклюзии приблизительная "
+                  "и любит контраст.",
+      problem="Настоящее рассеивание в объёме дорого; валам нужен дешёвый аналог.",
+      level="algorithm", recommended_stage="production", late_cost="low",
+      impact_gpu=1,
+      performance_gain=0.4, implementation_cost=2, complexity=2, confidence=0.8,
+      applicable_formats=["3D", "2.5D"],
+      pros=["Дешёвые валы без предрасчёта сцены", "Работает на любом анимированном кадре"],
+      cons=["Врёт при слабом контрасте источник/окклюдер", "Нет настоящего рассеивания в объёме"],
+      limitations=["Источник должен быть в кадре", "Оценка окклюзии приблизительная"],
+      application_steps=[
+          "Выделить яркие источники в отдельный проход.",
+          "Настроить сэмплирование к экранной позиции источника (вес, плотность, затухание).",
+          "Сравнить с объёмным туманом: выбрать что-то одно на сцену.",
+          "Замерить стоимость прохода на целевом разрешении.",
+      ],
+      verification_method="Скриншот-тест и замер времени прохода до и после.",
+      verification_tools=["RenderDoc"],
+      source_key="GPU_GEMS_SHAFTS"),
+
+    M("rvo_local_avoidance", "Локальное избегание агентов (RVO/ORCA)",
+      "ai_pathfinding",
+      summary="Локальное расхождение агентов по взаимным скоростям: half-plane на агента, "
+              "линейное программирование, параллелится.",
+      description="Каждый агент берёт половину ответственности за расхождение: из скоростей "
+                  "соседей строится полуплоскость допустимых скоростей, оптимум выбирается "
+                  "линейным программированием. Гладко, без осцилляций; горизонт локальный — "
+                  "ловушки и строй не решаются.",
+      problem="Десятки агентов толкаются и дрожат без локального избегания.",
+      level="algorithm", recommended_stage="production", late_cost="medium",
+      impact_cpu=1,
+      performance_gain=0.6, implementation_cost=2, complexity=3, confidence=0.85,
+      pros=["Гладкие траектории без осцилляций", "Параллелится по агентам",
+            "Доказанная бесконфликтность при общем протоколе"],
+      cons=["Только локальный горизонт — ловушки не решает", "Клинические лобовые сценарии проваливаются"],
+      limitations=["Не заменяет глобальный поиск пути", "Требует настройки горизонтов и соседей"],
+      application_steps=[
+          "Зарегистрировать агентов с радиусом и дистанцией соседей.",
+          "Каждый физический кадр подавать скорость и применять safe velocity.",
+          "Настроить горизонты времени, соседей и приоритеты.",
+          "Прогнать стресс-сцену: CPU избегания и отсутствие застреваний.",
+      ],
+      verification_method="Стресс-сцена: время избегания на агента и отсутствие застреваний.",
+      verification_tools=["Unity Profiler", "Unreal Insights"],
+      source_key="ORCA_RVO"),
 ]
 
 EXTRA_LINKS: dict[str, dict[str, tuple[str, str, str]]] = {
@@ -2149,6 +2283,33 @@ EXTRA_LINKS: dict[str, dict[str, tuple[str, str, str]]] = {
         "unity": ("u_srp", "direct", "Forward+ в URP: кластеризованное назначение источников."),
         "godot": ("g_visibility", "partial", "Кластеризация уже внутри Forward+, настраивать нечего."),
         "custom": ("c_render_graph", "direct", "Тайловая классификация и сетка источников в собственном графе."),
+    },
+    "managed_gc_alloc_budget": {
+        "unity": ("u_profiler", "diagnostic", "GC.Alloc-колонка CPU Usage Profiler и руководство по best practices."),
+        "custom": ("c_profiler", "diagnostic", "Маркеры аллокаций горячего цикла в Tracy."),
+    },
+    "snapshot_slot_saves": {
+        "unity": ("u_addressables", "missing", "Готового сейв-слоя нет; слоты и сериализация — кодом поверх JsonUtility."),
+        "godot": ("g_bg_loading", "missing", "Слотов нет; запись через ResourceSaver/FileAccess своими слотами."),
+        "custom": ("c_manual", "direct", "Сериализация, слоты и миграции пишутся под проект."),
+    },
+    "async_incremental_saves": {
+        "unreal": ("ue_insights", "diagnostic", "Замер фриза автосейва в Insights."),
+        "unity": ("u_profiler", "diagnostic", "Замер фриза автосейва в Profiler."),
+        "godot": ("g_profiler", "diagnostic", "Замер фриза автосейва в профилировщике."),
+        "custom": ("c_profiler", "diagnostic", "Замер фриза автосейва через Tracy."),
+    },
+    "screenspace_light_shafts": {
+        "unreal": ("ue_lumen", "missing", "Отдельного screen-space пасса валов нет."),
+        "unity": ("u_srp", "partial", "Кастомный fullscreen-проход в URP."),
+        "godot": ("g_visibility", "missing", "Встроенных крепускулярных лучей нет."),
+        "custom": ("c_render_graph", "direct", "Радиальный блур-проход в собственном графе рендера."),
+    },
+    "rvo_local_avoidance": {
+        "unreal": ("ue_navmesh", "partial", "Крауд-избегание детура поверх навмеша."),
+        "unity": ("u_navmesh", "partial", "RVO-стиринг агента: качество и приоритет избегания."),
+        "godot": ("g_navigation", "direct", "RVO-библиотека внутри NavigationServer."),
+        "custom": ("c_manual", "partial", "Открытая RVO2/ORCA-библиотека подключается кодом."),
     },
 }
 
@@ -2749,7 +2910,7 @@ OPTIMIZATION_CODES = {
     "differential_patch_pipeline", "audio_streaming_compression",
     "composition_bootstrap_architecture",
     "art_direction_stylization", "srp_batcher_discipline",
-    "tiled_clustered_light_culling",
+    "tiled_clustered_light_culling", "managed_gc_alloc_budget",
 }
 
 

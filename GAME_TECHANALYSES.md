@@ -291,17 +291,18 @@
 
 - **Движок:** Java Edition (Java, float64) vs Bedrock (C++, float32). Чанки 16×16, процедурный Perlin-шум. Java: мастер-поток 20 TPS (50 мс на тик) + паузы сборщика мусора Stop-the-World при генерации чанков; Bedrock: мешинг в worker threads + жадная триангуляция (−60–80% полигонов), дальность 64–96 чанков против 16–32 в Java.
 - **Техническая драма — Дальние земли:** float32 шум даёт сбой на 12 550 824 блоках (Java — int32 переполнение в том же месте, итог один). Bedrock раньше страдает от джиттера (float32: уже на тысячах блоков позиции квантуются), Java держится на float64. Патч Beta 1.8 «починил» Дальние земли модulo-хаком (`p - floor(p/33.5M)*33.5M`), отодвинув проблему за 2^63.
-- **Производительность:** Java — синглтредовый чанк-менеджмент и GC-статтеры (лечится Sodium: переписанный рендер чанков, side-agnostic оптимизации); Bedrock — тикающие vs глазные чанки (дальние не симулируются — только картинка), рендер-дистанция 72 против 32 в Java.
+- **Производительность:** Java — два тяжёлых потока (клиент-рендер + сервер-мир) + GC-статтеры; Sodium выносит мешинг чанков в worker-пул (`ChunkBuilder`, graph search остаётся на main thread — ядра грузятся ровно, а статтеры на прогрузке остаются). Независимый замер 1.16.3/16 чанков: vanilla ~103 avg → OptiFine ~343 → Sodium ~408; Bedrock — тикающие vs глазные чанки (дальние не симулируются — только картинка), рендер-дистанция 72 против 32 в Java.
 - **Причина репутации:** функционал (кубики как язык творчества, 300M+ копий) + реализация (процедуры, которым прощают всё).
 - **Решения:**
   - `+` Чанки + сиды: бесконечность изпериодических функций.
   - `+` Bedrock: разделение тикающих и глазных чанков.
-  - `+` Sodium: оптимизация без изменения поведения (идеал модов).
+  - `+` Sodium: оптимизация без изменения поведения (идеал модов); companion-моды требуют мост (Continuity + Sodium без Indium крашится на падающих блоках — типовой кейс).
+  - `+` VulkanMod: замена OpenGL-рендерера на Vulkan (снижение CPU/GPU-overhead, chunk building) — механизм подтверждён репозиторием; цифры одного автора — наблюдение, не якорь.
   - `−` Float32 в Bedrock: джиттер как врождённый налог.
   - `−` 32-чанковый хардкод Java: смена лимита ломает моды.
 - **Влияние:** оптимизация — тикай только видимое/нужное; точность — float-бюджет как проектное ограничение; экосистема — моды чинят перфоманс лучше издателя.
 - **DSS:** `gpu_procedural_placement`, `world_partition_streaming`, `async_loading_pipeline`, `physics_lod_sleeping`, `time_sliced_pathfinding`.
-- **Источники:** Minecraft Wiki Far Lands (https://minecraft.wiki/w/Java_Edition_Far_Lands), Bedrock distance effects (https://minecraft.wiki/w/Bedrock_Edition_distance_effects), MCDF Bedrock Far Lands (https://mcdf.wiki.gg/wiki/Bedrock_Edition:Far_Lands), Sodium issue #255 (https://github.com/CaffeineMC/sodium/issues/255), FarLandsChronicles #15 (https://github.com/ThisTestUser/FarLandsChronicles/issues/15).
+- **Источники:** Minecraft Wiki Far Lands (https://minecraft.wiki/w/Java_Edition_Far_Lands), Bedrock distance effects (https://minecraft.wiki/w/Bedrock_Edition_distance_effects), MCDF Bedrock Far Lands (https://mcdf.wiki.gg/wiki/Bedrock_Edition:Far_Lands), Sodium issue #255 (https://github.com/CaffeineMC/sodium/issues/255), FarLandsChronicles #15 (https://github.com/ThisTestUser/FarLandsChronicles/issues/15), Sodium ChunkBuilder (https://github.com/CaffeineMC/sodium/blob/ed6c1afe/common/src/main/java/net/caffeinemc/mods/sodium/client/render/chunk/compile/executor/ChunkBuilder.java), Sodium async chunk loading #2344 (https://github.com/CaffeineMC/sodium-fabric/issues/2344), VulkanMod (https://github.com/xCollateral/VulkanMod), Continuity FAQ + Indium (https://blog.curseforge.com/continuity-mod-frequently-asked-questions/), OptiFine vs Sodium vs Vanilla замеры (https://flightlessmango.com/games/13928/logs/1001).
 
 ---
 *Партии 1–2 из 6. Продолжение ниже.*

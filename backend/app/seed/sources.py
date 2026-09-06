@@ -397,6 +397,11 @@ SOURCES: dict[str, dict[str, str]] = {
         "url": "https://docs.unity3d.com/Manual/ShaderLoadTimeOptimization.html",
         "date": "2025-01-01",
     },
+    "UNITY_GC_BEST_PRACTICES": {
+        "title": "Unity Manual: Garbage collection best practices",
+        "url": "https://docs.unity3d.com/2023.1/Documentation/Manual/performance-garbage-collection-best-practices.html",
+        "date": "2025-01-01",
+    },
     "HUNT_AUDIO": {
         "title": "Hunt: Showdown — Audio readability, realism and consistency",
         "url": "https://www.huntshowdown.com/news/hunt-audio-readability-realism-and-consistency",
@@ -426,6 +431,31 @@ SOURCES: dict[str, dict[str, str]] = {
         "title": "Valorant 128-tick servers (Riot Engineering)",
         "url": "https://technology.riotgames.com/news/valorants-128-tick-servers",
         "date": "2020-04-16",
+    },
+    "UE_SAVEGAME": {
+        "title": "Unreal Engine: Saving and Loading Your Game",
+        "url": "https://docs.unrealengine.com/4.27/en-US/InteractiveExperiences/SaveGame/",
+        "date": "2025-01-01",
+    },
+    "SAVE_PATTERNS": {
+        "title": "Save Systems & Persistence (Andrews Notebook)",
+        "url": "https://andrewaltimit.github.io/Documentation/docs/gamedev/save-systems.html",
+        "date": "2025-01-01",
+    },
+    "SHADOWGAMBIT_SAVE": {
+        "title": "Deep dive: save system of Shadow Gambit (GameDeveloper)",
+        "url": "https://www.gamedeveloper.com/programming/deep-dive-creating-and-fine-tuning-the-save-system-of-_shadow-gambit_",
+        "date": "2023-12-06",
+    },
+    "GPU_GEMS_SHAFTS": {
+        "title": "GPU Gems 3, Ch.13: Volumetric Light Scattering as a Post-Process (Mitchell)",
+        "url": "https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-13-volumetric-light-scattering-post-process",
+        "date": "2008-01-01",
+    },
+    "ORCA_RVO": {
+        "title": "Optimal Reciprocal Collision Avoidance (van den Berg et al., UNC Gamma)",
+        "url": "https://gamma.cs.unc.edu/ORCA/",
+        "date": "2011-01-01",
     },
 }
 

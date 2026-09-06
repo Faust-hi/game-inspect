@@ -1,4 +1,4 @@
-"""Каталог игровых функций (MVP: 15 функций)."""
+"""Каталог игровых функций (MVP: 15 функций + система сохранений)."""
 from __future__ import annotations
 
 from .sources import src
@@ -154,6 +154,16 @@ GAME_FUNCTIONS: list[dict] = [
         "typical_world_types": ["open_world", "arena", "hub", "sandbox", "procedural"],
         "sort_order": 150,
         "source_key": "WIKI_PREDICTION",
+    },
+    {
+        "code": "save_system",
+        "name": "Система сохранений",
+        "description": "Сохранение и загрузка прогресса: слоты, автосейвы, версионирование формата, устойчивость к обрыву записи.",
+        "category": "Прогресс и данные",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "procedural", "sandbox"],
+        "sort_order": 155,
+        "source_key": "UE_SAVEGAME",
     },
 ]
 

@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Minecraft Java: моды против GC-пиков и рендера чанков",
+    "year": 2023,
+    "developer": "Mojang Studios / сообщество (CaffeineMC, xCollateral)",
+    "engine": "Собственный (Java/OpenGL, моды)",
+    "format": "3D",
+    "world_type": "sandbox",
+    "scale": "very_large",
+    "platforms": ["PC"],
+    "target_resolution": "1080p",
+    "target_fps": 60,
+    "object_count_level": "high",
+    "npc_count_level": "medium",
+    "multiplayer": false,
+    "player_count": 1,
+    "features": ["large_scale_terrain", "procedural_vegetation"],
+    "optimizations_used": ["managed_gc_alloc_budget", "particle_pooling", "async_loading_pipeline"],
+    "summary": "Sodium выносит мешинг чанков в worker-пул (graph search остаётся на main thread), VulkanMod заменяет OpenGL-рендерер на Vulkan; Continuity требует мост Indium — без него типовой краш на падающих блоках. Независимый замер 1.16.3/16 чанков: vanilla ~103, OptiFine ~343, Sodium ~408 avg.",
+    "performance_outcome": "Направление подтверждено независимыми замерами; абсолютные цифры зависят от железа и версии.",
+    "source_title": "OptiFine vs Sodium vs Vanilla performance (FlightlessMango)",
+    "source_url": "https://flightlessmango.com/games/13928/logs/1001",
+    "source_date": "",
+    "verified_by": "technical_analysis"
+  }
+]
