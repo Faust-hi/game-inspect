@@ -76,6 +76,7 @@ class ProjectProfile(BaseModel):
     upscaling_method: Literal[tuple(_values(UpscalingMethod))] = "auto"
     network_topology: Literal[tuple(_values(NetworkTopology))] = "auto"
     frame_generation: bool = False
+    base_render_fps: Annotated[int | None, Field(ge=15, le=480)] = None
     streaming_pool_gb: Annotated[float | None, Field(gt=0, le=512)] = None
     draw_call_budget: Annotated[int | None, Field(ge=100, le=1_000_000)] = None
     simulation_radius_m: Annotated[int | None, Field(ge=0, le=100_000)] = None
@@ -130,6 +131,8 @@ class ProjectProfile(BaseModel):
         Если пользователь указал 5 000 000 объектов и уровень «низкий», расчёт
         получает два взаимоисключающих входа. Уточняем уровень по числу.
         """
+        if self.frame_generation and self.base_render_fps is not None and self.base_render_fps > self.target_fps:
+            raise ValueError("базовый FPS не может превышать целевой отображаемый FPS при генерации кадров")
         for field, level_field in (("object_count", "object_count_level"),
                                    ("npc_count", "npc_count_level")):
             value = getattr(self, field)
@@ -443,6 +446,7 @@ class RiskOut(BaseModel):
 
 
 class LoadProfileOut(BaseModel):
+    notes: list[str] = Field(default_factory=list)
     cpu: float
     gpu: float
     ram: float

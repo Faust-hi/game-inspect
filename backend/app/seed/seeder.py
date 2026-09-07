@@ -23,6 +23,7 @@ from ..models.entities import (
 )
 from ..models.enums import Status
 from . import engines_data, functions_data, methods_data
+from .corrections import correct_shadow_relation
 
 PUBLISHED = Status.PUBLISHED.value
 
@@ -122,7 +123,7 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
             continue
         function_code = methods_data.FUNCTION_ASSIGNMENTS.get(method_code)
         function = functions.get(function_code) if function_code else None
-        if function is not None and method.function_id != function.id:
+        if function is not None and method.function_id is None:
             method.function_id = function.id
             linked_methods += 1
         steps = methods_data.APPLICATION_STEPS.get(method_code)
@@ -134,6 +135,7 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
         "functions_created": created_functions,
         "methods_linked": linked_methods,
         "method_metadata_updated": metadata_updated,
+        "relations_corrected": correct_shadow_relation(db),
     }
 
 

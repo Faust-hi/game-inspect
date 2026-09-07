@@ -38,11 +38,11 @@ from .topsis import Criterion, criterion_matrix_rows, topsis
 
 #: Версия алгоритма. Меняется при любом изменении формул, весов или правил
 #: отбора: по ней можно понять, какой версией получен сохранённый результат.
-ALGORITHM_VERSION = "2.1.0"
+ALGORITHM_VERSION = "2.2.0"
 
 #: Версия набора данных. Меняется при обновлении базы знаний, влияющем на
 #: ранжирование (пересчёт индексов оборудования, пересмотр оценок эффекта).
-DATASET_VERSION = "mvp-1.6"
+DATASET_VERSION = "mvp-1.7"
 
 # Веса критериев в зависимости от приоритета пользователя.
 WEIGHT_PROFILES: dict[str, dict[str, float]] = {
@@ -473,7 +473,7 @@ def _tail(db: Session, profile, basket_methods, basket_codes, methods_by_code, c
         "basket_conflicts": basket_conflicts,
         "basket_dependencies": basket_dependencies,
         "basket_synergies": basket_synergies,
-        "load_profile": aggregate_load(basket_methods, profile),
+        "load_profile": aggregate_load(basket_methods, profile, relations=repositories.conflicts(db)),
         "hardware": hardware.estimate_hardware(db, profile, basket_methods, similar_examples=len(similar)),
         "risks": detect_risks(profile, basket_codes, methods_by_code, conflicts, engines),
         "input_key": input_fingerprint(profile, [m.code for m in basket_methods]),
@@ -736,8 +736,9 @@ def _impact_text(method: Method, positive: bool = True) -> list[str]:
 # ---------------------------------------------------------------------------
 # Агрегированный профиль нагрузки корзины
 # ---------------------------------------------------------------------------
-def aggregate_load(methods: list[Method], profile) -> LoadProfileOut:
+def aggregate_load(methods: list[Method], profile, *, relations=()) -> LoadProfileOut:
     """Суммарное влияние выбранных решений на подсистемы (шкала 0..100)."""
+    methods, notes = rules.assess_selected_methods(methods, profile, relations)
     keys = ["cpu", "gpu", "ram", "vram", "disk", "network"]
     totals = {k: 0 for k in keys}
     for m in methods:
@@ -761,6 +762,7 @@ def aggregate_load(methods: list[Method], profile) -> LoadProfileOut:
         }
 
     return LoadProfileOut(
+        notes=notes,
         cpu=per_resource["cpu"]["normalized"],
         gpu=per_resource["gpu"]["normalized"],
         ram=per_resource["ram"]["normalized"],

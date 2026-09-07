@@ -226,7 +226,7 @@ export function ProfileScreen() {
               onChange={(value) => updateProfile({ simulation_radius_m: value })}
             />
           </Field>
-          <Field label="Physics/network tick, Гц" hint="Необязательно">
+          <Field label="Частота физической симуляции, Гц" hint="Сетевой tick задаётся отдельно от физики; здесь он не моделируется">
             <NumberInput
               value={profile.physics_tick_hz ?? null}
               min={15}
@@ -251,6 +251,18 @@ export function ProfileScreen() {
               label="Генерация кадров"
             />
           </div>
+          {profile.frame_generation && (
+            <Field label="Целевой базовый FPS" hint="Реальные кадры до генерации. Без этого параметра требования не снижаются; стоимость генератора неизвестна.">
+              <NumberInput
+                value={profile.base_render_fps ?? null}
+                min={15}
+                max={profile.target_fps}
+                step={1}
+                placeholder="не задан"
+                onChange={(value) => updateProfile({ base_render_fps: value })}
+              />
+            </Field>
+          )}
         </div>
       </Card>
 

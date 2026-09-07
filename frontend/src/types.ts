@@ -53,6 +53,7 @@ export interface ProjectProfile {
   upscaling_method: string;
   network_topology: string;
   frame_generation: boolean;
+  base_render_fps?: number | null;
   streaming_pool_gb?: number | null;
   draw_call_budget?: number | null;
   simulation_radius_m?: number | null;
@@ -317,6 +318,7 @@ export interface Risk {
 }
 
 export interface LoadProfile {
+  notes?: string[];
   cpu: number;
   gpu: number;
   ram: number;

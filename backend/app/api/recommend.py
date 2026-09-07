@@ -22,7 +22,7 @@ def recommend(payload: BasketRequest, db: Session = Depends(get_db)):
 @router.post("/load-profile", response_model=LoadProfileOut, summary="Пересчитать сводный профиль нагрузки корзины")
 def load_profile(payload: BasketRequest, db: Session = Depends(get_db)):
     methods = repositories.methods_by_codes(db, payload.basket or [])
-    return recommender.aggregate_load(methods, payload.profile)
+    return recommender.aggregate_load(methods, payload.profile, relations=repositories.conflicts(db))
 
 
 @router.post("/similar-games", response_model=list[SimilarGameOut], summary="Поиск похожих игр (расстояние Гауэра)")

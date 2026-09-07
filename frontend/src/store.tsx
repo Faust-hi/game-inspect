@@ -48,6 +48,7 @@ export const DEFAULT_PROFILE: ProjectProfile = {
   upscaling_method: 'auto',
   network_topology: 'auto',
   frame_generation: false,
+  base_render_fps: null,
   streaming_pool_gb: null,
   draw_call_budget: null,
   simulation_radius_m: null,

@@ -5,7 +5,7 @@ import { Badge, Callout, Card, Empty, Loading } from '../components/ui';
 import { impactsOf, methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
 import type { LoadProfile } from '../types';
 
-const RESOURCES: { key: keyof Omit<LoadProfile, 'per_resource'>; label: string }[] = [
+const RESOURCES: { key: keyof Omit<LoadProfile, 'per_resource' | 'notes'>; label: string }[] = [
   { key: 'cpu', label: 'CPU' },
   { key: 'gpu', label: 'GPU' },
   { key: 'ram', label: 'RAM' },
@@ -68,6 +68,9 @@ export function LoadProfileScreen() {
         hint="Система показывает суммарное влияние выбранного набора на подсистемы проекта, а не эффект отдельных решений по отдельности."
         actions={<Badge tone="info">решений: {selected.length}</Badge>}
       >
+        {(load.notes ?? []).map((note, index) => (
+          <Callout key={index} tone="warn">{note}</Callout>
+        ))}
         {selected.length === 0 && (
           <Callout tone="warn" title="Корзина пуста">
             Профиль построен по базовым характеристикам проекта. Добавьте решения, чтобы увидеть их

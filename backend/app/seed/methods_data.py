@@ -2832,12 +2832,14 @@ CONFLICTS: list[dict] = [
         "source_key": "UNITY_LIGHTPROBES",
     },
     {
-        "a_code": "cascaded_shadow_maps", "b_code": "distance_field_shadows", "conflict_type": "conflict",
+        "a_code": "cascaded_shadow_maps", "b_code": "distance_field_shadows", "conflict_type": "synergy",
         "severity": 1,
-        "description": "Два механизма теней для направленного света дублируют стоимость и дают "
-                       "непредсказуемое наложение результатов.",
-        "resolution": "Выбрать одну систему теней как основную.",
-        "source_key": "WIKI_SHADOWMAP",
+        "description": "В Unreal Engine каскадные карты могут обслуживать ближнюю область, "
+                       "а Distance Field Shadows — область за пределом дистанции каскадов. "
+                       "Совместимость зависит от выбранного пути рендера; снижение стоимости не гарантируется.",
+        "resolution": "Разделить диапазоны расстояний, проверить переход между ними и поддержку объектов. "
+                      "Для другого движка подтвердить аналогичную схему отдельно.",
+        "source_key": "UE_DISTANCE_SHADOWS",
     },
     {
         "a_code": "motion_matching", "b_code": "animation_compression", "conflict_type": "conflict",

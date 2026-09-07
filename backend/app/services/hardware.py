@@ -14,7 +14,7 @@ from .. import repositories
 from ..models.entities import HardwareCPU, HardwareGPU
 from ..models.enums import Scale
 from ..schemas.catalog import HardwareEstimateOut, ProjectProfile
-from . import serializers
+from . import rules, serializers
 
 SCALE_FACTOR = {"small": 0.8, "medium": 1.0, "large": 1.25, "very_large": 1.5}
 RESOLUTION_FACTOR = {
@@ -111,22 +111,36 @@ def _resolution_factor(value: str) -> float:
     return RESOLUTION_FACTOR.get(value.strip().lower(), 1.0)
 
 
+def _supports_profile_gpu(gpu: HardwareGPU, profile: ProjectProfile) -> bool:
+    """Проверка заявленных возможностей каталога, без догадок по имени GPU."""
+    features = [str(item).lower() for item in (gpu.hw_features or [])]
+    if profile.upscaling_method == "dlss" and not any(item.startswith("dlss") for item in features):
+        return False
+    apis = [str(item).lower() for item in (gpu.api_support or [])]
+    api = profile.render_api
+    if api == "auto":
+        return True
+    if api in {"dx9", "dx11", "dx12"}:
+        required = int(api[2:])
+        versions = [re.search(r"directx\s+(\d+)", item) for item in apis]
+        return any(match and int(match.group(1)) >= required for match in versions)
+    return any(item.startswith(api) for item in apis)
+
+
 def _fps_factor(fps: int) -> float:
     """Относительная стоимость кадра: выше целевой FPS — дороже каждый кадр."""
     if fps <= 30:
-        return 0.62
+        return 0.62 * fps / 30
     if fps >= 144:
-        return 1.7
+        return 1.7 * fps / 144
     # Линейная интерполяция между 30 и 144 кадрами в секунду.
     return 0.62 + (fps - 30) * (1.7 - 0.62) / (144 - 30)
 
 
 def _render_fps_factor(profile: ProjectProfile) -> float:
     """Стоимость реально отрисованных кадров при включённой генерации кадров."""
-    if profile.frame_generation and profile.target_fps >= 60:
-        # Выходной FPS и FPS настоящего рендера — разные величины. Берём
-        # консервативный базовый FPS, а задержку и артефакты оставляем в caveats.
-        return _fps_factor(max(30, round(profile.target_fps * 0.5)))
+    if profile.frame_generation and profile.base_render_fps is not None:
+        return _fps_factor(profile.base_render_fps)
     return _fps_factor(profile.target_fps)
 
 
@@ -202,6 +216,11 @@ def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_
         gaps.append("Не указан upscaler: итоговая GPU-нагрузка для высокого разрешения может отличаться.")
     if profile.frame_generation:
         gaps.append("Генерация кадров повышает отображаемый FPS, но не заменяет базовый FPS и добавляет задержку.")
+        if profile.base_render_fps is None:
+            gaps.append("Не задан целевой базовый FPS: расчёт выполнен без снижения требований за счёт генерации кадров.")
+        else:
+            gaps.append("Рассчитана нагрузка базового рендера; стоимость генератора и достижение отображаемого FPS не подтверждены.")
+        gaps.append("Не указаны технология и версия генерации кадров: совместимость оборудования требует отдельной проверки.")
     return gaps
 
 
@@ -237,8 +256,9 @@ def _load_indices(profile: ProjectProfile, methods: list) -> dict:
         feature_cpu += _AUDIO_CPU_LOAD[profile.audio_complexity]
     if profile.simulation_radius_m is not None and {"ai_pathfinding", "crowd_simulation"} & set(profile.functions):
         feature_cpu *= 1.0 + min(0.25, profile.simulation_radius_m / 40_000)
-    if profile.physics_tick_hz is not None:
-        feature_cpu *= max(0.7, min(2.0, profile.physics_tick_hz / 60))
+    if profile.physics_tick_hz is not None and "physics_simulation" in profile.functions:
+        # Частота физики меняет только вклад физической симуляции.
+        feature_cpu += FEATURE_CPU_LOAD["physics_simulation"] * (profile.physics_tick_hz / 60 - 1.0)
 
     gpu_method = 1.0 + 0.06 * sum(m.impact_gpu for m in methods)
     cpu_method = 1.0 + 0.07 * sum(m.impact_cpu for m in methods)
@@ -255,15 +275,12 @@ def _load_indices(profile: ProjectProfile, methods: list) -> dict:
     gpu_index = (
         GPU_CALIBRATION * res * render_fps * quality * content * feature_gpu * gpu_method
         * api_gpu * _UPSCALER_GPU_FACTOR.get(upscaler, 1.0)
-        * (0.82 if profile.frame_generation else 1.0)
     )
     cpu_index = (
         CPU_CALIBRATION * content * feature_cpu * cpu_method * (0.6 + 0.4 * fps)
         * api_cpu * storage_cpu
     )
-    if profile.draw_call_budget:
-        draw_pressure = max(0.0, estimated_draw_calls / profile.draw_call_budget - 1.0)
-        cpu_index *= 1.0 + min(0.3, draw_pressure * 0.12)
+    # Бюджет служит для сравнения с оценкой, а не изменяет объём работы.
 
     vram_gb = 1.4 + 2.0 * res + 2.4 * (quality - 0.7) + 1.2 * (content - 1.0) + vram_method
     if profile.memory_model == "unified":
@@ -279,6 +296,8 @@ def _load_indices(profile: ProjectProfile, methods: list) -> dict:
     required_hw = sorted({
         feature for m in methods for feature in (m.requires_hw_features or [])
     })
+    if profile.upscaling_method == "dlss":
+        required_hw = sorted(set(required_hw) | {"DLSS"})
     return {
         "gpu_index": gpu_index, "cpu_index": cpu_index,
         "vram_gb": vram_gb, "ram_gb": ram_gb,
@@ -325,11 +344,9 @@ def _pick_gpu(
         pool = [g for g in pool if _supports_ray_tracing(g)]
         if not pool:
             return None, True
-    # Предел видеопамяти отсекает карты, в которые проект не помещается.
-    if vram_limit_gb is not None:
-        fitted = [g for g in pool if g.vram_gb >= vram_gb]
-        if fitted:
-            pool = fitted
+    # Потребность проекта обязательна даже без пользовательского бюджета.
+    # Сам бюджет сравнивается с потребностью отдельно в _pick_references.
+    pool = [g for g in pool if g.vram_gb >= vram_gb]
     candidates = [g for g in pool if g.raster_score >= index]
     if not candidates:
         return None, False
@@ -371,6 +388,7 @@ def _pick_references(db: Session, indices: dict, profile: ProjectProfile) -> dic
     # справочные числа. Нарушение фиксируется отдельно: молча вернуть
     # конфигурацию, не входящую в бюджет, значит ввести пользователя в заблуждение.
     unmet: list[str] = []
+    caveats: list[str] = []
     if profile.vram_limit_gb is not None and vram_gb > profile.vram_limit_gb:
         unmet.append(
             f"Требуется {vram_gb:.1f} ГБ видеопамяти при заданном пределе "
@@ -387,19 +405,22 @@ def _pick_references(db: Session, indices: dict, profile: ProjectProfile) -> dic
         profile.storage_type != "auto"
         and _STORAGE_RANK.get(profile.storage_type, 0) < _STORAGE_RANK[recommended_storage]
     ):
-        unmet.append(
+        caveats.append(
             f"Накопитель {profile.storage_type} ниже рекомендуемого класса "
-            f"{recommended_storage} для потоковой загрузки этого профиля."
+            f"{recommended_storage}: возможны задержки подкачки. Без бюджета потоковых данных "
+            "недостаточность накопителя не установлена."
         )
     if profile.draw_call_budget is not None and indices["estimated_draw_calls"] > profile.draw_call_budget:
-        unmet.append(
+        caveats.append(
             f"Оценочно требуется около {indices['estimated_draw_calls']:,} draw calls при бюджете "
-            f"{profile.draw_call_budget:,}.".replace(",", " ")
+            f"{profile.draw_call_budget:,}. Это риск превышения бюджета, а не измеренное число вызовов.".replace(",", " ")
         )
 
-    caveats: list[str] = []
+    compatible_gpus = [g for g in gpus if _supports_profile_gpu(g, profile)]
+    if not compatible_gpus and gpus:
+        unmet.append("В каталоге нет GPU с подтверждённой поддержкой выбранного API и апскейлера.")
     reference_gpu, rt_missing = _pick_gpu(
-        gpus, indices["gpu_index"], required_rt=indices["required_rt"],
+        compatible_gpus, indices["gpu_index"], required_rt=indices["required_rt"],
         vram_limit_gb=profile.vram_limit_gb, vram_gb=vram_gb,
     )
     exceeds = False
@@ -415,17 +436,17 @@ def _pick_references(db: Session, indices: dict, profile: ProjectProfile) -> dic
             caveats.append("В базе нет опубликованных записей о видеокартах: оценка не выполнена.")
         else:
             caveats.append(
-                "Требуемая производительность GPU превышает возможности самого быстрого "
-                "оборудования в базе: необходимо снизить целевые показатели или изменить набор решений."
+                "В каталоге нет GPU, одновременно покрывающего расчётную производительность, "
+                "видеопамять и обязательные возможности. Показанная карта — только ориентир."
             )
         # Показываем максимально близкую запись как ориентир, но помечаем,
         # что конфигурация не покрывает требования.
-        reference_gpu = max(gpus, key=lambda g: g.raster_score) if gpus else None
-    elif profile.vram_limit_gb is not None and reference_gpu.vram_gb < vram_gb:
+        reference_gpu = max(compatible_gpus, key=lambda g: g.raster_score) if compatible_gpus else None
+    if reference_gpu is not None and reference_gpu.vram_gb < vram_gb:
         unmet.append(
             f"Видеокарта {reference_gpu.model} имеет {reference_gpu.vram_gb:g} ГБ видеопамяти "
             f"при требуемых {vram_gb:.1f} ГБ: в базе нет карты, одновременно достаточно "
-            "производительной и укладывающейся в предел."
+            "производительной и вместительной."
         )
 
     reference_cpu = _pick_cpu(cpus, indices["cpu_index"])
@@ -441,8 +462,15 @@ def _pick_references(db: Session, indices: dict, profile: ProjectProfile) -> dic
 
     return {
         "gpus": gpus, "cpus": cpus, "reference_gpu": reference_gpu,
-        "reference_cpu": reference_cpu, "alt_gpus": _alternatives(gpus, reference_gpu),
-        "alt_cpus": _alternatives(cpus, reference_cpu),
+        "reference_cpu": reference_cpu,
+        "alt_gpus": _alternatives([
+            g for g in compatible_gpus
+            if g.raster_score >= indices["gpu_index"] and g.vram_gb >= vram_gb
+            and (not indices["required_rt"] or _supports_ray_tracing(g))
+        ], reference_gpu),
+        "alt_cpus": _alternatives([
+            c for c in cpus if c.multi_thread_score >= indices["cpu_index"]
+        ], reference_cpu),
         "exceeds": exceeds, "unmet": unmet, "caveats": caveats,
     }
 
@@ -516,14 +544,15 @@ def estimate_hardware(
     similar_examples: int = 0,
 ) -> HardwareEstimateOut:
     """Рассчитать ориентировочную минимальную конфигурацию."""
+    methods, basket_notes = rules.assess_selected_methods(methods, profile, repositories.conflicts(db))
     indices = _load_indices(profile, methods)
     picked = _pick_references(db, indices, profile)
     confidence, label, confidence_caveats = _confidence(
         profile, methods, similar_examples=similar_examples,
         exceeds=picked["exceeds"], unmet=picked["unmet"],
-        modeling_gaps=indices["modeling_gaps"],
+        modeling_gaps=indices["modeling_gaps"] + basket_notes,
     )
-    caveats = picked["caveats"] + confidence_caveats
+    caveats = picked["caveats"] + basket_notes + confidence_caveats
     reference_gpu = picked["reference_gpu"]
     reference_cpu = picked["reference_cpu"]
 

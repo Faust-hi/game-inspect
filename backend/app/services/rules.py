@@ -7,8 +7,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from collections.abc import Sequence
 
-from ..models.entities import Method
+from ..models.entities import Conflict, Method
 from ..models.enums import DevStage, LateCost, Level3, Scale
 from ..schemas.catalog import ProjectProfile
 
@@ -150,6 +151,45 @@ def evaluate(method: Method, profile: ProjectProfile) -> Applicability:
         result.conditions.append("Оценка эффекта требует прототипирования до принятия решения.")
 
     return result
+
+
+def assess_selected_methods(
+    methods: list[Method], profile: ProjectProfile, relations: Sequence[Conflict] = (),
+) -> tuple[list[Method], list[str]]:
+    """Одинаковая проверка корзины для сводной нагрузки и аппаратной оценки."""
+    applicable: list[Method] = []
+    notes: list[str] = []
+    for method in methods:
+        result = evaluate(method, profile)
+        if not result.applicable:
+            notes.append(f"{method.name}: эффект не учтён. " + " ".join(result.excluded_reasons))
+            continue
+        applicable.append(method)
+        for condition in result.conditions:
+            notes.append(f"{method.name}: {condition}")
+    available = {method.code for method in applicable}
+    rejected: set[str] = set()
+    for relation in relations:
+        if relation.conflict_type == "conflict" and {relation.a_code, relation.b_code} <= available:
+            rejected.update((relation.a_code, relation.b_code))
+            notes.append(
+                f"{relation.a_code} / {relation.b_code}: конфликт. Эффекты обоих решений "
+                "не учтены до выбора согласованного набора. " + (relation.description or "")
+            )
+    available -= rejected
+    # Удаление обязательной зависимости может сделать неприменимой всю цепочку.
+    changed = True
+    while changed:
+        changed = False
+        for relation in relations:
+            if relation.conflict_type == "dependency" and relation.a_code in available and relation.b_code not in available:
+                available.remove(relation.a_code)
+                notes.append(
+                    f"{relation.a_code}: эффект не учтён — обязательная зависимость "
+                    f"{relation.b_code} отсутствует или неприменима."
+                )
+                changed = True
+    return [method for method in applicable if method.code in available], notes
 
 
 def resource_fit(method: Method, profile: ProjectProfile) -> float:

@@ -6,6 +6,11 @@
 """
 
 SOURCES: dict[str, dict[str, str]] = {
+    "UE_DISTANCE_SHADOWS": {
+        "title": "Unreal Engine: Using Distance Field Shadows",
+        "url": "https://dev.epicgames.com/documentation/unreal-engine/using-distance-field-shadows-in-unreal-engine?lang=en-US",
+        "date": "2026-09-07",
+    },
     # --- Unreal Engine -------------------------------------------------
     "UE_NANITE": {
         "title": "Unreal Engine: Nanite Virtualized Geometry",
