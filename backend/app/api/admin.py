@@ -334,12 +334,24 @@ def _coerce(model, row: dict[str, Any]) -> dict[str, Any]:
             if isinstance(value, str):
                 value = [p.strip() for p in value.split(";") if p.strip()] if value else []
         if column.type.python_type is int and isinstance(value, str):
-            value = int(value) if value.strip().lstrip("-").isdigit() else 0
+            text = value.strip()
+            if text == "":
+                # Пустая ячейка CSV — поле не задано: пусть действует default
+                # модели, а не изобретённый 0 (для cost/gain 0 вне диапазона
+                # и ранее отклонялся бы, а для impact маскировался бы под "без
+                # влияния"). Пропуск честнее выдумки.
+                continue
+            if not text.lstrip("-").isdigit():
+                raise ValueError(f"поле «{column.name}» должно быть целым числом, получено {value!r}")
+            value = int(text)
         if column.type.python_type is float and isinstance(value, str):
+            text = value.strip()
+            if text == "":
+                continue
             try:
-                value = float(value)
+                value = float(text)
             except ValueError:
-                value = 0.0
+                raise ValueError(f"поле «{column.name}» должно быть числом, получено {value!r}")
         if column.type.python_type is bool and isinstance(value, str):
             value = value.strip().lower() in ("1", "true", "yes", "да")
         result[column.name] = value

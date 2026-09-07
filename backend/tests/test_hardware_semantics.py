@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from app.models.entities import Conflict, GameFunction, HardwareGPU, Method
 from app.schemas.catalog import ProjectProfile
+from app.seed import seeder
 from app.seed.seeder import sync_function_taxonomy
 from app.seed.corrections import correct_shadow_relation
 from app.services.recommender import aggregate_load
@@ -28,6 +29,56 @@ def test_physics_tick_does_not_scale_unrelated_work():
     base = _load_indices(profile, [])
     changed = _load_indices(profile.model_copy(update={"physics_tick_hz": 120}), [])
     assert changed["cpu_index"] == base["cpu_index"]
+
+
+def test_fractional_physics_tick_is_accepted_by_public_calculation(client):
+    response = client.post("/api/recommend", json={
+        "profile": {"physics_tick_hz": 66.6, "functions": ["physics_simulation"]},
+        "basket": ["fixed_timestep_physics"],
+    })
+    assert response.status_code == 200
+    assert response.json()["profile"]["physics_tick_hz"] == 66.6
+
+
+def test_unknown_scene_dimensions_are_explicitly_reported(client):
+    response = client.post("/api/hardware-estimate", json={
+        "profile": {
+            "scale": "unknown",
+            "object_count_level": "unknown",
+            "npc_count_level": "unknown",
+        },
+        "basket": [],
+    })
+
+    assert response.status_code == 200
+    gaps = " ".join(response.json()["modeling_gaps"])
+    assert "масштаб мира" in gaps
+    assert "количество объектов" in gaps
+    assert "количество NPC" in gaps
+
+
+def test_seed_hardware_tolerates_unknown_optional_values(db, monkeypatch):
+    """NULL из внешнего hardware-источника не ломает повторный seed."""
+    monkeypatch.setattr(
+        seeder,
+        "_load_json",
+        lambda _name: {
+            "cpu": [],
+            "gpu": [{
+                "model": "Calibration GPU with unknown bandwidth",
+                "memory_bandwidth_gbs": None,
+                "vram_gb": None,
+            }],
+        },
+    )
+
+    assert seeder.seed_hardware(db) == 1
+    row = db.scalar(select(HardwareGPU).where(
+        HardwareGPU.model == "Calibration GPU with unknown bandwidth"
+    ))
+    assert row is not None
+    assert row.memory_bandwidth_gbs == 0.0
+    assert row.vram_gb == 0.0
 
 
 def test_physics_tick_scales_only_physics_contribution():
@@ -144,6 +195,18 @@ def test_inapplicable_basket_does_not_reduce_hardware_or_load(db):
     load = aggregate_load([method], profile)
     assert load.cpu == 50
     assert any("эффект не учтён" in note for note in load.notes)
+
+
+def test_selected_method_respects_min_scale_in_hardware_estimate(db):
+    """Аппаратная оценка не должна учитывать метод, исключённый масштабом."""
+    method = db.scalar(select(Method).where(Method.code == "world_partition_streaming"))
+    profile = ProjectProfile(world_type="open_world", scale="small")
+    baseline = estimate_hardware(db, profile, [])
+    selected = estimate_hardware(db, profile, [method])
+
+    assert selected.required_cpu_index == baseline.required_cpu_index
+    assert selected.required_gpu_index == baseline.required_gpu_index
+    assert any("масштабе мира" in note for note in selected.caveats)
 
 
 def test_selected_method_conditions_are_visible_in_both_estimates(db):

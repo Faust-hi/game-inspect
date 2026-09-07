@@ -231,7 +231,7 @@ export function ProfileScreen() {
               value={profile.physics_tick_hz ?? null}
               min={15}
               max={480}
-              step={1}
+              step={0.1}
               placeholder="не задан"
               onChange={(value) => updateProfile({ physics_tick_hz: value })}
             />

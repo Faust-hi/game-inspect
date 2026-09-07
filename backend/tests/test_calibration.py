@@ -42,6 +42,55 @@ def test_virtual_shadow_maps_is_published_and_has_engine_mapping(client):
     assert unreal["relation_type"] == "direct"
 
 
+def test_baked_occlusion_is_visible_for_linear_levels(client):
+    """Метод из карточки HL2 не должен теряться без функции open_world_streaming."""
+    profile = {
+        "name": "Линейная игра",
+        "format": "3D",
+        "world_type": "linear",
+        "scale": "medium",
+        "stage": "production",
+        "engine": "source",
+        "platforms": ["pc_windows"],
+        "functions": ["baked_lighting", "physics_simulation"],
+        "target_resolution": "1080p",
+        "target_quality": "high",
+        "target_fps": 60,
+    }
+    response = client.post("/api/recommend", json={"profile": profile, "basket": []})
+
+    assert response.status_code == 200
+    assert "baked_occlusion_culling" in {
+        item["method_code"] for item in response.json()["recommendations"]
+    }
+
+
+def test_medium_open_world_streaming_is_visible(client):
+    """Секторный стриминг среднего города не должен отсеиваться порогом large."""
+    profile = {
+        "name": "Средний открытый город",
+        "format": "3D",
+        "world_type": "open_world",
+        "scale": "medium",
+        "stage": "production",
+        "engine": "custom",
+        "platforms": ["pc_windows"],
+        "functions": ["open_world_streaming"],
+        "target_resolution": "1080p",
+        "target_quality": "high",
+        "target_fps": 60,
+    }
+    response = client.post(
+        "/api/recommend",
+        json={"profile": profile, "basket": ["world_partition_streaming"]},
+    )
+
+    assert response.status_code == 200
+    assert "world_partition_streaming" in {
+        item["method_code"] for item in response.json()["recommendations"]
+    }
+
+
 def test_reference_is_desktop_for_desktop_profile(client):
     """Референс десктопного профиля — десктопное железо, а не мобильное.
 

@@ -260,7 +260,15 @@ def seed_hardware(db: Session) -> int:
         for row in data.get(section, []):
             if not row.get("model"):
                 continue
-            fields = {k: v for k, v in row.items() if hasattr(model_cls, k)}
+            # Внешний источник может честно оставить характеристику неизвестной
+            # (например, bandwidth у мобильной или встроенной графики). Не
+            # записываем NULL в существующую NOT NULL-колонку: для новой записи
+            # сработает нейтральный default модели, для существующей сохраняется
+            # последнее валидное значение.
+            fields = {
+                k: v for k, v in row.items()
+                if hasattr(model_cls, k) and v is not None
+            }
             fields.setdefault("status", PUBLISHED)
             _, created = _upsert(db, model_cls, "model", fields)
             count += int(created)

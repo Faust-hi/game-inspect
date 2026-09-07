@@ -259,3 +259,30 @@ def test_import_rejects_oversized_payload(client):
 def test_status_values():
     """Значения статусов соответствуют ожидаемому жизненному циклу."""
     assert {s.value for s in Status} == {"draft", "reviewed", "published"}
+
+
+def test_import_rejects_unparseable_numbers(client):
+    """Мусор в числовом поле отклоняет импорт, а не превращается в 0.
+
+    Раньше "abc" в impact_cpu молча становился 0 ("без влияния") и проходил
+    проверку диапазонов. Это выдумка данных, а не импорт.
+    """
+    rows = [{
+        "code": "imp_garbage", "name": "Мусор в числах",
+        "source_url": "https://example.org/g", "source_title": "Источник",
+        "impact_cpu": "abc",
+    }]
+    response = client.post("/api/admin/import/methods",
+                           files={"file": ("m.json", json.dumps(rows), "application/json")},
+                           headers=ADMIN)
+    assert response.status_code == 422, response.text
+    codes = {m["code"] for m in client.get("/api/admin/methods", headers=ADMIN).json()}
+    assert "imp_garbage" not in codes
+
+
+def test_coerce_skips_empty_numbers():
+    """Пустая ячейка — отсутствие значения, а не 0."""
+    from app.api.admin import _coerce
+
+    assert _coerce(Method, {"code": "x", "impact_cpu": ""}) == {"code": "x"}
+    assert _coerce(Method, {"code": "x", "performance_gain": ""}) == {"code": "x"}

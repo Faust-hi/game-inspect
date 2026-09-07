@@ -164,6 +164,12 @@ def assess_selected_methods(
         if not result.applicable:
             notes.append(f"{method.name}: эффект не учтён. " + " ".join(result.excluded_reasons))
             continue
+        if not min_scale_satisfied(method, profile):
+            notes.append(
+                f"{method.name}: эффект не учтён. Метод оправдан при масштабе мира "
+                f"не ниже «{method.min_scale}»."
+            )
+            continue
         applicable.append(method)
         for condition in result.conditions:
             notes.append(f"{method.name}: {condition}")
@@ -209,6 +215,11 @@ def resource_fit(method: Method, profile: ProjectProfile) -> float:
 def min_scale_satisfied(method: Method, profile: ProjectProfile) -> bool:
     """Проверка минимального масштаба мира, при котором метод оправдан."""
     if not method.min_scale:
+        return True
+    # Неизвестный масштаб не доказывает ни применимость, ни неприменимость.
+    # Не исключаем метод молча: неопределённость должна остаться видимой в
+    # аппаратной оценке и быть уточнена пользователем.
+    if profile.scale == "unknown":
         return True
     order = {"small": 0, "medium": 1, "large": 2, "very_large": 3}
     try:

@@ -72,6 +72,31 @@ def test_method_card_contains_application_steps_and_projects(client):
     assert "Fortnite Chapter 4 (UE5)" in card["used_in_projects"]
 
 
+def test_unknown_functions_and_methods_are_reported(client):
+    """Входные коды вне публичного каталога нельзя молча терять."""
+    profile = {
+        "name": "Проверка пробела каталога",
+        "format": "3D",
+        "world_type": "linear",
+        "scale": "medium",
+        "stage": "prototype",
+        "engine": "custom",
+        "platforms": ["pc_windows"],
+        "functions": ["function_missing_from_catalog"],
+        "target_resolution": "1080p",
+        "target_quality": "high",
+        "target_fps": 60,
+    }
+    response = client.post(
+        "/api/recommend",
+        json={"profile": profile, "basket": ["method_missing_from_catalog"]},
+    )
+
+    assert response.status_code == 200
+    risk_codes = {item["code"] for item in response.json()["risks"]}
+    assert {"unknown_function", "unknown_method"} <= risk_codes
+
+
 def test_track2_drafts_stay_out_of_public_catalog(client):
     """Трек 2 (фуроры для отчёта) — черновики: не влияют на рекомендации."""
     public_titles = {item["title"] for item in client.get("/api/catalog/examples").json()}

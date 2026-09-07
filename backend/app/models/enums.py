@@ -190,6 +190,7 @@ class Scale(str, Enum):
     MEDIUM = "medium"
     LARGE = "large"
     VERY_LARGE = "very_large"
+    UNKNOWN = "unknown"
 
     @property
     def label(self) -> str:
@@ -198,6 +199,7 @@ class Scale(str, Enum):
             "medium": "средний",
             "large": "большой",
             "very_large": "очень большой",
+            "unknown": "не указан",
         }[self.value]
 
 
@@ -369,14 +371,15 @@ class Level3(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
+    UNKNOWN = "unknown"
 
     @property
     def label(self) -> str:
-        return {"low": "низкий", "medium": "средний", "high": "высокий"}[self.value]
+        return {"low": "низкий", "medium": "средний", "high": "высокий", "unknown": "не указан"}[self.value]
 
     @property
     def numeric(self) -> float:
-        return {"low": 0.25, "medium": 0.55, "high": 0.9}[self.value]
+        return {"low": 0.25, "medium": 0.55, "high": 0.9, "unknown": 0.55}[self.value]
 
 
 class Platform(str, Enum):

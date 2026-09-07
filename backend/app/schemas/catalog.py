@@ -26,8 +26,9 @@ def _values(enum_cls) -> list[str]:
     return [item.value for item in enum_cls]
 
 
-#: Псевдоним для качественного уровня: везде low | medium | high.
-LevelValue = Literal["low", "medium", "high"]
+#: Псевдоним для качественного уровня. `unknown` означает, что источник
+#: характеристики не сообщает; это не отдельный уровень нагрузки.
+LevelValue = Literal["unknown", "low", "medium", "high"]
 
 
 # ---------------------------------------------------------------------------
@@ -80,7 +81,7 @@ class ProjectProfile(BaseModel):
     streaming_pool_gb: Annotated[float | None, Field(gt=0, le=512)] = None
     draw_call_budget: Annotated[int | None, Field(ge=100, le=1_000_000)] = None
     simulation_radius_m: Annotated[int | None, Field(ge=0, le=100_000)] = None
-    physics_tick_hz: Annotated[int | None, Field(ge=15, le=480)] = None
+    physics_tick_hz: Annotated[float | None, Field(ge=15, le=480, allow_inf_nan=False)] = None
     audio_complexity: LevelValue | None = None
 
     # Обязательные ограничения
@@ -160,7 +161,7 @@ _COUNT_BOUNDS: dict[str, tuple[int, int]] = {
 }
 
 #: Численная оценка уровня, когда точное значение не указано.
-_LEVEL_FALLBACK: dict[str, float] = {"low": 0.25, "medium": 0.55, "high": 0.9}
+_LEVEL_FALLBACK: dict[str, float] = {"unknown": 0.55, "low": 0.25, "medium": 0.55, "high": 0.9}
 
 
 def _level_from_count(value: int | None, field: str) -> str | None:
@@ -502,12 +503,15 @@ class SimilarGameOut(BaseModel):
 class RecommendationResult(BaseModel):
     """Результат расчёта.
 
-    Поле `input_key` — отпечаток профиля и корзины. Клиент сравнивает его со
-    своим текущим состоянием и понимает, что результат получен именно для тех
-    данных, которые сейчас на экране, а не для предыдущих.
+    Поле `input_key` — отпечаток профиля, корзины и версий расчёта
+    (см. `input_fingerprint`). Клиент сравнивает его со своим текущим
+    состоянием и понимает, что результат получен именно для тех данных,
+    которые сейчас на экране, а не для предыдущих.
 
     Корзина включена в ответ, чтобы отпечаток был проверяемым: без неё клиент
     не может убедиться, что результат посчитан для того же набора решений.
+    Версии в ключе нужны, чтобы одинаковый профиль на разных версиях алгоритма
+    не выглядел актуальным.
     """
 
     profile: ProjectProfile
@@ -596,10 +600,29 @@ class FeedbackSummaryOut(BaseModel):
     suggestions: list[ConfidenceSuggestionOut] = Field(default_factory=list)
 
 
-def input_fingerprint(profile: ProjectProfile, basket: list[str]) -> str:
-    """Устойчивый отпечаток входа: одинаковым данным — одинаковый ключ."""
+def input_fingerprint(
+    profile: ProjectProfile,
+    basket: list[str],
+    algorithm_version: str = "",
+    dataset_version: str = "",
+) -> str:
+    """Устойчивый отпечаток входа: одинаковым данным — одинаковый ключ.
+
+    Версии алгоритма и набора данных входят в ключ только когда заданы явно:
+    без них сохраняется прежний формат (для результатов, собранных вручную),
+    с ними — ключ различает расчёты разных версий для одного профиля и корзины.
+    Пустые строки не добавляются, чтобы старые вызовы давали прежний хеш.
+    """
+    payload_dict: dict[str, object] = {
+        "profile": profile.model_dump(mode="json"),
+        "basket": sorted(basket or []),
+    }
+    if algorithm_version:
+        payload_dict["algorithm_version"] = algorithm_version
+    if dataset_version:
+        payload_dict["dataset_version"] = dataset_version
     payload = json.dumps(
-        {"profile": profile.model_dump(mode="json"), "basket": sorted(basket or [])},
+        payload_dict,
         sort_keys=True,
         ensure_ascii=False,
         separators=(",", ":"),

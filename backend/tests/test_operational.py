@@ -61,3 +61,43 @@ def test_request_id_is_returned(client):
     # Значение заголовка должно быть ASCII — иначе httpx не сможет его передать.
     response = client.get("/api/health", headers={"x-request-id": "check-123"})
     assert response.headers["X-Request-ID"] == "check-123"
+
+
+def test_input_fingerprint_includes_versions():
+    """Одинаковый профиль на разных версиях алгоритма — разные ключи.
+
+    Без версий сохраняется прежний хеш (обратная совместимость для результатов,
+    собранных вручную). Это проверка воспроизводимости, а не точности железа:
+    формул она не касается.
+    """
+    from app.schemas.catalog import ProjectProfile, input_fingerprint
+
+    profile = ProjectProfile()
+    without_versions = input_fingerprint(profile, ["a", "b"])
+    assert without_versions == input_fingerprint(profile, ["b", "a"])
+    assert without_versions == input_fingerprint(profile, ["a", "b"])
+
+    with_versions = input_fingerprint(
+        profile, ["a", "b"], algorithm_version="2.2.0", dataset_version="mvp-1.8"
+    )
+    assert with_versions == input_fingerprint(
+        profile, ["b", "a"], algorithm_version="2.2.0", dataset_version="mvp-1.8"
+    )
+    assert with_versions != without_versions
+    assert with_versions != input_fingerprint(
+        profile, ["a", "b"], algorithm_version="9.9.9", dataset_version="mvp-1.8"
+    )
+
+
+def test_recommend_input_key_matches_versioned_fingerprint(client):
+    """Ключ ответа /api/recommend собирается с версиями из meta."""
+    from app.schemas.catalog import ProjectProfile, input_fingerprint
+
+    body = client.post("/api/recommend", json={"profile": {}, "basket": []}).json()
+    profile = ProjectProfile(**body["profile"])
+    expected = input_fingerprint(
+        profile, body["basket_codes"],
+        algorithm_version=body["meta"]["algorithm_version"],
+        dataset_version=body["meta"]["dataset_version"],
+    )
+    assert body["input_key"] == expected

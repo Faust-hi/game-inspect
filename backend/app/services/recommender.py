@@ -42,7 +42,7 @@ ALGORITHM_VERSION = "2.2.0"
 
 #: Версия набора данных. Меняется при обновлении базы знаний, влияющем на
 #: ранжирование (пересчёт индексов оборудования, пересмотр оценок эффекта).
-DATASET_VERSION = "mvp-1.7"
+DATASET_VERSION = "mvp-1.8"
 
 # Веса критериев в зависимости от приоритета пользователя.
 WEIGHT_PROFILES: dict[str, dict[str, float]] = {
@@ -132,6 +132,7 @@ def detect_risks(
     methods_by_code: dict[str, Method],
     conflicts: dict[str, list[str]] | None = None,
     engines: list | None = None,
+    known_function_codes: set[str] | None = None,
 ) -> list[RiskOut]:
     risks: list[RiskOut] = []
     conflicts = conflicts or {}
@@ -140,6 +141,25 @@ def detect_risks(
 
     def add(code: str, title: str, severity: str, description: str, advice: str) -> None:
         risks.append(RiskOut(code=code, title=title, severity=severity, description=description, advice=advice))
+
+    unknown_methods = sorted(set(basket_codes) - set(methods_by_code))
+    if unknown_methods:
+        add(
+            "unknown_method", "Метод отсутствует в опубликованном каталоге", "high",
+            "Следующие коды из корзины не сопоставлены с опубликованными методами и не "
+            "учтены в рекомендациях и аппаратной оценке: " + ", ".join(unknown_methods) + ".",
+            "Зафиксировать метод в каталоге знаний или удалить его из входных данных до повторного расчёта.",
+        )
+
+    if known_function_codes is not None:
+        unknown_functions = sorted(set(profile.functions) - known_function_codes)
+        if unknown_functions:
+            add(
+                "unknown_function", "Функция отсутствует в опубликованном каталоге", "high",
+                "Следующие функции профиля не сопоставлены с каталогом и получили только общий "
+                "нейтральный вклад в аппаратной оценке: " + ", ".join(unknown_functions) + ".",
+                "Добавить функцию и её методы реализации в каталог либо выбрать существующую функцию.",
+            )
 
     # Поздняя стадия без архитектурных решений.
     if stage_order >= DevStage.ALPHA.order and profile.world_type in ("open_world", "procedural"):
@@ -351,7 +371,10 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
         # Ни одно решение не прошло фильтр обязательных ограничений. Профиль
         # нагрузки, похожие игры и аппаратная оценка всё равно возвращаются:
         # пользователю важно видеть причины исключения и ориентир по железу.
-        tail = _tail(db, profile, basket_methods, basket_codes, methods_by_code, conflicts, engines, examples)
+        tail = _tail(
+            db, profile, basket_methods, basket_codes, methods_by_code,
+            conflicts, engines, examples, set(functions),
+        )
         return RecommendationResult(
             profile=profile,
             risks=tail["risks"],
@@ -420,7 +443,10 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
             stability=stability.get(method.code) if stability else None,
         ))
 
-    tail = _tail(db, profile, basket_methods, basket_codes, methods_by_code, conflicts, engines, examples)
+    tail = _tail(
+        db, profile, basket_methods, basket_codes, methods_by_code,
+        conflicts, engines, examples, set(functions),
+    )
 
     return RecommendationResult(
         profile=profile,
@@ -448,7 +474,10 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
     )
 
 
-def _tail(db: Session, profile, basket_methods, basket_codes, methods_by_code, conflicts, engines, examples) -> dict:
+def _tail(
+    db: Session, profile, basket_methods, basket_codes, methods_by_code, conflicts,
+    engines, examples, known_function_codes: set[str],
+) -> dict:
     """Общая хвостовая часть результата: одинакова для пустого и полного расчёта.
 
     Раньше обе ветки `build_recommendations` собирали похожие игры,
@@ -475,8 +504,13 @@ def _tail(db: Session, profile, basket_methods, basket_codes, methods_by_code, c
         "basket_synergies": basket_synergies,
         "load_profile": aggregate_load(basket_methods, profile, relations=repositories.conflicts(db)),
         "hardware": hardware.estimate_hardware(db, profile, basket_methods, similar_examples=len(similar)),
-        "risks": detect_risks(profile, basket_codes, methods_by_code, conflicts, engines),
-        "input_key": input_fingerprint(profile, [m.code for m in basket_methods]),
+        "risks": detect_risks(
+            profile, basket_codes, methods_by_code, conflicts, engines, known_function_codes,
+        ),
+        "input_key": input_fingerprint(
+            profile, [m.code for m in basket_methods],
+            algorithm_version=ALGORITHM_VERSION, dataset_version=DATASET_VERSION,
+        ),
     }
 
 

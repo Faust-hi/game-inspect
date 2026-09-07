@@ -12,11 +12,10 @@ from sqlalchemy.orm import Session
 
 from .. import repositories
 from ..models.entities import HardwareCPU, HardwareGPU
-from ..models.enums import Scale
 from ..schemas.catalog import HardwareEstimateOut, ProjectProfile
 from . import rules, serializers
 
-SCALE_FACTOR = {"small": 0.8, "medium": 1.0, "large": 1.25, "very_large": 1.5}
+SCALE_FACTOR = {"small": 0.8, "medium": 1.0, "large": 1.25, "very_large": 1.5, "unknown": 1.0}
 RESOLUTION_FACTOR = {
     "720p": 0.62, "768p": 0.68, "900p": 0.78, "1080p": 1.0,
     "1200p": 1.12, "1440p": 1.6, "1600p": 1.85, "2160p": 3.0, "4k": 3.0,
@@ -145,9 +144,7 @@ def _render_fps_factor(profile: ProjectProfile) -> float:
 
 
 def _largest_impact(profile: ProjectProfile) -> float:
-    return SCALE_FACTOR.get(
-        Scale(profile.scale).value if profile.scale in {s.value for s in Scale} else "medium", 1.0
-    )
+    return SCALE_FACTOR.get(profile.scale, SCALE_FACTOR["unknown"])
 
 
 def _recommended_storage(profile: ProjectProfile, method_codes: set[str]) -> str:
@@ -192,6 +189,12 @@ def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_
         gaps.append("Не указан графический API/RHI: стоимость render thread и совместимость не определены.")
     if profile.memory_model == "auto":
         gaps.append("Не указана модель памяти RAM/VRAM: unified memory и GC не учтены явно.")
+    if profile.scale == "unknown":
+        gaps.append("Не указан масштаб мира: нагрузка контента взята по нейтральному уровню.")
+    if profile.object_count is None and profile.object_count_level == "unknown":
+        gaps.append("Не указано количество объектов: вклад сцены взят по нейтральному уровню.")
+    if profile.npc_count is None and profile.npc_count_level == "unknown":
+        gaps.append("Не указано количество NPC: вклад симуляции взят по нейтральному уровню.")
     if streaming and profile.storage_type == "auto":
         gaps.append(f"Не указан накопитель: для этого профиля минимальный ориентир — {recommended_storage}.")
     if streaming and profile.streaming_pool_gb is None:
@@ -314,9 +317,15 @@ def _load_indices(profile: ProjectProfile, methods: list) -> dict:
 # в ответе вводит в заблуждение (её нельзя купить в десктоп). Анкета целевой
 # форм-фактор не спрашивает, поэтому правило одно: сначала десктопный пул,
 # при отсутствии подходящего — весь пул (лучше мобильный ориентир, чем никакого).
+#
+# Намеренно узкие токены для Vega: в каталоге только встройки Vega 3/8,
+# а широкое "vega" метило бы и дискретные RX Vega 56/64 как мобильные.
+# Маркер "(tm)" удалён: в каталоге он ничего не находит, а любое упоминание
+# товарного знака метило бы карту мобильной по ошибке.
 _MOBILE_GPU_MARKERS = (
-    "laptop", "mobile", "uhd", "hd graphics", "iris", "vega",
-    "radeon 780m", "radeon graphics", "(tm)",
+    "laptop", "mobile", "uhd", "hd graphics", "iris",
+    "vega 3", "vega 8", "vega 11", "vega graphics",
+    "radeon 780m", "radeon graphics",
 )
 _MOBILE_CPU_RE = r"h$|van gogh"
 
@@ -489,9 +498,16 @@ def _confidence(
     confidence = 0.85
     if profile.object_count is None:
         confidence -= 0.06
-        caveats.append("Количество объектов задано качественным уровнем, а не числом: оценка приблизительная.")
+        if profile.object_count_level == "unknown":
+            caveats.append("Количество объектов не указано: вклад сцены взят по нейтральному уровню.")
+        else:
+            caveats.append("Количество объектов задано качественным уровнем, а не числом: оценка приблизительная.")
     if profile.npc_count is None:
         confidence -= 0.06
+        if profile.npc_count_level == "unknown":
+            caveats.append("Количество NPC не указано: вклад симуляции взят по нейтральному уровню.")
+        else:
+            caveats.append("Количество NPC задано качественным уровнем, а не числом: оценка приблизительная.")
     if similar_examples == 0:
         confidence -= 0.12
         caveats.append("Не найдено похожих игр в базе: сверка с практикой невозможна.")

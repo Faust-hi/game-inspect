@@ -71,7 +71,9 @@ METHODS: list[dict] = [
       impact_cpu=1, impact_ram=1, impact_disk=1,
       performance_gain=0.75, implementation_cost=4, complexity=4, confidence=0.85,
       applicable_world_types=["open_world", "procedural", "sandbox"],
-      min_scale="large",
+      # Секторный стриминг нужен не только гигантским мирам: города уровня
+      # GTA III/VC уже требуют окна загрузки при среднем масштабе.
+      min_scale="medium",
       pros=["Снимает ограничение на размер мира", "Позволяет параллелить работу команды"],
       cons=["Требует дисциплины работы с ассетами", "Появляются задержки подгрузки"],
       limitations=["Требует строгого контроля зависимостей ассетов"],
@@ -2930,6 +2932,9 @@ FUNCTION_ASSIGNMENTS: dict[str, str] = {
     "art_direction_stylization": "art_pipeline",
     "audio_occlusion_propagation": "audio_system",
     "audio_streaming_compression": "audio_system",
+    # Запечённая видимость применяется и в линейных уровнях/хабах, поэтому
+    # она не должна зависеть только от выбранной функции открытого мира.
+    "baked_occlusion_culling": "rendering_architecture",
     "bindless_uber_shaders": "rendering_architecture",
     "build_size_startup_budgets": "build_delivery",
     "composition_bootstrap_architecture": "project_architecture",
