@@ -28,6 +28,20 @@ def _estimate(client, basket=(), **overrides):
     ).json()
 
 
+def test_virtual_shadow_maps_is_published_and_has_engine_mapping(client):
+    """Каждый калибровочный метод должен быть доступен в публичном каталоге."""
+    methods = client.get("/api/catalog/methods").json()
+    method = next((item for item in methods if item["code"] == "virtual_shadow_maps"), None)
+
+    assert method is not None
+    assert method["function_code"] == "dynamic_shadows"
+    assert method["source_url"].endswith("virtual-shadow-maps-in-unreal-engine")
+    unreal = next((link for link in method["engine_links"] if link["engine_code"] == "unreal"), None)
+    assert unreal is not None
+    assert unreal["tool_code"] == "ue_vsm"
+    assert unreal["relation_type"] == "direct"
+
+
 def test_reference_is_desktop_for_desktop_profile(client):
     """Референс десктопного профиля — десктопное железо, а не мобильное.
 
@@ -172,7 +186,9 @@ def test_chosen_basket_converges_to_official_specs(client):
                    "post_processing"],
     )
     assert est["required_gpu_index"] < 0.45, est["required_gpu_index"]
-    assert est["gpu_class"] <= 3, est["gpu_class"]
+    # Внешний sanity-check для современного PC-профиля: результат не должен
+    # опускаться ниже класса, сопоставимого с RTX 3060, но это не обещание FPS.
+    assert est["gpu_class"] == 3, est["gpu_class"]
 
     cp_basket = ["world_partition_streaming", "hierarchical_lod",
                  "crowd_instancing_impostors", "animation_lod_budget",
@@ -198,3 +214,84 @@ def test_memory_limits_are_binding(client):
         vram_limit_gb=2.0,
     )
     assert est["unmet_limits"]
+
+
+def test_every_published_method_has_a_parent_function(client):
+    """Каталог не должен терять методы из-за отсутствующей родительской функции."""
+    from app.seed.methods_data import all_methods
+
+    methods = client.get("/api/catalog/methods").json()
+    seeded_codes = {item["code"] for item in all_methods()}
+
+    missing = [
+        item["code"]
+        for item in methods
+        if item["code"] in seeded_codes and not item.get("function_code")
+    ]
+
+    assert missing == []
+
+
+def test_every_seed_method_has_application_steps(client):
+    """Карточка метода должна содержать способ внедрения и проверки."""
+    from app.seed.methods_data import all_methods
+
+    methods = {item["code"]: item for item in client.get("/api/catalog/methods").json()}
+    missing = [
+        item["code"]
+        for item in all_methods()
+        if not methods.get(item["code"], {}).get("application_steps")
+    ]
+
+    assert missing == []
+
+
+def test_technical_profile_parameters_are_explicitly_modeled(client):
+    """Неизвестные технические параметры видны пользователю и влияют на оценку."""
+    basket = [
+        "world_partition_streaming",
+        "mesh_index_optimization",
+        "audio_streaming_compression",
+    ]
+    functions = [
+        "open_world_streaming",
+        "geometry_pipeline",
+        "audio_system",
+        "ai_pathfinding",
+        "physics_simulation",
+        "multiplayer_netcode",
+        "rendering_architecture",
+    ]
+    base = _estimate(
+        client,
+        basket,
+        functions=functions,
+        multiplayer=True,
+        player_count=8,
+    )
+    complete = _estimate(
+        client,
+        basket,
+        functions=functions,
+        multiplayer=True,
+        player_count=8,
+        render_api="dx12",
+        storage_type="nvme",
+        memory_model="dedicated",
+        upscaling_method="fsr",
+        network_topology="dedicated",
+        streaming_pool_gb=8,
+        draw_call_budget=1_000_000,
+        simulation_radius_m=10_000,
+        physics_tick_hz=60,
+        audio_complexity="high",
+    )
+
+    assert base["modeling_gaps"]
+    assert any("API/RHI" in gap for gap in base["modeling_gaps"])
+    assert any("streaming pool" in gap for gap in base["modeling_gaps"])
+    assert any("сетевая схема" in gap for gap in base["modeling_gaps"])
+    assert complete["modeling_gaps"] == []
+    assert complete["recommended_storage"] == "nvme"
+    assert complete["estimated_draw_calls"] > 0
+    assert complete["required_cpu_index"] != base["required_cpu_index"]

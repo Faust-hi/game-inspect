@@ -14,8 +14,9 @@ from .. import repositories
 from ..database import get_db
 from ..models.entities import Method
 from ..models.enums import (
-    CalcMode, ConflictType, DevStage, GameFormat, LateCost, Level3, MethodKind,
-    Platform, Priority, RelationType, Scale, SolutionLevel, Status, WorldType,
+    CalcMode, ConflictType, DevStage, GameFormat, LateCost, Level3, MemoryModel,
+    MethodKind, NetworkTopology, Platform, Priority, RelationType, RenderAPI,
+    Scale, SolutionLevel, Status, StorageType, UpscalingMethod, WorldType,
 )
 from ..schemas.catalog import (
     ConflictOut, EngineOut, EngineToolOut, GameExampleOut, GameFunctionOut,
@@ -217,6 +218,11 @@ def get_enums():
         "stages": _enum_options(DevStage),
         "platforms": _enum_options(Platform),
         "levels": _enum_options(Level3),
+        "render_apis": _enum_options(RenderAPI),
+        "storage_types": _enum_options(StorageType),
+        "memory_models": _enum_options(MemoryModel),
+        "upscalers": _enum_options(UpscalingMethod),
+        "network_topologies": _enum_options(NetworkTopology),
         "priorities": _enum_options(Priority),
         "solution_levels": _enum_options(SolutionLevel),
         "late_costs": _enum_options(LateCost),

@@ -164,6 +164,97 @@ export function ProfileScreen() {
       </Card>
 
       <Card
+        title="Технический профиль исполнения"
+        hint="Эти параметры отделяют реальную стоимость реализации от общей сложности игры. Если значение неизвестно, оставьте «не указано» — результат будет помечен как приблизительный."
+      >
+        <div className="grid grid-4">
+          <Field label="Графический API / RHI">
+            <Select
+              value={profile.render_api}
+              options={enums.render_apis}
+              onChange={(value) => updateProfile({ render_api: value })}
+            />
+          </Field>
+          <Field label="Накопитель">
+            <Select
+              value={profile.storage_type}
+              options={enums.storage_types}
+              onChange={(value) => updateProfile({ storage_type: value })}
+            />
+          </Field>
+          <Field label="Модель памяти">
+            <Select
+              value={profile.memory_model}
+              options={enums.memory_models}
+              onChange={(value) => updateProfile({ memory_model: value })}
+            />
+          </Field>
+          <Field label="Масштабирование">
+            <Select
+              value={profile.upscaling_method}
+              options={enums.upscalers}
+              onChange={(value) => updateProfile({ upscaling_method: value })}
+            />
+          </Field>
+          <Field label="Streaming pool, ГБ" hint="Необязательно">
+            <NumberInput
+              value={profile.streaming_pool_gb ?? null}
+              min={0.5}
+              max={512}
+              step={0.5}
+              placeholder="не задан"
+              onChange={(value) => updateProfile({ streaming_pool_gb: value })}
+            />
+          </Field>
+          <Field label="Бюджет draw calls" hint="Необязательно">
+            <NumberInput
+              value={profile.draw_call_budget ?? null}
+              min={100}
+              max={1_000_000}
+              step={100}
+              placeholder="не задан"
+              onChange={(value) => updateProfile({ draw_call_budget: value })}
+            />
+          </Field>
+          <Field label="Радиус симуляции, м" hint="Необязательно">
+            <NumberInput
+              value={profile.simulation_radius_m ?? null}
+              min={0}
+              max={100_000}
+              step={10}
+              placeholder="не задан"
+              onChange={(value) => updateProfile({ simulation_radius_m: value })}
+            />
+          </Field>
+          <Field label="Physics/network tick, Гц" hint="Необязательно">
+            <NumberInput
+              value={profile.physics_tick_hz ?? null}
+              min={15}
+              max={480}
+              step={1}
+              placeholder="не задан"
+              onChange={(value) => updateProfile({ physics_tick_hz: value })}
+            />
+          </Field>
+          <Field label="Сложность аудио" hint="Необязательно">
+            <Select
+              value={profile.audio_complexity ?? ''}
+              options={enums.levels}
+              placeholder="не указана"
+              onChange={(value) => updateProfile({ audio_complexity: value || null })}
+            />
+          </Field>
+          <div style={{ display: 'flex', alignItems: 'end', paddingBottom: 8 }}>
+            <Toggle
+              checked={profile.frame_generation}
+              onChange={(value) => updateProfile({ frame_generation: value })}
+              label="Генерация кадров"
+            />
+          </div>
+        </div>
+      </Card>
+
+      <Card
         title="Обязательные ограничения"
         hint="Заполняйте только те ограничения, которые действительно заданы: они работают как жёсткий фильтр."
       >
@@ -243,6 +334,17 @@ export function ProfileScreen() {
                   value={profile.player_count}
                   min={2}
                   onChange={(value) => updateProfile({ player_count: Math.max(1, value ?? 1) })}
+                />
+              </Field>
+            </div>
+          )}
+          {profile.multiplayer && (
+            <div style={{ minWidth: 220 }}>
+              <Field label="Сетевая схема">
+                <Select
+                  value={profile.network_topology}
+                  options={enums.network_topologies}
+                  onChange={(value) => updateProfile({ network_topology: value })}
                 />
               </Field>
             </div>

@@ -30,6 +30,7 @@ from ..schemas.catalog import (
     BasketConflictOut, CriterionScore, LoadProfileOut,
     RecommendationOut, RecommendationResult, RiskOut, SimilarGameOut, input_fingerprint,
 )
+from ..seed.methods_data import FUNCTION_ASSIGNMENTS
 from . import gower, hardware, rules, sensitivity, serializers
 from .serializers import label_of as _label
 from .serializers import link_out
@@ -37,11 +38,11 @@ from .topsis import Criterion, criterion_matrix_rows, topsis
 
 #: Версия алгоритма. Меняется при любом изменении формул, весов или правил
 #: отбора: по ней можно понять, какой версией получен сохранённый результат.
-ALGORITHM_VERSION = "2.0.1"
+ALGORITHM_VERSION = "2.1.0"
 
 #: Версия набора данных. Меняется при обновлении базы знаний, влияющем на
 #: ранжирование (пересчёт индексов оборудования, пересмотр оценок эффекта).
-DATASET_VERSION = "mvp-1.4"
+DATASET_VERSION = "mvp-1.6"
 
 # Веса критериев в зависимости от приоритета пользователя.
 WEIGHT_PROFILES: dict[str, dict[str, float]] = {
@@ -83,6 +84,10 @@ FLAG_LABELS = {
 }
 
 RELATION_PRIORITY = ["direct", "automation", "partial", "alternative", "complement", "diagnostic", "limited", "missing"]
+# Эти оптимизации имеют родительскую подсистему для классификации и расчёта,
+# но остаются сквозными кандидатами: пользователю не нужно выбирать отдельную
+# функцию «PSO» или «патчи», чтобы увидеть соответствующий метод.
+CROSS_CUTTING_METHODS = frozenset(FUNCTION_ASSIGNMENTS)
 
 
 # ---------------------------------------------------------------------------
@@ -93,6 +98,13 @@ def _function_name(functions: dict, method: Method) -> str | None:
     if method.function and method.function.code in functions:
         return functions.get(method.function.code).name
     return None
+
+
+def _recommendation_function(method: Method) -> tuple[str | None, str | None]:
+    """Вернуть область показа метода, сохраняя общий список оптимизаций."""
+    if method.code in CROSS_CUTTING_METHODS or method.function is None:
+        return None, None
+    return method.function.code, method.function.name
 
 
 # ---------------------------------------------------------------------------
@@ -313,8 +325,11 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
     # правил: нерелевантные отсекаются через requires_features и applicability,
     # а не молчаливым отсутствием в выдаче.
     selected = set(profile.functions)
-    candidates = [m for m in all_methods
-                  if (m.function is None or m.function.code in selected)]
+    candidates = [m for m in all_methods if (
+        m.function is None
+        or m.function.code in selected
+        or m.code in CROSS_CUTTING_METHODS
+    )]
 
     # 4-5. Исключение и оценка применимости.
     evaluated: list[tuple[Method, rules.Applicability]] = []
@@ -624,12 +639,13 @@ def _build_recommendation(
         comparable=comparable, compare_reason=compare_reason,
     )
     support, alternatives = _engine_support(db, method, profile.engine)
+    function_code, function_name = _recommendation_function(method)
 
     return RecommendationOut(
         method_code=method.code,
         method_name=method.name,
-        function_code=method.function.code if method.function else None,
-        function_name=_function_name(functions, method),
+        function_code=function_code,
+        function_name=function_name,
         kind=method.kind,
         score=round(score, 4),
         rank=rank,
@@ -660,11 +676,12 @@ def _build_excluded(method: Method, functions: dict, applicability: rules.Applic
     reasons = list(applicability.excluded_reasons)
     if extra:
         reasons.append(extra)
+    function_code, function_name = _recommendation_function(method)
     return RecommendationOut(
         method_code=method.code,
         method_name=method.name,
-        function_code=method.function.code if method.function else None,
-        function_name=_function_name(functions, method),
+        function_code=function_code,
+        function_name=function_name,
         kind=method.kind,
         score=0.0,
         rank=0,

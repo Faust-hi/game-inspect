@@ -3,6 +3,12 @@ import { useEnsureResult, useStore } from '../store';
 import { Badge, Callout, Card, Empty, Loading, Metric, SourceLink } from '../components/ui';
 import type { HardwareCPU, HardwareGPU } from '../types';
 
+const STORAGE_LABELS: Record<string, string> = {
+  hdd: 'HDD',
+  sata_ssd: 'SATA SSD',
+  nvme: 'NVMe SSD',
+};
+
 function CpuSpec({ cpu }: { cpu: HardwareCPU }) {
   return (
     <div>
@@ -131,10 +137,29 @@ export function HardwareScreen() {
           <Metric label="Класс CPU" value={hw.cpu_class} hint="из 5" />
           <Metric label="Оценка VRAM" value={`${hw.estimated_vram_gb} ГБ`} />
           <Metric label="Оценка RAM" value={`${hw.estimated_ram_gb} ГБ`} />
+          <Metric
+            label="Накопитель"
+            value={STORAGE_LABELS[hw.recommended_storage] ?? hw.recommended_storage}
+            hint="минимальный ориентир"
+          />
+          <Metric label="Оценка draw calls" value={hw.estimated_draw_calls.toLocaleString('ru-RU')} />
           <Metric label="Индекс GPU" value={hw.required_gpu_index.toFixed(2)} hint="нормированная шкала" />
           <Metric label="Индекс CPU" value={hw.required_cpu_index.toFixed(2)} hint="нормированная шкала" />
         </div>
       </Card>
+
+      {hw.modeling_gaps.length > 0 && (
+        <Card
+          title="Неопределённые параметры модели"
+          hint="Это не ошибка запроса: система фиксирует, какие технические входы не были заданы и поэтому ограничивают точность оценки."
+        >
+          <ul className="reason-list">
+            {hw.modeling_gaps.map((gap, index) => (
+              <li key={index}>{gap}</li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       <Card title="Референсная пара CPU + GPU">
         <div className="grid grid-2">

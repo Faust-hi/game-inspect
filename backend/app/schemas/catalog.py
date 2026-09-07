@@ -16,8 +16,9 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from ..models.enums import (
-    DevStage, EngineCode, GameFormat, Platform, Priority, Resolution,
-    Quality, Scale, WorldType,
+    DevStage, EngineCode, GameFormat, MemoryModel, NetworkTopology, Platform,
+    Priority, RenderAPI, Resolution, Quality, Scale, StorageType,
+    UpscalingMethod, WorldType,
 )
 
 
@@ -65,6 +66,21 @@ class ProjectProfile(BaseModel):
     target_resolution: Literal[tuple(_values(Resolution))] = "1080p"
     target_quality: Literal[tuple(_values(Quality))] = "high"
     target_fps: Annotated[int, Field(ge=15, le=480)] = 60
+
+    # Технические параметры, которые влияют на оценку, но раньше терялись.
+    # Значения auto/None означают «не задано», а не идеальную конфигурацию:
+    # аппаратный сервис явно отражает эту неопределённость в результате.
+    render_api: Literal[tuple(_values(RenderAPI))] = "auto"
+    storage_type: Literal[tuple(_values(StorageType))] = "auto"
+    memory_model: Literal[tuple(_values(MemoryModel))] = "auto"
+    upscaling_method: Literal[tuple(_values(UpscalingMethod))] = "auto"
+    network_topology: Literal[tuple(_values(NetworkTopology))] = "auto"
+    frame_generation: bool = False
+    streaming_pool_gb: Annotated[float | None, Field(gt=0, le=512)] = None
+    draw_call_budget: Annotated[int | None, Field(ge=100, le=1_000_000)] = None
+    simulation_radius_m: Annotated[int | None, Field(ge=0, le=100_000)] = None
+    physics_tick_hz: Annotated[int | None, Field(ge=15, le=480)] = None
+    audio_complexity: LevelValue | None = None
 
     # Обязательные ограничения
     ram_limit_gb: Annotated[float | None, Field(gt=0, le=512)] = None
@@ -464,6 +480,9 @@ class HardwareEstimateOut(BaseModel):
     caveats: list[str]
     required_hw_features: list[str]
     exceeds_catalog: bool
+    recommended_storage: str = "sata_ssd"
+    estimated_draw_calls: int = 0
+    modeling_gaps: list[str] = Field(default_factory=list)
     # Явный список невыполненных обязательных ограничений: пределы памяти и
     # обязательные аппаратные возможности. Раньше они растворялись в caveats,
     # и интерфейс показывал конфигурацию как подходящую.

@@ -237,6 +237,108 @@ class Quality(str, Enum):
         return {"low": "низкое", "medium": "среднее", "high": "высокое", "ultra": "ультра"}[self.value]
 
 
+class RenderAPI(str, Enum):
+    """Графический API/RHI, влияющий на стоимость CPU и совместимость рендера."""
+
+    AUTO = "auto"
+    DX9 = "dx9"
+    DX11 = "dx11"
+    DX12 = "dx12"
+    VULKAN = "vulkan"
+    OPENGL = "opengl"
+    METAL = "metal"
+
+    @property
+    def label(self) -> str:
+        return {
+            "auto": "не указан",
+            "dx9": "DirectX 9",
+            "dx11": "DirectX 11",
+            "dx12": "DirectX 12",
+            "vulkan": "Vulkan",
+            "opengl": "OpenGL",
+            "metal": "Metal",
+        }[self.value]
+
+
+class StorageType(str, Enum):
+    """Тип накопителя, на который рассчитывается потоковая загрузка."""
+
+    AUTO = "auto"
+    HDD = "hdd"
+    SATA_SSD = "sata_ssd"
+    NVME = "nvme"
+
+    @property
+    def label(self) -> str:
+        return {
+            "auto": "не указан",
+            "hdd": "HDD",
+            "sata_ssd": "SATA SSD",
+            "nvme": "NVMe SSD",
+        }[self.value]
+
+
+class NetworkTopology(str, Enum):
+    """Сетевая схема, задающая стоимость синхронизации и тикрейта."""
+
+    AUTO = "auto"
+    CLIENT_SERVER = "client_server"
+    P2P = "p2p"
+    DEDICATED = "dedicated"
+    LOCKSTEP = "lockstep"
+
+    @property
+    def label(self) -> str:
+        return {
+            "auto": "не указана",
+            "client_server": "клиент-сервер",
+            "p2p": "peer-to-peer",
+            "dedicated": "выделенный сервер",
+            "lockstep": "детерминированный lockstep",
+        }[self.value]
+
+
+class UpscalingMethod(str, Enum):
+    """Метод масштабирования изображения до целевого разрешения."""
+
+    AUTO = "auto"
+    NONE = "none"
+    TAA = "taa"
+    FSR = "fsr"
+    DLSS = "dlss"
+    XESS = "xess"
+
+    @property
+    def label(self) -> str:
+        return {
+            "auto": "не указан",
+            "none": "без масштабирования",
+            "taa": "TAAU / temporal",
+            "fsr": "AMD FSR",
+            "dlss": "NVIDIA DLSS",
+            "xess": "Intel XeSS",
+        }[self.value]
+
+
+class MemoryModel(str, Enum):
+    """Модель памяти платформы."""
+
+    AUTO = "auto"
+    DEDICATED = "dedicated"
+    UNIFIED = "unified"
+    MANAGED = "managed"
+
+    @property
+    def label(self) -> str:
+        return {
+            "auto": "не указана",
+            "dedicated": "раздельная RAM/VRAM",
+            "unified": "единая память",
+            "managed": "управляемая куча / GC",
+        }[self.value]
+
+
 class EngineCode(str, Enum):
     """Код игрового движка, поддерживаемый базой знаний."""
 

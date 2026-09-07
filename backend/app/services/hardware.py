@@ -30,6 +30,12 @@ FEATURE_GPU_LOAD = {
     "particle_systems": 0.08, "physics_simulation": 0.02, "character_animation": 0.03,
     "crowd_simulation": 0.10, "ai_pathfinding": 0.01, "water_simulation": 0.10,
     "volumetric_effects": 0.16, "post_processing": 0.08, "multiplayer_netcode": 0.01,
+    "rendering_architecture": 0.10, "render_scalability": 0.04,
+    "geometry_pipeline": 0.05, "upscaling_frame_generation": 0.04,
+    "storage_streaming": 0.02, "audio_system": 0.01,
+    "build_delivery": 0.0, "runtime_memory": 0.01,
+    "destruction_simulation": 0.12, "project_architecture": 0.0,
+    "art_pipeline": 0.0, "split_screen_rendering": 0.20,
 }
 FEATURE_CPU_LOAD = {
     "open_world_streaming": 0.16, "large_scale_terrain": 0.08, "procedural_vegetation": 0.10,
@@ -37,6 +43,33 @@ FEATURE_CPU_LOAD = {
     "particle_systems": 0.06, "physics_simulation": 0.18, "character_animation": 0.10,
     "crowd_simulation": 0.22, "ai_pathfinding": 0.18, "water_simulation": 0.03,
     "volumetric_effects": 0.03, "post_processing": 0.03, "multiplayer_netcode": 0.16,
+    "rendering_architecture": 0.10, "render_scalability": 0.03,
+    "geometry_pipeline": 0.05, "upscaling_frame_generation": 0.02,
+    "storage_streaming": 0.10, "audio_system": 0.05,
+    "build_delivery": 0.01, "runtime_memory": 0.08,
+    "destruction_simulation": 0.16, "project_architecture": 0.02,
+    "art_pipeline": 0.0, "split_screen_rendering": 0.12,
+}
+
+_API_FACTORS = {
+    "auto": (1.00, 1.00),
+    "dx9": (0.92, 1.15),
+    "dx11": (0.98, 1.08),
+    "dx12": (1.02, 0.94),
+    "vulkan": (1.00, 0.95),
+    "opengl": (0.96, 1.14),
+    "metal": (0.98, 0.95),
+}
+_STORAGE_RANK = {"hdd": 0, "sata_ssd": 1, "nvme": 2}
+_STORAGE_CPU_FACTOR = {"auto": 1.00, "hdd": 1.12, "sata_ssd": 1.04, "nvme": 0.98}
+_UPSCALER_GPU_FACTOR = {
+    "auto": 1.00, "none": 1.00, "taa": 0.96,
+    "fsr": 0.84, "dlss": 0.80, "xess": 0.86,
+}
+_AUDIO_CPU_LOAD = {"low": 0.00, "medium": 0.03, "high": 0.07}
+_STREAMING_METHODS = {
+    "world_partition_streaming", "async_loading_pipeline", "navmesh_tiling_streaming",
+    "tilemap_chunk_streaming", "audio_streaming_compression",
 }
 
 # Калибровочные коэффициенты: приводят свёртку факторов к нормализованным
@@ -52,10 +85,17 @@ FEATURE_CPU_LOAD = {
 #   * открытый мир, 1440p/высокое/60, тяжёлые функции → GPU ~0.68 (класс 4–5);
 #   * 4K/ультра/очень большой мир                     → индекс > 1.0, фиксируется
 #     превышение каталога.
+# GPU_CALIBRATION поднят с 0.18 до 0.20: внешний sanity-check по Technical
+# City показывал, что тяжёлый 1080p/high/60 open-world профиль с выбранными
+# оптимизациями иногда опускался ниже класса RTX 3060/аналогов, хотя такой
+# класс уже является разумным нижним ориентиром для современных PC-сценариев.
+# Это не превращает внешние требования в жёсткое правило: версия игры,
+# пресет и режим теста могут отличаться.
+#
 # CPU_CALIBRATION снижен с 0.26 до 0.25: иначе крошечная 2D-игра требовала
 # минимум i7-8700K (класс 3) при разрыве в 0.007 до Ryzen 5 2600 — пессимизм
 # без оснований. Остальные эталоны класс не меняют (проверено прогоном).
-GPU_CALIBRATION = 0.18
+GPU_CALIBRATION = 0.20
 CPU_CALIBRATION = 0.25
 
 
@@ -81,16 +121,95 @@ def _fps_factor(fps: int) -> float:
     return 0.62 + (fps - 30) * (1.7 - 0.62) / (144 - 30)
 
 
+def _render_fps_factor(profile: ProjectProfile) -> float:
+    """Стоимость реально отрисованных кадров при включённой генерации кадров."""
+    if profile.frame_generation and profile.target_fps >= 60:
+        # Выходной FPS и FPS настоящего рендера — разные величины. Берём
+        # консервативный базовый FPS, а задержку и артефакты оставляем в caveats.
+        return _fps_factor(max(30, round(profile.target_fps * 0.5)))
+    return _fps_factor(profile.target_fps)
+
+
 def _largest_impact(profile: ProjectProfile) -> float:
     return SCALE_FACTOR.get(
         Scale(profile.scale).value if profile.scale in {s.value for s in Scale} else "medium", 1.0
     )
 
 
+def _recommended_storage(profile: ProjectProfile, method_codes: set[str]) -> str:
+    """Определить минимальный разумный класс накопителя для профиля."""
+    streaming = (
+        profile.world_type in {"open_world", "procedural", "sandbox"}
+        or bool(method_codes & _STREAMING_METHODS)
+        or "storage_streaming" in profile.functions
+    )
+    if streaming and profile.scale in {"large", "very_large"}:
+        return "nvme"
+    if streaming or profile.format != "2D":
+        return "sata_ssd"
+    return "hdd"
+
+
+def _estimated_draw_calls(profile: ProjectProfile, content: float, method_codes: set[str]) -> int:
+    """Грубый draw-call ориентир для контроля явно заданного бюджета.
+
+    Это не профилирование: значение нужно только для выявления противоречия
+    между анкетой и пользовательским лимитом, а не для выдачи FPS.
+    """
+    base = 500 + 24_000 * content
+    if "crowd_simulation" in profile.functions:
+        base += 4_000 * profile.npc_count_effective
+    if "split_screen_rendering" in profile.functions:
+        base *= max(2, profile.player_count)
+    if method_codes & {"hierarchical_lod", "baked_occlusion_culling", "gpu_compute_culling", "hiz_software_occlusion"}:
+        base *= 0.65
+    return max(100, round(base))
+
+
+def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_storage: str) -> list[str]:
+    """Перечень неизвестных параметров, которые ограничивают точность оценки."""
+    gaps: list[str] = []
+    streaming = (
+        profile.world_type in {"open_world", "procedural", "sandbox"}
+        or bool(method_codes & _STREAMING_METHODS)
+        or "storage_streaming" in profile.functions
+    )
+    if profile.render_api == "auto":
+        gaps.append("Не указан графический API/RHI: стоимость render thread и совместимость не определены.")
+    if profile.memory_model == "auto":
+        gaps.append("Не указана модель памяти RAM/VRAM: unified memory и GC не учтены явно.")
+    if streaming and profile.storage_type == "auto":
+        gaps.append(f"Не указан накопитель: для этого профиля минимальный ориентир — {recommended_storage}.")
+    if streaming and profile.streaming_pool_gb is None:
+        gaps.append("Не задан streaming pool: пики подкачки и вытеснение ресурсов оценены приблизительно.")
+    if profile.draw_call_budget is None and (
+        "rendering_architecture" in profile.functions or "geometry_pipeline" in profile.functions
+    ):
+        gaps.append("Не задан draw-call budget: стоимость render thread проверяется только косвенно.")
+    if profile.simulation_radius_m is None and (
+        {"ai_pathfinding", "crowd_simulation"} & set(profile.functions)
+    ):
+        gaps.append("Не задан радиус симуляции: количество активных агентов за пределами кадра неизвестно.")
+    if profile.physics_tick_hz is None and (
+        {"physics_simulation", "multiplayer_netcode"} & set(profile.functions)
+    ):
+        gaps.append("Не задан physics/network tickrate: CPU-нагрузка симуляции взята по умолчанию.")
+    if profile.audio_complexity is None and "audio_system" in profile.functions:
+        gaps.append("Не задана сложность аудио: стоимость декодирования и пространственного звука неизвестна.")
+    if profile.multiplayer and profile.network_topology == "auto":
+        gaps.append("Не указана сетевая схема: P2P, client-server, dedicated и lockstep имеют разную цену.")
+    if profile.target_resolution in {"1440p", "1600p", "2160p", "4k"} and profile.upscaling_method == "auto":
+        gaps.append("Не указан upscaler: итоговая GPU-нагрузка для высокого разрешения может отличаться.")
+    if profile.frame_generation:
+        gaps.append("Генерация кадров повышает отображаемый FPS, но не заменяет базовый FPS и добавляет задержку.")
+    return gaps
+
+
 def _load_indices(profile: ProjectProfile, methods: list) -> dict:
     """Нагрузочные индексы GPU/CPU и оценка памяти по профилю и решениям."""
     res = _resolution_factor(profile.target_resolution)
     fps = _fps_factor(profile.target_fps)
+    render_fps = _render_fps_factor(profile)
     quality = QUALITY_FACTOR.get(profile.target_quality, 1.0)
     scale = _largest_impact(profile)
     # Точное число объектов и NPC участвует в расчёте напрямую, а не только
@@ -100,10 +219,26 @@ def _load_indices(profile: ProjectProfile, methods: list) -> dict:
     npc = 0.85 + 0.35 * profile.npc_count_effective
     content = scale * obj * npc
 
+    method_codes = {m.code for m in methods}
+    recommended_storage = _recommended_storage(profile, method_codes)
+    estimated_draw_calls = _estimated_draw_calls(profile, content, method_codes)
+    modeling_gaps = _modeling_gaps(profile, method_codes, recommended_storage)
+
     feature_gpu = 1.0 + sum(FEATURE_GPU_LOAD.get(f, 0.05) for f in profile.functions)
     feature_cpu = 1.0 + sum(FEATURE_CPU_LOAD.get(f, 0.05) for f in profile.functions)
     if profile.multiplayer:
         feature_cpu += 0.15 + 0.1 * min(1.0, profile.player_count / 32)
+        if profile.network_topology == "lockstep":
+            feature_cpu += 0.08
+        elif profile.network_topology == "p2p":
+            feature_cpu += 0.04
+
+    if profile.audio_complexity:
+        feature_cpu += _AUDIO_CPU_LOAD[profile.audio_complexity]
+    if profile.simulation_radius_m is not None and {"ai_pathfinding", "crowd_simulation"} & set(profile.functions):
+        feature_cpu *= 1.0 + min(0.25, profile.simulation_radius_m / 40_000)
+    if profile.physics_tick_hz is not None:
+        feature_cpu *= max(0.7, min(2.0, profile.physics_tick_hz / 60))
 
     gpu_method = 1.0 + 0.06 * sum(m.impact_gpu for m in methods)
     cpu_method = 1.0 + 0.07 * sum(m.impact_cpu for m in methods)
@@ -112,12 +247,33 @@ def _load_indices(profile: ProjectProfile, methods: list) -> dict:
     gpu_method = max(0.45, min(2.0, gpu_method))
     cpu_method = max(0.45, min(2.0, cpu_method))
 
-    gpu_index = GPU_CALIBRATION * res * fps * quality * content * feature_gpu * gpu_method
-    cpu_index = CPU_CALIBRATION * content * feature_cpu * cpu_method * (0.6 + 0.4 * fps)
+    api_gpu, api_cpu = _API_FACTORS.get(profile.render_api, _API_FACTORS["auto"])
+    storage_cpu = _STORAGE_CPU_FACTOR.get(profile.storage_type, 1.0)
+    upscaler = profile.upscaling_method
+    if upscaler == "auto" and "temporal_upscaling" in method_codes:
+        upscaler = "taa"
+    gpu_index = (
+        GPU_CALIBRATION * res * render_fps * quality * content * feature_gpu * gpu_method
+        * api_gpu * _UPSCALER_GPU_FACTOR.get(upscaler, 1.0)
+        * (0.82 if profile.frame_generation else 1.0)
+    )
+    cpu_index = (
+        CPU_CALIBRATION * content * feature_cpu * cpu_method * (0.6 + 0.4 * fps)
+        * api_cpu * storage_cpu
+    )
+    if profile.draw_call_budget:
+        draw_pressure = max(0.0, estimated_draw_calls / profile.draw_call_budget - 1.0)
+        cpu_index *= 1.0 + min(0.3, draw_pressure * 0.12)
 
     vram_gb = 1.4 + 2.0 * res + 2.4 * (quality - 0.7) + 1.2 * (content - 1.0) + vram_method
+    if profile.memory_model == "unified":
+        vram_gb *= 0.9
     vram_gb = max(1.5, round(vram_gb, 1))
     ram_gb = 4.0 + 4.0 * content + 2.0 * profile.object_count_effective + ram_method
+    if profile.streaming_pool_gb is not None:
+        ram_gb += min(8.0, profile.streaming_pool_gb * 0.15)
+    if profile.memory_model == "managed":
+        ram_gb += 1.0
     ram_gb = max(4.0, round(ram_gb, 1))
 
     required_hw = sorted({
@@ -128,6 +284,9 @@ def _load_indices(profile: ProjectProfile, methods: list) -> dict:
         "vram_gb": vram_gb, "ram_gb": ram_gb,
         "required_rt": any("Hardware Ray Tracing" in (m.requires_hw_features or []) for m in methods),
         "required_hw": required_hw,
+        "recommended_storage": recommended_storage,
+        "estimated_draw_calls": estimated_draw_calls,
+        "modeling_gaps": modeling_gaps,
     }
 
 
@@ -223,6 +382,20 @@ def _pick_references(db: Session, indices: dict, profile: ProjectProfile) -> dic
             f"Требуется {ram_gb:.1f} ГБ оперативной памяти при заданном пределе "
             f"{profile.ram_limit_gb:.1f} ГБ."
         )
+    recommended_storage = indices["recommended_storage"]
+    if (
+        profile.storage_type != "auto"
+        and _STORAGE_RANK.get(profile.storage_type, 0) < _STORAGE_RANK[recommended_storage]
+    ):
+        unmet.append(
+            f"Накопитель {profile.storage_type} ниже рекомендуемого класса "
+            f"{recommended_storage} для потоковой загрузки этого профиля."
+        )
+    if profile.draw_call_budget is not None and indices["estimated_draw_calls"] > profile.draw_call_budget:
+        unmet.append(
+            f"Оценочно требуется около {indices['estimated_draw_calls']:,} draw calls при бюджете "
+            f"{profile.draw_call_budget:,}.".replace(",", " ")
+        )
 
     caveats: list[str] = []
     reference_gpu, rt_missing = _pick_gpu(
@@ -274,7 +447,15 @@ def _pick_references(db: Session, indices: dict, profile: ProjectProfile) -> dic
     }
 
 
-def _confidence(profile: ProjectProfile, methods: list, *, similar_examples: int, exceeds: bool, unmet: list[str]) -> tuple[float, str, list[str]]:
+def _confidence(
+    profile: ProjectProfile,
+    methods: list,
+    *,
+    similar_examples: int,
+    exceeds: bool,
+    unmet: list[str],
+    modeling_gaps: list[str],
+) -> tuple[float, str, list[str]]:
     """Уверенность оценки и поясняющие оговорки."""
     caveats: list[str] = []
     confidence = 0.85
@@ -297,6 +478,7 @@ def _confidence(profile: ProjectProfile, methods: list, *, similar_examples: int
     if not methods:
         confidence -= 0.1
         caveats.append("Корзина решений пуста: оценка выполнена по базовому профилю проекта.")
+    confidence -= min(0.18, 0.02 * len(modeling_gaps))
     if unmet:
         # Заданный бюджет памяти не выполняется: конфигурация приведена как
         # ориентир, но называть её подходящей нельзя.
@@ -339,6 +521,7 @@ def estimate_hardware(
     confidence, label, confidence_caveats = _confidence(
         profile, methods, similar_examples=similar_examples,
         exceeds=picked["exceeds"], unmet=picked["unmet"],
+        modeling_gaps=indices["modeling_gaps"],
     )
     caveats = picked["caveats"] + confidence_caveats
     reference_gpu = picked["reference_gpu"]
@@ -360,5 +543,8 @@ def estimate_hardware(
         caveats=caveats,
         required_hw_features=indices["required_hw"],
         exceeds_catalog=picked["exceeds"],
+        recommended_storage=indices["recommended_storage"],
+        estimated_draw_calls=indices["estimated_draw_calls"],
+        modeling_gaps=indices["modeling_gaps"],
         unmet_limits=picked["unmet"],
     )

@@ -93,6 +93,50 @@ def seed_methods(db: Session, functions: dict[str, GameFunction]) -> dict[str, M
     return out
 
 
+def sync_function_taxonomy(db: Session) -> dict[str, int]:
+    """Добавить новые подсистемы и синхронизировать классификацию методов.
+
+    Полный сидер не запускается на каждом старте, чтобы не перетирать
+    административные правки. Эта узкая синхронизация добавляет новые функции,
+    декларативные связи методов и заполняет только пустые планы внедрения.
+    """
+    functions: dict[str, GameFunction] = {}
+    created_functions = 0
+    for data in functions_data.with_sources():
+        payload = {k: v for k, v in data.items() if hasattr(GameFunction, k)}
+        payload.setdefault("status", PUBLISHED)
+        obj = db.scalar(select(GameFunction).where(GameFunction.code == payload["code"]))
+        if obj is None:
+            obj = GameFunction(**payload)
+            db.add(obj)
+            created_functions += 1
+        functions[obj.code] = obj
+    db.flush()
+
+    linked_methods = 0
+    metadata_updated = 0
+    metadata_codes = set(methods_data.FUNCTION_ASSIGNMENTS) | set(methods_data.APPLICATION_STEPS)
+    for method_code in metadata_codes:
+        method = db.scalar(select(Method).where(Method.code == method_code))
+        if method is None:
+            continue
+        function_code = methods_data.FUNCTION_ASSIGNMENTS.get(method_code)
+        function = functions.get(function_code) if function_code else None
+        if function is not None and method.function_id != function.id:
+            method.function_id = function.id
+            linked_methods += 1
+        steps = methods_data.APPLICATION_STEPS.get(method_code)
+        if steps and not method.application_steps:
+            method.application_steps = list(steps)
+            metadata_updated += 1
+    db.flush()
+    return {
+        "functions_created": created_functions,
+        "methods_linked": linked_methods,
+        "method_metadata_updated": metadata_updated,
+    }
+
+
 def seed_engines(db: Session) -> dict[str, Engine]:
     out: dict[str, Engine] = {}
     for data in engines_data.ENGINES:

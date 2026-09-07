@@ -1,4 +1,4 @@
-"""Каталог игровых функций (MVP: 15 функций + система сохранений)."""
+"""Каталог игровых функций и технических подсистем проекта."""
 from __future__ import annotations
 
 from .sources import src
@@ -146,6 +146,126 @@ GAME_FUNCTIONS: list[dict] = [
         "source_key": "WIKI_TAA",
     },
     {
+        "code": "rendering_architecture",
+        "name": "Архитектура рендера",
+        "description": "Организация render graph, проходов, буферов, шейдеров, PSO и отсечения объектов.",
+        "category": "Рендер",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "procedural", "sandbox"],
+        "sort_order": 145,
+        "source_key": "WIKI_DEFERRED",
+    },
+    {
+        "code": "render_scalability",
+        "name": "Масштабирование качества",
+        "description": "Тиры качества, динамические ограничения и адаптация графики под разные классы оборудования.",
+        "category": "Рендер",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "procedural", "sandbox"],
+        "sort_order": 146,
+        "source_key": "UE_SCALABILITY",
+    },
+    {
+        "code": "geometry_pipeline",
+        "name": "Конвейер геометрии",
+        "description": "Подготовка мешей, индексов, вершин, геометрических кластеров и затрат на draw calls.",
+        "category": "Рендер",
+        "formats": ["3D", "2.5D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "procedural", "sandbox"],
+        "sort_order": 147,
+        "source_key": "MESHOPT",
+    },
+    {
+        "code": "upscaling_frame_generation",
+        "name": "Масштабирование и генерация кадров",
+        "description": "Временное/ML-масштабирование изображения и синтез промежуточных кадров.",
+        "category": "Рендер",
+        "formats": ["3D", "2.5D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "procedural", "sandbox"],
+        "sort_order": 148,
+        "source_key": "WIKI_DLSS",
+    },
+    {
+        "code": "storage_streaming",
+        "name": "Потоковая работа с накопителем",
+        "description": "Планирование чтения, кэширования, декомпрессии и бюджета streaming pool.",
+        "category": "Мир и загрузка",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "procedural", "sandbox", "linear", "hub"],
+        "sort_order": 31,
+        "source_key": "UNITY_TEXTURE_STREAMING",
+    },
+    {
+        "code": "audio_system",
+        "name": "Аудиосистема",
+        "description": "Потоковая загрузка, компрессия, пространственное позиционирование и окклюзия звука.",
+        "category": "Звук",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "procedural", "sandbox"],
+        "sort_order": 160,
+        "source_key": "HUNT_AUDIO",
+    },
+    {
+        "code": "build_delivery",
+        "name": "Сборка и доставка контента",
+        "description": "Размер сборки, время старта, патчи, чанки и доставка контента пользователю.",
+        "category": "Производство",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "procedural", "sandbox"],
+        "sort_order": 170,
+        "source_key": "UNITY_ADDRESSABLES",
+    },
+    {
+        "code": "runtime_memory",
+        "name": "Память и сборка мусора",
+        "description": "Аллокации, управляемая куча, кэши и бюджеты памяти в горячих циклах.",
+        "category": "Производительность",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "procedural", "sandbox"],
+        "sort_order": 180,
+        "source_key": "UNITY_GC_BEST_PRACTICES",
+    },
+    {
+        "code": "destruction_simulation",
+        "name": "Разрушения и геометрические кэши",
+        "description": "Интерактивные разрушения и запечённые кэши деформаций/вершин.",
+        "category": "Симуляция",
+        "formats": ["3D", "2.5D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "sandbox"],
+        "sort_order": 185,
+        "source_key": "DOOM_ETERNAL",
+    },
+    {
+        "code": "project_architecture",
+        "name": "Архитектура проекта",
+        "description": "Композиция, разделение данных и механик, сервисы и каркас запуска проекта.",
+        "category": "Производство",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "procedural", "sandbox"],
+        "sort_order": 190,
+        "source_key": "WIKI_DOD",
+    },
+    {
+        "code": "art_pipeline",
+        "name": "Арт-пайплайн",
+        "description": "Ретопология, запекание нормалей, подготовка ассетов и выбор визуального стиля.",
+        "category": "Производство контента",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "procedural", "sandbox"],
+        "sort_order": 200,
+        "source_key": "WIKI_LIGHTMAP",
+    },
+    {
+        "code": "split_screen_rendering",
+        "name": "Split-screen рендеринг",
+        "description": "Бюджет нескольких камер и вьюпортов в локальном кооперативе.",
+        "category": "Рендер",
+        "formats": ["3D", "2.5D"],
+        "typical_world_types": ["linear", "hub", "arena", "sandbox"],
+        "sort_order": 210,
+        "source_key": "DF_ITTakesTWO",
+    },
+    {
         "code": "multiplayer_netcode",
         "name": "Сетевой код мультиплеера",
         "description": "Синхронизация состояния между клиентами и сервером, компенсация задержек, репликация.",
@@ -169,12 +289,13 @@ GAME_FUNCTIONS: list[dict] = [
 
 
 def with_sources() -> list[dict]:
-    """Добавить поля источника к каждой функции."""
+    """Добавить поля источника, не изменяя исходный каталог функций."""
     out = []
     for fn in GAME_FUNCTIONS:
-        s = src(fn.pop("source_key", None))
-        fn["source_title"] = s["title"]
-        fn["source_url"] = s["url"]
-        fn["source_date"] = s["date"]
-        out.append(fn)
+        data = dict(fn)
+        s = src(data.pop("source_key", None))
+        data["source_title"] = s["title"]
+        data["source_url"] = s["url"]
+        data["source_date"] = s["date"]
+        out.append(data)
     return out

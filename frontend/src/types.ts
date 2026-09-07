@@ -12,6 +12,11 @@ export interface Enums {
   stages: EnumOption[];
   platforms: EnumOption[];
   levels: EnumOption[];
+  render_apis: EnumOption[];
+  storage_types: EnumOption[];
+  memory_models: EnumOption[];
+  upscalers: EnumOption[];
+  network_topologies: EnumOption[];
   priorities: EnumOption[];
   solution_levels: EnumOption[];
   late_costs: EnumOption[];
@@ -42,6 +47,17 @@ export interface ProjectProfile {
   target_resolution: string;
   target_quality: string;
   target_fps: number;
+  render_api: string;
+  storage_type: string;
+  memory_model: string;
+  upscaling_method: string;
+  network_topology: string;
+  frame_generation: boolean;
+  streaming_pool_gb?: number | null;
+  draw_call_budget?: number | null;
+  simulation_radius_m?: number | null;
+  physics_tick_hz?: number | null;
+  audio_complexity?: string | null;
   ram_limit_gb?: number | null;
   vram_limit_gb?: number | null;
   size_limit_gb?: number | null;
@@ -343,6 +359,9 @@ export interface HardwareEstimate {
   exceeds_catalog: boolean;
   /** Явный список невыполненных обязательных ограничений (пределы памяти, RT). */
   unmet_limits: string[];
+  recommended_storage: string;
+  estimated_draw_calls: number;
+  modeling_gaps: string[];
 }
 
 export interface SimilarGame {

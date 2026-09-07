@@ -41,7 +41,9 @@ def _bootstrap() -> None:
             result = seeder.seed_all(db, validate=True)
             logger.info("Первичное заполнение завершено: %s", result)
         else:
-            logger.info("База уже содержит данные, заполнение пропущено")
+            result = seeder.sync_function_taxonomy(db)
+            db.commit()
+            logger.info("База уже содержит данные — синхронизирована классификация: %s", result)
     except Exception:  # noqa: BLE001 — сбой заполнения не должен ронять сервис
         logger.exception("Ошибка первичного заполнения базы")
     finally:
