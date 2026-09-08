@@ -14,9 +14,9 @@ from .. import repositories
 from ..database import get_db
 from ..models.entities import Method
 from ..models.enums import (
-    CalcMode, ConflictType, DevStage, GameFormat, LateCost, Level3, MemoryModel,
-    MethodKind, NetworkTopology, Platform, Priority, RelationType, RenderAPI,
-    Scale, SolutionLevel, Status, StorageType, UpscalingMethod, WorldType,
+    CalcMode, ConflictType, DevStage, EffectScope, GameFormat, LateCost, Level3,
+    MemoryModel, MethodKind, NetworkTopology, Platform, Priority, RelationType,
+    RenderAPI, Scale, SolutionLevel, Status, StorageType, UpscalingMethod, WorldType,
 )
 from ..schemas.catalog import (
     ConflictOut, EngineOut, EngineToolOut, GameExampleOut, GameFunctionOut,
@@ -70,6 +70,7 @@ def method_to_out(
         recommended_stage_label=_label(DevStage, m.recommended_stage),
         late_cost=m.late_cost, late_cost_label=_label(LateCost, m.late_cost),
         calc_mode=m.calc_mode, calc_mode_label=_label(CalcMode, m.calc_mode),
+        effect_scope=m.effect_scope, effect_scope_label=_label(EffectScope, m.effect_scope),
         impact_cpu=m.impact_cpu, impact_gpu=m.impact_gpu, impact_ram=m.impact_ram,
         impact_vram=m.impact_vram, impact_disk=m.impact_disk, impact_network=m.impact_network,
         quality_impact=m.quality_impact, concept_impact=m.concept_impact,
@@ -227,6 +228,7 @@ def get_enums():
         "solution_levels": _enum_options(SolutionLevel),
         "late_costs": _enum_options(LateCost),
         "calc_modes": _enum_options(CalcMode),
+        "effect_scopes": _enum_options(EffectScope),
         "relation_types": _enum_options(RelationType),
         "conflict_types": _enum_options(ConflictType),
         "statuses": _enum_options(Status),

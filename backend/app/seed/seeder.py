@@ -24,7 +24,7 @@ from ..models.entities import (
 )
 from ..models.enums import Status
 from . import engines_data, functions_data, methods_data
-from .corrections import correct_shadow_relation
+from .corrections import correct_effect_scopes, correct_shadow_relation
 
 PUBLISHED = Status.PUBLISHED.value
 
@@ -219,6 +219,7 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
         "methods_linked": linked_methods,
         "method_metadata_updated": metadata_updated,
         "relations_corrected": correct_shadow_relation(db),
+        "effect_scopes_corrected": correct_effect_scopes(db),
     }
 
 
@@ -485,6 +486,9 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     conflicts = seed_conflicts(db, outcome)
     examples = seed_examples(db, outcome)
     hardware = seed_hardware(db, outcome)
+    # Записи, сохранённые до появления области эффекта, получают явные значения
+    # каталога: иначе исправление расчёта действует только на новые базы.
+    scopes_corrected = correct_effect_scopes(db)
     db.commit()
     issues = validate_knowledge_base(db) if validate else []
     db.commit()
@@ -498,6 +502,7 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
         "game_examples": examples,
         "hardware_records": hardware,
         "validation_issues": len(issues),
+        "effect_scopes_corrected": scopes_corrected,
         **outcome.as_report(),
     }
 

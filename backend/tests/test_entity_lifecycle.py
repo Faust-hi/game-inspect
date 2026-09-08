@@ -84,7 +84,7 @@ def _example(db, title: str, **overrides) -> GameExample:
 
 def _conflict(db, a_code: str, b_code: str, **overrides) -> Conflict:
     return _add(db, Conflict, {
-        "a_code": a_code, "b_code": b_code, "conflict_type": "conflict",
+        "a_code": a_code, "b_code": b_code, "conflict_type": "hard_conflict",
         "severity": 2, "source_url": SOURCE_URL,
     }, overrides)
 

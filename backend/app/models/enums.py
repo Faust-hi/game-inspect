@@ -110,6 +110,57 @@ class CalcMode(str, Enum):
         return {"realtime": "real-time", "precomputed": "предварительный", "hybrid": "гибридный"}[self.value]
 
 
+class EffectScope(str, Enum):
+    """Где проявляется эффект метода.
+
+    Оценка оборудования отвечает на вопрос о компьютере игрока, поэтому
+    серверная экономия и ускорение разработки не могут уменьшать требования к
+    нему: сервер без графики не облегчает рендер на клиенте, а быстрый пересчёт
+    освещения на машине художника не делает игру быстрее. Пока область эффекта
+    не была задана явно, влияние разработки и сервера складывалось в клиентскую
+    нагрузку, и набор решений выглядел дешевле, чем он есть на самом деле.
+    """
+
+    CLIENT = "client"              # клиент реального времени
+    SERVER = "server"              # серверная часть
+    DEVELOPMENT = "development"    # процесс разработки и подготовка данных
+
+    @property
+    def label(self) -> str:
+        return {
+            "client": "клиент",
+            "server": "сервер",
+            "development": "разработка",
+        }[self.value]
+
+    @classmethod
+    def of(cls, value: str | None) -> EffectScope | None:
+        """Разобрать значение из базы. None — значение не распознано.
+
+        Неизвестная область не приравнивается к клиентской: неизвестное
+        происхождение эффекта нельзя молча превращать в экономию на компьютере
+        игрока, поэтому вызывающая сторона обязана обработать None явно.
+        """
+        try:
+            return cls(value)
+        except ValueError:
+            return None
+
+    @property
+    def affects_client(self) -> bool:
+        """Меняет ли эффект требования к компьютеру игрока."""
+        return self is EffectScope.CLIENT
+
+    @property
+    def hardware_note(self) -> str:
+        """Пояснение, где проявляется эффект, отличный от клиентского."""
+        return {
+            "client": "",
+            "server": "эффект относится к серверной части",
+            "development": "эффект относится к процессу разработки",
+        }[self.value]
+
+
 class RelationType(str, Enum):
     """Тип связи общего метода с инструментом движка."""
 
@@ -137,13 +188,38 @@ class RelationType(str, Enum):
 
 
 class ConflictType(str, Enum):
-    CONFLICT = "conflict"      # конфликт
-    DEPENDENCY = "dependency"  # зависимость
-    SYNERGY = "synergy"        # усиление
+    """Тип связи между методами.
+
+    План требует разделения: не все связи — полный запрет. Ошибка D12 —
+    любой `conflict` удалял оба метода. Теперь:
+    - HARD_CONFLICT: жёсткая несовместимость (оба исключаются из расчёта)
+    - RISK: условный риск (оба остаются, добавляется предупреждение)
+    - ALTERNATIVE: альтернативы (можно выбрать одно, оба не исключаются)
+    - DEPENDENCY: обязательная зависимость (без B эффект A не учитывается)
+    - COMPLEMENT: дополнение/синергия (вместе дают больше, но работают по отдельности)
+    - OVERLAP: перекрывающиеся эффекты (частичная дублировка выигрыша)
+    - UNKNOWN: непроверенное сочетание (отсутствие запрета ≠ доказанная совместимость)
+    """
+
+    HARD_CONFLICT = "hard_conflict"
+    RISK = "risk"
+    ALTERNATIVE = "alternative"
+    DEPENDENCY = "dependency"
+    COMPLEMENT = "complement"
+    OVERLAP = "overlap"
+    UNKNOWN = "unknown"
 
     @property
     def label(self) -> str:
-        return {"conflict": "конфликт", "dependency": "зависимость", "synergy": "усиление"}[self.value]
+        return {
+            "hard_conflict": "жёсткая несовместимость",
+            "risk": "условный риск",
+            "alternative": "альтернатива",
+            "dependency": "обязательная зависимость",
+            "complement": "дополнение / синергия",
+            "overlap": "перекрывающиеся эффекты",
+            "unknown": "не проверено",
+        }[self.value]
 
 
 class MethodKind(str, Enum):

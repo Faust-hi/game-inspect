@@ -11,7 +11,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
-from ..models.enums import Status
+from ..models.enums import EffectScope, Status
 from ..timeutil import utcnow
 
 PUBLISHED = Status.PUBLISHED.value
@@ -100,6 +100,9 @@ class Method(Base):
     recommended_stage: Mapped[str] = mapped_column(String(20), default="prototype")
     late_cost: Mapped[str] = mapped_column(String(20), default="medium")
     calc_mode: Mapped[str] = mapped_column(String(20), default="realtime")
+    # Область эффекта: только клиентская нагрузка участвует в оценке
+    # оборудования игрока (см. `EffectScope`).
+    effect_scope: Mapped[str] = mapped_column(String(20), default=EffectScope.CLIENT.value)
 
     # Влияние на подсистемы: -2..+2 (отрицательное = снижает нагрузку)
     impact_cpu: Mapped[int] = mapped_column(Integer, default=0)

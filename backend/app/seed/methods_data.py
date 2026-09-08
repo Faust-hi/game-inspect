@@ -20,6 +20,10 @@ _DEFAULTS: dict = {
     "recommended_stage": "prototype",
     "late_cost": "medium",
     "calc_mode": "realtime",
+    # Где проявляется эффект. По умолчанию — на компьютере игрока: именно его
+    # требования оценивает система. Серверная экономия и ускорение процесса
+    # разработки задаются явно, иначе они молча удешевляли бы клиент.
+    "effect_scope": "client",
     "impact_cpu": 0, "impact_gpu": 0, "impact_ram": 0,
     "impact_vram": 0, "impact_disk": 0, "impact_network": 0,
     "quality_impact": 0, "concept_impact": 0,
@@ -480,6 +484,10 @@ METHODS: list[dict] = [
       problem="Медленный пересчёт освещения блокирует итерации художников.",
       level="production", recommended_stage="production", late_cost="low",
       calc_mode="precomputed",
+      # Записано в самой карточке: метод ускоряет итерации художников, а не
+      # кадр игры. Прежде его 10% попадали в «ожидаемый эффект» наравне с
+      # рантайм-оптимизациями.
+      effect_scope="development",
       performance_gain=0.1, implementation_cost=2, complexity=2, confidence=0.85,
       pros=["Резко ускоряет итерации", "Не влияет на рантайм"],
       cons=["Требует совместимого GPU на машинах команды"],
@@ -1111,6 +1119,9 @@ METHODS: list[dict] = [
       impact_cpu=-2, impact_gpu=-2, impact_ram=-1,
       performance_gain=0.6, implementation_cost=3, complexity=3, confidence=0.8,
       requires_features=["multiplayer_netcode"],
+      # Экономия относится к машине сервера: клиент при выделенном сервере
+      # продолжает рисовать игру, поэтому GPU игрока она не удешевляет.
+      effect_scope="server",
       pros=["Существенно дешевле эксплуатация", "Повышает стабильность сервера"],
       cons=["Требует отдельной сборки иpipeline", "Усложняет отладку"],
       limitations=["Требует отделения серверной логики от клиентской"],
@@ -1739,6 +1750,9 @@ EXTRA_METHODS: list[dict] = [
       impact_cpu=2, impact_network=2,
       performance_gain=0.6, implementation_cost=3, complexity=3, confidence=0.85,
       requires_features=["multiplayer_netcode"],
+      # Тикрейт оплачивается процессором и каналом сервера: в описании это
+      # «счета за флот», а не кадр на машине игрока.
+      effect_scope="server",
       applicable_formats=["3D", "2.5D", "2D"],
       pros=["Предсказуемая цена онлайна", "Отзывчивость там, где нужна"],
       cons=["Высокий тик виден в счетах за флот", "Два баланса под два тикрейта"],
@@ -2834,7 +2848,7 @@ CONFLICTS: list[dict] = [
         "source_key": "UNITY_LIGHTPROBES",
     },
     {
-        "a_code": "cascaded_shadow_maps", "b_code": "distance_field_shadows", "conflict_type": "synergy",
+        "a_code": "cascaded_shadow_maps", "b_code": "distance_field_shadows", "conflict_type": "complement",
         "severity": 1,
         "description": "В Unreal Engine каскадные карты могут обслуживать ближнюю область, "
                        "а Distance Field Shadows — область за пределом дистанции каскадов. "

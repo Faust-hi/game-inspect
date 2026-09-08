@@ -222,11 +222,11 @@ def test_conflicting_methods_do_not_stack_effects(db):
         "world_partition_streaming", "hierarchical_lod",
     ]))))
     relation = Conflict(a_code=methods[0].code, b_code=methods[1].code,
-                        conflict_type="conflict", description="Альтернативные реализации")
+                        conflict_type="hard_conflict", description="Альтернативные реализации")
     profile = ProjectProfile(functions=["open_world_streaming"])
     accepted, notes = assess_selected_methods(methods, profile, [relation])
     assert accepted == []
-    assert any("конфликт" in note for note in notes)
+    assert any("жёсткая несовместимость" in note for note in notes)
     load = aggregate_load(methods, profile, relations=[relation])
     assert load.cpu == load.gpu == 50
 
@@ -251,13 +251,13 @@ def test_shadow_relation_correction_preserves_manual_changes(db, admin_edited):
     row = db.scalar(select(Conflict).where(
         Conflict.a_code == "cascaded_shadow_maps", Conflict.b_code == "distance_field_shadows",
     ))
-    assert row.conflict_type == "synergy"
-    row.conflict_type = "conflict"
+    assert row.conflict_type == "complement"
+    row.conflict_type = "hard_conflict"
     row.severity = 1
     row.description = "Два механизма теней для направленного света дублируют стоимость и дают непредсказуемое наложение результатов."
     row.resolution = "Ручное уточнение" if admin_edited else "Выбрать одну систему теней как основную."
     row.source_url = "https://en.wikipedia.org/wiki/Shadow_mapping"
     db.flush()
     assert correct_shadow_relation(db) == (0 if admin_edited else 1)
-    assert row.conflict_type == ("conflict" if admin_edited else "synergy")
+    assert row.conflict_type == ("hard_conflict" if admin_edited else "complement")
     assert correct_shadow_relation(db) == 0

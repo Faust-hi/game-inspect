@@ -24,7 +24,7 @@ from sqlalchemy.orm import Session
 from .. import repositories, timeutil
 from ..models.entities import Method
 from ..models.enums import (
-    CalcMode, ConflictType, DevStage, LateCost, SolutionLevel,
+    CalcMode, ConflictType, DevStage, EffectScope, LateCost, SolutionLevel,
 )
 from ..schemas.catalog import (
     BasketConflictOut, CriterionScore, LoadProfileOut,
@@ -38,7 +38,9 @@ from .topsis import Criterion, criterion_matrix_rows, topsis
 
 #: Версия алгоритма. Меняется при любом изменении формул, весов или правил
 #: отбора: по ней можно понять, какой версией получен сохранённый результат.
-ALGORITHM_VERSION = "2.2.0"
+#: 2.3.0 — область прогноза только Windows/Linux ПК, CPU следует за базовым
+#: рендером при генерации кадров, unified-память без универсальной скидки.
+ALGORITHM_VERSION = "2.3.0"
 
 #: Версия набора данных. Меняется при обновлении базы знаний, влияющем на
 #: ранжирование (пересчёт индексов оборудования, пересмотр оценок эффекта).
@@ -116,10 +118,11 @@ def conflict_map(db: Session) -> dict[str, list[str]]:
     Раньше карта хранилась в глобальной переменной и перезаполнялась на каждый
     запрос. При параллельной обработке два запроса видели чужую карту: результат
     зависел от порядка выполнения. Карта строится локально и передаётся явно.
+    Учитываются только HARD_CONFLICT и RISK — остальные типы не исключают методы.
     """
     mapping: dict[str, list[str]] = {}
     for row in repositories.conflicts(db):
-        if row.conflict_type != ConflictType.CONFLICT.value:
+        if row.conflict_type not in {ConflictType.HARD_CONFLICT.value, ConflictType.RISK.value}:
             continue
         mapping.setdefault(row.a_code, []).append(row.b_code)
         mapping.setdefault(row.b_code, []).append(row.a_code)
@@ -620,12 +623,21 @@ def _recommendation_reasons(
             f"{_label(LateCost, method.late_cost)}."
         )
     reasons.append(f"Способ расчёта: {_label(CalcMode, method.calc_mode)}.")
+    scope = EffectScope.of(getattr(method, "effect_scope", None))
+    if scope is not None and not scope.affects_client:
+        reasons.append(
+            f"Область эффекта — {scope.label}: {scope.hardware_note}; требования к компьютеру "
+            "игрока решение не меняет."
+        )
+    # Нагрузка снижается не обязательно там, где её измеряет оценка
+    # оборудования: серверная сборка облегчает машину сервера.
+    where = "" if (scope is None or scope.affects_client) else f" ({scope.label})"
     positives = _impact_text(method)
     if positives:
-        reasons.append("Снижает нагрузку на: " + ", ".join(positives) + ".")
+        reasons.append("Снижает нагрузку на" + where + ": " + ", ".join(positives) + ".")
     negatives = _impact_text(method, positive=False)
     if negatives:
-        reasons.append("Увеличивает нагрузку на: " + ", ".join(negatives) + ".")
+        reasons.append("Увеличивает нагрузку на" + where + ": " + ", ".join(negatives) + ".")
     if method.quality_impact:
         reasons.append(
             f"Влияние на качество: {method.quality_impact:+d} ({'улучшает' if method.quality_impact > 0 else 'снижает'})."
@@ -703,6 +715,8 @@ def _build_recommendation(
         quality_impact=method.quality_impact,
         concept_impact=method.concept_impact,
         source_url=method.source_url,
+        effect_scope=method.effect_scope,
+        effect_scope_label=_label(EffectScope, method.effect_scope) or "не распознана",
     )
 
 
@@ -732,6 +746,8 @@ def _build_excluded(method: Method, functions: dict, applicability: rules.Applic
         quality_impact=method.quality_impact,
         concept_impact=method.concept_impact,
         source_url=method.source_url,
+        effect_scope=method.effect_scope,
+        effect_scope_label=_label(EffectScope, method.effect_scope) or "не распознана",
     )
 
 
@@ -771,11 +787,23 @@ def _impact_text(method: Method, positive: bool = True) -> list[str]:
 # Агрегированный профиль нагрузки корзины
 # ---------------------------------------------------------------------------
 def aggregate_load(methods: list[Method], profile, *, relations=()) -> LoadProfileOut:
-    """Суммарное влияние выбранных решений на подсистемы (шкала 0..100)."""
-    methods, notes = rules.assess_selected_methods(methods, profile, relations)
+    """Суммарное влияние выбранных решений на подсистемы (шкала 0..100).
+
+    В сводку входят только клиентские эффекты: полосы читаются как нагрузка на
+    компьютер игрока, а серверная экономия и ускорение разработки её не меняют.
+    Невошедшие решения перечислены в пояснениях, чтобы их отсутствие не
+    выглядело потерей данных.
+    """
+    selected, notes = rules.assess_selected_methods(methods, profile, relations)
+    counted, outside_client = rules.split_by_effect_scope(selected)
+    if outside_client:
+        notes = list(notes) + [
+            f"«{method.name}»: {rules.non_client_reason(method)}."
+            for method in outside_client
+        ]
     keys = ["cpu", "gpu", "ram", "vram", "disk", "network"]
     totals = {k: 0 for k in keys}
-    for m in methods:
+    for m in counted:
         totals["cpu"] += m.impact_cpu
         totals["gpu"] += m.impact_gpu
         totals["ram"] += m.impact_ram
@@ -816,6 +844,8 @@ def basket_compatibility(
     закрытая зависимость, при которой одно решение просто не работает без
     другого, показывалась как «усиливающее сочетание» — то есть как достоинство
     набора. Категории разделены: конфликты, зависимости, усиления.
+    Теперь используются новые типы: HARD_CONFLICT, RISK, ALTERNATIVE,
+    DEPENDENCY, COMPLEMENT, OVERLAP, UNKNOWN.
     """
     conflicts: list[BasketConflictOut] = []
     dependencies: list[BasketConflictOut] = []
@@ -834,16 +864,31 @@ def basket_compatibility(
 
     for row in repositories.conflicts(db):
         pair_in_basket = row.a_code in basket and row.b_code in basket
-        if row.conflict_type == ConflictType.CONFLICT.value:
+        ctype = row.conflict_type
+        if ctype == ConflictType.HARD_CONFLICT.value:
             if pair_in_basket:
                 conflicts.append(item(
-                    row, row.conflict_type, _label(ConflictType, row.conflict_type),
+                    row, ctype, _label(ConflictType, ctype),
                     row.description, row.resolution,
                 ))
-        elif row.conflict_type == ConflictType.DEPENDENCY.value:
+        elif ctype == ConflictType.RISK.value:
+            if pair_in_basket:
+                # Риск показываем в конфликтах с пометкой
+                conflicts.append(item(
+                    row, ctype, _label(ConflictType, ctype),
+                    row.description, row.resolution,
+                ))
+        elif ctype == ConflictType.ALTERNATIVE.value:
+            if pair_in_basket:
+                # Альтернативы — в конфликтах (выбор одного)
+                conflicts.append(item(
+                    row, ctype, _label(ConflictType, ctype),
+                    row.description, row.resolution,
+                ))
+        elif ctype == ConflictType.DEPENDENCY.value:
             if pair_in_basket:
                 dependencies.append(item(
-                    row, "dependency", _label(ConflictType, row.conflict_type),
+                    row, ctype, _label(ConflictType, ctype),
                     row.description or "Одно решение опирается на другое.",
                     row.resolution or "Сохранять оба решения в плане.",
                 ))
@@ -857,10 +902,24 @@ def basket_compatibility(
                         f"требует «{b.name}»: {row.description}",
                         f"Добавить «{b.name}» в корзину или отказаться от решения «{row.a_code}».",
                     ))
-        elif row.conflict_type == ConflictType.SYNERGY.value:
+        elif ctype in {ConflictType.COMPLEMENT.value}:
             if pair_in_basket:
                 synergies.append(item(
-                    row, row.conflict_type, _label(ConflictType, row.conflict_type),
+                    row, ctype, _label(ConflictType, ctype),
+                    row.description, row.resolution,
+                ))
+        elif ctype == ConflictType.OVERLAP.value:
+            if pair_in_basket:
+                # Перекрытие — показываем в синергиях с пометкой
+                synergies.append(item(
+                    row, ctype, _label(ConflictType, ctype),
+                    row.description, row.resolution,
+                ))
+        elif ctype == ConflictType.UNKNOWN.value:
+            if pair_in_basket:
+                # Непроверенное сочетание — в конфликтах с пометкой
+                conflicts.append(item(
+                    row, ctype, _label(ConflictType, ctype),
                     row.description, row.resolution,
                 ))
 

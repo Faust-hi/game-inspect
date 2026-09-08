@@ -124,6 +124,7 @@ class MethodIn(BaseModel):
     recommended_stage: str = "prototype"
     late_cost: str = "medium"
     calc_mode: str = "realtime"
+    effect_scope: str = "client"
     impact_cpu: int = Field(default=0, ge=-3, le=3)
     impact_gpu: int = Field(default=0, ge=-3, le=3)
     impact_ram: int = Field(default=0, ge=-3, le=3)
@@ -533,18 +534,25 @@ def _read_rows(raw: bytes, filename: str | None, entity: str) -> list[dict[str, 
 
 
 def _validate_rows(
-    model, rows: list[dict[str, Any]], entity: str, key_label: str,
+    model, rows: list[dict[str, Any]], entity: str, key_label: str, db: Session,
 ) -> list[str]:
     """Проверить все строки до первой записи в базу.
 
     Возвращает список найденных нарушений. Проверка выполняется заранее, чтобы
     частично некорректный файл не оставлял в базе половину изменений.
+    Ссылки связей проверяются против текущего каталога: связь на несуществующий
+    метод отклоняется, а не сохраняется висячей строкой.
     """
     from pydantic import ValidationError
 
     list_fields = list_columns(entity)
     problems: list[str] = []
     seen: set[str] = set()
+    method_codes: set[str] | None = None
+    if entity == "conflicts":
+        # Один запрос на весь файл: состав файла не меняет каталог методов,
+        # импорт сущностей выполняется отдельными файлами.
+        method_codes = set(db.scalars(select(Method.code)).all())
     for index, row in enumerate(rows, start=1):
         key = row_key(entity, row)
         if not key:
@@ -565,9 +573,40 @@ def _validate_rows(
         except (TypeError, ValueError) as exc:
             problems.append(f"Строка {index} ({key}): значение не распознано — {exc}.")
             continue
+        if entity == "conflicts" and method_codes is not None:
+            problems.extend(
+                _conflict_reference_problems(data, method_codes, index, key)
+            )
         problems.extend(
             f"Строка {index} ({key}): {message}"
             for message in publication.record_problems(model, data)
+        )
+    return problems
+
+
+def _conflict_reference_problems(
+    data: dict[str, Any], method_codes: set[str], index: int, key: str,
+) -> list[str]:
+    """Ссылки концов связи на каталог методов.
+
+    Связь без обоих концов не имеет смысла для правил применимости: раньше она
+    сохранялась с HTTP 200 и позже давала ложные срабатывания либо молча
+    игнорировалась. Проверка идёт до записи, файл отклоняется целиком.
+    """
+    problems: list[str] = []
+    a_code = str(data.get("a_code") or "").strip()
+    b_code = str(data.get("b_code") or "").strip()
+    if a_code and a_code not in method_codes:
+        problems.append(
+            f"Строка {index} ({key}): метод «{a_code}» не найден в каталоге."
+        )
+    if b_code and b_code not in method_codes:
+        problems.append(
+            f"Строка {index} ({key}): метод «{b_code}» не найден в каталоге."
+        )
+    if a_code and b_code and a_code == b_code:
+        problems.append(
+            f"Строка {index} ({key}): связь метода с самим собой запрещена."
         )
     return problems
 
@@ -627,7 +666,7 @@ async def import_entity(
         else ("model" if entity in ("hardware_cpu", "hardware_gpu")
               else ("title" if entity == "game_examples" else "code"))
     )
-    problems = _validate_rows(model, rows, entity, key_label)
+    problems = _validate_rows(model, rows, entity, key_label, db)
     if problems:
         # Ни одна запись не записана: файл отклонён целиком.
         raise ApiError(

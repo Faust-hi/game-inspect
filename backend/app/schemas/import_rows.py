@@ -22,11 +22,27 @@ LIST_SEPARATOR = ";"
 
 
 def as_str_list(value: object) -> object:
-    """Приводит ячейку к списку строк: массив, строка с «;» или пусто."""
+    """Приводит ячейку к списку строк: массив строк, строка с «;» или пусто.
+
+    Элементы массива обязаны быть строками. Раньше произвольные значения
+    молча превращались в строку через ``str()``: словарь
+    ``{"bad": "structure"}`` сохранялся как ``"{'bad': 'structure'}"`` и
+    выглядел корректной записью каталога. Такое преобразование скрывает
+    ошибку источника, поэтому нестроковый элемент отклоняет всю строку.
+    """
     if value is None:
         return None
     if isinstance(value, list):
-        return [str(item).strip() for item in value if str(item).strip()]
+        result: list[str] = []
+        for item in value:
+            if not isinstance(item, str):
+                raise ValueError(
+                    f"элемент списка должен быть строкой, получено {type(item).__name__}: {item!r}"
+                )
+            text = item.strip()
+            if text:
+                result.append(text)
+        return result
     if isinstance(value, str):
         text = value.strip()
         if not text:

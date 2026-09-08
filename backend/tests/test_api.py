@@ -306,7 +306,7 @@ def test_load_profile_recalculation(client, profile):
 def test_basket_conflicts_are_detected(client, profile):
     """Конфликтующие решения должны выявляться в корзине."""
     conflicts = client.get("/api/catalog/conflicts").json()
-    pair = next(item for item in conflicts if item["conflict_type"] == "conflict")
+    pair = next(item for item in conflicts if item["conflict_type"] == "hard_conflict")
     response = client.post(
         "/api/recommend",
         json={"profile": profile, "basket": [pair["a_code"], pair["b_code"]]},
@@ -327,7 +327,7 @@ def test_unmet_dependency_is_reported(client, profile):
 
 def test_synergy_is_reported(client, profile):
     conflicts = client.get("/api/catalog/conflicts").json()
-    pair = next(item for item in conflicts if item["conflict_type"] == "synergy")
+    pair = next(item for item in conflicts if item["conflict_type"] == "complement")
     data = client.post(
         "/api/recommend",
         json={"profile": profile, "basket": [pair["a_code"], pair["b_code"]]},

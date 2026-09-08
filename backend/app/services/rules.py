@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from collections.abc import Sequence
 
 from ..models.entities import Conflict, Method
-from ..models.enums import DevStage, LateCost, Level3, Scale
+from ..models.enums import DevStage, EffectScope, LateCost, Level3, Scale
 from ..schemas.catalog import ProjectProfile
 
 # Порядок стадий для сравнения «раньше / позже».
@@ -18,6 +18,43 @@ STAGE_ORDER: dict[str, int] = {s.value: s.order for s in DevStage}
 
 # Платформы, на которых возможности современных графических API недоступны.
 LEGACY_PLATFORMS = {"ps4", "xbox_one", "web", "android", "ios", "switch"}
+
+
+def effect_scope_of(method: Method) -> EffectScope | None:
+    """Область, в которой проявляется эффект решения.
+
+    None означает, что значение не распознано. Оно не приравнивается к
+    клиентской области: неизвестное происхождение эффекта нельзя превращать в
+    экономию на компьютере игрока, поэтому вызывающая сторона обязана
+    обработать такой случай явно.
+    """
+    return EffectScope.of(getattr(method, "effect_scope", None))
+
+
+def split_by_effect_scope(methods) -> tuple[list[Method], list[Method]]:
+    """Разделить решения по области эффекта.
+
+    Возвращает `(клиентские, остальные)`. Оценка оборудования отвечает на
+    вопрос о компьютере игрока, поэтому в неё входят только клиентские эффекты:
+    выделенный сервер без графики не облегчает рендер на клиенте, а быстрый
+    пересчёт освещения на машине художника не ускоряет кадр у игрока. Раньше
+    такие эффекты складывались в общую нагрузку, и выбранный набор решений
+    выглядел дешевле, чем он есть на самом деле.
+    """
+    client: list[Method] = []
+    others: list[Method] = []
+    for method in methods:
+        scope = effect_scope_of(method)
+        (client if scope is not None and scope.affects_client else others).append(method)
+    return client, others
+
+
+def non_client_reason(method: Method) -> str:
+    """Почему эффект решения не меняет требования к компьютеру игрока."""
+    scope = effect_scope_of(method)
+    if scope is None:
+        return "область эффекта не распознана, решение не учтено в оценке оборудования"
+    return f"{scope.hardware_note}, поэтому требования к компьютеру игрока не меняет"
 
 
 @dataclass
@@ -175,14 +212,51 @@ def assess_selected_methods(
             notes.append(f"{method.name}: {condition}")
     available = {method.code for method in applicable}
     rejected: set[str] = set()
+    warnings: list[str] = []
     for relation in relations:
-        if relation.conflict_type == "conflict" and {relation.a_code, relation.b_code} <= available:
+        ctype = relation.conflict_type
+        both_present = {relation.a_code, relation.b_code} <= available
+        if not both_present:
+            continue
+        if ctype == "hard_conflict":
+            # Жёсткая несовместимость: оба исключаются, но с явной причиной
             rejected.update((relation.a_code, relation.b_code))
             notes.append(
-                f"{relation.a_code} / {relation.b_code}: конфликт. Эффекты обоих решений "
-                "не учтены до выбора согласованного набора. " + (relation.description or "")
+                f"{relation.a_code} / {relation.b_code}: жёсткая несовместимость. "
+                "Оба решения исключены из расчёта. " + (relation.description or "")
+            )
+        elif ctype == "risk":
+            # Условный риск: оба остаются, предупреждение видно
+            warnings.append(
+                f"{relation.a_code} / {relation.b_code}: риск. "
+                "Решения совместимы, но требуют внимания: " + (relation.description or "")
+            )
+        elif ctype == "alternative":
+            # Альтернативы: не исключаем, но отмечаем выбор
+            warnings.append(
+                f"{relation.a_code} / {relation.b_code}: альтернативы. "
+                "Рекомендуется выбрать одно, оба не исключены. " + (relation.description or "")
+            )
+        elif ctype == "complement":
+            # Синергия/дополнение: вместе выгоднее, но работают по отдельности
+            warnings.append(
+                f"{relation.a_code} + {relation.b_code}: синергия. "
+                "Вместе дают больший эффект, по отдельности работают. " + (relation.description or "")
+            )
+        elif ctype == "overlap":
+            # Перекрывающиеся эффекты: частичная дублировка
+            warnings.append(
+                f"{relation.a_code} / {relation.b_code}: перекрытие эффектов. "
+                "Часть выигрыша дублируется, не суммируется полностью. " + (relation.description or "")
+            )
+        elif ctype == "unknown":
+            # Непроверенная комбинация: отсутствие запрета ≠ доказанная совместимость
+            warnings.append(
+                f"{relation.a_code} / {relation.b_code}: не проверено. "
+                "Совместимость не подтверждена отдельно. " + (relation.description or "")
             )
     available -= rejected
+    notes.extend(warnings)
     # Удаление обязательной зависимости может сделать неприменимой всю цепочку.
     changed = True
     while changed:

@@ -326,6 +326,11 @@ class MethodOut(BaseModel):
     late_cost_label: str
     calc_mode: str
     calc_mode_label: str
+    # Где проявляется эффект: только `client` меняет требования к компьютеру
+    # игрока. Поле читается интерфейсом, чтобы серверная экономия и ускорение
+    # разработки не выглядели ускорением игры.
+    effect_scope: str = "client"
+    effect_scope_label: str = "клиент"
     impact_cpu: int
     impact_gpu: int
     impact_ram: int
@@ -479,6 +484,10 @@ class RecommendationOut(BaseModel):
     quality_impact: int
     concept_impact: int
     source_url: str
+    # Область эффекта: интерфейс не должен показывать серверную экономию и
+    # ускорение разработки как ускорение игры.
+    effect_scope: str
+    effect_scope_label: str
 
 
 class RiskOut(BaseModel):
@@ -512,6 +521,21 @@ class BasketConflictOut(BaseModel):
     resolution: str
 
 
+class NonClientMethodOut(BaseModel):
+    """Решение, чей эффект не относится к компьютеру игрока.
+
+    Выделенный сервер и ускорение производственных итераций — полезные решения,
+    но они не удешевляют кадр на машине игрока. Пока такие эффекты складывались
+    в общую нагрузку, набор решений выглядел дешевле, чем он есть на самом деле.
+    """
+
+    code: str
+    name: str
+    effect_scope: str
+    effect_scope_label: str
+    reason: str
+
+
 class HardwareEstimateOut(BaseModel):
     required_gpu_index: float
     required_cpu_index: float
@@ -539,6 +563,10 @@ class HardwareEstimateOut(BaseModel):
     # области результат перестаёт различать значения, поэтому насыщение шкалы
     # нельзя выдавать за одинаковую реальную нагрузку.
     applicability_limits: list[str] = Field(default_factory=list)
+    # Решения, не вошедшие в расчёт потому, что их эффект проявляется не на
+    # компьютере игрока. Перечислены явно: иначе пользователь не отличит
+    # «не повлияло» от «забыто при расчёте».
+    non_client_methods: list[NonClientMethodOut] = Field(default_factory=list)
 
 
 class SimilarGameOut(BaseModel):

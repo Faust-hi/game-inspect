@@ -19,8 +19,8 @@ from ..models.entities import (
     Method, MethodEngineLink,
 )
 from ..models.enums import (
-    CalcMode, ConflictType, DevStage, GameFormat, LateCost, Level3, MethodKind,
-    Platform, Scale, SolutionLevel, Status, WorldType,
+    CalcMode, ConflictType, DevStage, EffectScope, GameFormat, LateCost, Level3,
+    MethodKind, Platform, Scale, SolutionLevel, Status, WorldType,
 )
 
 # Разрешённые переходы жизненного цикла. Обратный переход с «опубликовано»
@@ -57,6 +57,7 @@ ENUM_FIELDS: dict[str, tuple] = {
     "recommended_stage": DevStage,
     "late_cost": LateCost,
     "calc_mode": CalcMode,
+    "effect_scope": EffectScope,
     "kind": MethodKind,
     "conflict_type": ConflictType,
     "min_scale": Scale,
