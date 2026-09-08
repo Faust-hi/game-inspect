@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+from dataclasses import dataclass, field
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -26,6 +27,67 @@ from . import engines_data, functions_data, methods_data
 from .corrections import correct_shadow_relation
 
 PUBLISHED = Status.PUBLISHED.value
+
+#: Ключ, по которому сущность узнаётся в отчёте о заполнении.
+_ENTITY_LABELS = {
+    "game_functions": "функция",
+    "methods": "метод",
+    "engines": "движок",
+    "engine_tools": "инструмент движка",
+    "method_engine_links": "связь метода с инструментом",
+    "conflicts": "связь методов",
+    "game_examples": "пример игры",
+    "hardware_cpu": "процессор",
+    "hardware_gpu": "видеокарта",
+}
+
+
+@dataclass
+class SeedOutcome:
+    """Итог заполнения: что добавлено, что пропущено и что сохранено.
+
+    Раньше отчёт содержал только счётчики, поэтому два класса потерь были
+    невидимы: непрочитанный файл или строка без обязательного поля пропадали
+    молча, и формальный успех не означал полного импорта (N02); а повторное
+    заполнение перезаписывало ручные правки без предупреждения (D43.6).
+    """
+
+    #: Заменять ли существующие записи демонстрационными данными. По умолчанию
+    #: — нет: восстановление демоданных выполняется явно.
+    overwrite: bool = False
+    added: dict[str, int] = field(default_factory=dict)
+    skipped: list[dict] = field(default_factory=list)
+    preserved: list[dict] = field(default_factory=list)
+
+    def add(self, entity: str, count: int = 1) -> None:
+        self.added[entity] = self.added.get(entity, 0) + count
+
+    def skip(self, entity: str, key: str, reason: str) -> None:
+        """Запись не попала в базу: причина обязана быть названа."""
+        self.skipped.append({
+            "entity": entity,
+            "entity_label": _ENTITY_LABELS.get(entity, entity),
+            "key": str(key),
+            "reason": reason,
+        })
+
+    def preserve(self, entity: str, key: str, fields: list[str]) -> None:
+        """Существующая запись сохранена: правки не затираются молча."""
+        self.preserved.append({
+            "entity": entity,
+            "entity_label": _ENTITY_LABELS.get(entity, entity),
+            "key": str(key),
+            "fields": fields,
+        })
+
+    def as_report(self) -> dict:
+        return {
+            "added": dict(sorted(self.added.items())),
+            "skipped": self.skipped,
+            "skipped_count": len(self.skipped),
+            "preserved": self.preserved,
+            "preserved_count": len(self.preserved),
+        }
 
 
 def _load_json(name: str) -> list[dict]:
@@ -57,29 +119,50 @@ def _example_files() -> list[tuple[pathlib.Path, str]]:
     return files
 
 
-def _upsert(db: Session, model, key: str, values: dict):
+def _differing_fields(obj, values: dict) -> list[str]:
+    """Поля, которыми существующая запись отличается от демонстрационных данных."""
+    return [
+        name for name, value in values.items()
+        if getattr(obj, name, None) != value
+    ]
+
+
+def _upsert(db: Session, model, key: str, values: dict, *, outcome: SeedOutcome, entity: str):
+    """Добавить запись либо обновить существующую.
+
+    Без явного разрешения `outcome.overwrite` существующая запись не меняется:
+    иначе повторное заполнение стирает административные правки, и пользователь
+    узнаёт об этом только по исчезнувшим исправлениям. Различия попадают в
+    отчёт, чтобы восстановление демоданных оставалось осознанным выбором.
+    """
     obj = db.scalar(select(model).where(getattr(model, key) == values[key]))
     if obj is None:
         obj = model(**values)
         db.add(obj)
+        outcome.add(entity)
         return obj, True
-    for field, value in values.items():
-        setattr(obj, field, value)
+    if outcome.overwrite:
+        for name, value in values.items():
+            setattr(obj, name, value)
+        return obj, False
+    differing = _differing_fields(obj, values)
+    if differing:
+        outcome.preserve(entity, values[key], differing)
     return obj, False
 
 
-def seed_functions(db: Session) -> dict[str, GameFunction]:
+def seed_functions(db: Session, outcome: SeedOutcome) -> dict[str, GameFunction]:
     out: dict[str, GameFunction] = {}
     for data in functions_data.with_sources():
         payload = {k: v for k, v in data.items() if hasattr(GameFunction, k)}
         payload.setdefault("status", PUBLISHED)
-        obj, _ = _upsert(db, GameFunction, "code", payload)
+        obj, _ = _upsert(db, GameFunction, "code", payload, outcome=outcome, entity="game_functions")
         out[obj.code] = obj
     db.flush()
     return out
 
 
-def seed_methods(db: Session, functions: dict[str, GameFunction]) -> dict[str, Method]:
+def seed_methods(db: Session, functions: dict[str, GameFunction], outcome: SeedOutcome) -> dict[str, Method]:
     methods, _conflicts = methods_data.with_sources()
     out: dict[str, Method] = {}
     for data in methods:
@@ -88,7 +171,7 @@ def seed_methods(db: Session, functions: dict[str, GameFunction]) -> dict[str, M
         payload.setdefault("status", PUBLISHED)
         if function_code and function_code in functions:
             payload["function_id"] = functions[function_code].id
-        obj, _ = _upsert(db, Method, "code", payload)
+        obj, _ = _upsert(db, Method, "code", payload, outcome=outcome, entity="methods")
         out[obj.code] = obj
     db.flush()
     return out
@@ -139,16 +222,19 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
     }
 
 
-def seed_engines(db: Session) -> dict[str, Engine]:
+def seed_engines(db: Session, outcome: SeedOutcome) -> dict[str, Engine]:
     out: dict[str, Engine] = {}
     for data in engines_data.ENGINES:
-        obj, _ = _upsert(db, Engine, "code", {**data, "status": PUBLISHED})
+        obj, _ = _upsert(
+            db, Engine, "code", {**data, "status": PUBLISHED},
+            outcome=outcome, entity="engines",
+        )
         out[obj.code] = obj
     db.flush()
     return out
 
 
-def seed_engine_tools(db: Session, engines: dict[str, Engine]) -> dict[str, EngineTool]:
+def seed_engine_tools(db: Session, engines: dict[str, Engine], outcome: SeedOutcome) -> dict[str, EngineTool]:
     out: dict[str, EngineTool] = {}
     for data in engines_data.ENGINE_TOOLS:
         engine_code = data.pop("engine_code", None)
@@ -156,21 +242,26 @@ def seed_engine_tools(db: Session, engines: dict[str, Engine]) -> dict[str, Engi
         payload.setdefault("status", PUBLISHED)
         if engine_code in engines:
             payload["engine_id"] = engines[engine_code].id
-        obj, _ = _upsert(db, EngineTool, "code", payload)
+        obj, _ = _upsert(db, EngineTool, "code", payload, outcome=outcome, entity="engine_tools")
         out[obj.code] = obj
     db.flush()
     return out
 
 
-def seed_method_links(db: Session, methods: dict[str, Method], tools: dict[str, EngineTool]) -> int:
+def seed_method_links(
+    db: Session, methods: dict[str, Method], tools: dict[str, EngineTool], outcome: SeedOutcome,
+) -> int:
     count = 0
+    entity = "method_engine_links"
     for method_code, per_engine in methods_data.all_links().items():
         method = methods.get(method_code)
         if method is None:
+            outcome.skip(entity, method_code, "метод не найден в каталоге")
             continue
         for engine_code, (tool_code, relation, note) in per_engine.items():
             tool = tools.get(tool_code)
             if tool is None:
+                outcome.skip(entity, f"{method_code} → {tool_code}", "инструмент движка не найден")
                 continue
             exists = db.scalar(
                 select(MethodEngineLink).where(
@@ -179,10 +270,12 @@ def seed_method_links(db: Session, methods: dict[str, Method], tools: dict[str, 
                 )
             )
             if exists:
-                exists.relation_type = relation
-                exists.note = note
-                exists.source_url = tool.docs_url
-                exists.status = PUBLISHED
+                if outcome.overwrite:
+                    exists.relation_type = relation
+                    exists.note = note
+                    exists.source_url = tool.docs_url
+                    exists.status = PUBLISHED
+                continue
             else:
                 db.add(MethodEngineLink(
                     method_id=method.id, tool_id=tool.id,
@@ -190,16 +283,18 @@ def seed_method_links(db: Session, methods: dict[str, Method], tools: dict[str, 
                     status=PUBLISHED,
                 ))
                 count += 1
+                outcome.add(entity)
     db.flush()
     return count
 
 
-def seed_conflicts(db: Session) -> int:
+def seed_conflicts(db: Session, outcome: SeedOutcome) -> int:
     # Ключ апсерта — вся тройка (a_code, b_code, conflict_type), как в UNIQUE
     # uq_conflict_pair. Раньше ключом был один a_code: при повторном сиде вторая
     # запись с тем же a_code перезаписывала первую и падала с IntegrityError.
     _, conflicts = methods_data.with_sources()
     count = 0
+    entity = "conflicts"
     for data in conflicts:
         payload = {k: v for k, v in data.items() if hasattr(Conflict, k)}
         payload.setdefault("status", PUBLISHED)
@@ -213,31 +308,49 @@ def seed_conflicts(db: Session) -> int:
         if obj is None:
             db.add(Conflict(**payload))
             count += 1
+            outcome.add(entity)
+        elif outcome.overwrite:
+            for name, value in payload.items():
+                setattr(obj, name, value)
         else:
-            for field, value in payload.items():
-                setattr(obj, field, value)
+            differing = _differing_fields(obj, payload)
+            if differing:
+                outcome.preserve(entity, _conflict_key(payload), differing)
     db.flush()
     return count
 
 
-def seed_examples(db: Session) -> int:
+def _conflict_key(payload: dict) -> str:
+    return " / ".join(str(payload.get(part, "")) for part in ("a_code", "b_code", "conflict_type"))
+
+
+def seed_examples(db: Session, outcome: SeedOutcome) -> int:
     count = 0
+    entity = "game_examples"
     for path, default_status in _example_files():
         try:
             rows = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
+        except (OSError, ValueError) as exc:
+            # Файл не прочитан — это потеря данных, а не деталь реализации:
+            # каталог окажется неполным, а отчёт раньше молчал об этом.
+            outcome.skip(entity, path.name, f"файл не прочитан: {exc}")
             continue
         if not isinstance(rows, list):
+            outcome.skip(entity, path.name, "ожидался список записей")
             continue
         for data in rows:
-            if not isinstance(data, dict) or not data.get("source_url"):
+            if not isinstance(data, dict):
+                outcome.skip(entity, path.name, "запись не является объектом")
+                continue
+            if not data.get("source_url"):
+                outcome.skip(entity, data.get("title", "без названия"), "не указан источник")
                 continue
             payload = {k: v for k, v in data.items() if hasattr(GameExample, k)}
             # Явный статус в файле важнее умолчания каталога: так Трек 2
             # остаётся черновиком, даже если запись уже была опубликована.
             if "status" not in payload:
                 payload["status"] = default_status
-            _, created = _upsert(db, GameExample, "title", payload)
+            _, created = _upsert(db, GameExample, "title", payload, outcome=outcome, entity=entity)
             if created:
                 count += 1
         # Сброс после каждого файла: _upsert ищет через SELECT, а незафлашенные
@@ -247,18 +360,22 @@ def seed_examples(db: Session) -> int:
     return count
 
 
-def seed_hardware(db: Session) -> int:
+def seed_hardware(db: Session, outcome: SeedOutcome) -> int:
     #: Внимание: переменная цикла не должна называться `payload` — она затеняет
     #: загруженный JSON, и второй цикл начинает перебирать поля последнего
     #: процессора вместо списка видеокарт. Из-за этого каталог GPU оставался
     #: пустым, хотя наполнение выполнялось без ошибок.
+    entity_by_model = {HardwareCPU: "hardware_cpu", HardwareGPU: "hardware_gpu"}
     data = _load_json("hardware.json")
     if not isinstance(data, dict):
+        outcome.skip("hardware_cpu", "hardware.json", "файл не содержит разделов cpu/gpu")
         return 0
     count = 0
     for model_cls, section in ((HardwareCPU, "cpu"), (HardwareGPU, "gpu")):
+        entity = entity_by_model[model_cls]
         for row in data.get(section, []):
             if not row.get("model"):
+                outcome.skip(entity, section, "строка без названия модели")
                 continue
             # Внешний источник может честно оставить характеристику неизвестной
             # (например, bandwidth у мобильной или встроенной графики). Не
@@ -270,7 +387,7 @@ def seed_hardware(db: Session) -> int:
                 if hasattr(model_cls, k) and v is not None
             }
             fields.setdefault("status", PUBLISHED)
-            _, created = _upsert(db, model_cls, "model", fields)
+            _, created = _upsert(db, model_cls, "model", fields, outcome=outcome, entity=entity)
             count += int(created)
     db.flush()
     return count
@@ -352,15 +469,22 @@ def validate_knowledge_base(db: Session) -> list[dict]:
     return issues
 
 
-def seed_all(db: Session, validate: bool = True) -> dict:
-    functions = seed_functions(db)
-    methods = seed_methods(db, functions)
-    engines = seed_engines(db)
-    tools = seed_engine_tools(db, engines)
-    links = seed_method_links(db, methods, tools)
-    conflicts = seed_conflicts(db)
-    examples = seed_examples(db)
-    hardware = seed_hardware(db)
+def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dict:
+    """Заполнить базу демонстрационными данными.
+
+    `overwrite=True` — явное восстановление демоданных: существующие записи
+    заменяются. Без него правки администратора сохраняются, а все расхождения
+    попадают в отчёт, чтобы потеря исправлений не осталась незамеченной.
+    """
+    outcome = SeedOutcome(overwrite=overwrite)
+    functions = seed_functions(db, outcome)
+    methods = seed_methods(db, functions, outcome)
+    engines = seed_engines(db, outcome)
+    tools = seed_engine_tools(db, engines, outcome)
+    links = seed_method_links(db, methods, tools, outcome)
+    conflicts = seed_conflicts(db, outcome)
+    examples = seed_examples(db, outcome)
+    hardware = seed_hardware(db, outcome)
     db.commit()
     issues = validate_knowledge_base(db) if validate else []
     db.commit()
@@ -374,6 +498,7 @@ def seed_all(db: Session, validate: bool = True) -> dict:
         "game_examples": examples,
         "hardware_records": hardware,
         "validation_issues": len(issues),
+        **outcome.as_report(),
     }
 
 

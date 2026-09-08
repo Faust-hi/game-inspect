@@ -83,8 +83,25 @@ export function AdminScreen() {
 
   const handleSeed = async () => {
     try {
-      await adminApi.seed();
-      setNotice('База заполнена демонстрационными данными');
+      const report = await adminApi.seed();
+      // Пропуски и сохранённые правки обязаны быть видны: иначе формальный
+      // успех скрывает неполный импорт и потерю ручных исправлений.
+      const parts = ['База заполнена демонстрационными данными'];
+      if (report.skipped_count > 0) {
+        const sample = report.skipped
+          .slice(0, 3)
+          .map((item) => `${item.entity_label} «${item.key}»: ${item.reason}`)
+          .join('; ');
+        parts.push(`пропущено ${report.skipped_count} — ${sample}`);
+      }
+      if (report.preserved_count > 0) {
+        const sample = report.preserved
+          .slice(0, 3)
+          .map((item) => `${item.entity_label} «${item.key}» (${item.fields.join(', ')})`)
+          .join('; ');
+        parts.push(`сохранено правок ${report.preserved_count} — ${sample}`);
+      }
+      setNotice(parts.join('. '));
       await load();
     } catch (err) {
       setNotice(`Заполнение не выполнено: ${(err as Error).message}`);

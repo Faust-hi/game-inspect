@@ -82,9 +82,24 @@ def validate(db: Session = Depends(get_db)):
     return {"issues": issues, "total": len(issues)}
 
 
+class SeedIn(BaseModel):
+    """Запрос на заполнение демонстрационными данными.
+
+    `restore_demo` — явное согласие заменить существующие записи. Без него
+    повторное заполнение сохраняет административные правки и сообщает о
+    расхождениях: иначе исправления каталога исчезают без предупреждения.
+    """
+
+    restore_demo: bool = False
+    #: Имя отлично от `validate`: это имя занято методом BaseModel.
+    run_validation: bool = True
+
+
 @router.post("/seed", summary="Заполнить базу демонстрационными данными")
-def run_seed(db: Session = Depends(get_db)):
-    return seeder.seed_all(db, validate=True)
+def run_seed(payload: SeedIn = SeedIn(), db: Session = Depends(get_db)):
+    return seeder.seed_all(
+        db, validate=payload.run_validation, overwrite=payload.restore_demo
+    )
 
 
 # ---------------------------------------------------------------------------

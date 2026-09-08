@@ -72,7 +72,7 @@ def test_seed_hardware_tolerates_unknown_optional_values(db, monkeypatch):
         },
     )
 
-    assert seeder.seed_hardware(db) == 1
+    assert seeder.seed_hardware(db, seeder.SeedOutcome()) == 1
     row = db.scalar(select(HardwareGPU).where(
         HardwareGPU.model == "Calibration GPU with unknown bandwidth"
     ))

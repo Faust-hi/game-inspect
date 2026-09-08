@@ -411,3 +411,36 @@ export interface AdminOverview {
   issues: ValidationIssue[];
   issues_by_severity: { error: number; warning: number };
 }
+
+/** Запись, не попавшая в базу при заполнении: причина обязательна. */
+export interface SeedSkip {
+  entity: string;
+  entity_label: string;
+  key: string;
+  reason: string;
+}
+
+/** Существующая запись, сохранённая при заполнении: правки не затираются. */
+export interface SeedPreserved {
+  entity: string;
+  entity_label: string;
+  key: string;
+  fields: string[];
+}
+
+export interface SeedReport {
+  functions: number;
+  methods: number;
+  engines: number;
+  engine_tools: number;
+  method_engine_links: number;
+  conflicts: number;
+  game_examples: number;
+  hardware_records: number;
+  validation_issues: number;
+  added: Record<string, number>;
+  skipped: SeedSkip[];
+  skipped_count: number;
+  preserved: SeedPreserved[];
+  preserved_count: number;
+}

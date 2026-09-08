@@ -15,6 +15,7 @@ import type {
   ProjectImport,
   ProjectProfile,
   RecommendationResult,
+  SeedReport,
   ValidationIssue,
 } from './types';
 
@@ -173,7 +174,12 @@ async function adminRequest<T>(path: string, init?: RequestInit): Promise<T> {
 export const adminApi = {
   overview: () => adminRequest<AdminOverview>('/admin/overview'),
   validate: () => adminRequest<{ issues: ValidationIssue[]; total: number }>('/admin/validate', { method: 'POST' }),
-  seed: () => adminRequest<Record<string, number>>('/admin/seed', { method: 'POST' }),
+  /** `restoreDemo` — явное согласие заменить существующие записи демоданными. */
+  seed: (restoreDemo = false) =>
+    adminRequest<SeedReport>('/admin/seed', {
+      method: 'POST',
+      body: JSON.stringify({ restore_demo: restoreDemo }),
+    }),
   methods: () => adminRequest<Method[]>('/admin/methods'),
   setStatus: (code: string, status: string) =>
     adminRequest<{ code: string; status: string }>(`/admin/methods/${code}/status`, {
