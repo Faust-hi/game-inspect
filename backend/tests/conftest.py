@@ -61,6 +61,15 @@ def db_session(seeded_database):
 
     connection = engine.connect()
     transaction = connection.begin()
+    # Настоящая транзакция на уровне драйвера. Без неё изоляция только
+    # объявлена, но не работает: SQLAlchemy отмечает транзакцию логически,
+    # SQLite же остаётся в автокоммите, поэтому SAVEPOINT, который открывает
+    # сессия, воспринимается как начало транзакции, а RELEASE SAVEPOINT —
+    # как её фиксация. Внешний ROLLBACK приходит уже после того, как изменения
+    # записаны, и данные обработчиков, вызвавших `commit()`, протекают в
+    # следующие тесты. Явный BEGIN делает SAVEPOINT вложенным и сохраняет
+    # откат.
+    connection.exec_driver_sql("BEGIN")
     session = Session(
         bind=connection,
         autoflush=False,
