@@ -133,6 +133,9 @@ export interface Method {
   late_cost_label: string;
   calc_mode: string;
   calc_mode_label: string;
+  /** Где проявляется эффект: только `client` меняет требования к компьютеру игрока. */
+  effect_scope: string;
+  effect_scope_label: string;
   impact_cpu: number;
   impact_gpu: number;
   impact_ram: number;
@@ -315,6 +318,8 @@ export interface Recommendation {
   quality_impact: number;
   concept_impact: number;
   source_url: string;
+  effect_scope: string;
+  effect_scope_label: string;
 }
 
 export interface Risk {
@@ -369,9 +374,22 @@ export interface HardwareEstimate {
   exceeds_catalog: boolean;
   /** Явный список невыполненных обязательных ограничений (пределы памяти, RT). */
   unmet_limits: string[];
+  /** Выход входов за область применимости модели (насыщение шкал, платформы). */
+  applicability_limits?: string[];
   recommended_storage: string;
   estimated_draw_calls: number;
   modeling_gaps: string[];
+  /** Решения, не вошедшие в расчёт: их эффект не относится к компьютеру игрока. */
+  non_client_methods: NonClientMethod[];
+}
+
+/** Решение из корзины, исключённое из аппаратной оценки с указанием причины. */
+export interface NonClientMethod {
+  code: string;
+  name: string;
+  effect_scope: string;
+  effect_scope_label: string;
+  reason: string;
 }
 
 export interface SimilarGame {

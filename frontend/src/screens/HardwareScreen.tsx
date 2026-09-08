@@ -132,6 +132,18 @@ export function HardwareScreen() {
           </div>
         )}
 
+        {(hw.applicability_limits ?? []).length > 0 && (
+          <div style={{ marginTop: 12 }}>
+            <Callout tone="danger" title="Вне области применимости модели">
+              <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+                {(hw.applicability_limits ?? []).map((limit) => (
+                  <li key={limit}>{limit}</li>
+                ))}
+              </ul>
+            </Callout>
+          </div>
+        )}
+
         <div className="stat-grid" style={{ marginTop: 16 }}>
           <Metric label="Класс GPU" value={hw.gpu_class} hint="из 5" />
           <Metric label="Класс CPU" value={hw.cpu_class} hint="из 5" />
@@ -147,6 +159,21 @@ export function HardwareScreen() {
           <Metric label="Индекс CPU" value={hw.required_cpu_index.toFixed(2)} hint="нормированная шкала" />
         </div>
       </Card>
+
+      {(hw.non_client_methods ?? []).length > 0 && (
+        <Card
+          title="Решения, не вошедшие в расчёт"
+          hint="Полезные решения, чей эффект проявляется не на компьютере игрока: они не уменьшают требования к нему."
+        >
+          <ul className="reason-list">
+            {hw.non_client_methods.map((item) => (
+              <li key={item.code}>
+                <strong>{item.name}</strong> — {item.reason}.
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       {hw.modeling_gaps.length > 0 && (
         <Card

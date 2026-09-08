@@ -40,6 +40,10 @@ export function RecommendationList({
         const isSelected = selected.includes(item.method_code);
         const isExpanded = expanded === item.method_code;
         const support = item.engine_support;
+        // Серверная экономия и ускорение разработки не ускоряют кадр: процент
+        // эффекта в этом случае относится не к игре, а к другой машине или
+        // к производству, и показывать его как прирост FPS нельзя.
+        const isClientEffect = item.effect_scope === 'client';
 
         return (
           <div key={item.method_code} className={`method-row ${isSelected ? 'selected' : ''}`}>
@@ -73,9 +77,11 @@ export function RecommendationList({
                 <div style={{ display: 'flex', gap: 16, marginTop: 10, flexWrap: 'wrap' }}>
                   <div style={{ minWidth: 160, flex: 1 }}>
                     <div className="xsmall faint">
-                      Ожидаемый эффект {Math.round(item.performance_gain * 100)}%
+                      {isClientEffect
+                        ? `Ожидаемый эффект ${Math.round(item.performance_gain * 100)}%`
+                        : `Эффект: ${item.effect_scope_label} — не относится к компьютеру игрока`}
                     </div>
-                    <Bar value={item.performance_gain * 100} />
+                    <Bar value={isClientEffect ? item.performance_gain * 100 : 0} />
                   </div>
                   <div style={{ minWidth: 160, flex: 1 }}>
                     <div className="xsmall faint">

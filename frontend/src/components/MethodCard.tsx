@@ -30,6 +30,11 @@ export function MethodCard({ method, onClose }: { method: Method; onClose: () =>
           {method.kind === 'optimization' ? 'метод оптимизации' : 'вариант реализации'}
         </Badge>
         <Badge tone="neutral">{method.calc_mode_label}</Badge>
+        {method.effect_scope !== 'client' && (
+          <Badge tone="warn" title="Эффект не меняет требования к компьютеру игрока">
+            область эффекта: {method.effect_scope_label}
+          </Badge>
+        )}
         {method.requires_prototype && <Badge tone="warn">требует прототипа</Badge>}
       </div>
 
@@ -58,6 +63,11 @@ export function MethodCard({ method, onClose }: { method: Method; onClose: () =>
         <dd>{method.late_cost_label}</dd>
         <dt>Способ расчёта</dt>
         <dd>{method.calc_mode_label}</dd>
+        <dt>Область эффекта</dt>
+        <dd>
+          {method.effect_scope_label}
+          {method.effect_scope !== 'client' && ' — требования к компьютеру игрока не меняет'}
+        </dd>
         <dt>Сложность внедрения</dt>
         <dd>{method.complexity} из 5</dd>
         <dt>Трудозатраты</dt>
