@@ -68,3 +68,62 @@ def test_conflict_keeps_first_value(client):
     body = response.json()
     assert body["profile"]["engine"] == "unreal"
     assert any("unreal" in warning and "godot" in warning for warning in body["warnings"])
+
+
+def test_patch_contains_only_extracted_fields(client):
+    """Импорт отдаёт для применения только извлечённые поля.
+
+    Полный `profile` применять нельзя: в нём все остальные поля заполнены
+    значениями по умолчанию, и применение сбросило бы ответы пользователя.
+    """
+    response = client.post("/api/project-import", files=[
+        ("files", ("game.uproject", b'{"EngineAssociation": "5.3"}', "application/json")),
+    ])
+    assert response.status_code == 200, response.text
+    body = response.json()
+
+    assert body["patch"] == {"engine": "unreal", "engine_version": "5.3"}
+    # Предпросмотр полный, но применяется только patch.
+    assert set(body["profile"]) > set(body["patch"])
+
+
+def test_patch_does_not_reset_unrelated_answers(client):
+    """Масштаб, функции и целевые показатели не входят в patch из .uproject."""
+    response = client.post("/api/project-import", files=[
+        ("files", ("game.uproject", b'{"EngineAssociation": "5.3"}', "application/json")),
+    ])
+    patch = response.json()["patch"]
+
+    for field in ("scale", "functions", "target_fps", "target_resolution", "platforms"):
+        assert field not in patch, f"поле {field} не извлекалось и не должно применяться"
+
+
+def test_empty_import_produces_empty_patch(client):
+    """Пустой результат импорта не должен ничего сбрасывать."""
+    response = client.post("/api/project-import", files=[
+        ("files", ("notes.txt", b"just some text", "text/plain")),
+    ])
+    assert response.status_code == 200, response.text
+    assert response.json()["patch"] == {}
+
+
+def test_invalid_extracted_value_reports_reason(client):
+    """Причина отказа импорта понятна, а не сводится к «Ошибка 422»."""
+    from app.services import project_import
+
+    original = project_import.import_project
+    project_import.import_project = lambda files: {
+        "filled": {"target_fps": 9999},
+        "suggested": [], "detected": [], "warnings": [],
+    }
+    try:
+        response = client.post("/api/project-import", files=[
+            ("files", ("game.uproject", b"{}", "application/json")),
+        ])
+    finally:
+        project_import.import_project = original
+
+    assert response.status_code == 422
+    body = response.json()
+    assert isinstance(body["error"], str)
+    assert body["details"], "нужно сообщить, какое поле не подошло"

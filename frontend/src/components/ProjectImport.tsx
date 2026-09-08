@@ -5,12 +5,32 @@ import { useStore } from '../store';
 import type { ProjectImport as ImportResult } from '../types';
 import { Callout, Card } from './ui';
 
+/** Короткое представление значения поля для показа различий. */
+function formatValue(value: unknown): string {
+  if (value === null || value === undefined) return '—';
+  if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : '—';
+  if (typeof value === 'boolean') return value ? 'да' : 'нет';
+  return String(value);
+}
+
 export function ProjectImport() {
-  const { basket, loadProject, toggleBasket } = useStore();
+  const { basket, profile, updateProfile, toggleBasket } = useStore();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imported, setImported] = useState<ImportResult | null>(null);
+
+  // Импорт накладывает только извлечённые поля: пустой результат не должен
+  // сбрасывать уже заполненную анкету.
+  const changes = imported
+    ? imported.filled
+        .map((field) => ({
+          field,
+          from: formatValue(profile[field as keyof typeof profile]),
+          to: formatValue(imported.patch[field as keyof typeof imported.patch]),
+        }))
+        .filter((change) => change.from !== change.to)
+    : [];
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -47,12 +67,12 @@ export function ProjectImport() {
         >
           {busy ? 'Чтение файлов…' : 'Выбрать файлы'}
         </button>
-        {imported && (
+        {imported && Object.keys(imported.patch).length > 0 && (
           <button
             className="btn btn-sm btn-primary"
-            onClick={() => loadProject(imported.profile, basket)}
+            onClick={() => updateProfile(imported.patch)}
           >
-            Применить к анкете
+            Применить {imported.filled.length === 1 ? 'поле' : 'поля'}
           </button>
         )}
       </div>
@@ -65,10 +85,37 @@ export function ProjectImport() {
 
       {imported && (
         <div style={{ marginTop: 10 }}>
+          {imported.filled.length === 0 && (
+            <p className="small muted">
+              Из файлов не извлечено ни одного поля анкеты: применять нечего,
+              текущие ответы не изменены.
+            </p>
+          )}
           {imported.filled.length > 0 && (
             <p className="small">
-              Заполнено: <span className="mono">{imported.filled.join(', ')}</span>
+              Извлечено полей: <span className="mono">{imported.filled.join(', ')}</span>
+              {changes.length === 0 && ' — значения уже совпадают с анкетой.'}
             </p>
+          )}
+          {changes.length > 0 && (
+            <table className="table" style={{ marginTop: 8 }}>
+              <thead>
+                <tr>
+                  <th>Поле</th>
+                  <th>Сейчас</th>
+                  <th>Будет</th>
+                </tr>
+              </thead>
+              <tbody>
+                {changes.map((change) => (
+                  <tr key={change.field}>
+                    <td className="mono small">{change.field}</td>
+                    <td className="small muted">{change.from}</td>
+                    <td className="small">{change.to}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
           {imported.suggested.length > 0 && (
             <div style={{ marginTop: 8 }}>

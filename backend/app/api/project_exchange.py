@@ -7,8 +7,10 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
+from pydantic import ValidationError
 
 from ..config import settings
+from ..errors import ApiError, ErrorCode
 from ..schemas.catalog import (
     BasketRequest, ProjectImportOut, ProjectPresetsOut, ProjectProfile,
 )
@@ -52,11 +54,25 @@ async def project_import_endpoint(files: list[UploadFile] = File(...)):
     )
     try:
         profile = ProjectProfile(**parsed["filled"])
-    except Exception:  # noqa: BLE001 — кривой профиль не должен ронять эндпоинт
-        raise HTTPException(422, "Из файлов не удалось собрать корректную анкету")
+    except ValidationError as exc:
+        # Причина отказа важна пользователю: он должен понимать, какое именно
+        # извлечённое значение не подошло, а не видеть общую ошибку 422.
+        raise ApiError(
+            "Из файлов не удалось собрать корректную анкету",
+            code=ErrorCode.VALIDATION,
+            status=422,
+            details=[
+                {"field": ".".join(str(p) for p in item.get("loc", ())),
+                 "message": item.get("msg", "")}
+                for item in exc.errors()
+            ],
+        ) from exc
+
+    extracted = set(parsed["filled"]) & set(ProjectProfile.model_fields)
     return {
         "profile": profile,
-        "filled": sorted(parsed["filled"]),
+        "patch": profile.model_dump(include=extracted, mode="json"),
+        "filled": sorted(extracted),
         "suggested": parsed["suggested"],
         "detected": parsed["detected"],
         "warnings": parsed["warnings"],

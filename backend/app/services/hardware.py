@@ -12,7 +12,9 @@ from sqlalchemy.orm import Session
 
 from .. import repositories
 from ..models.entities import HardwareCPU, HardwareGPU
-from ..schemas.catalog import HardwareEstimateOut, ProjectProfile
+from ..schemas.catalog import (
+    HardwareEstimateOut, ProjectProfile, count_scale_bounds, level_unspecified,
+)
 from . import rules, serializers
 
 SCALE_FACTOR = {"small": 0.8, "medium": 1.0, "large": 1.25, "very_large": 1.5, "unknown": 1.0}
@@ -65,7 +67,14 @@ _UPSCALER_GPU_FACTOR = {
     "auto": 1.00, "none": 1.00, "taa": 0.96,
     "fsr": 0.84, "dlss": 0.80, "xess": 0.86,
 }
+# Сложность аудио влияет только на CPU. Ключа `unknown` здесь нет намеренно:
+# «не указано» означает отсутствие данных, а не отдельный уровень стоимости,
+# и обрабатывается отдельной проверкой, а не подстановкой среднего значения.
 _AUDIO_CPU_LOAD = {"low": 0.00, "medium": 0.03, "high": 0.07}
+_UNKNOWN_AUDIO_NOTE = (
+    "Сложность аудио не указана: стоимость декодирования и пространственного "
+    "звука не учтена в оценке."
+)
 _STREAMING_METHODS = {
     "world_partition_streaming", "async_loading_pipeline", "navmesh_tiling_streaming",
     "tilemap_chunk_streaming", "audio_streaming_compression",
@@ -211,8 +220,8 @@ def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_
         {"physics_simulation", "multiplayer_netcode"} & set(profile.functions)
     ):
         gaps.append("Не задан physics/network tickrate: CPU-нагрузка симуляции взята по умолчанию.")
-    if profile.audio_complexity is None and "audio_system" in profile.functions:
-        gaps.append("Не задана сложность аудио: стоимость декодирования и пространственного звука неизвестна.")
+    if level_unspecified(profile.audio_complexity) and "audio_system" in profile.functions:
+        gaps.append(_UNKNOWN_AUDIO_NOTE)
     if profile.multiplayer and profile.network_topology == "auto":
         gaps.append("Не указана сетевая схема: P2P, client-server, dedicated и lockstep имеют разную цену.")
     if profile.target_resolution in {"1440p", "1600p", "2160p", "4k"} and profile.upscaling_method == "auto":
@@ -225,6 +234,66 @@ def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_
             gaps.append("Рассчитана нагрузка базового рендера; стоимость генератора и достижение отображаемого FPS не подтверждены.")
         gaps.append("Не указаны технология и версия генерации кадров: совместимость оборудования требует отдельной проверки.")
     return gaps
+
+
+#: Диапазон целевого FPS, внутри которого зависимость стоимости кадра
+#: откалибрована. Вне диапазона используется линейная экстраполяция.
+_FPS_CALIBRATED_RANGE = (30, 144)
+
+#: Число игроков, после которого сетевой вклад перестаёт различаться.
+_PLAYER_SATURATION = 32
+
+
+def _fmt(value: float) -> str:
+    """Целое число с пробельным разделителем разрядов: «10 000»."""
+    return f"{int(value):,}".replace(",", " ")
+
+
+def _applicability_limits(profile: ProjectProfile) -> list[str]:
+    """Выход входных данных за область, в которой модель различает значения.
+
+    Модель насыщается: за верхней границей логарифмической шкалы разные числа
+    объектов дают один и тот же индекс. Сообщать об этом обязан расчёт, а не
+    пользователь: иначе одинаковый результат читается как доказанно равная
+    реальная нагрузка.
+    """
+    limits: list[str] = []
+    for field, value, label in (
+        ("object_count", profile.object_count, "объектов"),
+        ("npc_count", profile.npc_count, "NPC"),
+    ):
+        if value is None:
+            continue
+        _, top = count_scale_bounds(field)
+        if value > top:
+            limits.append(
+                f"Число {label} ({_fmt(value)}) выше верхней границы модели "
+                f"({_fmt(top)}): оценка не различает значения внутри этой области, "
+                "результат является нижней границей диапазона."
+            )
+
+    low_fps, high_fps = _FPS_CALIBRATED_RANGE
+    for value, label in ((profile.target_fps, "Целевой FPS"),
+                         (profile.base_render_fps, "Базовый FPS")):
+        if value is None:
+            continue
+        if value > high_fps:
+            limits.append(
+                f"{label} {_fmt(value)} выше откалиброванного диапазона "
+                f"({low_fps}–{high_fps}): стоимость кадра экстраполирована."
+            )
+        elif value < low_fps:
+            limits.append(
+                f"{label} {_fmt(value)} ниже откалиброванного диапазона "
+                f"({low_fps}–{high_fps}): стоимость кадра экстраполирована."
+            )
+
+    if profile.player_count > _PLAYER_SATURATION:
+        limits.append(
+            f"Число игроков ({_fmt(profile.player_count)}) выше порога различения "
+            f"({_PLAYER_SATURATION}): сетевой вклад оценён по насыщению."
+        )
+    return limits
 
 
 def _load_indices(profile: ProjectProfile, methods: list) -> dict:
@@ -245,6 +314,7 @@ def _load_indices(profile: ProjectProfile, methods: list) -> dict:
     recommended_storage = _recommended_storage(profile, method_codes)
     estimated_draw_calls = _estimated_draw_calls(profile, content, method_codes)
     modeling_gaps = _modeling_gaps(profile, method_codes, recommended_storage)
+    applicability_limits = _applicability_limits(profile)
 
     feature_gpu = 1.0 + sum(FEATURE_GPU_LOAD.get(f, 0.05) for f in profile.functions)
     feature_cpu = 1.0 + sum(FEATURE_CPU_LOAD.get(f, 0.05) for f in profile.functions)
@@ -255,7 +325,8 @@ def _load_indices(profile: ProjectProfile, methods: list) -> dict:
         elif profile.network_topology == "p2p":
             feature_cpu += 0.04
 
-    if profile.audio_complexity:
+    if not level_unspecified(profile.audio_complexity):
+        # Ключ известен: `unknown` отсечён выше и не может стать KeyError.
         feature_cpu += _AUDIO_CPU_LOAD[profile.audio_complexity]
     if profile.simulation_radius_m is not None and {"ai_pathfinding", "crowd_simulation"} & set(profile.functions):
         feature_cpu *= 1.0 + min(0.25, profile.simulation_radius_m / 40_000)
@@ -309,6 +380,7 @@ def _load_indices(profile: ProjectProfile, methods: list) -> dict:
         "recommended_storage": recommended_storage,
         "estimated_draw_calls": estimated_draw_calls,
         "modeling_gaps": modeling_gaps,
+        "applicability_limits": applicability_limits,
     }
 
 
@@ -592,4 +664,5 @@ def estimate_hardware(
         estimated_draw_calls=indices["estimated_draw_calls"],
         modeling_gaps=indices["modeling_gaps"],
         unmet_limits=picked["unmet"],
+        applicability_limits=indices["applicability_limits"],
     )

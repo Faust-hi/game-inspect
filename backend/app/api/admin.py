@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from ..config import settings
 from ..database import get_db
+from ..errors import ApiError, ErrorCode
 from ..models.entities import (
     Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU,
     Method, MethodEngineLink, Project, PublicationLog, ValidationIssue,
@@ -172,7 +173,12 @@ def upsert_method(payload: MethodIn, db: Session = Depends(get_db)):
 
     problems = publication.record_problems(Method, data)
     if problems:
-        raise HTTPException(422, {"error": "Запись отклонена", "details": publication.deduplicate(problems)})
+        raise ApiError(
+            "Запись отклонена",
+            code=ErrorCode.PUBLICATION_REJECTED,
+            status=422,
+            details=publication.deduplicate(problems),
+        )
 
     obj = db.scalar(select(Method).where(Method.code == payload.code))
     if obj is None:

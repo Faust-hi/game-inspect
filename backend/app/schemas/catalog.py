@@ -31,6 +31,16 @@ def _values(enum_cls) -> list[str]:
 LevelValue = Literal["unknown", "low", "medium", "high"]
 
 
+def level_unspecified(value: str | None) -> bool:
+    """Уровень не задан: поле отсутствует либо явно помечено как «не указано».
+
+    `unknown` — разрешённое значение анкеты. Его нельзя отождествлять ни с
+    `None`, ни с реальным уровнем нагрузки: отсутствие значения не должно
+    превращаться в измеренную величину.
+    """
+    return value is None or value == "unknown"
+
+
 # ---------------------------------------------------------------------------
 # Профиль проекта (анкета, раздел 3 плана)
 # ---------------------------------------------------------------------------
@@ -118,7 +128,11 @@ class ProjectProfile(BaseModel):
             raise ValueError("список функций должен быть массивом")
         seen, out = set(), []
         for item in v:
-            code = str(item).strip()
+            # Раньше любой объект приводился к строке: словарь превращался в
+            # код "{'a': 5}" и молча попадал в расчёт как неизвестное решение.
+            if not isinstance(item, str):
+                raise ValueError("код должен быть строкой")
+            code = item.strip()
             if not code or code in seen:
                 continue
             seen.add(code)
@@ -163,6 +177,11 @@ _COUNT_BOUNDS: dict[str, tuple[int, int]] = {
 #: Численная оценка уровня, когда точное значение не указано.
 _LEVEL_FALLBACK: dict[str, float] = {"unknown": 0.55, "low": 0.25, "medium": 0.55, "high": 0.9}
 
+#: Максимальная оценка для количества ниже нижней границы логарифмической
+#: шкалы. Величина не является измеренной: она только сохраняет монотонность
+#: (один объект не может стоить дороже двух), не изобретая точности.
+_SUB_SCALE_MAX = 0.04
+
 
 def _level_from_count(value: int | None, field: str) -> str | None:
     if value is None:
@@ -175,6 +194,17 @@ def _level_from_count(value: int | None, field: str) -> str | None:
     return "medium"
 
 
+def count_scale_bounds(field: str) -> tuple[float, float]:
+    """Границы логарифмической шкалы счётчика: (нижняя, верхняя).
+
+    За верхней границей модель перестаёт различать значения: 10 000 и
+    10 000 000 NPC дают один индекс. Это ограничение модели, и оно должно
+    сообщаться явно, а не выдаваться за одинаковую реальную нагрузку.
+    """
+    low, high = _COUNT_BOUNDS[field]
+    return max(1.0, low / 10.0), high * 10.0
+
+
 def _effective_count(value: int | None, level: str, field: str) -> float:
     """Приводит «число или уровень» к одной числовой шкале 0..1.
 
@@ -182,13 +212,19 @@ def _effective_count(value: int | None, level: str, field: str) -> float:
     объектов заметна, а между 1 000 000 и 1 010 000 — нет. Шкала совпадает с
     численной оценкой уровня, поэтому уровень и число взаимозаменяемы, а
     указанное число действительно влияет на результат.
-    """
-    if value is None or value <= 0:
-        return _LEVEL_FALLBACK.get(level, 0.55)
 
-    low, high = _COUNT_BOUNDS[field]
-    # «Низкий» и «высокий» уровни — за пределами этой логарифмической шкалы.
-    span_low, span_high = max(1.0, low / 10.0), high * 10.0
+    Ноль и отсутствие значения — разные состояния. Раньше `value <= 0`
+    обрабатывался как «не указано» и подставлял качественный уровень, из-за
+    чего профиль с нулём NPC получал нагрузку больше, чем профиль с одним NPC.
+    """
+    if value is None:
+        return _LEVEL_FALLBACK.get(level, 0.55)
+    if value <= 0:
+        return 0.0
+
+    span_low, span_high = count_scale_bounds(field)
+    if value < span_low:
+        return round(_SUB_SCALE_MAX * value / span_low, 6)
     ratio = (math.log10(float(value)) - math.log10(span_low)) / (
         math.log10(span_high) - math.log10(span_low)
     )
@@ -210,7 +246,11 @@ class BasketRequest(BaseModel):
             raise ValueError("корзина должна быть массивом кодов")
         seen, out = set(), []
         for item in v:
-            code = str(item).strip()
+            # Раньше любой объект приводился к строке: словарь превращался в
+            # код "{'a': 5}" и молча попадал в расчёт как неизвестное решение.
+            if not isinstance(item, str):
+                raise ValueError("код должен быть строкой")
+            code = item.strip()
             if not code or code in seen:
                 continue
             seen.add(code)
@@ -492,6 +532,10 @@ class HardwareEstimateOut(BaseModel):
     # обязательные аппаратные возможности. Раньше они растворялись в caveats,
     # и интерфейс показывал конфигурацию как подходящую.
     unmet_limits: list[str] = Field(default_factory=list)
+    # Выход входов за область применимости численной модели. Внутри этой
+    # области результат перестаёт различать значения, поэтому насыщение шкалы
+    # нельзя выдавать за одинаковую реальную нагрузку.
+    applicability_limits: list[str] = Field(default_factory=list)
 
 
 class SimilarGameOut(BaseModel):
@@ -548,9 +592,19 @@ class SuggestedMethod(BaseModel):
 
 
 class ProjectImportOut(BaseModel):
-    """Частичная анкета из файлов движка + прозрачность извлечения."""
+    """Частичная анкета из файлов движка + прозрачность извлечения.
+
+    `profile` — предпросмотр полной анкеты для показа пользователю. Применять
+    его целиком нельзя: незаполненные поля в нём содержат значения по
+    умолчанию, а не ответы пользователя. Для применения служит `patch` — только
+    действительно извлечённые из файлов поля.
+    """
 
     profile: ProjectProfile
+    #: Только извлечённые поля в нормализованном виде. Именно этот набор
+    #: накладывается на существующую анкету; пустой patch не должен ничего
+    #: сбрасывать.
+    patch: dict[str, Any] = Field(default_factory=dict)
     filled: list[str] = Field(default_factory=list)
     suggested: list[SuggestedMethod] = Field(default_factory=list)
     detected: list[str] = Field(default_factory=list)

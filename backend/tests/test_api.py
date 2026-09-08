@@ -574,7 +574,10 @@ def test_publication_requires_engine_link(client):
     client.patch("/api/admin/methods/tmp_linkless/status", json={"status": "reviewed"})
     response = client.patch("/api/admin/methods/tmp_linkless/status", json={"status": "published"})
     assert response.status_code == 422, response.text
-    details = " ".join(response.json()["error"]["details"]).lower()
+    body = response.json()
+    # Единый формат: `error` — строка, подробности — в верхнем `details`.
+    assert isinstance(body["error"], str)
+    details = " ".join(str(item) for item in body["details"]).lower()
     assert "связ" in details or "инструмент" in details
 
     # После появления связи публикация проходит.

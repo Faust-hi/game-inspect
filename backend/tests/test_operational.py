@@ -49,12 +49,15 @@ def test_internal_error_does_not_leak_details(client, monkeypatch, caplog):
             response = failing_client.post("/api/recommend", json={"profile": {}, "basket": []})
     assert response.status_code == 500
     body = response.json()
-    assert body["error_id"]
+    # Единый формат: код внутренней ошибки лежит в details, сообщение — строка.
+    error_id = body["details"][0]["error_id"]
+    assert error_id
     assert "секретные подробности" not in str(body)
     assert "detail" not in body
+    assert body["request_id"], "идентификатор запроса обязателен и для 500"
     # Зато подробности сохранены в журнале: по error_id их найдёт разработчик.
     assert "секретные подробности" in caplog.text
-    assert body["error_id"] in caplog.text
+    assert error_id in caplog.text
 
 
 def test_request_id_is_returned(client):

@@ -21,6 +21,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from .api import admin, catalog, project_exchange, recommend
 from .config import FRONTEND_DIST, settings
 from .database import SessionLocal, engine
+from .errors import ApiError, ErrorCode, code_for_status, error_payload
 from .logging_setup import configure_logging
 from .models.entities import Base
 from .seed import seeder
@@ -28,6 +29,11 @@ from .staticfiles_safe import safe_static_path
 
 configure_logging()
 logger = logging.getLogger("gamedev_dss")
+
+
+def request_id_of(request: Request) -> str:
+    """Идентификатор запроса: тот же, что ушёл в заголовке и в журнал."""
+    return getattr(request.state, "request_id", None) or request.headers.get("x-request-id") or ""
 
 
 def _bootstrap() -> None:
@@ -60,51 +66,98 @@ async def lifespan(app: FastAPI):
 def _register_exception_handlers(app: FastAPI) -> None:
     """Единый формат ошибок. Подробности исключений клиенту не передаются."""
 
+    def _message_and_details(detail: object) -> tuple[str, list]:
+        """Разбирает `detail` исключения: строка либо словарь с полями.
+
+        Часть маршрутов передавала словарь `{"error": ..., "details": ...}`.
+        Без разбора он попадал в тело как объект вместо строки, и клиент
+        показывал безликое «Ошибка 422», теряя причину отказа.
+        """
+        if isinstance(detail, dict):
+            message = detail.get("error") or detail.get("message") or "Ошибка запроса"
+            details = detail.get("details") or []
+            return str(message), details if isinstance(details, list) else [details]
+        return str(detail), []
+
+    @app.exception_handler(ApiError)
+    async def api_error_handler(request: Request, exc: ApiError):
+        request_id = request_id_of(request)
+        logger.warning(
+            "Ошибка %s [%s] при обработке %s: %s",
+            exc.status, exc.code.value, request.url.path, exc.message,
+        )
+        return JSONResponse(
+            status_code=exc.status,
+            content=error_payload(
+                exc.message, code=exc.code, request_id=request_id, details=exc.details,
+            ),
+        )
+
     @app.exception_handler(StarletteHTTPException)
     async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+        request_id = request_id_of(request)
+        message, details = _message_and_details(exc.detail)
         if exc.status_code >= 500:
-            logger.error("Ошибка %s при обработке %s", exc.status_code, request.url.path)
+            logger.error(
+                "Ошибка %s при обработке %s [%s]: %s",
+                exc.status_code, request.url.path, request_id, message,
+            )
         return JSONResponse(
             status_code=exc.status_code,
-            content={"error": exc.detail, "request_id": request.headers.get("x-request-id")},
+            content=error_payload(
+                message, code=code_for_status(exc.status_code),
+                request_id=request_id, details=details,
+            ),
         )
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request: Request, exc: RequestValidationError):
-        errors = [
+        details = [
             {"field": ".".join(str(p) for p in item.get("loc", ())), "message": item.get("msg", "")}
             for item in exc.errors()
         ]
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "error": "Некорректные данные запроса",
-                "details": errors,
-                "request_id": request.headers.get("x-request-id"),
-            },
+            content=error_payload(
+                "Некорректные данные запроса",
+                code=ErrorCode.VALIDATION,
+                request_id=request_id_of(request),
+                details=details,
+            ),
         )
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception):
         """Необработанное исключение: подробности в журнал, клиенту код для связи."""
+        request_id = request_id_of(request)
         error_id = uuid.uuid4().hex[:12]
-        logger.exception("Необработанное исключение %s при обработке %s", error_id, request.url.path)
+        logger.exception(
+            "Необработанное исключение %s при обработке %s [%s]",
+            error_id, request.url.path, request_id,
+        )
         return JSONResponse(
             status_code=500,
-            content={
-                "error": "Внутренняя ошибка сервиса",
-                "error_id": error_id,
-                "request_id": request.headers.get("x-request-id"),
-            },
+            content=error_payload(
+                "Внутренняя ошибка сервиса",
+                code=ErrorCode.INTERNAL,
+                request_id=request_id,
+                details=[{"error_id": error_id}],
+            ),
         )
 
 
 def _register_middleware(app: FastAPI) -> None:
-    """Сквозной идентификатор запроса."""
+    """Сквозной идентификатор запроса.
+
+    Идентификатор запоминается в состоянии запроса, а не только в заголовке:
+    обработчики ошибок запускаются вне middleware и otherwise читали бы
+    исходные заголовки, получая `request_id=null` в теле ответа.
+    """
 
     @app.middleware("http")
     async def request_context(request: Request, call_next):
         request_id = request.headers.get("x-request-id") or uuid.uuid4().hex[:12]
+        request.state.request_id = request_id
         response = await call_next(request)
         response.headers["X-Request-ID"] = request_id
         return response

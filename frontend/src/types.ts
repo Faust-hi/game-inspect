@@ -257,6 +257,14 @@ export interface SuggestedMethod {
 
 export interface ProjectImport {
   profile: ProjectProfile;
+  /**
+   * Только реально извлечённые из файлов поля.
+   *
+   * `profile` — это предпросмотр полной анкеты: незаполненные поля в нём
+   * содержат значения по умолчанию. Применение `profile` целиком сбросило бы
+   * ответы пользователя, поэтому применяется только `patch`.
+   */
+  patch: Partial<ProjectProfile>;
   filled: string[];
   suggested: SuggestedMethod[];
   detected: string[];
