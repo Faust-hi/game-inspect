@@ -1,5 +1,7 @@
-"""Подключение к локальной SQLite-базе."""
+"""Подключение к локальной SQLite-базе (единственная поддерживаемая СУБД)."""
 from __future__ import annotations
+
+from urllib.parse import urlparse
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
@@ -8,11 +10,20 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from .config import settings
 
 
+def _connect_args(database_url: str) -> dict:
+    # `check_same_thread` — параметр SQLite-драйвера; для других схем его
+    # передавать нельзя. Неподдерживаемые схемы не падают здесь: явный отказ
+    # с объяснением выдаёт `db_migrate.ensure_schema` и /api/health (D38).
+    if urlparse(database_url).scheme == "sqlite":
+        return {"check_same_thread": False}
+    return {}
+
+
 engine = create_engine(
     settings.DATABASE_URL,
     echo=settings.DB_ECHO,
     future=True,
-    connect_args={"check_same_thread": False},
+    connect_args=_connect_args(settings.DATABASE_URL),
 )
 
 

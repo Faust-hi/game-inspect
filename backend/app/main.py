@@ -1,6 +1,7 @@
 """Точка входа локального FastAPI-приложения.
 
-При старте создаются таблицы и, если база пуста и заполнение разрешено,
+При старте схема приводится к head штатным механизмом Alembic (с резервной
+копией существующего файла); если база пуста и заполнение разрешено,
 выполняется первичное наполнение демонстрационными данными.
 Собранный frontend отдаётся как статические файлы, поэтому достаточно
 одного процесса на 127.0.0.1.
@@ -20,10 +21,10 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .api import admin, catalog, project_exchange, recommend
 from .config import FRONTEND_DIST, settings
-from .database import SessionLocal, engine
+from .database import SessionLocal
 from .errors import ApiError, ErrorCode, code_for_status, error_payload
 from .logging_setup import configure_logging
-from .models.entities import Base
+from . import db_migrate
 from .seed import seeder
 from .staticfiles_safe import safe_static_path
 
@@ -37,7 +38,23 @@ def request_id_of(request: Request) -> str:
 
 
 def _bootstrap() -> None:
-    Base.metadata.create_all(bind=engine)
+    """Штатный старт: схема — только миграциями, с резервной копией.
+
+    `create_all` здесь не вызывается намеренно: он не добавляет колонки в
+    существующие таблицы, и старая база молча оставалась бы устаревшей (D37).
+    При неуспешной миграции заполнение пропускается: приложение стартует
+    неготовым (см. /api/health), а не «как готовое».
+    """
+    try:
+        db_migrate.assert_supported_database(settings.DATABASE_URL)
+    except db_migrate.UnsupportedDatabaseError as exc:
+        db_migrate.state.update(schema_ok=False, schema_error=str(exc))
+        logger.error("Неподдерживаемая СУБД: %s", exc)
+        return
+    report = db_migrate.ensure_schema()
+    if not report.get("migrated"):
+        logger.error("Заполнение пропущено: схема не приведена к head")
+        return
     if not settings.AUTO_SEED:
         return
     db = SessionLocal()
@@ -164,10 +181,30 @@ def _register_middleware(app: FastAPI) -> None:
 
 
 def _register_health(app: FastAPI) -> None:
-    """Проверка состояния локального сервиса."""
+    """Проверка состояния локального сервиса.
+
+    Разделяет живость процесса и готовность данных (D43.4): процесс отвечает
+    всегда, а `ready=false` / `unavailable` означает, что схема не приведена
+    к head либо опубликованный срез каталога неполон. Частично пустая база
+    не выглядит готовой: требуются опубликованные методы и оборудование.
+    """
 
     @app.get("/api/health", tags=["Служебное"], summary="Состояние сервиса")
     def health():
+        from sqlalchemy import func, select
+
+        from .models.entities import HardwareCPU, HardwareGPU, Method
+
+        if not db_migrate.state.get("schema_ok", True):
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "status": "unavailable", "version": settings.APP_VERSION,
+                    "database": "error", "ready": False,
+                    "schema_error": str(db_migrate.state.get("schema_error") or ""),
+                    "catalog": {"methods": 0, "hardware_cpu": 0, "hardware_gpu": 0},
+                },
+            )
         db = SessionLocal()
         try:
             try:
@@ -176,15 +213,35 @@ def _register_health(app: FastAPI) -> None:
                 logger.exception("Проверка базы данных не прошла")
                 return JSONResponse(
                     status_code=503,
-                    content={"status": "unavailable", "version": settings.APP_VERSION, "database": "error"},
+                    content={"status": "unavailable", "version": settings.APP_VERSION,
+                             "database": "error", "ready": False, "schema_error": None,
+                             "catalog": {"methods": 0, "hardware_cpu": 0, "hardware_gpu": 0}},
                 )
+            published_methods = db.scalar(
+                select(func.count(Method.id)).where(Method.status == "published")
+            ) or 0
+            published_cpu = db.scalar(
+                select(func.count(HardwareCPU.id)).where(HardwareCPU.status == "published")
+            ) or 0
+            published_gpu = db.scalar(
+                select(func.count(HardwareGPU.id)).where(HardwareGPU.status == "published")
+            ) or 0
+            catalog = {
+                "methods": published_methods,
+                "hardware_cpu": published_cpu, "hardware_gpu": published_gpu,
+            }
+            ready = published_methods > 0 and published_cpu > 0 and published_gpu > 0
             filled = not seeder.is_empty(db)
         finally:
             db.close()
+        database = "ready" if filled else "empty"
         return {
-            "status": "ok" if filled else "degraded",
+            "status": "ok" if ready else "degraded",
             "version": settings.APP_VERSION,
-            "database": "ready" if filled else "empty",
+            "database": database,
+            "ready": ready,
+            "schema_error": None,
+            "catalog": catalog,
         }
 
 

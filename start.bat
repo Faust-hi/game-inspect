@@ -29,27 +29,33 @@ if exist "%PY%" (
     )
 )
 
-rem --- 2. Backend dependencies ------------------------------------------------
+rem --- 2. Backend dependencies (lock-first, same as CI) -------------------------
 echo [2/5] Installing backend dependencies...
-"%PY%" -m pip install --quiet --disable-pip-version-check -r "%ROOT%backend\requirements.txt"
+if exist "%ROOT%backend\requirements.lock" (
+    "%PY%" -m pip install --quiet --disable-pip-version-check -r "%ROOT%backend\requirements.lock"
+) else (
+    "%PY%" -m pip install --quiet --disable-pip-version-check -r "%ROOT%backend\requirements.txt"
+)
 if errorlevel 1 (
     echo ERROR: failed to install backend dependencies.
     goto :fail
 )
 
-rem --- 3. Frontend dependencies -----------------------------------------------
-if exist "%ROOT%frontend\node_modules" (
-    echo [3/5] Frontend dependencies found.
+rem --- 3. Frontend dependencies (lock-first, same as CI) -----------------------
+rem Existing node_modules is NOT proof of matching dependencies, so install
+rem from the lock file instead of trusting it.
+echo [3/5] Installing frontend dependencies...
+pushd "%ROOT%frontend"
+if exist "package-lock.json" (
+    call npm ci
 ) else (
-    echo [3/5] Installing frontend dependencies...
-    pushd "%ROOT%frontend"
     call npm install
-    popd
-    if not exist "%ROOT%frontend\node_modules" (
-        echo ERROR: failed to install frontend dependencies.
-        echo Install Node.js 18 or newer and run this file again.
-        goto :fail
-    )
+)
+popd
+if not exist "%ROOT%frontend\node_modules" (
+    echo ERROR: failed to install frontend dependencies.
+    echo Install Node.js 18 or newer and run this file again.
+    goto :fail
 )
 
 rem --- 4. Launch services -----------------------------------------------------
@@ -61,7 +67,18 @@ start "DSS frontend" "%ROOT%frontend\run.bat"
 
 echo.
 echo Waiting for the services to come up...
-timeout /t 10 /nobreak >nul
+echo Checking that 127.0.0.1:8000 serves our backend and localhost:5173 serves our frontend...
+"%PY%" "%ROOT%backend\wait_for_services.py"
+if errorlevel 1 (
+    echo ERROR: services did not become ready or ports serve foreign processes.
+    echo Check the two opened console windows for errors. Browser was NOT opened.
+    goto :fail
+)
+if errorlevel 1 (
+    echo ERROR: services did not become ready or ports serve foreign processes.
+    echo Check the two opened console windows for errors. Browser was NOT opened.
+    goto :fail
+)
 
 start "" http://localhost:5173
 
