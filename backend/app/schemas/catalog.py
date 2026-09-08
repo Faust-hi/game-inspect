@@ -16,7 +16,7 @@ from typing import Annotated, Any, Literal
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from ..models.enums import (
-    DevStage, EngineCode, GameFormat, MemoryModel, NetworkTopology, Platform,
+    DevStage, GameFormat, MemoryModel, NetworkTopology, Platform,
     Priority, RenderAPI, Resolution, Quality, Scale, StorageType,
     UpscalingMethod, WorldType,
 )
@@ -56,7 +56,10 @@ class ProjectProfile(BaseModel):
 
     # Стадия и технологии
     stage: Literal[tuple(_values(DevStage))] = "prototype"
-    engine: Literal[tuple(_values(EngineCode))] = "unreal"
+    # Код движка не зашит перечислением: движок добавляется через каталог, и
+    # новый код должен приниматься без правки схемы. Допустимость проверяется
+    # по фактическому наполнению каталога — см. `services/engines.py`.
+    engine: Annotated[str, Field(min_length=1, max_length=64, pattern=r"^[A-Za-z0-9_.-]+$")] = "unreal"
     engine_version: Annotated[str | None, Field(max_length=40)] = None
     platforms: Annotated[
         list[Literal[tuple(_values(Platform))]], Field(min_length=1, max_length=11)
