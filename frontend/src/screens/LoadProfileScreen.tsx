@@ -49,8 +49,10 @@ export function LoadProfileScreen() {
   const methodsByCode = useMemo(() => buildMethodMap(catalog.methods), [catalog.methods]);
 
   const selected = useMemo(
-    () => selectedMethods(basket, methodsByCode),
-    [basket, methodsByCode],
+    () => (result?.selected_methods ?? selectedMethods(basket, methodsByCode))
+      .filter(method => (result?.accounted_method_codes?.includes(method.code) ?? true)
+        && !['server', 'development', 'offline'].includes(method.effect_scope)),
+    [basket, methodsByCode, result],
   );
 
   if (calculating) return <Loading text="Расчёт профиля нагрузки…" />;

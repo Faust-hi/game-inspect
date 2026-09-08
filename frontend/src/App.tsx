@@ -1,5 +1,5 @@
 /** Корневой компонент: навигация по этапам работы, экспорт и административный раздел. */
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useEnsureResult, useStore } from './store';
 import { api } from './api';
 import { Callout, Loading, Toast } from './components/ui';
@@ -78,6 +78,7 @@ export function App() {
     toggleBasket,
     loadProject,
     reloadCatalog,
+    storageError,
   } = useStore();
 
   const [step, setStep] = useState<StepKey>('profile');
@@ -85,6 +86,11 @@ export function App() {
   const [compareCodes, setCompareCodes] = useState<string[] | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [projectId, setProjectId] = useState('');
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [savedSnapshotId, setSavedSnapshotId] = useState<string | null>(null);
+  useEffect(() => {
+    if (result?.snapshot_id !== savedSnapshotId) setProjectId('');
+  }, [result?.snapshot_id, savedSnapshotId]);
 
   const hasFunctions = profile.functions.length > 0;
   const hasResult = result !== null;
@@ -119,7 +125,9 @@ export function App() {
 
   const handleSave = async () => {
     try {
-      const { public_id } = await api.saveProject(profile, basket);
+      const { public_id, result: snapshot } = await api.saveProject(profile, basket);
+      loadProject(snapshot.profile, snapshot.basket_codes ?? basket, snapshot);
+      setSavedSnapshotId(snapshot.snapshot_id ?? null);
       setProjectId(public_id);
       setToast(`Проект сохранён. Идентификатор: ${public_id}`);
     } catch (error) {
@@ -132,7 +140,8 @@ export function App() {
     if (!entered) return;
     try {
       const project = await api.loadProject(entered.trim());
-      loadProject(project.profile, project.basket);
+      loadProject(project.profile, project.basket, project.result);
+      setSavedSnapshotId(project.result?.snapshot_id ?? null);
       setProjectId(project.public_id);
       setStep('profile');
       setToast(`Проект «${project.name}» загружен`);
@@ -144,6 +153,22 @@ export function App() {
   const handleExportJson = () => {
     exportProjectJson(profile, basket, result);
     setToast('Файл JSON сформирован');
+  };
+
+  const handleFileImport = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      const project = await api.importProjectFile(file);
+      loadProject(project.profile, project.basket, project.result);
+      setProjectId('');
+      setSavedSnapshotId(null);
+      setToast(project.result?.snapshot_id
+        ? 'Сохранённый снимок восстановлен. Для расчёта по текущему каталогу нажмите «Рассчитать».'
+        : 'Проект восстановлен; полный исторический снимок отсутствует.');
+    } catch (error) {
+      setToast(`Импорт не выполнен: ${(error as Error).message}`);
+    }
+    if (fileInput.current) fileInput.current.value = '';
   };
 
   const handleExportPdf = () => {
@@ -234,6 +259,10 @@ export function App() {
           <button className="header-link" onClick={() => void handleSave()}>
             Сохранить
           </button>
+          <input ref={fileInput} type="file" accept=".json,application/json" hidden
+            onChange={event => void handleFileImport(event.target.files?.[0])} />
+          <button className="header-link" onClick={() => fileInput.current?.click()}>Открыть JSON</button>
+          {storageError && <span role="alert">{storageError}</span>}
           <button className="header-link" onClick={() => void handleLoad()}>
             Загрузить
           </button>

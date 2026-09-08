@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import uuid
+from urllib.parse import urlsplit
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, status
@@ -175,6 +176,14 @@ def _register_middleware(app: FastAPI) -> None:
     async def request_context(request: Request, call_next):
         request_id = request.headers.get("x-request-id") or uuid.uuid4().hex[:12]
         request.state.request_id = request_id
+        origin = request.headers.get("origin")
+        if request.method not in {"GET", "HEAD", "OPTIONS"} and origin:
+            allowed = {str(request.base_url).rstrip('/'), 'http://localhost:5173', 'http://127.0.0.1:5173'}
+            if origin not in allowed or urlsplit(origin).hostname not in {'localhost', '127.0.0.1', '::1'}:
+                logger.warning("Rejected browser origin request_id=%s", request_id)
+                return JSONResponse(status_code=403, headers={"X-Request-ID": request_id},
+                    content=error_payload("Изменяющий запрос из стороннего сайта запрещён",
+                                          code=ErrorCode.FORBIDDEN, request_id=request_id))
         response = await call_next(request)
         response.headers["X-Request-ID"] = request_id
         return response

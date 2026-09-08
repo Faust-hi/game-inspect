@@ -19,6 +19,8 @@
 """
 from __future__ import annotations
 
+import uuid
+
 from sqlalchemy.orm import Session
 
 from .. import repositories, timeutil
@@ -40,7 +42,7 @@ from .topsis import Criterion, criterion_matrix_rows, topsis
 #: отбора: по ней можно понять, какой версией получен сохранённый результат.
 #: 2.3.0 — область прогноза только Windows/Linux ПК, CPU следует за базовым
 #: рендером при генерации кадров, unified-память без универсальной скидки.
-ALGORITHM_VERSION = "2.3.0"
+ALGORITHM_VERSION = "2.4.0"
 
 #: Версия набора данных. Меняется при обновлении базы знаний, влияющем на
 #: ранжирование (пересчёт индексов оборудования, пересмотр оценок эффекта).
@@ -329,6 +331,27 @@ def detect_risks(
 # 3-8. Подбор, фильтрация и ранжирование
 # ---------------------------------------------------------------------------
 def build_recommendations(db: Session, profile, basket_codes: list[str]) -> RecommendationResult:
+    # Freeze the catalogue cards used by every view, including printed reports.
+    from .catalog_revision import published_revision
+
+    basket_codes = sorted(set(basket_codes))
+    profile = profile.model_copy(update={
+        "functions": sorted(set(profile.functions)),
+        "platforms": sorted(set(profile.platforms)),
+    })
+    result = _build_recommendations(db, profile, basket_codes)
+    selected = repositories.methods_by_codes(db, basket_codes)
+    accounted, _ = rules.assess_selected_methods(selected, profile, repositories.conflicts(db))
+    result.selected_methods = [serializers.method_to_out_public(db, method) for method in selected]
+    result.accounted_method_codes = sorted(method.code for method in accounted)
+    result.snapshot_id = uuid.uuid4().hex
+    result.catalog_revision = published_revision(db)
+    result.meta["dataset_version"] = result.catalog_revision
+    result.input_key = input_fingerprint(profile, basket_codes, ALGORITHM_VERSION, result.catalog_revision)
+    return result
+
+
+def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> RecommendationResult:
     conflicts = conflict_map(db)
     engines = repositories.engines(db)
 
@@ -399,7 +422,7 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
     # 6. Матрица решений и TOPSIS.
     weights = WEIGHT_PROFILES.get(profile.priority, WEIGHT_PROFILES["balanced"])
     criteria = [
-        Criterion("performance_gain", "Ожидаемый прирост производительности", "benefit", weights["performance_gain"]),
+        Criterion("performance_gain", "Экспертная оценка эффекта", "benefit", weights["performance_gain"]),
         Criterion("quality_preservation", "Сохранение качества", "benefit", weights["quality_preservation"]),
         Criterion("concept_fidelity", "Соответствие исходной концепции", "benefit", weights["concept_fidelity"]),
         Criterion("implementation_cost", "Стоимость внедрения", "cost", weights["implementation_cost"]),
@@ -412,7 +435,7 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
     matrix: list[list[float]] = []
     for method, applicability in evaluated:
         resource = rules.resource_fit(method, profile)
-        risk_value = (method.complexity - 1) / 4.0 * 0.6 + (1 - method.confidence) * 0.4
+        risk_value = (method.complexity - 1) / 4.0
         matrix.append([
             float(method.performance_gain),
             (method.quality_impact + 2) / 4.0,
@@ -424,27 +447,32 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
             float(method.confidence),
         ])
 
-    result = topsis(matrix, criteria)
-    scores = result.scores
-    rows = criterion_matrix_rows(matrix, criteria)
-
-    # Сортировка: по убыванию коэффициента близости, при равенстве — по коду (воспроизводимость).
-    order = sorted(range(len(evaluated)), key=lambda i: (-scores[i], evaluated[i][0].code))
-    total = len(evaluated)
-
-    # Устойчивость рангов: тот же тай-брейк, что и выше, иначе вилка врёт.
-    stability = sensitivity.analyze(
-        matrix, criteria, [method.code for method, _ in evaluated],
-    )
-
+    # Compare alternatives only within the function whose implementation they solve.
+    groups: dict[str | None, list[int]] = {}
+    for index, (method, _) in enumerate(evaluated):
+        key, _ = _recommendation_function(method)
+        groups.setdefault(key, []).append(index)
     recommendations: list[RecommendationOut] = []
-    for rank, idx in enumerate(order, start=1):
-        method, applicability = evaluated[idx]
-        recommendations.append(_build_recommendation(
-            db, method, functions, applicability, scores[idx], rank, total, rows[idx],
-            profile, comparable=result.comparable, compare_reason=result.reason,
-            stability=stability.get(method.code) if stability else None,
-        ))
+    comparison_notes: list[str] = []
+    all_comparable = True
+    for function_code, indices in sorted(groups.items(), key=lambda item: item[0] or ""):
+        group_matrix = [matrix[index] for index in indices]
+        group_methods = [evaluated[index] for index in indices]
+        ranking = topsis(group_matrix, criteria)
+        rows = criterion_matrix_rows(group_matrix, criteria)
+        stability = sensitivity.analyze(group_matrix, criteria, [method.code for method, _ in group_methods])
+        order = sorted(range(len(indices)), key=lambda index: (-ranking.scores[index], group_methods[index][0].code))
+        if not ranking.comparable:
+            all_comparable = False
+            comparison_notes.append(f"{function_code or 'general'}: {ranking.reason}")
+        for rank, index in enumerate(order, start=1):
+            method, applicability = group_methods[index]
+            recommendations.append(_build_recommendation(
+                db, method, functions, applicability, ranking.scores[index], rank,
+                len(indices), rows[index], profile, comparable=ranking.comparable,
+                compare_reason=ranking.reason,
+                stability=stability.get(method.code) if stability else None,
+            ))
 
     tail = _tail(
         db, profile, basket_methods, basket_codes, methods_by_code,
@@ -467,11 +495,11 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
         meta=_meta(
             profile, weights=weights, candidates=len(candidates), applicable=len(evaluated),
             excluded=len(excluded), calculated_at=calculated_at,
-            comparable=result.comparable,
-            compare_reason=result.reason or None,
+            comparable=all_comparable,
+            compare_reason="; ".join(comparison_notes) or None,
             note=(
-                "Сравнение решений ограничено: " + result.reason
-                if not result.comparable else None
+                "Сравнение решений ограничено: " + "; ".join(comparison_notes)
+                if not all_comparable else None
             ),
         ),
     )
@@ -607,7 +635,7 @@ def _recommendation_reasons(
 ) -> list[str]:
     """Человекочитаемое объяснение рекомендации."""
     reasons: list[str] = [
-        f"Ожидаемый эффект: {method.performance_gain:.0%} — {_gain_text(method.performance_gain)}."
+        f"Экспертный балл эффекта: {method.performance_gain:.2f} из 1. Это не измеренный процент ускорения."
     ]
     if comparable:
         reasons.append(
@@ -903,13 +931,13 @@ def basket_compatibility(
             elif row.a_code in basket and row.b_code not in basket:
                 # Зависимость не закрыта: решение в корзине не сработает в одиночку.
                 b = methods_by_code.get(row.b_code)
-                if b is not None:
-                    conflicts.append(item(
-                        row, "unmet_dependency", "незакрытая зависимость",
-                        f"Решение «{methods_by_code.get(row.a_code).name if methods_by_code.get(row.a_code) else row.a_code}» "
-                        f"требует «{b.name}»: {row.description}",
-                        f"Добавить «{b.name}» в корзину или отказаться от решения «{row.a_code}».",
-                    ))
+                required_name = b.name if b is not None else row.b_code
+                conflicts.append(item(
+                    row, "unmet_dependency", "незакрытая зависимость",
+                    f"Решение «{row.a_code}» требует «{required_name}»: {row.description}",
+                    (f"Добавить «{required_name}» в корзину или отказаться от решения «{row.a_code}»."
+                     if b is not None else "Обязательная зависимость отсутствует в опубликованном каталоге."),
+                ))
         elif ctype in {ConflictType.COMPLEMENT.value}:
             if pair_in_basket:
                 synergies.append(item(

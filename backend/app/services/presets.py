@@ -31,11 +31,11 @@ def unreal_scalability_ini(profile: ProjectProfile, basket: set[str]) -> str:
         "; Сгенерировано ИС поддержки принятия решений.",
         f"; Проект: {profile.name} | {profile.target_resolution} / {profile.target_quality} / {profile.target_fps} FPS",
         "; Строка со значением — активна; всё несвязанное помечено default.",
-        "; Скопируйте нужное в Config/DefaultScalability.ini и проверьте на min-spec.",
+        "; Пример для ручной проверки. Native-применимость в указанной версии не проверена.",
         "[ScalabilitySettings]",
         f"sg.ResolutionQuality={pick({'temporal_upscaling', 'dynamic_resolution_scaling'}, 100 if tier >= 2 else 85, 'базовое разрешение кадра')}",
-        f"sg.ViewDistance={pick({'world_partition_streaming', 'hierarchical_lod'}, 3 if tier >= 2 else 2, 'дальность прорисовки')}",
-        f"sg.AntiAliasing={pick({'temporal_upscaling'}, 4 if tier >= 2 else 2, 'сглаживание')}",
+        f"sg.ViewDistanceQuality={pick({'world_partition_streaming', 'hierarchical_lod'}, 3 if tier >= 2 else 2, 'дальность прорисовки')}",
+        f"sg.AntiAliasingQuality={pick({'temporal_upscaling'}, 3 if tier >= 2 else 2, 'сглаживание')}",
         f"sg.ShadowQuality={pick({'cascaded_shadow_maps', 'static_shadow_caching', 'distance_field_shadows'}, 3 if tier >= 2 else 1, 'тени')}",
         f"sg.PostProcessQuality={pick({'temporal_upscaling', 'post_effect_selective'}, 3 if tier >= 2 else 1, 'постобработка')}",
         f"sg.TextureQuality={pick({'virtual_texturing', 'neural_texture_compression', 'lightmap_compression_streaming'}, 3 if tier >= 2 else 2, 'текстуры')}",
@@ -93,9 +93,9 @@ def godot_rendering_preset(profile: ProjectProfile, basket: set[str]) -> dict:
     tier = _tier(profile)
     return {
         "rendering/anti_aliasing/quality/msaa_3d": val(set(), 2 if tier >= 2 else 1, 1, "MSAA 3D 0–3"),
-        "rendering/anti_aliasing/quality/ssao_quality": val(
+        "rendering/environment/ssao/quality": val(
             {"screen_space_gi", "screen_space_contact_shadows"}, 2 if tier >= 2 else 1, 1, "качество SSAO"),
-        "rendering/anti_aliasing/quality/ssil_quality": val(
+        "rendering/environment/ssil/quality": val(
             {"screen_space_gi"}, 2 if tier >= 2 else 0, 0, "качество SSIL"),
         "rendering/lights_and_shadows/directional_shadow/size": val(
             {"cascaded_shadow_maps"}, 4096 if tier >= 2 else 2048, 2048, "размер карт теней"),
@@ -112,6 +112,7 @@ def build_preset_files(profile: ProjectProfile, basket: list[str]) -> list[dict]
     """Три файла пресетов с заголовком о происхождении каждой строки."""
     codes = set(basket or [])
     header = (
+        "Пример для ручной проверки; native-применимость не проверена. "
         f"Проект: {profile.name} | {profile.target_resolution} / "
         f"{profile.target_quality} / {profile.target_fps} FPS | корзина: {len(codes)}"
     )

@@ -1,6 +1,7 @@
 /** Административный раздел: наполнение, проверка и публикация базы знаний (раздел 6 плана). */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { adminApi } from '../api';
+import { useStore } from '../store';
 import { Badge, Callout, Card, Empty, Field, Loading, Metric, Select } from '../components/ui';
 import type { AdminOverview, Method, ValidationIssue } from '../types';
 
@@ -41,6 +42,7 @@ function statusTone(status: string): 'neutral' | 'info' | 'ok' {
 }
 
 export function AdminScreen() {
+  const { reloadCatalog } = useStore();
   const [overview, setOverview] = useState<AdminOverview | null>(null);
   const [methods, setMethods] = useState<Method[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -84,6 +86,7 @@ export function AdminScreen() {
   const handleSeed = async () => {
     try {
       const report = await adminApi.seed();
+      await reloadCatalog();
       // Пропуски и сохранённые правки обязаны быть видны: иначе формальный
       // успех скрывает неполный импорт и потерю ручных исправлений.
       const parts = ['База заполнена демонстрационными данными'];
@@ -111,6 +114,7 @@ export function AdminScreen() {
   const handleStatus = async (code: string, status: string) => {
     try {
       await adminApi.setStatus(code, status);
+      await reloadCatalog();
       setMethods((prev) =>
         (prev ?? []).map((m) => (m.code === code ? { ...m, status } : m)),
       );
@@ -124,6 +128,7 @@ export function AdminScreen() {
     if (!window.confirm(`Удалить метод «${code}»? Действие необратимо.`)) return;
     try {
       await adminApi.deleteMethod(code);
+      await reloadCatalog();
       setMethods((prev) => (prev ?? []).filter((m) => m.code !== code));
       setNotice(`Метод удалён: ${code}`);
     } catch (err) {
@@ -135,6 +140,7 @@ export function AdminScreen() {
     if (!file) return;
     try {
       const result = await adminApi.importEntity(importEntity, file);
+      await reloadCatalog();
       setNotice(
         `Импорт завершён: создано ${result.created}, обновлено ${result.updated}, пропущено ${result.skipped}`,
       );

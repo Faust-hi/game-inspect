@@ -607,6 +607,10 @@ class RecommendationResult(BaseModel):
     meta: dict[str, Any] = Field(default_factory=dict)
     basket_codes: list[str] = Field(default_factory=list)
     input_key: str = ""
+    snapshot_id: str | None = None
+    catalog_revision: str | None = None
+    selected_methods: list[MethodOut] = Field(default_factory=list)
+    accounted_method_codes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _fill_input_key(self):
@@ -655,6 +659,8 @@ class PresetFile(BaseModel):
 
 class ProjectPresetsOut(BaseModel):
     files: list[PresetFile] = Field(default_factory=list)
+    native_verified: bool = False
+    notes: list[str] = Field(default_factory=list)
 
 
 class FeedbackIn(BaseModel):
@@ -703,9 +709,14 @@ def input_fingerprint(
     с ними — ключ различает расчёты разных версий для одного профиля и корзины.
     Пустые строки не добавляются, чтобы старые вызовы давали прежний хеш.
     """
+    normalized = profile.model_dump(mode="json")
+    for key in ("functions", "platforms"):
+        normalized[key] = sorted(set(normalized[key]))
+    if normalized["target_resolution"] == "4k":
+        normalized["target_resolution"] = "2160p"
     payload_dict: dict[str, object] = {
-        "profile": profile.model_dump(mode="json"),
-        "basket": sorted(basket or []),
+        "profile": normalized,
+        "basket": sorted(set(basket or [])),
     }
     if algorithm_version:
         payload_dict["algorithm_version"] = algorithm_version

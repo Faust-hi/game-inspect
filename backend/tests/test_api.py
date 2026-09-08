@@ -131,11 +131,11 @@ def test_recommend_returns_ranked_plan(client, profile):
     data = response.json()
 
     assert data["recommendations"], "Для корректного профиля должны быть рекомендации"
-    scores = [item["score"] for item in data["recommendations"]]
-    assert scores == sorted(scores, reverse=True)
-    assert [item["rank"] for item in data["recommendations"]] == list(
-        range(1, len(data["recommendations"]) + 1)
-    )
+    for function in {item["function_code"] for item in data["recommendations"]}:
+        group = [item for item in data["recommendations"] if item["function_code"] == function]
+        scores = [item["score"] for item in group]
+        assert scores == sorted(scores, reverse=True)
+        assert [item["rank"] for item in group] == list(range(1, len(group) + 1))
 
     first = data["recommendations"][0]
     assert first["reasons"], "Каждая рекомендация должна содержать объяснение"

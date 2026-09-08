@@ -99,7 +99,7 @@ export function HardwareScreen() {
         hint="Класс рассчитан по характеристикам проекта, целевому разрешению, качеству и FPS с учётом выбранного набора решений."
         actions={
           <Badge tone={confidenceTone}>
-            уверенность: {hw.confidence_label} ({Math.round(hw.confidence * 100)}%)
+            полнота исходных данных: {hw.confidence_label}
           </Badge>
         }
       >
@@ -110,9 +110,8 @@ export function HardwareScreen() {
 
         {hw.exceeds_catalog && (
           <div style={{ marginTop: 12 }}>
-            <Callout tone="danger" title="Требования превышают каталог">
-              Рассчитанная нагрузка выше самых производительных записей базы. Снизьте целевые
-              показатели, пересмотрите набор решений или масштаб мира.
+            <Callout tone="danger" title="Подходящая конфигурация не найдена">
+              Каталог не покрывает все требования. Причины и ограничения перечислены ниже.
             </Callout>
           </div>
         )}

@@ -78,7 +78,7 @@ export function RecommendationList({
                   <div style={{ minWidth: 160, flex: 1 }}>
                     <div className="xsmall faint">
                       {isClientEffect
-                        ? `Ожидаемый эффект ${Math.round(item.performance_gain * 100)}%`
+                        ? `Экспертный балл эффекта ${item.performance_gain.toFixed(2)} / 1`
                         : `Эффект: ${item.effect_scope_label} — не относится к компьютеру игрока`}
                     </div>
                     <Bar value={isClientEffect ? item.performance_gain * 100 : 0} />

@@ -746,13 +746,14 @@ def save_project(payload: BasketRequest, db: Session = Depends(get_db)):
         profile=payload.profile.model_dump(),
         basket=(payload.basket or [])[:200],
         result={
-            "snapshot": [item.method_code for item in snapshot.recommendations],
+            "schema_version": 2,
+            "snapshot": snapshot.model_dump(mode="json"),
             "feedback": {},
         },
     )
     db.add(project)
     db.commit()
-    return {"public_id": public_id}
+    return {"public_id": public_id, "result": snapshot}
 
 
 @projects_router.get("/{public_id}", summary="Загрузить сохранённый проект")
@@ -768,6 +769,11 @@ def get_project(public_id: str, db: Session = Depends(get_db)):
         "name": project.name,
         "profile": project.profile,
         "basket": project.basket,
+        "schema_version": (project.result or {}).get("schema_version", 1),
+        "result": ((project.result or {}).get("snapshot")
+                   if isinstance((project.result or {}).get("snapshot"), dict) else None),
+        "snapshot_status": ("complete" if (project.result or {}).get("schema_version") == 2
+                            else "legacy_incomplete"),
     }
 
 
@@ -784,19 +790,18 @@ def _project_or_404(public_id: str, db: Session) -> Project:
 def project_feedback(public_id: str, payload: FeedbackIn, db: Session = Depends(get_db)):
     """Голос «пригодилось / не пригодилось» по методу из сохранённого проекта.
 
-    Оценка хранится в JSON снимка проекта: отдельная таблица и миграции
-    для локального инструмента избыточны. Накрутка локально бессмысленна,
-    поэтому повторные голоса просто суммируются.
+    Один проект и снимок дают одно наблюдение по методу; повтор заменяет голос.
     """
     project = _project_or_404(public_id, db)
     known = db.scalar(select(Method.id).where(Method.code == payload.method_code))
     if not known:
         raise HTTPException(404, "Метод не найден")
     stored = dict(project.result or {})
+    snapshot = stored.get("snapshot")
+    if not isinstance(snapshot, dict) or payload.method_code not in snapshot.get("accounted_method_codes", []):
+        raise HTTPException(409, "Метод не включён в полный снимок проекта. Сохраните актуальный расчёт.")
     votes = dict(stored.get("feedback") or {})
-    entry = dict(votes.get(payload.method_code) or {"up": 0, "down": 0})
-    entry["up" if payload.useful else "down"] = int(entry.get("up" if payload.useful else "down", 0)) + 1
-    votes[payload.method_code] = {"up": int(entry.get("up", 0)), "down": int(entry.get("down", 0))}
+    votes[payload.method_code] = {"up": int(payload.useful), "down": int(not payload.useful)}
     stored["feedback"] = votes
     project.result = stored
     db.commit()

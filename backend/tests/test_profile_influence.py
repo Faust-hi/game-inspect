@@ -241,13 +241,40 @@ def test_engine_version_is_checked_against_known_versions(client):
     assert "unknown_engine_version" not in {r["code"] for r in known["risks"]}
 
 
-def test_priority_changes_ranking(client):
+def test_priority_changes_ranking(client, db):
     """Приоритет действительно переупорядочивает решения, а не только меняет веса.
 
     Проверка «набор весов отличается» проходила бы даже при неизменном порядке,
     поэтому сравнивается положение дешёвых решений: при приоритете «стоимость»
     они обязаны подняться относительно приоритета «производительность».
     """
+    from sqlalchemy import select
+    from app.models.entities import Method
+    methods = list(db.scalars(select(Method).where(Method.status == "published")))
+    for method in methods:
+        method.status = "draft"
+    # A controlled tradeoff inside one function, not incomparable ranks of different functions.
+    for index, method in enumerate(methods[:4]):
+        method.status = "published"
+        method.function_id = None
+        method.function = None
+        method.requires_features = []
+        method.requires_hw_features = []
+        method.applicable_formats = []
+        method.applicable_world_types = []
+        method.applicable_engines = []
+        method.applicable_platforms = []
+        method.min_scale = None
+        method.implementation_cost = index + 1
+        method.performance_gain = .2 * (index + 1)
+        method.complexity = 2
+        method.confidence = .8
+        method.quality_impact = method.concept_impact = 0
+        method.late_cost = "low"
+        method.recommended_stage = "prototype"
+        for resource in ('cpu', 'gpu', 'ram', 'vram', 'disk', 'network'):
+            setattr(method, 'impact_' + resource, 0)
+    db.flush()
     performance = recommend(client, priority="performance")
     cost = recommend(client, priority="cost")
 

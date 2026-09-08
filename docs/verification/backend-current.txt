@@ -1,0 +1,51 @@
+............................F........................................... [ 19%]
+............F........................................................... [ 38%]
+...........................F............................................ [ 57%]
+......................................s......F.......................... [ 76%]
+....................................................ssssssssssssssssssss [ 95%]
+ssssssssssssssssss                                                       [100%]
+================================== FAILURES ===================================
+_____________________ test_recommend_returns_ranked_plan ______________________
+tests\test_api.py:135: in test_recommend_returns_ranked_plan
+    assert scores == sorted(scores, reverse=True)
+E   assert [0.9192, 0.08..., 0.2843, ...] == [0.9192, 0.83..., 0.6868, ...]
+E     
+E     At index 1 diff: 0.0808 != 0.8358
+E     Use -v to get more diff
+__________ test_technical_profile_parameters_are_explicitly_modeled ___________
+tests\test_calibration.py:343: in test_technical_profile_parameters_are_explicitly_modeled
+    assert complete["modeling_gaps"] == []
+E   AssertionError: assert ['��������� �...�� ��������.'] == []
+E     
+E     Left contains 3 more items, first extra item: '��������� ������������ �������� ����������� ����������, ����������� ���������� �� ���������.'
+E     Use -v to get more diff
+___________________ test_summary_aggregates_across_projects ___________________
+tests\test_feedback.py:55: in test_summary_aggregates_across_projects
+    assert summary["projects_with_feedback"] >= 2
+E   assert 1 >= 2
+________________________ test_priority_changes_ranking ________________________
+tests\test_profile_influence.py:269: in test_priority_changes_ranking
+    assert mean_rank(ranks_cost) < mean_rank(ranks_performance), (
+E   AssertionError: ��� ���������� ����������� ������� ������� �� ���������: 1.2857142857142858 ������ 1.2857142857142858
+E   assert 1.2857142857142858 < 1.2857142857142858
+E    +  where 1.2857142857142858 = <function test_priority_changes_ranking.<locals>.mean_rank at 0x0000023D46F94540>({'normal_bake_retopology_pipeline': 1, 'art_direction_stylization': 2, 'audio_streaming_compression': 1, 'audio_occlusion_propagation': 2, ...})
+E    +  and   1.2857142857142858 = <function test_priority_changes_ranking.<locals>.mean_rank at 0x0000023D46F94540>({'normal_bake_retopology_pipeline': 1, 'art_direction_stylization': 2, 'audio_streaming_compression': 1, 'audio_occlusion_propagation': 2, ...})
+============================== warnings summary ===============================
+tests/test_api.py::test_health
+  C:\Users\angor\OneDrive\������� ����\game-inspect\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_api.py: 1 warning
+tests/test_engine_catalog.py: 4 warnings
+tests/test_input_contract.py: 8 warnings
+tests/test_operational.py: 1 warning
+  C:\Users\angor\OneDrive\������� ����\game-inspect\.venv\Lib\site-packages\starlette\_exception_handler.py:59: StarletteDeprecationWarning: 'HTTP_422_UNPROCESSABLE_ENTITY' is deprecated. Use 'HTTP_422_UNPROCESSABLE_CONTENT' instead.
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_api.py::test_recommend_returns_ranked_plan - assert [0.9192...
+FAILED tests/test_calibration.py::test_technical_profile_parameters_are_explicitly_modeled
+FAILED tests/test_feedback.py::test_summary_aggregates_across_projects - asse...
+FAILED tests/test_profile_influence.py::test_priority_changes_ranking - Asser...
+4 failed, 335 passed, 39 skipped, 15 warnings in 45.40s

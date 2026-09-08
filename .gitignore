@@ -8,6 +8,8 @@ node_modules/
 frontend/dist/
 frontend/*.tsbuildinfo
 *.tsbuildinfo
+frontend/test-results/
+frontend/playwright-report/
 
 # Базы данных: файлы появляются при запуске и не должны попадать в репозиторий
 *.db

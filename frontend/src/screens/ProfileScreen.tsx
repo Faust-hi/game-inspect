@@ -142,7 +142,11 @@ export function ProfileScreen() {
               onChange={(value) => updateProfile({ target_quality: value })}
             />
           </Field>
-          <Field label="Целевой FPS" hint="Допустимый диапазон 15–480">
+            {profile.functions.includes('split_screen_rendering') && <Field label="Локальных камер" hint="Независимо от сетевых игроков; 1–8">
+              <NumberInput value={profile.local_view_count ?? null} min={1} max={8}
+                onChange={value => updateProfile({ local_view_count: value })} />
+            </Field>}
+            <Field label="Целевой FPS" hint="Допустимый диапазон 15–480">
             <NumberInput
               value={profile.target_fps}
               min={15}

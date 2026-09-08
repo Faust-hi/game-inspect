@@ -4,12 +4,12 @@ from __future__ import annotations
 
 def _presets(client, basket):
     response = client.post("/api/project-presets", json={
-        "profile": {"name": "T", "functions": []}, "basket": basket,
+        "profile": {"name": "T", "functions": ["dynamic_shadows", "upscaling_frame_generation", "audio_system"]}, "basket": basket,
     })
     assert response.status_code == 200, response.text
     files = {item["name"]: item["content"] for item in response.json()["files"]}
-    assert set(files) == {"DefaultScalability.ini", "unity-quality-preset.json",
-                          "godot-rendering-preset.json"}
+    assert set(files) == {"DefaultScalability.ini"}
+    assert response.json()["native_verified"] is False
     return files
 
 

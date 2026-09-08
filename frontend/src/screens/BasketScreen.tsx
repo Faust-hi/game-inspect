@@ -1,6 +1,6 @@
 /** Экран 7. Корзина выбранных решений и совместимость набора. */
 import { useMemo, useState } from 'react';
-import { useStore } from '../store';
+import { useEnsureResult, useStore } from '../store';
 import { Badge, Callout, Card, Empty, ImpactGrid } from '../components/ui';
 import { ConflictEntry, DependencyEntry, SynergyEntry } from '../components/Compatibility';
 import { MethodCard } from '../components/MethodCard';
@@ -8,6 +8,7 @@ import { methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtil
 import type { Method } from '../types';
 
 export function BasketScreen() {
+  useEnsureResult();
   const { profile, basket, result, catalog, toggleBasket, clearBasket, calculate, calculating } =
     useStore();
   const [openCode, setOpenCode] = useState<string | null>(null);
@@ -36,7 +37,6 @@ export function BasketScreen() {
     );
   }
 
-  const totalGain = selected.reduce((sum, m) => sum + m.performance_gain, 0) / selected.length;
   const totalCost = selected.reduce((sum, m) => sum + m.implementation_cost, 0);
 
   return (
@@ -58,9 +58,8 @@ export function BasketScreen() {
         }
       >
         <div className="callout" style={{ marginBottom: 14 }}>
-          Средний ожидаемый эффект выбранного набора: <strong>{Math.round(totalGain * 100)}%</strong>.
-          Оценка усреднённая: эффект решений не всегда складывается аддитивно, часть решений
-          усиливают друг друга, часть — перекрываются.
+          Эффекты относятся к разным подсистемам и областям работы. Общий процент ускорения
+          без измерений не установлен; оценки каталога используются как экспертные баллы.
         </div>
 
         {selected.map((method) => (

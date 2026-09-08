@@ -9,7 +9,7 @@ const COMPARISON_ROWS: { label: string; render: (m: Method) => string }[] = [
   { label: 'Рекомендуемая стадия', render: (m) => m.recommended_stage_label },
   { label: 'Стоимость позднего внедрения', render: (m) => m.late_cost_label },
   { label: 'Способ расчёта', render: (m) => m.calc_mode_label },
-  { label: 'Ожидаемый эффект', render: (m) => `${Math.round(m.performance_gain * 100)}%` },
+  { label: 'Экспертный балл эффекта', render: (m) => `${m.performance_gain.toFixed(2)} / 1` },
   { label: 'Трудозатраты', render: (m) => `${m.implementation_cost} из 5` },
   { label: 'Сложность внедрения', render: (m) => `${m.complexity} из 5` },
   { label: 'Достоверность оценки', render: (m) => `${Math.round(m.confidence * 100)}%` },
@@ -44,7 +44,7 @@ export function CompareScreen({
   onClose: () => void;
   onToggle: (code: string) => void;
 }) {
-  const { catalog, basket } = useStore();
+  const { catalog, basket, profile } = useStore();
 
   const methods = useMemo(
     () => codes.map((code) => catalog.methods.find((m) => m.code === code)).filter(Boolean) as Method[],
@@ -93,7 +93,7 @@ export function CompareScreen({
             <tr>
               <td className="muted">Аналог в движке</td>
               {methods.map((method) => {
-                const link = method.engine_links[0];
+                const link = method.engine_links.find(item => item.engine_code === profile.engine);
                 return (
                   <td key={method.code} className="small">
                     {link ? (
@@ -141,7 +141,7 @@ export function CompareScreen({
               <strong style={{ fontSize: 13 }}>{method.name}</strong>
               <div style={{ marginTop: 8 }}>
                 <div className="xsmall faint">
-                  Эффект {Math.round(method.performance_gain * 100)}%
+                  Экспертный балл эффекта {method.performance_gain.toFixed(2)} / 1
                   {method.performance_gain === bestGain && <Badge tone="ok">лучший</Badge>}
                 </div>
                 <Bar value={method.performance_gain * 100} />

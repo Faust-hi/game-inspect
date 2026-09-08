@@ -340,7 +340,8 @@ def test_technical_profile_parameters_are_explicitly_modeled(client):
     assert any("API/RHI" in gap for gap in base["modeling_gaps"])
     assert any("streaming pool" in gap for gap in base["modeling_gaps"])
     assert any("сетевая схема" in gap for gap in base["modeling_gaps"])
-    assert complete["modeling_gaps"] == []
+    assert not any("Не задан" in gap or "Не указан" in gap for gap in complete["modeling_gaps"])
+    assert any("калибровка не выполнена" in gap for gap in complete["modeling_gaps"])
     assert complete["recommended_storage"] == "nvme"
     assert complete["estimated_draw_calls"] > 0
     assert complete["required_cpu_index"] != base["required_cpu_index"]

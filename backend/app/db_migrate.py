@@ -16,11 +16,12 @@ from __future__ import annotations
 
 import datetime as dt
 import logging
-import shutil
+import sqlite3
 from pathlib import Path
 from urllib.parse import urlparse
 
 from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.engine import make_url
 
 from .config import BACKEND_DIR, get_settings
 
@@ -67,15 +68,12 @@ def assert_supported_database(database_url: str) -> None:
 
 def sqlite_path_of(database_url: str) -> Path | None:
     """Файл SQLite из URL либо None для памяти/не-SQLite."""
-    parsed = urlparse(database_url)
-    if parsed.scheme != "sqlite":
+    parsed = make_url(database_url)
+    if parsed.drivername != "sqlite":
         return None
-    path = parsed.path or ""
-    if path in ("", "/:memory:", "/"):
+    path = parsed.database or ""
+    if path in ("", ":memory:"):
         return None
-    # Windows: sqlite:///C:/... -> path=/C:/..., убираем ведущий слэш у диска.
-    if len(path) >= 3 and path[0] == "/" and path[2] == ":":
-        path = path[1:]
     candidate = Path(path)
     if not candidate.is_absolute():
         candidate = Path.cwd() / candidate
@@ -88,11 +86,14 @@ def backup_sqlite(path: Path) -> Path:
     Имя содержит метку времени, чтобы последовательные запуски не затирали
     друг друга. Проверяемость: копия обязана существовать и быть непустой.
     """
-    stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S-%f")
     target = path.with_name(f"{path.stem}.bak-{stamp}{path.suffix or '.db'}")
-    shutil.copy2(path, target)
-    if not target.exists() or target.stat().st_size == 0:
-        raise RuntimeError(f"Резервная копия не создана: {target}")
+    from contextlib import closing
+    with closing(sqlite3.connect(path.resolve().as_uri() + '?mode=ro', uri=True)) as source:
+        with closing(sqlite3.connect(target)) as copy:
+            source.backup(copy)
+            if copy.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
+                raise RuntimeError(f"Резервная копия не прошла проверку целостности: {target}")
     return target
 
 
@@ -127,9 +128,40 @@ def _legacy_stamp_revision(database_url: str, tables: set[str]) -> str | None:
     только когда структура голове уже соответствует — это сверка, а не
     слепой штамп.
     """
-    if tables & EXPECTED_INITIAL_TABLES != EXPECTED_INITIAL_TABLES:
+    from .database import Base
+    from .models import entities  # registers every supported table
+
+    if tables != set(Base.metadata.tables):
         return None
     columns = _method_columns(database_url)
+    optional = {"application_steps", "effect_scope"} - columns
+    # A familiar table name or marker column alone cannot establish provenance.
+    engine = create_engine(database_url)
+    try:
+        inspector = inspect(engine)
+        for name, table in Base.metadata.tables.items():
+            actual = {column['name']: column for column in inspector.get_columns(name)}
+            expected = {column.name: column for column in table.columns
+                        if name != 'methods' or column.name not in optional}
+            if actual.keys() != expected.keys():
+                return None
+            for key, column in expected.items():
+                observed = actual[key]
+                if str(observed['type']).upper() != str(column.type.compile(dialect=engine.dialect)).upper():
+                    return None
+                if observed['nullable'] != column.nullable:
+                    return None
+            if set(inspector.get_pk_constraint(name)['constrained_columns']) != {column.name for column in table.primary_key}:
+                return None
+            foreign_keys = {(tuple(key['constrained_columns']), key['referred_table'], tuple(key['referred_columns']))
+                            for key in inspector.get_foreign_keys(name)}
+            expected_keys = {(tuple(element.parent.name for element in key.elements),
+                              key.referred_table.name, tuple(element.column.name for element in key.elements))
+                             for key in table.foreign_key_constraints}
+            if foreign_keys != expected_keys:
+                return None
+    finally:
+        engine.dispose()
     if "effect_scope" in columns:
         return HEAD_REVISION
     if "application_steps" in columns:

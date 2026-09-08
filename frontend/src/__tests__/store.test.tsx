@@ -11,6 +11,40 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_PROFILE, inputKeyOf, StoreProvider, useEnsureResult, useStore } from '../store';
 import type { ProjectProfile, RecommendationResult } from '../types';
 
+it('canonicalizes function and platform sets and equivalent resolutions', () => {
+  expect(inputKeyOf({ ...DEFAULT_PROFILE, functions: ['a', 'b'], target_resolution: '4k' }, ['x', 'x']))
+    .toBe(inputKeyOf({ ...DEFAULT_PROFILE, functions: ['b', 'a'], target_resolution: '2160p' }, ['x']));
+});
+
+it('rejects malformed persisted arrays without crashing', async () => {
+  localStorage.setItem('gamedev_dss_project_v1', JSON.stringify({ profile: { functions: {} }, basket: [] }));
+  const { result } = renderHook(useStore, { wrapper });
+  await waitFor(() => expect(result.current.catalog.loading).toBe(false));
+  expect(result.current.profile.functions).toEqual([]);
+});
+
+it('continues editing when browser storage refuses writes', async () => {
+  const write = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('quota'); });
+  try {
+    const { result } = renderHook(useStore, { wrapper });
+    await waitFor(() => expect(result.current.storageError).toBeTruthy());
+    act(() => result.current.updateProfile({ name: 'Unsaved edit' }));
+    expect(result.current.profile.name).toBe('Unsaved edit');
+  } finally { write.mockRestore(); }
+});
+
+it('catalogue reload cancels an obsolete response and clears its result', async () => {
+  const delayed = deferred<RecommendationResult>();
+  mocks.recommend.mockReturnValue(delayed.promise);
+  const { result } = renderHook(useStore, { wrapper });
+  await waitFor(() => expect(result.current.catalog.loading).toBe(false));
+  let pending!: Promise<void>;
+  act(() => { pending = result.current.calculate(); });
+  await act(async () => result.current.reloadCatalog());
+  await act(async () => { delayed.resolve(makeResult('old')); await pending; });
+  expect(result.current.result).toBeNull();
+});
+
 /** Заглушки запросов: сеть в тестах не используется. */
 const mocks = vi.hoisted(() => ({
   recommend: vi.fn(),

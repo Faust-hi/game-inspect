@@ -56,9 +56,10 @@ function renderList(item: Recommendation) {
 describe('область эффекта в списке рекомендаций', () => {
   afterEach(cleanup);
 
-  it('для клиентского решения показывает процент эффекта', () => {
+  it('для клиентского решения показывает экспертный балл без обещания ускорения', () => {
     renderList(recommendation('client', 'клиент'));
-    expect(screen.getByText(/Ожидаемый эффект 60%/)).toBeTruthy();
+    expect(screen.getByText(/Экспертный балл эффекта 0.60 \/ 1/)).toBeTruthy();
+    expect(screen.queryByText(/60%/)).toBeNull();
   });
 
   it('для серверного решения не выдает процент за ускорение игры', () => {

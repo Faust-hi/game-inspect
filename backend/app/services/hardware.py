@@ -12,11 +12,9 @@
 Каждый метод влияет только на свои подсистемы. Экономия в одной подсистеме
 не компенсирует нагрузку в другой. Нет двойного учёта одной и той же работы.
 
-Раздельные сценарные шкалы (G02): последовательная работа CPU ограничена
-одним потоком (шкала single_thread_score), параллельная — ядрами
-(multi_thread_score); растровая работа GPU и трассировка лучей — разные
-сценарии (raster_score и rt_score). Карта или процессор обязаны успевать
-каждую часть работы: сильная сторона не компенсирует слабую.
+Раздельные ST/MT и raster/RT шкалы ещё не реализованы: подбор использует
+multi_thread_score и raster_score. RT пока проверяется как возможность.
+Эти индексы не являются независимыми измерениями игровой производительности.
 
 Обязательные возможности (D05) проверяются по каталогу до объявления
 конфигурации подходящей: неподтверждённая поддержка — «неизвестно», а не
@@ -247,6 +245,14 @@ def _gpu_feature_support(gpu: HardwareGPU, required: str) -> bool | None:
     return None
 
 
+def _supports_profile_gpu(gpu: HardwareGPU, profile: ProjectProfile) -> bool:
+    if profile.render_api != "auto" and not _api_supports(gpu, profile.render_api):
+        return False
+    if profile.upscaling_method == "dlss" and _gpu_feature_support(gpu, "DLSS") is not True:
+        return False
+    return True
+
+
 def _fps_factor(fps: int) -> float:
     """Относительная стоимость кадра: выше целевой FPS — дороже каждый кадр."""
     if fps <= 30:
@@ -341,7 +347,11 @@ def _estimated_draw_calls(profile: ProjectProfile, content: float, method_codes:
 
 def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_storage: str) -> list[str]:
     """Перечень неизвестных параметров, которые ограничивают точность оценки."""
-    gaps: list[str] = []
+    gaps: list[str] = [
+        "Численные коэффициенты являются экспертными гипотезами, независимая калибровка не выполнена.",
+        "Подбор CPU использует MT-индекс; отдельная достаточность главного потока не установлена.",
+        "GPU подбирается по raster-индексу; достаточность RT-производительности отдельно не измерена.",
+    ]
     streaming = (
         profile.world_type in {"open_world", "procedural", "sandbox"}
         or bool(method_codes & _STREAMING_METHODS)
@@ -809,7 +819,9 @@ def _pick_references(db: Session, indices: dict, profile: ProjectProfile) -> dic
             f"{profile.draw_call_budget:,}. Это риск превышения бюджета, а не измеренное число вызовов.".replace(",", " ")
         )
 
-    compatible_gpus = [g for g in gpus if _supports_profile_gpu(g, profile)]
+    compatible_gpus = [g for g in gpus if _supports_profile_gpu(g, profile)
+                       and all(_gpu_feature_support(g, feature) is True
+                               for feature in indices["required_hw"])]
     if not compatible_gpus and gpus:
         unmet.append("В каталоге нет GPU с подтверждённой поддержкой выбранного API и апскейлера.")
     reference_gpu, rt_missing = _pick_gpu(
@@ -830,11 +842,12 @@ def _pick_references(db: Session, indices: dict, profile: ProjectProfile) -> dic
         else:
             caveats.append(
                 "В каталоге нет GPU, одновременно покрывающего расчётную производительность, "
-                "видеопамять и обязательные возможности. Показанная карта — только ориентир."
+                "видеопамять и обязательные возможности. Подходящий ориентир не найден."
             )
         # Показываем максимально близкую запись как ориентир, но помечаем,
         # что конфигурация не покрывает требования.
-        reference_gpu = max(compatible_gpus, key=lambda g: g.raster_score) if compatible_gpus else None
+        # A closest but insufficient card must not occupy a recommendation field.
+        reference_gpu = None
     if reference_gpu is not None and reference_gpu.vram_gb < vram_gb:
         unmet.append(
             f"Видеокарта {reference_gpu.model} имеет {reference_gpu.vram_gb:g} ГБ видеопамяти "
@@ -846,7 +859,6 @@ def _pick_references(db: Session, indices: dict, profile: ProjectProfile) -> dic
     if reference_cpu is None:
         exceeds = True
         if cpus:
-            reference_cpu = max(cpus, key=lambda c: c.multi_thread_score)
             caveats.append(
                 "Требуемая производительность CPU превышает самую производительную запись базы."
             )
@@ -919,7 +931,6 @@ def _confidence(
         else:
             caveats.append("Количество NPC задано качественным уровнем, а не числом: оценка приблизительная.")
     if similar_examples == 0:
-        confidence -= 0.12
         caveats.append("Не найдено похожих игр в базе: сверка с практикой невозможна.")
     if exceeds:
         confidence -= 0.15

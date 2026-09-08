@@ -37,6 +37,7 @@ export const DEFAULT_PROFILE: ProjectProfile = {
   npc_count_level: 'medium',
   npc_count: null,
   player_count: 1,
+  local_view_count: null,
   multiplayer: false,
   functions: [],
   target_resolution: '1080p',
@@ -84,7 +85,11 @@ function stableStringify(value: unknown): string {
  * иначе перестановка решений выглядела бы как изменение данных.
  */
 export function inputKeyOf(profile: ProjectProfile, basket: string[]): string {
-  return stableStringify({ profile, basket: [...basket].sort() });
+  return stableStringify({ profile: { ...profile,
+    functions: [...new Set(profile.functions)].sort(),
+    platforms: [...new Set(profile.platforms)].sort(),
+    target_resolution: profile.target_resolution === '4k' ? '2160p' : profile.target_resolution,
+  }, basket: [...new Set(basket)].sort() });
 }
 
 function isAbortError(error: unknown): boolean {
@@ -120,6 +125,7 @@ interface ProjectStore {
   catalog: CatalogState;
   calculating: boolean;
   calculateError: string | null;
+  storageError: string | null;
   updateProfile: (patch: Partial<ProjectProfile>) => void;
   resetProfile: () => void;
   toggleBasket: (code: string) => void;
@@ -127,7 +133,7 @@ interface ProjectStore {
   clearBasket: () => void;
   calculate: () => Promise<void>;
   reloadCatalog: () => Promise<void>;
-  loadProject: (profile: ProjectProfile, basket: string[]) => void;
+  loadProject: (profile: ProjectProfile, basket: string[], snapshot?: RecommendationResult | null) => void;
 }
 
 const StoreContext = createContext<ProjectStore | null>(null);
@@ -136,10 +142,26 @@ function loadPersisted(): { profile: ProjectProfile; basket: string[] } | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw);
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || !('profile' in parsed) || !('basket' in parsed)) return null;
+    if (!parsed.profile || typeof parsed.profile !== 'object' || Array.isArray(parsed.profile)) return null;
+    if (!Array.isArray(parsed.basket) || !parsed.basket.every(code => typeof code === 'string')) return null;
+    const restored = { ...DEFAULT_PROFILE };
+    for (const [key, value] of Object.entries(parsed.profile)) {
+      if (!(key in DEFAULT_PROFILE)) continue;
+      const defaultValue = DEFAULT_PROFILE[key as keyof ProjectProfile];
+      const valid = Array.isArray(defaultValue)
+        ? Array.isArray(value) && value.every(item => typeof item === 'string')
+        : defaultValue === null
+          ? value === null || (['engine_version', 'audio_complexity', 'cpu_budget', 'gpu_budget', 'ram_budget', 'vram_budget'].includes(key)
+            ? typeof value === 'string' : typeof value === 'number' && Number.isFinite(value) && value >= 0)
+          : typeof value === typeof defaultValue && (typeof value !== 'number' || Number.isFinite(value));
+      if (!valid) return null;
+      Object.assign(restored, { [key]: value });
+    }
     return {
-      profile: { ...DEFAULT_PROFILE, ...parsed.profile },
-      basket: Array.isArray(parsed.basket) ? parsed.basket : [],
+      profile: restored,
+      basket: [...new Set(parsed.basket)],
     };
   } catch {
     return null;
@@ -154,6 +176,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [resultKey, setResultKey] = useState<string | null>(null);
   const [calculating, setCalculating] = useState(false);
   const [calculateError, setCalculateError] = useState<string | null>(null);
+  const [storageError, setStorageError] = useState<string | null>(null);
   const [catalog, setCatalog] = useState<CatalogState>({
     enums: null,
     functions: [],
@@ -187,6 +210,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const reloadCatalog = useCallback(async () => {
+    discardResult();
     setCatalog((prev) => ({ ...prev, loading: true, error: null }));
     try {
       const [enums, functions, methods, engines, conflicts, examples] = await Promise.all([
@@ -205,14 +229,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         error: errorMessage(error) || 'Не удалось загрузить каталоги',
       }));
     }
-  }, []);
+  }, [discardResult]);
 
   useEffect(() => {
     void reloadCatalog();
   }, [reloadCatalog]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ profile, basket }));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ profile, basket }));
+      setStorageError(null);
+    } catch {
+      setStorageError('Автосохранение в браузере недоступно. Сохраните проект на сервере или скачайте JSON.');
+    }
   }, [profile, basket]);
 
   // Снятие результата при размонтировании: запрос не должен доживать до
@@ -255,10 +284,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [discardResult]);
 
   const loadProject = useCallback(
-    (nextProfile: ProjectProfile, nextBasket: string[]) => {
+    (nextProfile: ProjectProfile, nextBasket: string[], snapshot?: RecommendationResult | null) => {
       discardResult();
       setProfile({ ...DEFAULT_PROFILE, ...nextProfile });
       setBasketState(nextBasket);
+      if (snapshot) {
+        setResult(snapshot);
+        setResultKey(inputKeyOf({ ...DEFAULT_PROFILE, ...nextProfile }, nextBasket));
+      }
     },
     [discardResult],
   );
@@ -307,6 +340,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       catalog,
       calculating,
       calculateError,
+      storageError,
       updateProfile,
       resetProfile,
       toggleBasket,
@@ -326,6 +360,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       catalog,
       calculating,
       calculateError,
+      storageError,
       updateProfile,
       resetProfile,
       toggleBasket,
@@ -355,10 +390,10 @@ export function useStore(): ProjectStore {
  * на каждом рендере.
  */
 export function useEnsureResult(enabled = true): void {
-  const { result, calculating, calculateError, calculate } = useStore();
+  const { result, calculating, calculateError, calculate, catalog } = useStore();
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || catalog.loading) return;
     if (result || calculating || calculateError) return;
     void calculate();
-  }, [enabled, result, calculating, calculateError, calculate]);
+  }, [enabled, result, calculating, calculateError, calculate, catalog.loading]);
 }

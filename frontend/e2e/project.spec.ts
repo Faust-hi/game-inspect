@@ -1,0 +1,44 @@
+import { test, expect } from '@playwright/test';
+
+test('profile → functions → basket → load → hardware → plan → save → export → restore', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Сохранить', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /Игровые функции/ }).click();
+  const functions = page.locator('main button').filter({ has: page.locator('input[type=checkbox]') });
+  await functions.first().click();
+  await page.getByRole('button', { name: /Варианты реализации/ }).click();
+  await expect(page.getByRole('button', { name: /В корзину/ }).first()).toBeVisible();
+  await page.getByRole('button', { name: /В корзину/ }).first().click();
+  await page.getByRole('button', { name: /Корзина решений/ }).click();
+  await expect(page.locator('.brand')).not.toContainText('расчёт…');
+  await page.getByRole('button', { name: /Профиль нагрузки/ }).click();
+  await expect(page.getByText('Вклад отдельных решений')).toBeVisible();
+  await page.getByRole('button', { name: /Оборудование/ }).click();
+  await expect(page.getByText('Референсная минимальная конфигурация')).toBeVisible();
+  await page.getByRole('button', { name: /Итоговый план/ }).click();
+  await expect(page.getByText('Ограничения аппаратной оценки')).toBeVisible();
+  const savedResponse = page.waitForResponse(response => response.url().endsWith('/api/projects') && response.request().method() === 'POST');
+  await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  const saved = await (await savedResponse).json();
+  expect(saved.result.snapshot_id).toBeTruthy();
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Скачать JSON', exact: true }).click();
+  const file = await download;
+  const path = await file.path();
+  expect(path).toBeTruthy();
+  await page.locator('header input[type=file]').setInputFiles(path!);
+  await expect(page.getByText(/Сохранённый снимок восстановлен/)).toBeVisible();
+  const secondDownload = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Скачать JSON', exact: true }).click();
+  const second = await secondDownload;
+  const read = async (artifact: typeof file) => {
+    const stream = await artifact.createReadStream();
+    const chunks = [];
+    for await (const chunk of stream!) chunks.push(chunk);
+    return JSON.parse(Buffer.concat(chunks).toString());
+  };
+  expect((await read(second)).result).toEqual((await read(file)).result);
+  expect(errors).toEqual([]);
+});

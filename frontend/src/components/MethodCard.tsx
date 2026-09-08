@@ -139,6 +139,14 @@ export function MethodCard({ method, onClose }: { method: Method; onClose: () =>
       )}
 
       <div className="divider" />
+      {(method.application_steps ?? []).length > 0 && <>
+        <h4>Шаги применения</h4>
+        <ol>{(method.application_steps ?? []).map(step => <li key={step}>{step}</li>)}</ol>
+      </>}
+      {(method.used_in_projects ?? []).length > 0 && <>
+        <h4>Примеры применения</h4>
+        <ul>{(method.used_in_projects ?? []).map(title => <li key={title}>{title}</li>)}</ul>
+      </>}
       <h4>Последующая проверка</h4>
       <p className="muted">{method.verification_method || 'Способ проверки не указан.'}</p>
       {method.verification_tools.length > 0 && (

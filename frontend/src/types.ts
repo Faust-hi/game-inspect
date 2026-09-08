@@ -42,6 +42,7 @@ export interface ProjectProfile {
   npc_count_level: string;
   npc_count?: number | null;
   player_count: number;
+  local_view_count?: number | null;
   multiplayer: boolean;
   functions: string[];
   target_resolution: string;
@@ -115,6 +116,8 @@ export interface MethodEngineLink {
 }
 
 export interface Method {
+  application_steps?: string[];
+  used_in_projects?: string[];
   code: string;
   name: string;
   kind: string;
@@ -399,6 +402,11 @@ export interface SimilarGame {
 }
 
 export interface RecommendationResult {
+  snapshot_id?: string | null;
+  catalog_revision?: string | null;
+  selected_methods?: Method[];
+  accounted_method_codes?: string[];
+  basket_codes?: string[];
   profile: ProjectProfile;
   risks: Risk[];
   recommendations: Recommendation[];
@@ -413,6 +421,15 @@ export interface RecommendationResult {
   meta: Record<string, unknown>;
   /** Отпечаток входа, для которого выполнен расчёт (присваивается backend). */
   input_key: string;
+}
+
+export interface SavedProject {
+  public_id: string;
+  name: string;
+  profile: ProjectProfile;
+  basket: string[];
+  result: RecommendationResult | null;
+  snapshot_status: 'complete' | 'legacy_incomplete';
 }
 
 export interface ValidationIssue {

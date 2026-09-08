@@ -6,7 +6,8 @@ from app.services import feedback as feedback_service
 
 def _save(client):
     response = client.post("/api/projects", json={
-        "profile": {"name": "T", "functions": ["open_world_streaming"]}, "basket": [],
+        "profile": {"name": "T", "world_type": "hub", "functions": ["upscaling_frame_generation", "open_world_streaming", "geometry_pipeline"]},
+        "basket": ["temporal_upscaling", "baked_occlusion_culling", "hierarchical_lod"],
     })
     assert response.status_code == 200, response.text
     return response.json()["public_id"]
@@ -19,6 +20,10 @@ def test_feedback_roundtrip(client):
     assert response.status_code == 200, response.text
     assert response.json() == {"public_id": public_id, "method_code": "temporal_upscaling",
                                "up": 1, "down": 0}
+    response = client.post(f"/api/projects/{public_id}/feedback",
+                           json={"method_code": "temporal_upscaling", "useful": False})
+    assert response.json()["down"] == 1
+    assert response.json()["up"] == 0
     response = client.post(f"/api/projects/{public_id}/feedback",
                            json={"method_code": "temporal_upscaling", "useful": False})
     assert response.json()["down"] == 1
@@ -38,8 +43,7 @@ def test_feedback_rejects_unknown_project(client):
 
 
 def test_summary_aggregates_across_projects(client):
-    # Свои коды на тест: изоляция транзакций в фикстуре нестрогая (известный
-    # долг), поэтому чужие голоса из соседних тестов не должны мешать.
+    # Each saved project contributes at most one vote per included method.
     first, second = _save(client), _save(client)
     client.post(f"/api/projects/{first}/feedback",
                 json={"method_code": "baked_occlusion_culling", "useful": True})

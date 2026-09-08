@@ -1,7 +1,7 @@
 /** Экспорт проекта в файл: JSON-снимок и печать отчёта (PDF). */
 import type { ProjectProfile, RecommendationResult } from './types';
 
-const EXPORT_VERSION = 1;
+const EXPORT_VERSION = 2;
 
 function triggerDownload(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);

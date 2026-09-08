@@ -24,6 +24,7 @@ class ErrorCode(str, Enum):
     """Машинные коды ошибок: по ним клиент различает причины, а не по тексту."""
 
     VALIDATION = "validation_error"
+    FORBIDDEN = "forbidden"
     NOT_FOUND = "not_found"
     CONFLICT = "conflict"
     PUBLICATION_REJECTED = "publication_rejected"
@@ -35,6 +36,7 @@ class ErrorCode(str, Enum):
 #: заранее, а клиенту всё равно нужен различимый код.
 _CODE_BY_STATUS: dict[int, ErrorCode] = {
     400: ErrorCode.VALIDATION,
+    403: ErrorCode.FORBIDDEN,
     404: ErrorCode.NOT_FOUND,
     409: ErrorCode.CONFLICT,
     422: ErrorCode.VALIDATION,

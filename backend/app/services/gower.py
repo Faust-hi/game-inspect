@@ -26,8 +26,7 @@ def canonical_engine(value: str | None) -> str | None:
     Для расстояния Гауэра это разные категории, и совпадение не засчитывается,
     хотя технически игры сравнимы. Канонизация сводит оба значения к «unreal».
 
-    Собственные движки сводятся к «custom»: сравнивать конкретные названия
-    бессмысленно, а общий признак «свой движок» сопоставим.
+    Неизвестное семейство сохраняет название; custom без имени не сравним.
     """
     if not value:
         return None
@@ -51,8 +50,8 @@ def canonical_engine(value: str | None) -> str | None:
         return "source"
     for marker in ("id tech", "anvil", "decima", "fox", "havok"):
         if marker in text:
-            return "custom"
-    return "custom"
+            return marker
+    return None if text in {"custom", "unknown"} else text
 
 # Признак: (тип, вес, размах)
 FEATURES: dict[str, tuple[str, float, float]] = {
@@ -91,9 +90,9 @@ def project_vector(profile: ProjectProfile) -> dict[str, object]:
     return {
         "format": profile.format,
         "world_type": profile.world_type,
-        "scale": SCALE_TO_NUMBER.get(profile.scale, 0.55),
-        "object_count": _level_number(profile.object_count_level) or 0.55,
-        "npc_count": _level_number(profile.npc_count_level) or 0.55,
+        "scale": SCALE_TO_NUMBER.get(profile.scale),
+        "object_count": _level_number(profile.object_count_level),
+        "npc_count": _level_number(profile.npc_count_level),
         "target_fps": float(profile.target_fps),
         "target_resolution": _resolution_number(profile.target_resolution),
         "multiplayer": profile.multiplayer,
@@ -108,9 +107,9 @@ def example_vector(example: GameExample) -> dict[str, object]:
     return {
         "format": example.format,
         "world_type": example.world_type,
-        "scale": SCALE_TO_NUMBER.get(example.scale, 0.55),
-        "object_count": _level_number(example.object_count_level) or 0.55,
-        "npc_count": _level_number(example.npc_count_level) or 0.55,
+        "scale": SCALE_TO_NUMBER.get(example.scale),
+        "object_count": _level_number(example.object_count_level),
+        "npc_count": _level_number(example.npc_count_level),
         "target_fps": float(example.target_fps),
         "target_resolution": _resolution_number(example.target_resolution),
         "multiplayer": bool(example.multiplayer),

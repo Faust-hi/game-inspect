@@ -6,20 +6,37 @@
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from sqlalchemy.orm import Session
 from pydantic import ValidationError
 
 from ..config import settings
+from .. import repositories
+from ..database import get_db
 from ..errors import ApiError, ErrorCode
 from ..schemas.catalog import (
     BasketRequest, ProjectImportOut, ProjectPresetsOut, ProjectProfile,
 )
-from ..services import presets, project_import
+from ..services import engines, presets, project_import, rules
+from ..schemas.project_file import ProjectFile
 
 router = APIRouter(prefix="", tags=["Обмен с проектом"])
 
 #: Те же ограничения, что у административного импорта: файлы настроек маленькие.
 MAX_FILES = 10
+
+
+@router.post("/project-file-import", response_model=ProjectFile,
+             summary="Проверить и восстановить JSON-снимок проекта")
+async def project_file_import(file: UploadFile = File(...)):
+    content = await _read_limited(file)
+    try:
+        return ProjectFile.model_validate_json(content)
+    except ValidationError as exc:
+        raise ApiError("Некорректный файл проекта", code=ErrorCode.VALIDATION,
+                       status=422, details=[{"field": ".".join(map(str, error["loc"])),
+                                             "message": error["msg"]}
+                                            for error in exc.errors()]) from exc
 
 
 async def _read_limited(file: UploadFile) -> bytes:
@@ -80,7 +97,14 @@ async def project_import_endpoint(files: list[UploadFile] = File(...)):
 
 
 @router.post("/project-presets", response_model=ProjectPresetsOut, summary="Сгенерировать пресеты движков из корзины")
-def project_presets(payload: BasketRequest):
+def project_presets(payload: BasketRequest, db: Session = Depends(get_db)):
     """Три файла: DefaultScalability.ini, пресет качества Unity и пресет
     рендеринга Godot. Каждая строка знает свой источник."""
-    return {"files": presets.build_preset_files(payload.profile, payload.basket or [])}
+    engines.require_known(db, payload.profile.engine)
+    methods = repositories.methods_by_codes(db, payload.basket or [])
+    accepted, notes = rules.assess_selected_methods(methods, payload.profile, repositories.conflicts(db))
+    files = presets.build_preset_files(payload.profile, [method.code for method in accepted])
+    prefix = {"unreal": "Default", "unity": "unity-", "godot": "godot-"}.get(payload.profile.engine)
+    selected_files = [file for file in files if prefix and file["name"].startswith(prefix)]
+    return {"files": selected_files, "native_verified": False,
+            "notes": ["Это пример настроек для ручной проверки: применение в минимальном проекте указанной версии не проверено.", *notes]}

@@ -65,11 +65,37 @@ def test_backup_sqlite_is_verifiable(tmp_path):
     from app.db_migrate import backup_sqlite
 
     source = tmp_path / "game.db"
-    source.write_bytes(b"sqlite-bytes")
+    import sqlite3
+    with sqlite3.connect(source) as connection:
+        connection.execute('CREATE TABLE preserved(value TEXT)')
+        connection.execute("INSERT INTO preserved VALUES ('user data')")
     copy = backup_sqlite(source)
     assert copy.exists() and copy.stat().st_size > 0
     assert copy.parent == source.parent
     assert copy.name.startswith("game.bak-")
+    with sqlite3.connect(copy) as connection:
+        assert connection.execute('SELECT value FROM preserved').fetchone()[0] == 'user data'
+
+
+def test_relative_sqlite_path_uses_working_directory(tmp_path, monkeypatch):
+    from app.db_migrate import sqlite_path_of
+    monkeypatch.chdir(tmp_path)
+    assert sqlite_path_of('sqlite:///./project.db') == tmp_path / 'project.db'
+
+
+def test_backup_includes_committed_wal_contents(tmp_path):
+    import sqlite3
+    from app.db_migrate import backup_sqlite
+    source = tmp_path / 'wal.db'
+    with sqlite3.connect(source) as connection:
+        connection.execute('PRAGMA journal_mode=WAL')
+        connection.execute('PRAGMA wal_autocheckpoint=0')
+        connection.execute('CREATE TABLE preserved(value TEXT)')
+        connection.execute("INSERT INTO preserved VALUES ('in WAL')")
+        connection.commit()
+        copy = backup_sqlite(source)
+        with sqlite3.connect(copy) as restored:
+            assert restored.execute('SELECT value FROM preserved').fetchone()[0] == 'in WAL'
 
 
 def test_wait_gate_markers():
@@ -172,6 +198,22 @@ def test_ensure_schema_refuses_unknown_structure(isolated_database_url):
     assert report["migrated"] is False, report
     assert "неизвестной структурой" in str(report["error"])
     assert report["backup"] is not None
+
+
+def test_legacy_marker_does_not_hide_corrupted_hardware_schema(isolated_database_url):
+    from app import db_migrate
+    from app.database import Base
+    target = isolated_database_url
+    engine = create_engine(f'sqlite:///{target.as_posix()}')
+    try:
+        Base.metadata.create_all(engine)
+        with engine.begin() as connection:
+            connection.exec_driver_sql('ALTER TABLE hardware_gpu DROP COLUMN notes')
+        report = db_migrate.ensure_schema()
+        assert report['migrated'] is False
+        assert report['stamped'] is None
+    finally:
+        engine.dispose()
 
 
 def test_ensure_schema_rejects_postgres_url(monkeypatch):

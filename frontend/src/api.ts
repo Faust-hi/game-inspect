@@ -133,13 +133,13 @@ export const api = {
     }),
 
   saveProject: (profile: ProjectProfile, basket: string[]) =>
-    request<{ public_id: string }>('/projects', {
+    request<{ public_id: string; result: RecommendationResult }>('/projects', {
       method: 'POST',
       body: JSON.stringify({ profile, basket }),
     }),
 
   loadProject: (publicId: string) =>
-    request<{ public_id: string; name: string; profile: ProjectProfile; basket: string[] }>(
+    request<import('./types').SavedProject>(
       `/projects/${publicId}`,
     ),
 
@@ -153,6 +153,12 @@ export const api = {
     const form = new FormData();
     for (const file of files) form.append('files', file);
     return postForm<ProjectImport>('/project-import', form);
+  },
+
+  importProjectFile: async (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return postForm<import('./export').ProjectExport>('/project-file-import', form);
   },
 
   presets: (profile: ProjectProfile, basket: string[]) =>

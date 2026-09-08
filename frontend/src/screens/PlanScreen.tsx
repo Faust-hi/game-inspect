@@ -18,6 +18,7 @@ import {
 import { impactsOf, methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
 import { ConflictEntry, DependencyEntry, SynergyEntry } from '../components/Compatibility';
 import type { Method } from '../types';
+import { HardwareWarnings } from '../components/HardwareWarnings';
 
 /** Порядок внедрения: от архитектуры к настройкам. */
 const LEVEL_ORDER = ['architecture', 'production', 'algorithm', 'setting'];
@@ -55,8 +56,9 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
   const methodsByCode = useMemo(() => buildMethodMap(catalog.methods), [catalog.methods]);
 
   const selected = useMemo(
-    () => selectedMethods(basket, methodsByCode),
-    [basket, methodsByCode],
+    () => (result?.selected_methods ?? selectedMethods(basket, methodsByCode))
+      .filter(method => result?.accounted_method_codes?.includes(method.code) ?? true),
+    [basket, methodsByCode, result],
   );
 
   const grouped = useMemo(() => {
@@ -78,9 +80,6 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
   }
 
   const totalCost = selected.reduce((sum, m) => sum + m.implementation_cost, 0);
-  const avgGain = selected.length
-    ? selected.reduce((sum, m) => sum + m.performance_gain, 0) / selected.length
-    : 0;
   const conceptChanging = selected.filter((m) => m.concept_impact < 0);
   const hw = result.hardware;
 
@@ -108,7 +107,6 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
 
         <div className="stat-grid" style={{ marginTop: 14 }}>
           <Metric label="Решений" value={selected.length} />
-          <Metric label="Средний эффект" value={`${Math.round(avgGain * 100)}%`} />
           <Metric label="Трудозатраты" value={totalCost} hint="сумма баллов из 5" />
           <Metric label="Рисков" value={result.risks.length} />
         </div>
@@ -184,7 +182,7 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
 
                   <div className="xsmall faint" style={{ marginBottom: 6 }}>
                     Рекомендуемая стадия: {method.recommended_stage_label} · способ расчёта:{' '}
-                    {method.calc_mode_label} · эффект {Math.round(method.performance_gain * 100)}% ·
+                    {method.calc_mode_label} · область эффекта: {method.effect_scope_label} ·
                     трудозатраты {method.implementation_cost} из 5 · сложность {method.complexity} из 5
                   </div>
 
@@ -222,6 +220,7 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
       )}
 
       <Card title="Сводный профиль нагрузки">
+        {(result.load_profile.notes ?? []).map(note => <p key={note}>{note}</p>)}
         <div className="stat-grid">
           {(
             [
@@ -240,6 +239,7 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
 
       {hw && (
         <Card title="Референсное оборудование">
+          <HardwareWarnings hardware={hw} />
           <div className="stat-grid">
             <Metric label="Класс GPU" value={hw.gpu_class} hint="из 5" />
             <Metric label="Класс CPU" value={hw.cpu_class} hint="из 5" />
@@ -249,7 +249,7 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
           <div className="small muted" style={{ marginTop: 10 }}>
             {hw.reference_gpu && <>Видеокарта: {hw.reference_gpu.model}. </>}
             {hw.reference_cpu && <>Процессор: {hw.reference_cpu.model}. </>}
-            Уверенность оценки — {hw.confidence_label} ({Math.round(hw.confidence * 100)}%).
+            Полнота исходных данных — {hw.confidence_label}. Это не вероятность точности.
           </div>
           <div style={{ marginTop: 8 }}>
             <Callout tone="warn">
@@ -322,19 +322,19 @@ function PlanPresets() {
 
   return (
     <Card
-      title="Пресеты движков"
-      hint="Стартовая конфигурация из корзины: каждая строка знает, из какого решения взята, остальное — значения по умолчанию."
+      title="Пример настроек движка"
+      hint="Только допустимые опубликованные методы выбранного движка. Native-применимость не проверена."
       actions={
         <div className="btn-row no-print">
           <button className="btn btn-sm" onClick={() => void handleDownload()}>
-            Скачать 3 файла
+            Скачать пример
           </button>
         </div>
       }
     >
       <p className="small muted">
-        DefaultScalability.ini, пресет качества Unity и пресет рендеринга Godot. Скопируйте
-        нужное в проект и проверьте на минимальной конфигурации.
+        Перед использованием проверьте ключи и их смысл в минимальном проекте своей версии движка.
+        Файл представляет инструкцию для ручной проверки.
       </p>
       {error && <Callout tone="danger" title="Не удалось сформировать пресеты">{error}</Callout>}
     </Card>

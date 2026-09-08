@@ -7,6 +7,10 @@
 from __future__ import annotations
 
 from sqlalchemy.orm import Session
+from .. import repositories
+from ..models.entities import Method
+from ..models.enums import CalcMode, DevStage, EffectScope, LateCost, SolutionLevel
+from ..schemas.catalog import MethodOut
 
 from ..models.entities import Engine, EngineTool, GameExample, HardwareCPU, HardwareGPU, MethodEngineLink
 from ..models.enums import RelationType
@@ -107,3 +111,58 @@ def gpu_out(gpu: HardwareGPU) -> HardwareGPUOut:
         source_title=gpu.source_title,
         source_url=gpu.source_url,
     )
+
+
+def method_to_out(
+    db: Session, m: Method, with_links: bool = True, used_in: list[str] | None = None,
+) -> MethodOut:
+    # Для административного раздела связи берутся напрямую, для публичного —
+    # только опубликованные: черновик связи не должен появляться в карточке.
+    links = m.engine_links if with_links else []
+    return MethodOut(
+        code=m.code, name=m.name, kind=m.kind,
+        function_code=m.function.code if m.function else None,
+        summary=m.summary, description=m.description, problem=m.problem,
+        pros=m.pros or [], cons=m.cons or [], limitations=m.limitations or [],
+        level=m.level, level_label=label_of(SolutionLevel, m.level),
+        recommended_stage=m.recommended_stage,
+        recommended_stage_label=label_of(DevStage, m.recommended_stage),
+        late_cost=m.late_cost, late_cost_label=label_of(LateCost, m.late_cost),
+        calc_mode=m.calc_mode, calc_mode_label=label_of(CalcMode, m.calc_mode),
+        effect_scope=m.effect_scope, effect_scope_label=label_of(EffectScope, m.effect_scope),
+        impact_cpu=m.impact_cpu, impact_gpu=m.impact_gpu, impact_ram=m.impact_ram,
+        impact_vram=m.impact_vram, impact_disk=m.impact_disk, impact_network=m.impact_network,
+        quality_impact=m.quality_impact, concept_impact=m.concept_impact,
+        performance_gain=m.performance_gain, implementation_cost=m.implementation_cost,
+        complexity=m.complexity, confidence=m.confidence,
+        requires_prototype=m.requires_prototype,
+        applicable_formats=m.applicable_formats or [],
+        applicable_world_types=m.applicable_world_types or [],
+        applicable_engines=m.applicable_engines or [],
+        applicable_platforms=m.applicable_platforms or [],
+        requires_features=m.requires_features or [],
+        requires_hw_features=m.requires_hw_features or [],
+        requires_conditions=m.requires_conditions or [],
+        verification_method=m.verification_method,
+        verification_tools=m.verification_tools or [],
+        application_steps=m.application_steps or [],
+        used_in_projects=used_in if used_in is not None else [],
+        status=m.status, source_title=m.source_title, source_url=m.source_url,
+        engine_links=[link_out(db, link) for link in links],
+    )
+
+
+def method_to_out_public(
+    db: Session, m: Method, with_links: bool = True, used_in: list[str] | None = None,
+) -> MethodOut:
+    """Публичное представление: только опубликованные связи с движками."""
+    links = repositories.method_links(db, m.id) if with_links else []
+    out = method_to_out(db, m, with_links=False)
+    out.engine_links = [link_out(db, link) for link in links]
+    if used_in is not None:
+        out.used_in_projects = used_in
+    else:
+        out.used_in_projects = sorted(e.title for e in repositories.examples(db) if m.code in (e.optimizations_used or []))
+    return out
+
+
