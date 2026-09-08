@@ -24,6 +24,9 @@ from ..models.enums import Status
 from ..schemas.catalog import (
     BasketRequest, FeedbackIn, FeedbackOut, FeedbackSummaryOut,
 )
+from ..schemas.import_rows import (
+    CONFLICT_KEY_FIELDS, as_str_list, list_columns, normalize_row, row_key,
+)
 from .. import repositories
 from ..seed import seeder
 from ..services import feedback as feedback_service
@@ -330,15 +333,19 @@ SUPPORTED_IMPORT = {
 }
 
 
-def _coerce(model, row: dict[str, Any]) -> dict[str, Any]:
+def _coerce(model, row: dict[str, Any], list_fields: frozenset[str] = frozenset()) -> dict[str, Any]:
+    """Привести значения строки к типам колонок модели.
+
+    `list_fields` передаётся снаружи, потому что тип JSON-колонки в SQLAlchemy
+    определить нельзя: `python_type` у неё равен `dict` для любого содержимого.
+    """
     result = {}
     for column in model.__table__.columns:
         if column.name not in row:
             continue
         value = row[column.name]
-        if hasattr(column.type, "python_type") and column.type.python_type is list:
-            if isinstance(value, str):
-                value = [p.strip() for p in value.split(";") if p.strip()] if value else []
+        if column.name in list_fields:
+            value = as_str_list(value)
         if column.type.python_type is int and isinstance(value, str):
             text = value.strip()
             if text == "":
@@ -384,24 +391,36 @@ def _read_rows(raw: bytes, filename: str | None, entity: str) -> list[dict[str, 
     return rows
 
 
-def _validate_rows(model, rows: list[dict[str, Any]], key_field: str) -> list[str]:
+def _validate_rows(
+    model, rows: list[dict[str, Any]], entity: str, key_label: str,
+) -> list[str]:
     """Проверить все строки до первой записи в базу.
 
     Возвращает список найденных нарушений. Проверка выполняется заранее, чтобы
     частично некорректный файл не оставлял в базе половину изменений.
     """
+    from pydantic import ValidationError
+
+    list_fields = list_columns(entity)
     problems: list[str] = []
     seen: set[str] = set()
     for index, row in enumerate(rows, start=1):
-        key = str(row.get(key_field) or "").strip()
+        key = row_key(entity, row)
         if not key:
-            problems.append(f"Строка {index}: не указан ключ «{key_field}».")
+            problems.append(f"Строка {index}: не указан ключ «{key_label}».")
             continue
         if key in seen:
             problems.append(f"Строка {index}: ключ «{key}» повторяется внутри файла.")
         seen.add(key)
         try:
-            data = _coerce(model, row)
+            row = {**row, **normalize_row(entity, row)}
+        except ValidationError as exc:
+            for item in exc.errors()[:5]:
+                field = ".".join(str(part) for part in item.get("loc", ()))
+                problems.append(f"Строка {index} ({key}): поле «{field}» — {item.get('msg', '')}.")
+            continue
+        try:
+            data = _coerce(model, row, list_fields)
         except (TypeError, ValueError) as exc:
             problems.append(f"Строка {index} ({key}): значение не распознано — {exc}.")
             continue
@@ -410,6 +429,28 @@ def _validate_rows(model, rows: list[dict[str, Any]], key_field: str) -> list[st
             for message in publication.record_problems(model, data)
         )
     return problems
+
+
+def _find_existing(db: Session, model, entity: str, data: dict):
+    """Найти существующую запись по ключу сущности.
+
+    Связь идентифицируется тройкой `(a_code, b_code, conflict_type)`: у неё нет
+    ни одного общего с остальными сущностями поля-ключа, и поиск по «code»
+    либо «title» для неё бессмыслен.
+    """
+    if entity == "conflicts":
+        conditions = [getattr(model, field) == data.get(field) for field in CONFLICT_KEY_FIELDS]
+        return db.scalar(select(model).where(*conditions))
+    if entity in ("hardware_cpu", "hardware_gpu"):
+        key_field = "model"
+    elif entity == "game_examples":
+        key_field = "title"
+    else:
+        key_field = "code"
+    value = data.get(key_field)
+    if not value:
+        return None
+    return db.scalar(select(model).where(getattr(model, key_field) == value))
 
 
 @router.post("/import/{entity}", summary="Импорт записей из CSV или JSON")
@@ -425,22 +466,29 @@ async def import_entity(
     raw = await _read_upload(file)
     rows = _read_rows(raw, file.filename, entity)
 
-    key_field = "code" if hasattr(model, "code") else ("model" if hasattr(model, "model") else "title")
-    problems = _validate_rows(model, rows, key_field)
+    key_label = (
+        " / ".join(CONFLICT_KEY_FIELDS) if entity == "conflicts"
+        else ("model" if entity in ("hardware_cpu", "hardware_gpu")
+              else ("title" if entity == "game_examples" else "code"))
+    )
+    problems = _validate_rows(model, rows, entity, key_label)
     if problems:
         # Ни одна запись не записана: файл отклонён целиком.
-        raise HTTPException(
-            422,
-            {"error": "Импорт отклонён: файл содержит некорректные данные", "details": problems[:50]},
+        raise ApiError(
+            "Импорт отклонён: файл содержит некорректные данные",
+            code=ErrorCode.PUBLICATION_REJECTED,
+            status=422,
+            details=problems[:50],
         )
 
+    list_fields = list_columns(entity)
     created = updated = 0
     try:
         for row in rows:
-            data = _coerce(model, row)
+            data = _coerce(model, {**row, **normalize_row(entity, row)}, list_fields)
             if "status" not in data:
                 data["status"] = Status.DRAFT.value
-            obj = db.scalar(select(model).where(getattr(model, key_field) == data[key_field]))
+            obj = _find_existing(db, model, entity, data)
             if obj is None:
                 db.add(model(**data))
                 created += 1

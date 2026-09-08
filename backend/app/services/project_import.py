@@ -18,17 +18,33 @@ import re
 _VERSION_RE = re.compile(r"(\d+\.\d+(?:\.\d+)?)")
 
 
-def height_to_resolution(height: int) -> str | None:
-    """Высота экрана в ближайшее поддерживаемое разрешение (вниз)."""
+#: Высоты экрана, которые анкета поддерживает точно. Ключ — высота в пикселях.
+#: Порядок соответствует перечислению `Resolution` в схеме каталога.
+_EXACT_HEIGHTS: dict[int, str] = {
+    720: "720p", 768: "768p", 900: "900p", 1080: "1080p",
+    1200: "1200p", 1440: "1440p", 1600: "1600p", 2160: "4k",
+}
+
+
+def resolve_resolution(height: int) -> tuple[str | None, bool]:
+    """Разрешение по высоте экрана: значение и признак точного совпадения.
+
+    Раньше высоты округлялись по трём порогам, и 768 превращалось в 720p,
+    900 — в 1080p, 1600 — в 1440p, хотя анкета поддерживает эти режимы точно.
+    Подмена незаметно меняла GPU-индекс после импорта, поэтому точное
+    совпадение используется напрямую, а округление помечается явно.
+    """
     if height <= 0:
-        return None
-    if height <= 800:
-        return "720p"
-    if height <= 1080:
-        return "1080p"
-    if height <= 1600:
-        return "1440p"
-    return "4k"
+        return None, False
+    if height in _EXACT_HEIGHTS:
+        return _EXACT_HEIGHTS[height], True
+    nearest = min(_EXACT_HEIGHTS, key=lambda candidate: abs(candidate - height))
+    return _EXACT_HEIGHTS[nearest], False
+
+
+def height_to_resolution(height: int) -> str | None:
+    """Ближайшее поддерживаемое разрешение по высоте экрана."""
+    return resolve_resolution(height)[0]
 
 
 def _short_version(raw: str) -> str | None:
@@ -68,18 +84,27 @@ def parse_uproject(raw: bytes) -> dict:
 def _unity_pairs(text: str) -> dict[str, str]:
     """Плоский разбор `ключ: значение` без зависимости от YAML-парсера.
 
-    ProjectSettings.asset — Unity-YAML, но нужные поля лежат на верхнем уровне
-    секций в виде простых строк. Строгий парсер здесь избыточен: неизвестные
-    строки игнорируются, а не ломают импорт.
+    ProjectSettings.asset — Unity-YAML, и нужные поля (`productName`,
+    `defaultScreenWidth`, `defaultScreenHeight`) лежат **с отступом** внутри
+    секции `PlayerSettings`. Раньше строки, начинающиеся с пробела,
+    отбрасывались, поэтому реальный файл давал пустой результат импорта.
+
+    Строгий YAML-парсер здесь избыточен: неизвестные строки игнорируются, а не
+    ломают импорт.
     """
     out: dict[str, str] = {}
     for line in text.splitlines():
-        if ":" not in line or line.startswith((" ", "\t", "#", "-", "%", "!")):
+        stripped = line.strip()
+        # Служебные конструкции YAML: документы, комментарии, элементы списков.
+        if not stripped or stripped.startswith(("#", "%", "!", "-", "&", "*")):
             continue
-        key, _, value = line.partition(":")
+        if ":" not in stripped:
+            continue
+        key, _, value = stripped.partition(":")
         key, value = key.strip(), value.strip()
-        if key and value and key not in out:
-            out[key] = value
+        if not key or not value or key in out:
+            continue
+        out[key] = value
     return out
 
 
@@ -98,6 +123,10 @@ def parse_unity_settings(raw: bytes, filename: str) -> dict:
         else:
             warnings.append("В ProjectVersion.txt не найдена строка m_EditorVersion.")
         return {"filled": filled, "detected": detected, "warnings": warnings}
+    # Файл настроек Unity однозначно определяет движок: раньше этот путь
+    # заполнял поля, но не устанавливал `engine`, и анкета оставалась со
+    # значением по умолчанию.
+    filled["engine"] = "unity"
     pairs = _unity_pairs(text)
     if "productName" in pairs:
         filled["name"] = pairs["productName"][:200]
@@ -107,10 +136,13 @@ def parse_unity_settings(raw: bytes, filename: str) -> dict:
     except ValueError:
         width = height = 0
     if height > 0:
-        resolution = height_to_resolution(height)
+        resolution, exact = resolve_resolution(height)
         if resolution:
             filled["target_resolution"] = resolution
-        detected.append(f"Стартовое разрешение {width}x{height} → {resolution or 'не сопоставлено'}.")
+        mark = "" if exact else " (приближённо: точного режима в анкете нет)"
+        detected.append(
+            f"Стартовое разрешение {width}x{height} → {resolution or 'не сопоставлено'}{mark}."
+        )
     else:
         warnings.append("Стартовое разрешение в настройках не найдено.")
     if pairs.get("virtualRealitySupported") == "1":
@@ -149,15 +181,37 @@ def parse_urp_asset(raw: bytes) -> dict:
     return {"filled": {}, "detected": detected, "warnings": [], "suggested": suggested}
 
 
+def _godot_ini_body(text: str) -> tuple[str, str | None]:
+    """Отделяет секции от шапки `config_version=N`.
+
+    Godot пишет `config_version=5` **до** первой секции `[application]`.
+    ConfigParser такой файл не принимает, поэтому раньше разбор падал целиком
+    и импорт возвращал только движок с предупреждением.
+    """
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if line.lstrip().startswith("["):
+            header = "\n".join(lines[:index])
+            match = re.search(r"config_version\s*=\s*(\d+)", header)
+            return "\n".join(lines[index:]), (match.group(1) if match else None)
+    return text, None
+
+
 def parse_godot_project(raw: bytes) -> dict:
     """project.godot (INI): название, версия и метод рендеринга, разрешение."""
     filled: dict = {"engine": "godot"}
     detected: list[str] = []
     warnings: list[str] = []
     suggested: list[dict] = []
-    parser = configparser.ConfigParser(strict=False)
+    body, config_version = _godot_ini_body(raw.decode("utf-8-sig", errors="replace"))
+    if config_version:
+        detected.append(f"Версия формата project.godot: config_version={config_version}.")
+    # interpolation=None: значения Godot содержат символы `%` (пути, шаблоны),
+    # которые стандартная интерполяция ConfigParser воспринимает как подстановку
+    # и превращает в ошибку разбора.
+    parser = configparser.ConfigParser(strict=False, interpolation=None)
     try:
-        parser.read_string(raw.decode("utf-8-sig", errors="replace"))
+        parser.read_string(body)
     except configparser.Error:
         return {"filled": filled, "detected": detected,
                 "warnings": ["Файл project.godot не разобран как INI."]}
@@ -183,10 +237,11 @@ def parse_godot_project(raw: bytes) -> dict:
     except ValueError:
         width = height = 0
     if height > 0:
-        resolution = height_to_resolution(height)
+        resolution, exact = resolve_resolution(height)
         if resolution:
             filled["target_resolution"] = resolution
-        detected.append(f"Вьюпорт {width}x{height} → {resolution or 'не сопоставлено'}.")
+        mark = "" if exact else " (приближённо: точного режима в анкете нет)"
+        detected.append(f"Вьюпорт {width}x{height} → {resolution or 'не сопоставлено'}{mark}.")
     if parser.has_option("rendering", "textures/vram_compression/import_etc2_astc"):
         detected.append("Включено сжатие текстур для мобильных (ETC2/ASTC).")
     return {"filled": filled, "detected": detected, "warnings": warnings, "suggested": suggested}
