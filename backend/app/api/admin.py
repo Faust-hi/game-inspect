@@ -253,15 +253,9 @@ def set_method_status(code: str, payload: StatusIn, db: Session = Depends(get_db
         return {"code": obj.code, "status": obj.status, "previous_status": obj.status}
 
     if payload.status == Status.PUBLISHED.value:
-        # Считаются только опубликованные связи: черновая связь не делает метод
-        # пригодным к публикации, потому что пользователь её не увидит.
-        has_links = db.scalar(
-            select(func.count(MethodEngineLink.id)).where(
-                MethodEngineLink.method_id == obj.id,
-                MethodEngineLink.status == Status.PUBLISHED.value,
-            )
-        ) or 0
-        problems = publication.publication_problems(obj, has_links=has_links > 0)
+        problems = publication.publication_problems(
+            obj, has_links=_has_published_links(db, obj)
+        )
         if problems:
             raise ApiError(
                 "Публикация невозможна",
@@ -279,6 +273,107 @@ def set_method_status(code: str, payload: StatusIn, db: Session = Depends(get_db
     ))
     db.commit()
     return {"code": obj.code, "status": obj.status, "previous_status": previous}
+
+
+# ---------------------------------------------------------------------------
+# Жизненный цикл всех сущностей каталога
+# ---------------------------------------------------------------------------
+# Раньше смена статуса работала только для методов: движок, инструмент, пример
+# или процессор, добавленные через каталог, оставались черновиками навсегда,
+# и расширение базы «без кода» не выполнялось. Обращение по идентификатору, а
+# не по естественному ключу, потому что у конфликта и у связи метода с
+# инструментом естественный ключ составной или вовсе отсутствует.
+@router.get("/entities", summary="Сущности каталога, участвующие в публикации")
+def list_entities():
+    return [
+        {"entity": code, "label": policy.label, "key_fields": list(policy.key_fields)}
+        for code, policy in publication.ENTITY_POLICIES.items()
+    ]
+
+
+@router.get("/entities/{entity}", summary="Записи сущности с их статусами")
+def list_entity_records(entity: str, db: Session = Depends(get_db)):
+    policy = publication.policy_for(entity)
+    if policy is None:
+        raise HTTPException(404, f"Сущность каталога не поддерживает публикацию: {entity}")
+    rows = db.scalars(select(policy.model).order_by(policy.model.id)).all()
+    return [
+        {
+            "id": row.id,
+            "key": publication.entity_key(row, policy),
+            "status": row.status,
+            "allowed_transitions": sorted(publication.allowed_targets(row.status)),
+        }
+        for row in rows
+    ]
+
+
+@router.patch(
+    "/entities/{entity}/{entity_id}/status",
+    summary="Изменить статус любой записи каталога",
+)
+def set_entity_status(
+    entity: str, entity_id: int, payload: StatusIn, db: Session = Depends(get_db),
+):
+    policy = publication.policy_for(entity)
+    if policy is None:
+        raise HTTPException(404, f"Сущность каталога не поддерживает публикацию: {entity}")
+
+    obj = db.get(policy.model, entity_id)
+    if obj is None:
+        raise HTTPException(404, f"{policy.label} с идентификатором {entity_id} не найден")
+
+    rejection = publication.transition_error(obj.status, payload.status)
+    if rejection:
+        raise HTTPException(409, rejection)
+
+    # Повторная установка текущего статуса: ничего не меняем и не пишем в журнал.
+    if obj.status == payload.status:
+        return {"entity": entity, "id": entity_id, "status": obj.status, "changed": False}
+
+    if payload.status == Status.PUBLISHED.value:
+        has_links = _has_published_links(db, obj) if policy.requires_links else True
+        problems = publication.publication_problems(obj, has_links=has_links)
+        if problems:
+            raise ApiError(
+                "Публикация невозможна",
+                code=ErrorCode.PUBLICATION_REJECTED,
+                status=422,
+                details=publication.deduplicate(problems),
+            )
+
+    previous = obj.status
+    obj.status = payload.status
+    db.add(PublicationLog(
+        entity=entity, entity_code=publication.entity_key(obj, policy),
+        from_status=previous, to_status=payload.status,
+        actor="admin", comment=payload.comment,
+    ))
+    try:
+        db.commit()
+    except Exception:  # noqa: BLE001 — нарушение ограничения БД
+        db.rollback()
+        logger.exception("Не удалось изменить статус %s #%s", entity, entity_id)
+        raise HTTPException(409, "Статус не изменён: нарушено ограничение базы данных")
+    return {
+        "entity": entity, "id": entity_id, "status": obj.status,
+        "previous_status": previous, "changed": True,
+    }
+
+
+def _has_published_links(db: Session, obj) -> bool:
+    """Есть ли у метода хотя бы одна опубликованная связь с инструментом.
+
+    Черновая связь не делает метод пригодным к публикации: пользователь её
+    не увидит, а карточка метода окажется без способа реализации.
+    """
+    count = db.scalar(
+        select(func.count(MethodEngineLink.id)).where(
+            MethodEngineLink.method_id == obj.id,
+            MethodEngineLink.status == Status.PUBLISHED.value,
+        )
+    )
+    return bool(count)
 
 
 @router.get("/publication-log", summary="Журнал изменений статусов")

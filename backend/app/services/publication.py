@@ -11,8 +11,13 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from typing import Any, Iterable
 
+from ..models.entities import (
+    Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU,
+    Method, MethodEngineLink,
+)
 from ..models.enums import (
     CalcMode, ConflictType, DevStage, GameFormat, LateCost, Level3, MethodKind,
     Platform, Scale, SolutionLevel, Status, WorldType,
@@ -63,6 +68,80 @@ ENUM_FIELDS: dict[str, tuple] = {
 }
 
 _URL_RE = re.compile(r"^https?://", re.IGNORECASE)
+
+
+@dataclass(frozen=True)
+class EntityPolicy:
+    """Требования к публикации одной сущности каталога.
+
+    Правило «публикуемое утверждение обязано иметь источник» общее, но поля в
+    схемах называются по-разному: у движка и инструмента ссылка на источник
+    лежит в `docs_url`, а названия источника нет вовсе. Без явной политики
+    публикация таких сущностей была бы невозможна вовсе, а не просто строже,
+    — поэтому требования описаны для каждой сущности отдельно.
+    """
+
+    model: type
+    label: str
+    key_fields: tuple[str, ...]
+    url_fields: tuple[str, ...] = ("source_url",)
+    requires_source_title: bool = True
+    requires_links: bool = False
+    # Связь методов и связь метода с инструментом не имеют собственного
+    # названия: их смысл задаётся парой. Требовать название у такой записи —
+    # значит требовать поле, которого в смысле сущности нет.
+    requires_name: bool = True
+
+
+#: Сущности каталога, участвующие в жизненном цикле публикации. Ключ — имя
+#: таблицы, оно же код сущности в административном API.
+ENTITY_POLICIES: dict[str, EntityPolicy] = {
+    "methods": EntityPolicy(Method, "Метод", ("code",), requires_links=True),
+    "game_functions": EntityPolicy(GameFunction, "Функция", ("code",)),
+    "engines": EntityPolicy(
+        Engine, "Движок", ("code",), url_fields=("docs_url",), requires_source_title=False,
+    ),
+    "engine_tools": EntityPolicy(
+        EngineTool, "Инструмент движка", ("code",),
+        url_fields=("docs_url",), requires_source_title=False,
+    ),
+    "method_engine_links": EntityPolicy(
+        MethodEngineLink, "Связь метода с инструментом", ("id",),
+        requires_source_title=False, requires_name=False,
+    ),
+    "conflicts": EntityPolicy(
+        Conflict, "Связь методов", ("a_code", "b_code", "conflict_type"),
+        requires_source_title=False, requires_name=False,
+    ),
+    "game_examples": EntityPolicy(GameExample, "Пример игры", ("title",)),
+    "hardware_cpu": EntityPolicy(HardwareCPU, "Процессор", ("model",)),
+    "hardware_gpu": EntityPolicy(HardwareGPU, "Видеокарта", ("model",)),
+}
+
+#: Политика для сущности, не описанной в реестре: самая строгая. Новая таблица
+#: не получает послаблений по умолчанию — требования добавляются осознанно.
+_FALLBACK_POLICY = EntityPolicy(type(None), "Запись", ("id",))
+
+
+def policy_for(entity: str) -> EntityPolicy | None:
+    """Политика публикации по коду сущности (имени таблицы)."""
+    return ENTITY_POLICIES.get(entity)
+
+
+def policy_of(obj: Any) -> EntityPolicy:
+    """Политика публикации для записи каталога."""
+    return ENTITY_POLICIES.get(getattr(obj, "__tablename__", ""), _FALLBACK_POLICY)
+
+
+def entity_key(obj: Any, policy: EntityPolicy | None = None) -> str:
+    """Ключ записи для журнала и ответа API.
+
+    Составной ключ склеивается через « / »: у конфликта и связи нет одного
+    общего с остальными сущностями поля, поэтому ключ собирается из нескольких.
+    """
+    policy = policy or policy_of(obj)
+    parts = [str(getattr(obj, field, "")) for field in policy.key_fields]
+    return " / ".join(part for part in parts if part)
 
 
 def is_valid_url(value: str) -> bool:
@@ -163,25 +242,41 @@ def record_problems(model, data: dict[str, Any]) -> list[str]:
 
 
 def publication_problems(obj: Any, *, has_links: bool = True) -> list[str]:
-    """Проверки, обязательные для перевода записи в статус «опубликовано»."""
+    """Проверки, обязательные для перевода записи в статус «опубликовано».
+
+    Требования берутся из политики сущности: у движка источником служит ссылка
+    на документацию, у конфликта названия источника нет, а у метода сверх того
+    требуется связь с инструментом движка.
+    """
+    policy = policy_of(obj)
     problems: list[str] = []
 
-    if not (getattr(obj, "source_url", "") or "").strip():
+    urls = [str(getattr(obj, field, "") or "").strip() for field in policy.url_fields]
+    urls = [url for url in urls if url]
+    if not urls:
         problems.append("Отсутствует ссылка на источник: без неё запись нельзя публиковать.")
-    elif not is_valid_url(obj.source_url):
+    elif not all(is_valid_url(url) for url in urls):
         problems.append("Ссылка на источник должна начинаться с http:// или https://.")
 
-    if not (getattr(obj, "source_title", "") or "").strip():
+    if policy.requires_source_title and not (getattr(obj, "source_title", "") or "").strip():
         problems.append("Отсутствует название источника.")
 
-    if not (getattr(obj, "name", "") or getattr(obj, "title", "") or "").strip():
-        problems.append("Не заполнено название записи.")
+    if policy.requires_name:
+        # Название записи живёт в разных колонках: у оборудования это модель,
+        # у примера игры — заголовок.
+        title = (
+            getattr(obj, "name", "")
+            or getattr(obj, "title", "")
+            or getattr(obj, "model", "")
+        )
+        if not str(title).strip():
+            problems.append("Не заполнено название записи.")
 
     problems.extend(enum_problems(_columns_of(obj)))
 
     # Метод без привязки к движку бесполезен: пользователь не узнает, чем его
     # реализовать в своём проекте.
-    if getattr(obj, "__tablename__", "") == "methods" and not has_links:
+    if policy.requires_links and not has_links:
         problems.append("У метода нет ни одной связи с инструментом движка.")
 
     return problems
@@ -203,19 +298,11 @@ def describe_transition(obj: Any, target: str, *, actor: str = "admin") -> dict[
     """Описание перехода для журнала публикаций."""
     return {
         "entity": getattr(obj, "__tablename__", type(obj).__name__),
-        "entity_code": _entity_code(obj),
+        "entity_code": entity_key(obj),
         "from_status": getattr(obj, "status", Status.DRAFT.value),
         "to_status": target,
         "actor": actor,
     }
-
-
-def _entity_code(obj: Any) -> str:
-    for field in ("code", "model", "title"):
-        value = getattr(obj, field, None)
-        if value:
-            return str(value)
-    return str(getattr(obj, "id", ""))
 
 
 def deduplicate(problems: Iterable[str]) -> list[str]:
