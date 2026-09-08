@@ -24,7 +24,9 @@ from ..models.entities import (
 )
 from ..models.enums import Status
 from . import engines_data, functions_data, methods_data
-from .corrections import correct_effect_scopes, correct_shadow_relation
+from .corrections import (
+    correct_effect_scopes, correct_shadow_relation, correct_splitscreen_dependency,
+)
 
 PUBLISHED = Status.PUBLISHED.value
 
@@ -220,6 +222,7 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
         "method_metadata_updated": metadata_updated,
         "relations_corrected": correct_shadow_relation(db),
         "effect_scopes_corrected": correct_effect_scopes(db),
+        "splitscreen_dependency_corrected": correct_splitscreen_dependency(db),
     }
 
 
@@ -489,6 +492,7 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     # Записи, сохранённые до появления области эффекта, получают явные значения
     # каталога: иначе исправление расчёта действует только на новые базы.
     scopes_corrected = correct_effect_scopes(db)
+    splitscreen_corrected = correct_splitscreen_dependency(db)
     db.commit()
     issues = validate_knowledge_base(db) if validate else []
     db.commit()
@@ -503,6 +507,7 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
         "hardware_records": hardware,
         "validation_issues": len(issues),
         "effect_scopes_corrected": scopes_corrected,
+        "splitscreen_dependency_corrected": splitscreen_corrected,
         **outcome.as_report(),
     }
 

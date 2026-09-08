@@ -72,6 +72,11 @@ class ProjectProfile(BaseModel):
     npc_count: Annotated[int | None, Field(ge=0, le=10_000_000)] = None
     player_count: Annotated[int, Field(ge=1, le=10000)] = 1
     multiplayer: bool = False
+    # Число локальных вьюпортов (split-screen). Это не сетевые игроки:
+    # кооп на одном экране умножает рендер-нагрузку, но не сетевой трафик.
+    # None — не задано; при выбранной функции split-screen используется
+    # сценарное предположение «2 вьюпорта», отражаемое в modeling_gaps.
+    local_view_count: Annotated[int | None, Field(ge=1, le=8)] = None
 
     # Функции
     functions: Annotated[list[str], Field(max_length=40)] = Field(default_factory=list)

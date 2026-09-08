@@ -1720,7 +1720,9 @@ EXTRA_METHODS: list[dict] = [
       impact_gpu=2, impact_ram=1, impact_vram=1,
       concept_impact=-1,
       performance_gain=0.5, implementation_cost=3, complexity=3, confidence=0.8,
-      requires_features=["multiplayer_netcode"],
+      # Split-screen — локальная функция: два вьюпорта на одной машине,
+      # сетевой код для неё не нужен (D42). Требуется сама функция.
+      requires_features=["split_screen_rendering"],
       applicable_formats=["3D", "2.5D"],
       pros=["Кооп-фишка без онлайна", "Дисциплинирует бюджеты всей игры"],
       cons=["2x нагрузка на слабом железе", "Половина экрана — половина информации"],

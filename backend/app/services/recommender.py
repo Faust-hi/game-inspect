@@ -563,23 +563,31 @@ def _recommendation_flags(
     method: Method, applicability: rules.Applicability, rank: int, total: int,
     *, comparable: bool, stage_order: int, method_stage: int, late_blocked: bool,
 ) -> list[str]:
-    """Пометки решения: абсолютные признаки + относительное место в списке."""
+    """Пометки решения: абсолютные признаки + относительное место в списке.
+
+    Абсолютные признаки приоритетнее относительных: метод с закрытым окном
+    внедрения не может одновременно «рекомендоваться» (D34). Пометка места
+    в ранге остаётся только у методов без запрета.
+    """
     flags: list[str] = []
-    if late_blocked:
-        flags.append("not_recommended")
-        flags.append("late_blocked")
+    rank_flags: list[str] = []
     if comparable:
         share = rank / max(1, total)
         if share <= 1 / 3:
-            flags.append("recommended")
+            rank_flags.append("recommended")
         elif share <= 2 / 3:
-            flags.append("conditional")
+            rank_flags.append("conditional")
         else:
-            flags.append("lower_priority")
+            rank_flags.append("lower_priority")
     else:
         # Единственный или неразличимый набор: относительного порядка нет,
         # и утверждать «не рекомендуется» было бы неправдой.
-        flags.append("single_option" if total == 1 else "comparison_limited")
+        rank_flags.append("single_option" if total == 1 else "comparison_limited")
+    if late_blocked:
+        flags.append("not_recommended")
+        flags.append("late_blocked")
+    else:
+        flags.extend(rank_flags)
     if stage_order <= method_stage:
         flags.append("implement_now")
     if method.late_cost in ("high", "critical") and applicability.stage_pressure > 0 and not late_blocked:

@@ -51,6 +51,22 @@ def correct_shadow_relation(db: Session) -> int:
     return 1
 
 
+def correct_splitscreen_dependency(db: Session) -> int:
+    """Убрать ложную зависимость split-screen от сетевого кода (D42).
+
+    Split-screen — локальная функция: два вьюпорта на одной машине, сетевой
+    код для неё не нужен. Прежняя запись требовала `multiplayer_netcode` и
+    исключала решение из одиночных кооп-проектов. Заменяется только точное
+    унаследованное значение: осознанная правка администратора не трогается.
+    """
+    row = db.scalar(select(Method).where(Method.code == "splitscreen_render_budget"))
+    if row is None or list(row.requires_features or []) != ["multiplayer_netcode"]:
+        return 0
+    row.requires_features = ["split_screen_rendering"]
+    db.flush()
+    return 1
+
+
 def correct_effect_scopes(db: Session) -> int:
     """Проставить область эффекта записям, созданным до появления поля.
 

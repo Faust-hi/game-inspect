@@ -11,6 +11,16 @@
 
 Каждый метод влияет только на свои подсистемы. Экономия в одной подсистеме
 не компенсирует нагрузку в другой. Нет двойного учёта одной и той же работы.
+
+Раздельные сценарные шкалы (G02): последовательная работа CPU ограничена
+одним потоком (шкала single_thread_score), параллельная — ядрами
+(multi_thread_score); растровая работа GPU и трассировка лучей — разные
+сценарии (raster_score и rt_score). Карта или процессор обязаны успевать
+каждую часть работы: сильная сторона не компенсирует слабую.
+
+Обязательные возможности (D05) проверяются по каталогу до объявления
+конфигурации подходящей: неподтверждённая поддержка — «неизвестно», а не
+молчаливое «подходит».
 """
 from __future__ import annotations
 
@@ -177,6 +187,11 @@ _STREAMING_METHODS = {
 # Подобраны под подсистемную модель D03.
 GPU_CALIBRATION = 0.155
 CPU_CALIBRATION = 0.20
+#: RT-составляющая переводится в требование к отдельной сценарной шкале
+#: rt_score (technical.city, якорь RTX 4090 = 1.0). Происхождение: RT-работа
+#: сверх базовой единицы подсистемы rt при 1080p/high/60 и content≈1
+#: должна требовать карту класса RTX 3050–3060 (rt_score 0.24–0.45).
+GPU_RT_CALIBRATION = 1.0
 
 
 def _supports_ray_tracing(gpu: HardwareGPU) -> bool:
@@ -191,20 +206,45 @@ def _resolution_factor(value: str) -> float:
     return RESOLUTION_FACTOR.get(value.strip().lower(), 1.0)
 
 
-def _supports_profile_gpu(gpu: HardwareGPU, profile: ProjectProfile) -> bool:
-    """Проверка заявленных возможностей каталога, без догадок по имени GPU."""
-    features = [str(item).lower() for item in (gpu.hw_features or [])]
-    if profile.upscaling_method == "dlss" and not any(item.startswith("dlss") for item in features):
-        return False
+def _api_supports(gpu: HardwareGPU, api: str) -> bool:
+    """Поддерживает ли карта заявленный графический API (по данным каталога)."""
     apis = [str(item).lower() for item in (gpu.api_support or [])]
-    api = profile.render_api
-    if api == "auto":
-        return True
     if api in {"dx9", "dx11", "dx12"}:
         required = int(api[2:])
         versions = [re.search(r"directx\s+(\d+)", item) for item in apis]
         return any(match and int(match.group(1)) >= required for match in versions)
     return any(item.startswith(api) for item in apis)
+
+
+def _gpu_feature_support(gpu: HardwareGPU, required: str) -> bool | None:
+    """Подтверждает ли каталог поддержку возможности картой (D05).
+
+    True — каталог подтверждает, False — опровергает (карта заведомо без
+    этой возможности), None — каталог не отвечает. Неизвестность не
+    приравнивается ни к поддержке, ни к отказу: конфигурация с ней не
+    может молча объявляться подходящей.
+    """
+    req = (required or "").strip().lower()
+    if not req:
+        return None
+    if req.startswith("directx"):
+        tail = req.split()[-1]
+        return _api_supports(gpu, f"dx{tail}") if tail.isdigit() else None
+    if req in {"vulkan", "opengl", "metal"}:
+        return _api_supports(gpu, req)
+    features = [str(f).lower() for f in (gpu.hw_features or [])]
+    # «Variable Rate Shading» покрывает «… (Tier 1)», «Hardware Ray Tracing» —
+    # «… (2nd gen RT cores)»: совпадение по началу названия возможности.
+    if any(
+        f == req or f.startswith(req + " ") or f.startswith(req + "(")
+        for f in features
+    ):
+        return True
+    if "ray tracing" in req or req in {"rt", "rtx", "rt cores", "ray accelerators"}:
+        return _supports_ray_tracing(gpu)
+    if req.startswith(("dlss", "fsr", "xess")):
+        return any(f.startswith(req) for f in features)
+    return None
 
 
 def _fps_factor(fps: int) -> float:
@@ -341,6 +381,11 @@ def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_
         gaps.append("Не указана сетевая схема: P2P, client-server, dedicated и lockstep имеют разную цену.")
     if profile.target_resolution in {"1440p", "1600p", "2160p", "4k"} and profile.upscaling_method == "auto":
         gaps.append("Не указан upscaler: итоговая GPU-нагрузка для высокого разрешения может отличаться.")
+    if "split_screen_rendering" in profile.functions and profile.local_view_count is None:
+        gaps.append(
+            "Число локальных вьюпортов split-screen не задано: нагрузка рассчитана "
+            "из сценарного предположения о 2 вьюпортах."
+        )
     if profile.frame_generation:
         gaps.append("Генерация кадров повышает отображаемый FPS, но не заменяет базовый FPS и добавляет задержку.")
         if profile.base_render_fps is None:
@@ -407,6 +452,11 @@ def _applicability_limits(profile: ProjectProfile) -> list[str]:
         limits.append(
             f"Число игроков ({_fmt(profile.player_count)}) выше порога различения "
             f"({_PLAYER_SATURATION}): сетевой вклад оценён по насыщению."
+        )
+    if profile.local_view_count is not None and profile.local_view_count > 4:
+        limits.append(
+            f"Число локальных вьюпортов ({profile.local_view_count}) выше области калибровки (≤4): "
+            "стоимость масштабирована линейно, без эмпирической проверки."
         )
 
     _, non_pc = _platform_status(profile)
