@@ -7,8 +7,9 @@
   * доступность сервиса и наполнение каталога по нормам MVP;
   * восемь сценариев проверки из раздела 8;
   * наличие источника у каждой опубликованной записи;
-  * пересчёт профиля нагрузки, поиск похожих игр и аппаратную оценку;
-  * сохранение и загрузку проекта;
+  * пересчёт профиля нагрузки и аппаратную оценку;
+  * стадийные подсказки: предупреждения и предложения для каждой стадии
+    и закрытие уровней решений на поздних стадиях;
   * административный раздел и журнал целостности базы.
 """
 from __future__ import annotations
@@ -92,13 +93,11 @@ def main() -> int:
     _, functions = call("GET", "/api/catalog/functions")
     _, methods = call("GET", "/api/catalog/methods")
     _, engines = call("GET", "/api/catalog/engines")
-    _, examples = call("GET", "/api/catalog/examples")
     _, conflicts = call("GET", "/api/catalog/conflicts")
     _, hardware = call("GET", "/api/catalog/hardware")
 
     check(len(functions) >= 15, f"функций меньше 15: {len(functions)}")
     check(len(methods) >= 40, f"методов меньше 40: {len(methods)}")
-    check(len(examples) >= 15, f"примеров игр меньше 15: {len(examples)}")
     check(len(hardware.get("cpu", [])) >= 30, f"процессоров меньше 30: {len(hardware.get('cpu', []))}")
     check(len(hardware.get("gpu", [])) >= 30, f"видеокарт меньше 30: {len(hardware.get('gpu', []))}")
     check(len(conflicts) >= 10, f"конфликтов меньше 10: {len(conflicts)}")
@@ -108,11 +107,9 @@ def main() -> int:
 
     no_source = [m["code"] for m in methods if m.get("status") == "published" and not m.get("source_url")]
     check(not no_source, f"у опубликованных методов нет источника: {no_source[:5]}")
-    no_source_ex = [e["title"] for e in examples if e.get("status") == "published" and not e.get("source_url")]
-    check(not no_source_ex, f"у опубликованных примеров нет источника: {no_source_ex[:5]}")
 
     print(f"\nКаталог: функций {len(functions)}, методов {len(methods)}, движков {len(engines)}, "
-          f"примеров {len(examples)}, CPU {len(hardware.get('cpu', []))}, GPU {len(hardware.get('gpu', []))}, "
+          f"CPU {len(hardware.get('cpu', []))}, GPU {len(hardware.get('gpu', []))}, "
           f"связей конфликтов {len(conflicts)}")
 
     print("\nСценарии раздела 8:")
@@ -131,7 +128,6 @@ def main() -> int:
         check(bool(recommendations), f"сценарий {name}: нет рекомендаций")
         check(all(item.get("reasons") for item in recommendations), f"сценарий {name}: нет объяснений")
         check(all(item.get("flags") for item in recommendations), f"сценарий {name}: нет пометок")
-        check(data.get("similar_games") is not None, f"сценарий {name}: нет похожих игр")
         check(bool(hw), f"сценарий {name}: нет аппаратной оценки")
         check(hw.get("confidence", 1.0) <= 1.0, f"сценарий {name}: некорректная уверенность")
         top = recommendations[0]["method_name"] if recommendations else "—"
@@ -148,7 +144,7 @@ def main() -> int:
     check(order_one == order_two, "TOPSIS не воспроизводится при повторном расчёте")
     print(f"\nВоспроизводимость TOPSIS: {'да' if order_one == order_two else 'НЕТ'}")
 
-    # Корзина, профиль нагрузки, похожие игры, аппаратная оценка.
+    # Корзина, профиль нагрузки, аппаратная оценка.
     basket = order_one[:3]
     status, load = call("POST", "/api/load-profile", {"profile": profile, "basket": basket})
     check(status == 200 and load.get("per_resource"), "профиль нагрузки не рассчитан")
@@ -156,8 +152,6 @@ def main() -> int:
         status == 200 and all(key in load for key in ("cpu", "gpu", "ram", "vram", "disk", "network")),
         "профиль нагрузки не содержит всех подсистем",
     )
-    status, similar = call("POST", "/api/similar-games", {"profile": profile, "basket": basket})
-    check(status == 200 and isinstance(similar, list) and similar, "похожие игры не найдены")
     status, estimate = call("POST", "/api/hardware-estimate", {"profile": profile, "basket": basket})
     check(status == 200 and estimate.get("reference_gpu") and estimate.get("reference_cpu"),
           "аппаратная оценка не сформирована")
@@ -170,12 +164,45 @@ def main() -> int:
           f"уверенность {estimate.get('confidence', 0):.2f} ({estimate.get('confidence_label', '—')})")
     check(estimate.get("confidence_label"), "не указан уровень уверенности аппаратной оценки")
 
-    # Сохранение и загрузка проекта.
-    status, saved = call("POST", "/api/projects", {"profile": profile, "basket": basket})
-    check(status == 200 and saved.get("public_id"), "проект не сохранён")
-    if saved.get("public_id"):
-        status, loaded = call("GET", f"/api/projects/{saved['public_id']}")
-        check(status == 200 and loaded.get("basket") == basket, "проект не загружается")
+    # Стадийные подсказки: у каждой стадии свои предупреждения и предложения.
+    print("\nСтадии проекта:")
+    for stage in ("concept", "preproduction", "prototype", "production",
+                  "alpha", "beta", "release", "post_release"):
+        status, guide = call("GET", f"/api/catalog/stage-guidance?stage={stage}")
+        ok = status == 200 and guide.get("summary") and guide.get("warnings") and guide.get("suggestions")
+        check(ok, f"стадия {stage}: нет сводки, предупреждений или предложений")
+        print(f"  {stage:<16} закрыто уровней {len(guide.get('blocked_levels', []))}, "
+              f"предупреждений {len(guide.get('warnings', []))}, "
+              f"предложений {len(guide.get('suggestions', []))}")
+    check(
+        call("GET", "/api/catalog/stage-guidance?stage=unknown_stage")[1].get("stage") == "prototype",
+        "неизвестная стадия не сводится к прототипу",
+    )
+
+    # Смена стадии меняет расчёт: архитектурные решения не выдаются на релизе.
+    early_profile = dict(BASE_PROFILE)
+    early_profile.update(SCENARIOS["3d_open_world"])
+    early_profile["stage"] = "concept"
+    late_profile = dict(early_profile)
+    late_profile["stage"] = "release"
+    _, early = call("POST", "/api/recommend", {"profile": early_profile, "basket": []})
+    _, late = call("POST", "/api/recommend", {"profile": late_profile, "basket": []})
+    check(early.get("stage_guidance", {}).get("blocked_levels") == [],
+          "на концепте закрытых уровней быть не должно")
+    check(late.get("stage_guidance", {}).get("blocked_levels") == ["architecture"],
+          "на релизе не закрыт архитектурный уровень")
+    early_codes = {item["method_code"] for item in early.get("recommendations", [])}
+    late_codes = {item["method_code"] for item in late.get("recommendations", [])}
+    architecture = set()
+    for code in early_codes:
+        _, card = call("GET", f"/api/catalog/methods/{code}")
+        if card.get("level") == "architecture":
+            architecture.add(code)
+    check(bool(architecture), "в выдаче концепта нет архитектурных решений — проверка стадии пуста")
+    check(not (architecture & late_codes), "архитектурное решение осталось в выдаче релиза")
+    check(early_codes != late_codes, "смена стадии не меняет состав рекомендаций")
+    print(f"Смена стадии: концепт {len(early_codes)} решений → релиз {len(late_codes)}, "
+          f"архитектурных исключено {len(architecture & early_codes)}")
 
     # Административный раздел (локально открыт).
     status, overview = call("GET", "/api/admin/overview")

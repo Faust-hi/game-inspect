@@ -29,14 +29,15 @@ from ..models.enums import (
     CalcMode, ConflictType, DevStage, EffectScope, LateCost, SolutionLevel,
 )
 from ..schemas.catalog import (
-    BasketConflictOut, CriterionScore, LoadProfileOut,
-    RecommendationOut, RecommendationResult, RiskOut, SimilarGameOut, input_fingerprint,
+    BasketConflictOut, CriterionScore, HardwareEstimateOut, LoadProfileOut,
+    RecommendationOut, RecommendationResult, RiskOut, StageGuidanceOut,
+    StageNoteOut, input_fingerprint,
 )
 from ..seed.methods_data import FUNCTION_ASSIGNMENTS
-from . import gower, hardware, rules, sensitivity, serializers
+from . import hardware, rules, sensitivity, serializers, stage_guidance
 from .serializers import label_of as _label
 from .serializers import link_out
-from .topsis import Criterion, criterion_matrix_rows, topsis
+from .topsis import Criterion, criterion_matrix_rows, equivalence_group, topsis, EQUIVALENCE_TOLERANCE
 
 #: Версия алгоритма. Меняется при любом изменении формул, весов или правил
 #: отбора: по ней можно понять, какой версией получен сохранённый результат.
@@ -78,6 +79,7 @@ FLAG_LABELS = {
     "lower_priority": "уступает другим вариантам",
     "single_option": "единственный применимый вариант",
     "comparison_limited": "сравнение ограничено",
+    "tied_leader": "равнозначно с лидером",
     "implement_now": "желательно внедрить сейчас",
     "late_difficult": "позднее внедрение затруднено",
     "late_blocked": "внедрение на этой стадии практически закрыто",
@@ -361,7 +363,6 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
     functions = {f.code: f for f in repositories.functions(db)}
     all_methods = repositories.methods(db)
     methods_by_code = {m.code: m for m in all_methods}
-    examples = repositories.examples(db)
     basket_methods = repositories.methods_by_codes(db, basket_codes)
 
     calculated_at = timeutil.utcnow_iso()
@@ -391,15 +392,30 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
                 extra=f"Метод оправдан при масштабе мира не ниже «{method.min_scale}».",
             ))
             continue
+        # Стадия может закрыть решение полностью: архитектурное решение не
+        # внедряется после того, как контент создан, независимо от его ценности.
+        # Раньше такое решение оставалось в списке рекомендаций и только
+        # сопровождалось предупреждением, из-за чего стадия не меняла выдачу.
+        if stage_guidance.is_blocked(method, profile.stage):
+            excluded.append(_build_excluded(
+                method, functions, applicability,
+                extra=(
+                    f"Решение закрыто стадией «{DevStage(profile.stage).label}»: "
+                    f"уровень «{SolutionLevel(method.level).label}» с "
+                    f"{LateCost(method.late_cost).label} ценой позднего внедрения "
+                    "не может быть внедрён без переработки проекта."
+                ),
+            ))
+            continue
         evaluated.append((method, applicability))
 
     if not evaluated:
         # Ни одно решение не прошло фильтр обязательных ограничений. Профиль
-        # нагрузки, похожие игры и аппаратная оценка всё равно возвращаются:
-        # пользователю важно видеть причины исключения и ориентир по железу.
+        # нагрузки и аппаратная оценка всё равно возвращаются: пользователю
+        # важно видеть причины исключения и ориентир по железу.
         tail = _tail(
             db, profile, basket_methods, basket_codes, methods_by_code,
-            conflicts, engines, examples, set(functions),
+            conflicts, engines, set(functions),
         )
         return RecommendationResult(
             profile=profile,
@@ -411,9 +427,11 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
             basket_dependencies=tail["basket_dependencies"],
             basket_synergies=tail["basket_synergies"],
             hardware=tail["hardware"],
-            similar_games=tail["similar"],
+            practice_check=hardware.practice_check(),
+            contributions=tail["contributions"],
             basket_codes=basket_codes,
             input_key=tail["input_key"],
+            stage_guidance=_stage_guidance_out(profile.stage),
             meta=_meta(profile, weights={}, candidates=len(candidates), applicable=0,
                        excluded=len(excluded), calculated_at=calculated_at,
                        note="Ни одно решение не прошло проверку обязательных ограничений проекта."),
@@ -465,6 +483,12 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
         if not ranking.comparable:
             all_comparable = False
             comparison_notes.append(f"{function_code or 'general'}: {ranking.reason}")
+        # Группа равнозначных: разница с лидером меньше порога различимости
+        # TOPSIS, поэтому строгий топ-1 в этой группе — артефакт округления
+        # экспертных баллов, а не результат сравнения.
+        tied = equivalence_group(ranking.scores) if ranking.comparable else [False] * len(indices)
+        leader_score = max(ranking.scores) if ranking.scores else 0.0
+        tied_count = sum(tied)
         for rank, index in enumerate(order, start=1):
             method, applicability = group_methods[index]
             recommendations.append(_build_recommendation(
@@ -472,11 +496,14 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
                 len(indices), rows[index], profile, comparable=ranking.comparable,
                 compare_reason=ranking.reason,
                 stability=stability.get(method.code) if stability else None,
+                tied_with_leader=tied[index],
+                score_gap=leader_score - ranking.scores[index],
+                tied_count=tied_count,
             ))
 
     tail = _tail(
         db, profile, basket_methods, basket_codes, methods_by_code,
-        conflicts, engines, examples, set(functions),
+        conflicts, engines, set(functions),
     )
 
     return RecommendationResult(
@@ -489,9 +516,11 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
         basket_dependencies=tail["basket_dependencies"],
         basket_synergies=tail["basket_synergies"],
         hardware=tail["hardware"],
-        similar_games=tail["similar"],
+        practice_check=hardware.practice_check(),
+        contributions=tail["contributions"],
         basket_codes=basket_codes,
         input_key=tail["input_key"],
+        stage_guidance=_stage_guidance_out(profile.stage),
         meta=_meta(
             profile, weights=weights, candidates=len(candidates), applicable=len(evaluated),
             excluded=len(excluded), calculated_at=calculated_at,
@@ -505,9 +534,14 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
     )
 
 
+def _stage_guidance_out(stage: str) -> StageGuidanceOut:
+    """Блок «что означает текущая стадия» в публичном ответе."""
+    return stage_guidance.guidance_out(stage)
+
+
 def _tail(
     db: Session, profile, basket_methods, basket_codes, methods_by_code, conflicts,
-    engines, examples, known_function_codes: set[str],
+    engines, known_function_codes: set[str],
 ) -> dict:
     """Общая хвостовая часть результата: одинакова для пустого и полного расчёта.
 
@@ -515,26 +549,20 @@ def _tail(
     совместимость корзины, нагрузку и железо каждая по-своему — правка одной
     забывала вторую. Теперь сборка в одном месте.
     """
-    similar = [
-        SimilarGameOut(
-            example=serializers.example_out(ex),
-            similarity=sim,
-            matching_optimizations=match,
-        )
-        for ex, sim, match in gower.find_similar(
-            profile, examples, top_n=5, basket=[m.code for m in basket_methods]
-        )
-    ]
+    relations = repositories.conflicts(db)
+    estimate = hardware.estimate_hardware(db, profile, basket_methods)
     basket_conflicts, basket_dependencies, basket_synergies = basket_compatibility(
         db, basket_codes, methods_by_code
     )
     return {
-        "similar": similar,
         "basket_conflicts": basket_conflicts,
         "basket_dependencies": basket_dependencies,
         "basket_synergies": basket_synergies,
-        "load_profile": aggregate_load(basket_methods, profile, relations=repositories.conflicts(db)),
-        "hardware": hardware.estimate_hardware(db, profile, basket_methods, similar_examples=len(similar)),
+        "load_profile": aggregate_load(basket_methods, profile, relations=relations, estimate=estimate),
+        "hardware": estimate,
+        "contributions": hardware.build_contributions(
+            profile, basket_methods, estimate, relations=relations,
+        ),
         "risks": detect_risks(
             profile, basket_codes, methods_by_code, conflicts, engines, known_function_codes,
         ),
@@ -590,6 +618,7 @@ def _stage_order(value: str) -> int:
 def _recommendation_flags(
     method: Method, applicability: rules.Applicability, rank: int, total: int,
     *, comparable: bool, stage_order: int, method_stage: int, late_blocked: bool,
+    tied_with_leader: bool = False,
 ) -> list[str]:
     """Пометки решения: абсолютные признаки + относительное место в списке.
 
@@ -616,6 +645,8 @@ def _recommendation_flags(
         flags.append("late_blocked")
     else:
         flags.extend(rank_flags)
+    if tied_with_leader and rank > 1:
+        flags.append("tied_leader")
     if stage_order <= method_stage:
         flags.append("implement_now")
     if method.late_cost in ("high", "critical") and applicability.stage_pressure > 0 and not late_blocked:
@@ -632,15 +663,29 @@ def _recommendation_flags(
 def _recommendation_reasons(
     method: Method, applicability: rules.Applicability, score: float,
     rank: int, total: int, *, comparable: bool, compare_reason: str = "",
+    tied_with_leader: bool = False,
+    score_gap: float = 0.0,
+    tied_count: int = 1,
 ) -> list[str]:
     """Человекочитаемое объяснение рекомендации."""
     reasons: list[str] = [
         f"Экспертный балл эффекта: {method.performance_gain:.2f} из 1. Это не измеренный процент ускорения."
     ]
     if comparable:
-        reasons.append(
-            f"Место {rank} из {total} допустимых решений; коэффициент близости {score:.2f}."
-        )
+        if tied_with_leader and rank > 1:
+            reasons.append(
+                f"Разница с лидером группы ({score_gap:.3f}) меньше порога различимости "
+                f"({EQUIVALENCE_TOLERANCE}): по критериям решения равнозначны, выбирайте по соответствию задаче."
+            )
+        elif rank == 1 and tied_count > 1:
+            reasons.append(
+                f"В группе {tied_count} равнозначных решений: различия коэффициента близости "
+                f"в пределах порога {EQUIVALENCE_TOLERANCE} — строгий лидер не определяется."
+            )
+        else:
+            reasons.append(
+                f"Место {rank} из {total} допустимых решений; коэффициент близости {score:.2f}."
+            )
     else:
         reasons.append(
             "Относительное сравнение невозможно: "
@@ -702,6 +747,9 @@ def _build_recommendation(
     score: float, rank: int, total: int, criteria_rows: list[dict], profile,
     *, comparable: bool = True, compare_reason: str = "",
     stability: sensitivity.Stability | None = None,
+    tied_with_leader: bool = False,
+    score_gap: float = 0.0,
+    tied_count: int = 1,
 ) -> RecommendationOut:
     # Метод сюда попадает только применимым, поэтому «не рекомендуется» здесь
     # возможно лишь по абсолютному признаку — окно внедрения закрыто стадией.
@@ -715,10 +763,14 @@ def _build_recommendation(
     flags = _recommendation_flags(
         method, applicability, rank, total, comparable=comparable,
         stage_order=stage_order, method_stage=method_stage, late_blocked=late_blocked,
+        tied_with_leader=tied_with_leader,
     )
     reasons = _recommendation_reasons(
         method, applicability, score, rank, total,
         comparable=comparable, compare_reason=compare_reason,
+        tied_with_leader=tied_with_leader,
+        score_gap=score_gap,
+        tied_count=tied_count,
     )
     support, alternatives = _engine_support(db, method, profile.engine)
     function_code, function_name = _recommendation_function(method)
@@ -753,6 +805,8 @@ def _build_recommendation(
         source_url=method.source_url,
         effect_scope=method.effect_scope,
         effect_scope_label=_label(EffectScope, method.effect_scope) or "не распознана",
+        equivalent_to_leader=tied_with_leader,
+        score_gap=round(score_gap, 4),
     )
 
 
@@ -822,13 +876,20 @@ def _impact_text(method: Method, positive: bool = True) -> list[str]:
 # ---------------------------------------------------------------------------
 # Агрегированный профиль нагрузки корзины
 # ---------------------------------------------------------------------------
-def aggregate_load(methods: list[Method], profile, *, relations=()) -> LoadProfileOut:
-    """Суммарное влияние выбранных решений на подсистемы (шкала 0..100).
+def aggregate_load(
+    methods: list[Method], profile, *, relations=(), estimate: HardwareEstimateOut | None = None,
+) -> LoadProfileOut:
+    """Суммарное влияние выбранных решений на компьютер игрока (шкала 0..100).
 
-    В сводку входят только клиентские эффекты: полосы читаются как нагрузка на
-    компьютер игрока, а серверная экономия и ускорение разработки её не меняют.
-    Невошедшие решения перечислены в пояснениях, чтобы их отсутствие не
-    выглядело потерей данных.
+    Сводка строится **той же моделью стоимости кадра**, что и аппаратная
+    оценка: полосы и подбор оборудования не могут разойтись, потому что читают
+    один разбор подсистем. Значение показывает стоимость ресурса относительно
+    того же проекта без выбранных решений: 50 — изменений нет, ниже 50 —
+    нагрузка снижена, выше 50 — повышена.
+
+    В сводку входят только клиентские эффекты: серверная экономия и ускорение
+    разработки не меняют требования к компьютеру игрока. Невошедшие решения
+    перечислены в пояснениях, чтобы их отсутствие не выглядело потерей данных.
     """
     selected, notes = rules.assess_selected_methods(methods, profile, relations)
     counted, outside_client = rules.split_by_effect_scope(selected)
@@ -837,27 +898,51 @@ def aggregate_load(methods: list[Method], profile, *, relations=()) -> LoadProfi
             f"«{method.name}»: {rules.non_client_reason(method)}."
             for method in outside_client
         ]
-    keys = ["cpu", "gpu", "ram", "vram", "disk", "network"]
-    totals = {k: 0 for k in keys}
+
+    current = hardware.build_model(profile, counted, relations)
+    baseline = hardware.build_model(profile, [], relations)
+    ram_now, vram_now, _ = hardware._memory_totals(current)
+    ram_base, vram_base, _ = hardware._memory_totals(baseline)
+
+    def cpu_cost(model) -> float:
+        return model.cpu_sequential_ms + model.cpu_parallel_ms / hardware.PARALLEL_SPEEDUP
+
+    def gpu_cost(model) -> float:
+        return model.gpu_raster_ms + model.gpu_rt_ms
+
+    # Накопитель и сеть не имеют подсистем стоимости кадра: для них остается
+    # суммарная экспертная оценка выбранных решений.
+    totals = {"disk": 0, "network": 0}
     for m in counted:
-        totals["cpu"] += m.impact_cpu
-        totals["gpu"] += m.impact_gpu
-        totals["ram"] += m.impact_ram
-        totals["vram"] += m.impact_vram
         totals["disk"] += m.impact_disk
         totals["network"] += m.impact_network
 
+    relative = {
+        "cpu": _ratio(cpu_cost(current), cpu_cost(baseline)),
+        "gpu": _ratio(gpu_cost(current), gpu_cost(baseline)),
+        "ram": _ratio(ram_now, ram_base),
+        "vram": _ratio(vram_now, vram_base),
+        "disk": totals["disk"] * 0.08,
+        "network": totals["network"] * 0.08,
+    }
+
     per_resource: dict[str, dict] = {}
-    for key in keys:
-        raw = totals[key]
-        # Нормализация: -6..+6 отображается в 0..100, нейтральное значение 50.
-        normalized = max(0.0, min(100.0, 50.0 + raw * (50.0 / 6.0)))
+    for key in ("cpu", "gpu", "ram", "vram", "disk", "network"):
+        raw = relative[key]
+        # Нейтральное значение 50: множитель стоимости 1.0.
+        normalized = max(0.0, min(100.0, 50.0 * (1.0 + raw)))
         per_resource[key] = {
-            "raw": raw,
+            "raw": round(raw, 4),
             "normalized": round(normalized, 1),
             "label": RESOURCE_LABELS[key],
-            "direction": "снижает" if raw < 0 else ("повышает" if raw > 0 else "не влияет"),
+            "direction": "снижает" if raw < -1e-6 else ("повышает" if raw > 1e-6 else "не влияет"),
         }
+
+    if estimate is not None and estimate.bottleneck_label:
+        notes.append(
+            f"Расчёт ограничивает {estimate.bottleneck_label}: именно этот участок "
+            "обработки кадра определяет достижимый результат."
+        )
 
     return LoadProfileOut(
         notes=notes,
@@ -869,6 +954,13 @@ def aggregate_load(methods: list[Method], profile, *, relations=()) -> LoadProfi
         network=per_resource["network"]["normalized"],
         per_resource=per_resource,
     )
+
+
+def _ratio(value: float, base: float) -> float:
+    """Относительное изменение стоимости: 0 — без изменений, −0.3 — минус 30%."""
+    if base <= 0:
+        return 0.0
+    return (value - base) / base
 
 
 def basket_compatibility(

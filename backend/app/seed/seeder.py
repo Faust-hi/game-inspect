@@ -19,13 +19,14 @@ from sqlalchemy.orm import Session
 
 from ..config import DATA_DIR
 from ..models.entities import (
-    Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU,
+    Conflict, Engine, EngineTool, GameFunction, HardwareCPU, HardwareGPU,
     Method, MethodEngineLink, ValidationIssue,
 )
 from ..models.enums import Status
 from . import engines_data, functions_data, methods_data
 from .corrections import (
-    correct_effect_scopes, correct_shadow_relation, correct_splitscreen_dependency,
+    correct_effect_scopes, correct_legacy_conflict_types, correct_shadow_relation,
+    correct_splitscreen_dependency,
 )
 
 PUBLISHED = Status.PUBLISHED.value
@@ -38,7 +39,6 @@ _ENTITY_LABELS = {
     "engine_tools": "инструмент движка",
     "method_engine_links": "связь метода с инструментом",
     "conflicts": "связь методов",
-    "game_examples": "пример игры",
     "hardware_cpu": "процессор",
     "hardware_gpu": "видеокарта",
 }
@@ -97,28 +97,6 @@ def _load_json(name: str) -> list[dict]:
     if not path.exists():
         return []
     return json.loads(path.read_text(encoding="utf-8"))
-
-
-def _example_files() -> list[tuple[pathlib.Path, str]]:
-    """Файлы примеров игр со статусом по умолчанию.
-
-    Базовый файл и Трек 1 (по движкам) — опубликованный срез каталога.
-    Трек 2 (игры-фуроры для аргументации отчёта) — черновики: они живут в базе
-    для административного раздела, но не попадают в публичные рекомендации
-    (репозиторий отдаёт только опубликованное). Новый файл добавляется без
-    изменения кода (OCP), порядок детерминирован.
-    """
-    files: list[tuple[pathlib.Path, str]] = []
-    base = DATA_DIR / "game_examples.json"
-    if base.exists():
-        files.append((base, PUBLISHED))
-    track_dir = DATA_DIR / "track1"
-    if track_dir.is_dir():
-        files.extend((path, PUBLISHED) for path in sorted(track_dir.glob("*.json")))
-    track2_dir = DATA_DIR / "track2"
-    if track2_dir.is_dir():
-        files.extend((path, Status.DRAFT.value) for path in sorted(track2_dir.glob("*.json")))
-    return files
 
 
 def _differing_fields(obj, values: dict) -> list[str]:
@@ -221,6 +199,7 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
         "methods_linked": linked_methods,
         "method_metadata_updated": metadata_updated,
         "relations_corrected": correct_shadow_relation(db),
+        "legacy_conflict_types_corrected": correct_legacy_conflict_types(db),
         "effect_scopes_corrected": correct_effect_scopes(db),
         "splitscreen_dependency_corrected": correct_splitscreen_dependency(db),
     }
@@ -328,42 +307,6 @@ def _conflict_key(payload: dict) -> str:
     return " / ".join(str(payload.get(part, "")) for part in ("a_code", "b_code", "conflict_type"))
 
 
-def seed_examples(db: Session, outcome: SeedOutcome) -> int:
-    count = 0
-    entity = "game_examples"
-    for path, default_status in _example_files():
-        try:
-            rows = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError) as exc:
-            # Файл не прочитан — это потеря данных, а не деталь реализации:
-            # каталог окажется неполным, а отчёт раньше молчал об этом.
-            outcome.skip(entity, path.name, f"файл не прочитан: {exc}")
-            continue
-        if not isinstance(rows, list):
-            outcome.skip(entity, path.name, "ожидался список записей")
-            continue
-        for data in rows:
-            if not isinstance(data, dict):
-                outcome.skip(entity, path.name, "запись не является объектом")
-                continue
-            if not data.get("source_url"):
-                outcome.skip(entity, data.get("title", "без названия"), "не указан источник")
-                continue
-            payload = {k: v for k, v in data.items() if hasattr(GameExample, k)}
-            # Явный статус в файле важнее умолчания каталога: так Трек 2
-            # остаётся черновиком, даже если запись уже была опубликована.
-            if "status" not in payload:
-                payload["status"] = default_status
-            _, created = _upsert(db, GameExample, "title", payload, outcome=outcome, entity=entity)
-            if created:
-                count += 1
-        # Сброс после каждого файла: _upsert ищет через SELECT, а незафлашенные
-        # вставки того же title из прошлого файла он не увидит — будет дубль.
-        # Порядок файлов детерминирован, поэтому track1/* побеждает legacy.
-        db.flush()
-    return count
-
-
 def seed_hardware(db: Session, outcome: SeedOutcome) -> int:
     #: Внимание: переменная цикла не должна называться `payload` — она затеняет
     #: загруженный JSON, и второй цикл начинает перебирать поля последнего
@@ -422,10 +365,6 @@ def validate_knowledge_base(db: Session) -> list[dict]:
     for fn in db.scalars(select(GameFunction)):
         if fn.status == "published" and not fn.source_url:
             add("game_function", fn.code, "error", "Опубликованная функция не имеет источника.")
-
-    for ex in db.scalars(select(GameExample)):
-        if ex.status == "published" and not ex.source_url:
-            add("game_example", ex.title, "error", "Опубликованный пример игры не имеет источника.")
 
     # 2. Связи должны ссылаться на существующие методы и инструменты.
     for link in db.scalars(select(MethodEngineLink)):
@@ -487,12 +426,12 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     tools = seed_engine_tools(db, engines, outcome)
     links = seed_method_links(db, methods, tools, outcome)
     conflicts = seed_conflicts(db, outcome)
-    examples = seed_examples(db, outcome)
     hardware = seed_hardware(db, outcome)
     # Записи, сохранённые до появления области эффекта, получают явные значения
     # каталога: иначе исправление расчёта действует только на новые базы.
     scopes_corrected = correct_effect_scopes(db)
     splitscreen_corrected = correct_splitscreen_dependency(db)
+    legacy_conflicts = correct_legacy_conflict_types(db)
     db.commit()
     issues = validate_knowledge_base(db) if validate else []
     db.commit()
@@ -503,11 +442,11 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
         "engine_tools": len(tools),
         "method_engine_links": links,
         "conflicts": conflicts,
-        "game_examples": examples,
         "hardware_records": hardware,
         "validation_issues": len(issues),
         "effect_scopes_corrected": scopes_corrected,
         "splitscreen_dependency_corrected": splitscreen_corrected,
+        "legacy_conflict_types_corrected": legacy_conflicts,
         **outcome.as_report(),
     }
 

@@ -12,9 +12,9 @@ from ..models.entities import Method
 from ..models.enums import CalcMode, DevStage, EffectScope, LateCost, SolutionLevel
 from ..schemas.catalog import MethodOut
 
-from ..models.entities import Engine, EngineTool, GameExample, HardwareCPU, HardwareGPU, MethodEngineLink
+from ..models.entities import Engine, EngineTool, HardwareCPU, HardwareGPU, MethodEngineLink
 from ..models.enums import RelationType
-from ..schemas.catalog import GameExampleOut, HardwareCPUOut, HardwareGPUOut, MethodEngineLinkOut
+from ..schemas.catalog import HardwareCPUOut, HardwareGPUOut, MethodEngineLinkOut
 
 
 def label_of(enum_cls, value: str, default: str = "") -> str:
@@ -42,32 +42,6 @@ def link_out(db: Session, link: MethodEngineLink) -> MethodEngineLinkOut:
         relation_label=label,
         note=link.note,
         docs_url=tool.docs_url if tool else "",
-    )
-
-
-def example_out(example: GameExample) -> GameExampleOut:
-    return GameExampleOut(
-        title=example.title,
-        year=example.year,
-        developer=example.developer,
-        engine=example.engine,
-        format=example.format,
-        world_type=example.world_type,
-        scale=example.scale,
-        platforms=example.platforms or [],
-        target_resolution=example.target_resolution,
-        target_fps=example.target_fps,
-        object_count_level=example.object_count_level,
-        npc_count_level=example.npc_count_level,
-        multiplayer=bool(example.multiplayer),
-        player_count=example.player_count,
-        features=example.features or [],
-        optimizations_used=example.optimizations_used or [],
-        summary=example.summary,
-        performance_outcome=example.performance_outcome,
-        source_title=example.source_title,
-        source_url=example.source_url,
-        verified_by=example.verified_by,
     )
 
 
@@ -114,7 +88,7 @@ def gpu_out(gpu: HardwareGPU) -> HardwareGPUOut:
 
 
 def method_to_out(
-    db: Session, m: Method, with_links: bool = True, used_in: list[str] | None = None,
+    db: Session, m: Method, with_links: bool = True,
 ) -> MethodOut:
     # Для административного раздела связи берутся напрямую, для публичного —
     # только опубликованные: черновик связи не должен появляться в карточке.
@@ -146,23 +120,18 @@ def method_to_out(
         verification_method=m.verification_method,
         verification_tools=m.verification_tools or [],
         application_steps=m.application_steps or [],
-        used_in_projects=used_in if used_in is not None else [],
         status=m.status, source_title=m.source_title, source_url=m.source_url,
         engine_links=[link_out(db, link) for link in links],
     )
 
 
 def method_to_out_public(
-    db: Session, m: Method, with_links: bool = True, used_in: list[str] | None = None,
+    db: Session, m: Method, with_links: bool = True,
 ) -> MethodOut:
     """Публичное представление: только опубликованные связи с движками."""
     links = repositories.method_links(db, m.id) if with_links else []
     out = method_to_out(db, m, with_links=False)
     out.engine_links = [link_out(db, link) for link in links]
-    if used_in is not None:
-        out.used_in_projects = used_in
-    else:
-        out.used_in_projects = sorted(e.title for e in repositories.examples(db) if m.code in (e.optimizations_used or []))
     return out
 
 

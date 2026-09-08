@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models.entities import (
-    Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU,
+    Conflict, Engine, EngineTool, GameFunction, HardwareCPU,
     HardwareGPU, Method, MethodEngineLink,
 )
 
@@ -15,7 +15,7 @@ def published_revision(db: Session) -> str:
     db.flush()
     content = {}
     for model in (GameFunction, Method, Engine, EngineTool, MethodEngineLink,
-                  Conflict, GameExample, HardwareCPU, HardwareGPU):
+                  Conflict, HardwareCPU, HardwareGPU):
         fields = [column.name for column in model.__table__.columns
                   if column.name not in {"created_at", "updated_at"}]
         rows = [json.dumps({name: getattr(row, name) for name in fields},

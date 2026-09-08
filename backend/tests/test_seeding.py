@@ -14,43 +14,13 @@ import json
 import pytest
 from sqlalchemy import select
 
-from app.models.entities import Engine, GameExample, Method
+from app.models.entities import Engine, GameFunction, Method
 from app.seed import seeder
 
 
 # ---------------------------------------------------------------------------
 # N02: пропуски видны
 # ---------------------------------------------------------------------------
-def test_unreadable_example_file_is_reported(db, monkeypatch, tmp_path):
-    """Непрочитанный файл примеров — потеря данных, а не деталь реализации."""
-    broken = tmp_path / "broken.json"
-    broken.write_text("{ не json", encoding="utf-8")
-    monkeypatch.setattr(seeder, "_example_files", lambda: [(broken, "published")])
-
-    outcome = seeder.SeedOutcome()
-    seeder.seed_examples(db, outcome)
-
-    assert outcome.skipped, "Файл не прочитан, но пропуск не попал в отчёт"
-    assert "broken.json" in outcome.skipped[0]["key"]
-    assert outcome.skipped[0]["reason"]
-
-
-def test_example_row_without_source_is_reported(db, monkeypatch, tmp_path):
-    """Пример без источника не импортируется, но и не пропадает бесследно."""
-    path = tmp_path / "examples.json"
-    path.write_text(
-        json.dumps([{"title": "Без источника", "year": 2020}]), encoding="utf-8",
-    )
-    monkeypatch.setattr(seeder, "_example_files", lambda: [(path, "published")])
-
-    outcome = seeder.SeedOutcome()
-    seeder.seed_examples(db, outcome)
-
-    assert outcome.skipped
-    assert "Без источника" in outcome.skipped[0]["key"]
-    assert db.scalar(select(GameExample).where(GameExample.title == "Без источника")) is None
-
-
 def test_hardware_row_without_model_is_reported(db, monkeypatch):
     monkeypatch.setattr(
         seeder, "_load_json", lambda _name: {"cpu": [{"vendor": "Без модели"}], "gpu": []},
@@ -62,11 +32,11 @@ def test_hardware_row_without_model_is_reported(db, monkeypatch):
     assert [item["entity"] for item in outcome.skipped] == ["hardware_cpu"]
 
 
-def test_seed_all_reports_skips(db, monkeypatch, tmp_path):
+def test_seed_all_reports_skips(db, monkeypatch):
     """Отчёт заполнения содержит пропуски, а не только счётчики."""
-    broken = tmp_path / "broken.json"
-    broken.write_text("не json", encoding="utf-8")
-    monkeypatch.setattr(seeder, "_example_files", lambda: [(broken, "published")])
+    monkeypatch.setattr(
+        seeder, "_load_json", lambda _name: {"cpu": [], "gpu": [{"vendor": "Broken"}]},
+    )
 
     report = seeder.seed_all(db, validate=False)
 
@@ -152,3 +122,45 @@ def test_no_unexplained_skips_on_demo_data(db, entity):
 
     unexplained = [item for item in report["skipped"] if item["entity"] == entity]
     assert unexplained == [], f"Пропуски в {entity}: {unexplained}"
+
+
+# ---------------------------------------------------------------------------
+# Каталог функций: покрытие признаков, встречающихся в реальных проектах
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("code", [
+    "path_tracing", "ray_traced_effects", "dynamic_lighting", "mesh_shaders",
+    "procedural_terrain", "gameplay_ability_system", "vehicle_simulation",
+    "advanced_npc_ai",
+])
+def test_feature_from_audit_is_present_in_catalog(db, code):
+    """Признаки, которых не хватало по итогам аудита, описаны в каталоге.
+
+    Без функции в каталоге признак проекта невозможно передать в расчёт:
+    он либо отбрасывается, либо молча не влияет на результат.
+    """
+    published = {
+        fn.code for fn in db.scalars(
+            select(GameFunction).where(GameFunction.status == "published")
+        )
+    }
+    assert code in published, f"Функции {code} нет среди опубликованных"
+
+
+@pytest.mark.parametrize("code", [
+    "full_path_tracing_pipeline", "path_tracing_sample_denoiser_budget",
+    "selective_ray_traced_effects", "rt_effect_resolution_budget",
+    "dynamic_light_priority_budget", "light_range_attenuation_lod",
+    "meshlet_pipeline_adoption", "gpu_meshlet_culling_budget",
+    "chunked_procedural_terrain", "terrain_generation_streaming_budget",
+    "data_driven_ability_system", "ability_visual_effect_budget",
+    "raycast_vehicle_physics", "vehicle_simulation_lod",
+    "behaviour_tree_update_budget", "npc_perception_budget",
+])
+def test_new_method_is_published_and_attributable(db, code):
+    """У нового решения есть родительская функция, источник и связь с движком."""
+    method = db.scalar(select(Method).where(Method.code == code))
+    assert method is not None, f"Метод {code} не попал в базу"
+    assert method.status == "published", f"Метод {code} не опубликован"
+    assert method.source_url, f"У метода {code} нет источника"
+    parent = db.get(GameFunction, method.function_id) if method.function_id else None
+    assert parent is not None, f"У метода {code} нет родительской функции"

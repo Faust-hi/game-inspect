@@ -1,14 +1,12 @@
 /** Экран 1. Создание профиля игры. */
 import { useStore } from '../store';
-import { ProjectImport } from '../components/ProjectImport';
 import { Card, Field, NumberInput, Select, Toggle } from '../components/ui';
 
 /**
- * Скоуп проекта — ПК и macOS. Остальные значения enum Platform живут только
- * для честности данных (примеры реальных мультиплатформенных игр) и в API,
- * но в анкету не предлагаются.
+ * Скоуп проекта — Windows и Linux ПК. Остальные значения enum Platform
+ * живут только для честности данных и в API, но в анкету не предлагаются.
  */
-const QUESTIONNAIRE_PLATFORMS = ['pc_windows', 'pc_linux', 'macos'];
+const QUESTIONNAIRE_PLATFORMS = ['pc_windows', 'pc_linux'];
 
 const RESOLUTIONS = [
   { value: '720p', label: '720p' },
@@ -34,7 +32,6 @@ export function ProfileScreen() {
 
   return (
     <>
-      <ProjectImport />
       <Card
         title="Общие сведения о проекте"
         hint="Опишите будущую игру: формат, структуру мира, технологии и целевые показатели."

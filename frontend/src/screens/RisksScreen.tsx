@@ -80,6 +80,25 @@ export function RisksScreen() {
         )}
       </Card>
 
+      {result.stage_guidance && result.stage_guidance.warnings.length > 0 && (
+        <Card
+          title={`Ограничения стадии «${result.stage_guidance.stage_label}»`}
+          hint="Предупреждения стадии: они действуют независимо от состава функций и закрывают часть решений."
+        >
+          {result.stage_guidance.blocked_level_labels.length > 0 && (
+            <Callout tone="danger" title="Уровни решений, закрытые стадией">
+              {result.stage_guidance.blocked_level_labels.join(', ')} — эти решения исключены из
+              расчёта: их внедрение потребовало бы переработки готовых материалов.
+            </Callout>
+          )}
+          {result.stage_guidance.warnings.map((note) => (
+            <Callout key={note.code} tone="warn" title={note.title}>
+              {note.text}
+            </Callout>
+          ))}
+        </Card>
+      )}
+
       {highCount > 0 && (
         <Card title="Порядок действий">
           <Callout tone="warn" title="С чего начать">

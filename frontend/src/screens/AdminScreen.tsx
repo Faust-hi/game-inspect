@@ -9,7 +9,6 @@ const IMPORT_ENTITIES = [
   { value: 'methods', label: 'Методы и варианты реализации' },
   { value: 'game_functions', label: 'Игровые функции' },
   { value: 'engine_tools', label: 'Инструменты движков' },
-  { value: 'game_examples', label: 'Примеры игр' },
   { value: 'hardware_cpu', label: 'Процессоры' },
   { value: 'hardware_gpu', label: 'Видеокарты' },
   { value: 'conflicts', label: 'Конфликты и зависимости' },
@@ -29,10 +28,8 @@ const COUNT_LABELS: Record<string, string> = {
   engine_tools: 'Инструменты движков',
   method_engine_links: 'Связи метод — движок',
   conflicts: 'Конфликты и зависимости',
-  game_examples: 'Примеры игр',
   hardware_cpu: 'Процессоры',
   hardware_gpu: 'Видеокарты',
-  projects: 'Сохранённые проекты',
 };
 
 function statusTone(status: string): 'neutral' | 'info' | 'ok' {

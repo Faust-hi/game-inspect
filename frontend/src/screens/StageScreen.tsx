@@ -1,26 +1,10 @@
 /** Экран 2. Выбор стадии разработки и проектных бюджетов. */
+import { useEffect, useState } from 'react';
 import { useStore } from '../store';
 import { Callout, Card, Field, Select } from '../components/ui';
-import type { ProjectProfile } from '../types';
-
-const STAGE_ADVICE: Record<string, string> = {
-  concept:
-    'На стадии концепта архитектурные решения стоят минимально. Сейчас имеет смысл закладывать решения уровня архитектуры и производственного процесса.',
-  preproduction:
-    'Предпроизводство — последний момент, когда архитектурные решения внедряются без переработки готовых материалов.',
-  prototype:
-    'Прототип позволяет проверить спорные решения экспериментом, но архитектурные изменения уже заметно дороже.',
-  production:
-    'Идёт массовое наполнение контента. Изменения архитектуры требуют переработки уже созданных материалов.',
-  alpha:
-    'Архитектура фактически зафиксирована. Доступны решения уровня алгоритмов, настроек и производственного процесса.',
-  beta:
-    'На стадии беты допустимы в основном настройки и точечные алгоритмические улучшения.',
-  release:
-    'До релиза изменения ограничены настройками и исправлениями, не влияющими на контент.',
-  post_release:
-    'После релиза доступны оптимизации настроек и выборочные алгоритмические улучшения, не требующие изменения контента.',
-};
+import { StageGuidanceBlock } from '../components/StageGuidance';
+import { api } from '../api';
+import type { ProjectProfile, StageGuidance } from '../types';
 
 const BUDGET_FIELDS: { key: keyof ProjectProfile; label: string }[] = [
   { key: 'cpu_budget', label: 'Бюджет CPU' },
@@ -30,15 +14,43 @@ const BUDGET_FIELDS: { key: keyof ProjectProfile; label: string }[] = [
 ];
 
 export function StageScreen() {
-  const { profile, updateProfile, catalog } = useStore();
+  const { profile, updateProfile, catalog, result } = useStore();
   const { enums } = catalog;
+  const [guidance, setGuidance] = useState<StageGuidance | null>(null);
+
+  /**
+   * Подсказка запрашивается отдельным маршрутом, а не берётся из результата
+   * расчёта: пользователь должен видеть ограничения стадии сразу после выбора,
+   * а не после нажатия «рассчитать». Результат расчёта используется, когда он
+   * уже есть для этой же стадии, — лишний запрос ни к чему.
+   */
+  useEffect(() => {
+    if (!enums) return;
+    if (result?.stage_guidance && result.profile.stage === profile.stage) {
+      setGuidance(result.stage_guidance);
+      return;
+    }
+    let cancelled = false;
+    void api
+      .stageGuidance(profile.stage)
+      .then((next) => {
+        if (!cancelled) setGuidance(next);
+      })
+      .catch(() => {
+        if (!cancelled) setGuidance(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [enums, profile.stage, result]);
+
   if (!enums) return null;
 
   return (
     <>
       <Card
         title="Стадия разработки"
-        hint="От стадии зависит стоимость внедрения: чем позже обнаружена необходимость оптимизации, тем дороже её внедрение."
+        hint="От стадии зависит стоимость внедрения: чем позже обнаружена необходимость оптимизации, тем дороже её внедрение. Часть решений стадия закрывает полностью — они исключаются из расчёта."
       >
         <div className="chip-row" style={{ marginBottom: 14 }}>
           {enums.stages.map((stage) => (
@@ -51,9 +63,13 @@ export function StageScreen() {
             </button>
           ))}
         </div>
-        <Callout tone="info" title="Что это означает">
-          {STAGE_ADVICE[profile.stage] ?? ''}
-        </Callout>
+        {guidance ? (
+          <StageGuidanceBlock guidance={guidance} />
+        ) : (
+          <Callout tone="info" title="Что это означает">
+            Описание стадии загружается…
+          </Callout>
+        )}
       </Card>
 
       <Card

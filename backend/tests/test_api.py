@@ -28,7 +28,6 @@ def test_catalog_filling_meets_mvp(client):
     assert len(client.get("/api/catalog/functions").json()) >= 15
     assert len(client.get("/api/catalog/methods").json()) >= 40
     assert len(client.get("/api/catalog/engines").json()) >= 4
-    assert len(client.get("/api/catalog/examples").json()) >= 15
     assert len(client.get("/api/catalog/conflicts").json()) >= 10
 
     hardware = client.get("/api/catalog/hardware").json()
@@ -38,14 +37,12 @@ def test_catalog_filling_meets_mvp(client):
 
 def test_every_published_record_has_source(db):
     """Публичные рекомендации допустимы только для записей с источником."""
-    from app.models.entities import GameExample, GameFunction, Method
+    from app.models.entities import GameFunction, Method
 
     for method in db.query(Method).filter(Method.status == "published"):
         assert method.source_url, f"Метод {method.code} опубликован без источника"
     for fn in db.query(GameFunction).filter(GameFunction.status == "published"):
         assert fn.source_url, f"Функция {fn.code} опубликована без источника"
-    for ex in db.query(GameExample).filter(GameExample.status == "published"):
-        assert ex.source_url, f"Пример {ex.title} опубликован без источника"
 
 
 def test_engine_covers_required_engines(client):
@@ -62,14 +59,10 @@ def test_method_card_contains_classification(client):
     assert card["level_label"]
 
 
-def test_method_card_contains_application_steps_and_projects(client):
-    """Паспорт метода: алгоритм применения и проекты-применители."""
+def test_method_card_contains_application_steps(client):
+    """Паспорт метода: алгоритм применения решения."""
     card = client.get("/api/catalog/methods/deterministic_lockstep").json()
     assert isinstance(card["application_steps"], list) and len(card["application_steps"]) >= 5
-    assert "Factorio" in card["used_in_projects"]
-
-    card = client.get("/api/catalog/methods/world_partition_streaming").json()
-    assert "Fortnite Chapter 4 (UE5)" in card["used_in_projects"]
 
 
 def test_unknown_functions_and_methods_are_reported(client):
@@ -95,31 +88,6 @@ def test_unknown_functions_and_methods_are_reported(client):
     assert response.status_code == 200
     risk_codes = {item["code"] for item in response.json()["risks"]}
     assert {"unknown_function", "unknown_method"} <= risk_codes
-
-
-def test_track2_drafts_stay_out_of_public_catalog(client):
-    """Трек 2 (фуроры для отчёта) — черновики: не влияют на рекомендации."""
-    public_titles = {item["title"] for item in client.get("/api/catalog/examples").json()}
-    assert "Tetris" not in public_titles
-    assert "Pong" not in public_titles
-    assert "Fortnite Chapter 4 (UE5)" in public_titles
-
-    # Черновики живут в базе (видны в сводке), но не в публичном срезе.
-    overview = client.get("/api/admin/overview").json()
-    assert overview["counts"]["game_examples"] >= 160
-    assert len(public_titles) < overview["counts"]["game_examples"]
-
-    # Топ-40 влиятельных игр — отдельным файлом трека, все с источниками.
-    import json
-    import pathlib
-
-    top40 = json.loads(
-        (pathlib.Path(__file__).resolve().parents[1]
-         / "app" / "seed" / "data" / "track2" / "furor_influential.json").read_text(encoding="utf-8")
-    )
-    assert len(top40) == 40
-    assert all(item.get("source_url", "").startswith("http") for item in top40)
-    assert "Shenmue" not in public_titles
 
 
 # ---------------------------------------------------------------------------
@@ -196,11 +164,6 @@ def test_unity_only_method_visible_on_unity(client, profile):
     data = client.post("/api/recommend", json={"profile": other, "basket": []}).json()
     codes = {item["method_code"] for item in data["recommendations"]}
     assert "srp_batcher_discipline" not in codes
-
-
-def test_gta_example_is_published(client):
-    titles = {item["title"] for item in client.get("/api/catalog/examples").json()}
-    assert "Grand Theft Auto V" in titles
 
 
 def test_tiled_light_culling_is_visible_with_conditions(client, profile):
@@ -338,13 +301,6 @@ def test_synergy_is_reported(client, profile):
 # ---------------------------------------------------------------------------
 # Похожие игры и аппаратная оценка
 # ---------------------------------------------------------------------------
-def test_similar_games(client, profile):
-    data = client.post("/api/similar-games", json={"profile": profile, "basket": []}).json()
-    assert data
-    assert all(0.0 <= item["similarity"] <= 1.0 for item in data)
-    assert all(item["example"]["source_url"] for item in data)
-
-
 def test_hardware_estimate_is_cautious(client, profile):
     data = client.post("/api/hardware-estimate", json={"profile": profile, "basket": []}).json()
     assert data["reference_gpu"] and data["reference_cpu"]
@@ -433,7 +389,8 @@ def test_plan_scenarios(client, name):
     data = response.json()
     assert data["recommendations"], f"Сценарий «{name}» не дал ни одной рекомендации"
     assert data["hardware"] is not None
-    assert data["similar_games"]
+    assert data["practice_check"]["status"] == "in_development"
+    assert data["contributions"]["parameters"]
     for item in data["recommendations"]:
         assert item["flags"] and item["flag_labels"]
         assert item["reasons"]
@@ -624,9 +581,3 @@ def test_admin_import_json(client):
     client.delete("/api/admin/methods/tmp_imported")
 
 
-def test_project_save_and_load(client, profile):
-    created = client.post("/api/projects", json={"profile": profile, "basket": []}).json()
-    public_id = created["public_id"]
-    loaded = client.get(f"/api/projects/{public_id}").json()
-    assert loaded["profile"]["name"] == profile["name"]
-    assert client.get("/api/projects/unknown").status_code == 404

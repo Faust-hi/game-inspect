@@ -59,7 +59,6 @@ CONSTRAINTS: dict[str, list[tuple[str, str]]] = {
         ("ck_conflicts_distinct", "a_code <> b_code"),
         ("ck_conflicts_severity", "severity between 1 and 3"),
     ],
-    "game_examples": [("ck_status_values", STATUS_CHECK)],
     "hardware_cpu": [
         ("ck_status_values", STATUS_CHECK),
         ("ck_cpu_class", "perf_class between 1 and 5"),

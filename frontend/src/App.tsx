@@ -1,9 +1,7 @@
-/** Корневой компонент: навигация по этапам работы, экспорт и административный раздел. */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+/** Корневой компонент: навигация по этапам работы и административный раздел. */
+import { useMemo, useState, type ReactNode } from 'react';
 import { useEnsureResult, useStore } from './store';
-import { api } from './api';
 import { Callout, Loading, Toast } from './components/ui';
-import { exportProjectJson, exportProjectPdf } from './export';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { StageScreen } from './screens/StageScreen';
 import { FunctionsScreen } from './screens/FunctionsScreen';
@@ -12,12 +10,11 @@ import { CompareScreen } from './screens/CompareScreen';
 import { BasketScreen } from './screens/BasketScreen';
 import { LoadProfileScreen } from './screens/LoadProfileScreen';
 import { HardwareScreen } from './screens/HardwareScreen';
-import { SimilarGamesScreen } from './screens/SimilarGamesScreen';
 import { PlanScreen } from './screens/PlanScreen';
 import { RisksScreen } from './screens/RisksScreen';
 import { AdminScreen } from './screens/AdminScreen';
 
-/** Этапы работы с проектом (экраны 1–11 раздела 7 плана). */
+/** Этапы работы с проектом (экраны раздела 7 плана, упрощённый MVP). */
 type StepKey =
   | 'profile'
   | 'stage'
@@ -27,7 +24,6 @@ type StepKey =
   | 'basket'
   | 'load'
   | 'hardware'
-  | 'similar'
   | 'plan';
 
 interface StepDef {
@@ -45,12 +41,11 @@ const STEPS: StepDef[] = [
   { key: 'basket', label: 'Корзина решений', hint: 'Выбранный набор и совместимость' },
   { key: 'load', label: 'Профиль нагрузки', hint: 'Сводное влияние набора' },
   { key: 'hardware', label: 'Оборудование', hint: 'Референсный минимальный класс' },
-  { key: 'similar', label: 'Похожие игры', hint: 'Сверка с подтверждёнными примерами' },
   { key: 'plan', label: 'Итоговый план', hint: 'Отчёт по проекту' },
 ];
 
 /** Этапы, которым необходим уже выполненный расчёт. */
-const RESULT_STEPS: StepKey[] = ['risks', 'load', 'hardware', 'similar', 'plan'];
+const RESULT_STEPS: StepKey[] = ['risks', 'load', 'hardware', 'plan'];
 
 /** Каркас экранов-заглушек: загрузка каталога и ошибка без сайдбара. */
 function ShellMessage({ children }: { children: ReactNode }) {
@@ -76,7 +71,6 @@ export function App() {
     calculate,
     calculateError,
     toggleBasket,
-    loadProject,
     reloadCatalog,
     storageError,
   } = useStore();
@@ -85,12 +79,6 @@ export function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [compareCodes, setCompareCodes] = useState<string[] | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [projectId, setProjectId] = useState('');
-  const fileInput = useRef<HTMLInputElement>(null);
-  const [savedSnapshotId, setSavedSnapshotId] = useState<string | null>(null);
-  useEffect(() => {
-    if (result?.snapshot_id !== savedSnapshotId) setProjectId('');
-  }, [result?.snapshot_id, savedSnapshotId]);
 
   const hasFunctions = profile.functions.length > 0;
   const hasResult = result !== null;
@@ -105,7 +93,6 @@ export function App() {
       basket: hasFunctions,
       load: hasResult,
       hardware: hasResult,
-      similar: hasResult,
       plan: hasResult,
     }),
     [hasFunctions, hasResult],
@@ -121,59 +108,6 @@ export function App() {
     if (key === 'basket') return basket.length;
     if (key === 'risks' && result) return result.risks.length;
     return null;
-  };
-
-  const handleSave = async () => {
-    try {
-      const { public_id, result: snapshot } = await api.saveProject(profile, basket);
-      loadProject(snapshot.profile, snapshot.basket_codes ?? basket, snapshot);
-      setSavedSnapshotId(snapshot.snapshot_id ?? null);
-      setProjectId(public_id);
-      setToast(`Проект сохранён. Идентификатор: ${public_id}`);
-    } catch (error) {
-      setToast(`Не удалось сохранить проект: ${(error as Error).message}`);
-    }
-  };
-
-  const handleLoad = async () => {
-    const entered = window.prompt('Идентификатор сохранённого проекта', projectId);
-    if (!entered) return;
-    try {
-      const project = await api.loadProject(entered.trim());
-      loadProject(project.profile, project.basket, project.result);
-      setSavedSnapshotId(project.result?.snapshot_id ?? null);
-      setProjectId(project.public_id);
-      setStep('profile');
-      setToast(`Проект «${project.name}» загружен`);
-    } catch (error) {
-      setToast(`Проект не найден: ${(error as Error).message}`);
-    }
-  };
-
-  const handleExportJson = () => {
-    exportProjectJson(profile, basket, result);
-    setToast('Файл JSON сформирован');
-  };
-
-  const handleFileImport = async (file: File | undefined) => {
-    if (!file) return;
-    try {
-      const project = await api.importProjectFile(file);
-      loadProject(project.profile, project.basket, project.result);
-      setProjectId('');
-      setSavedSnapshotId(null);
-      setToast(project.result?.snapshot_id
-        ? 'Сохранённый снимок восстановлен. Для расчёта по текущему каталогу нажмите «Рассчитать».'
-        : 'Проект восстановлен; полный исторический снимок отсутствует.');
-    } catch (error) {
-      setToast(`Импорт не выполнен: ${(error as Error).message}`);
-    }
-    if (fileInput.current) fileInput.current.value = '';
-  };
-
-  const handleExportPdf = () => {
-    setToast('Откроется диалог печати: выберите «Сохранить как PDF»');
-    exportProjectPdf();
   };
 
   if (catalog.loading) {
@@ -218,17 +152,8 @@ export function App() {
         return <LoadProfileScreen />;
       case 'hardware':
         return <HardwareScreen />;
-      case 'similar':
-        return <SimilarGamesScreen />;
       case 'plan':
-        return (
-          <PlanScreen
-            onExportJson={handleExportJson}
-            onExportPdf={handleExportPdf}
-            projectId={projectId || null}
-            onSave={handleSave}
-          />
-        );
+        return <PlanScreen />;
       default:
         return null;
     }
@@ -256,22 +181,7 @@ export function App() {
           >
             Администрирование
           </button>
-          <button className="header-link" onClick={() => void handleSave()}>
-            Сохранить
-          </button>
-          <input ref={fileInput} type="file" accept=".json,application/json" hidden
-            onChange={event => void handleFileImport(event.target.files?.[0])} />
-          <button className="header-link" onClick={() => fileInput.current?.click()}>Открыть JSON</button>
           {storageError && <span role="alert">{storageError}</span>}
-          <button className="header-link" onClick={() => void handleLoad()}>
-            Загрузить
-          </button>
-          <button className="header-link" onClick={handleExportJson}>
-            Экспорт JSON
-          </button>
-          <button className="header-link" onClick={handleExportPdf}>
-            Экспорт PDF
-          </button>
         </div>
       </header>
 

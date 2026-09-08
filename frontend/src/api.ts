@@ -4,18 +4,14 @@ import type {
   Conflict,
   Engine,
   Enums,
-  FeedbackSummary,
-  FeedbackVote,
-  GameExample,
   GameFunction,
   HardwareCPU,
   HardwareGPU,
   Method,
-  PresetFile,
-  ProjectImport,
   ProjectProfile,
   RecommendationResult,
   SeedReport,
+  StageGuidance,
   ValidationIssue,
 } from './types';
 
@@ -122,8 +118,9 @@ export const api = {
   method: (code: string) => request<Method>(`/catalog/methods/${code}`),
   engines: () => request<Engine[]>('/catalog/engines'),
   conflicts: () => request<Conflict[]>('/catalog/conflicts'),
-  examples: () => request<GameExample[]>('/catalog/examples'),
   hardware: () => request<{ cpu: HardwareCPU[]; gpu: HardwareGPU[] }>('/catalog/hardware'),
+  stageGuidance: (stage: string) =>
+    request<StageGuidance>(`/catalog/stage-guidance?stage=${encodeURIComponent(stage)}`),
 
   recommend: (profile: ProjectProfile, basket: string[], signal?: AbortSignal) =>
     request<RecommendationResult>('/recommend', {
@@ -132,42 +129,6 @@ export const api = {
       signal,
     }),
 
-  saveProject: (profile: ProjectProfile, basket: string[]) =>
-    request<{ public_id: string; result: RecommendationResult }>('/projects', {
-      method: 'POST',
-      body: JSON.stringify({ profile, basket }),
-    }),
-
-  loadProject: (publicId: string) =>
-    request<import('./types').SavedProject>(
-      `/projects/${publicId}`,
-    ),
-
-  feedback: (publicId: string, methodCode: string, useful: boolean) =>
-    request<FeedbackVote>(`/projects/${publicId}/feedback`, {
-      method: 'POST',
-      body: JSON.stringify({ method_code: methodCode, useful }),
-    }),
-
-  importProject: async (files: File[]) => {
-    const form = new FormData();
-    for (const file of files) form.append('files', file);
-    return postForm<ProjectImport>('/project-import', form);
-  },
-
-  importProjectFile: async (file: File) => {
-    const form = new FormData();
-    form.append('file', file);
-    return postForm<import('./export').ProjectExport>('/project-file-import', form);
-  },
-
-  presets: (profile: ProjectProfile, basket: string[]) =>
-    request<{ files: PresetFile[] }>('/project-presets', {
-      method: 'POST',
-      body: JSON.stringify({ profile, basket }),
-    }),
-
-  feedbackSummary: () => adminRequest<FeedbackSummary>('/admin/feedback-summary'),
 };
 
 /** Административный раздел. Локальный режим: без токена. */

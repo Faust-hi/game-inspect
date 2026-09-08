@@ -32,6 +32,17 @@ function hardware(): HardwareEstimate {
     modeling_gaps: [],
     applicability_limits: ['Количественный прогноз доступен только для Windows/Linux ПК.'],
     non_client_methods: [],
+    cpu_main_thread_cost: 0,
+    cpu_parallel_cost: 0,
+    cpu_subsystems: [],
+    gpu_raster_cost: 0,
+    gpu_rt_cost: 0,
+    gpu_subsystems: [],
+    bottleneck: '',
+    bottleneck_label: '',
+    memory_composition: [],
+    consequences: [],
+    storage_requirement: '',
   };
 }
 

@@ -359,7 +359,6 @@ class MethodOut(BaseModel):
     verification_method: str
     verification_tools: list[str]
     application_steps: list[str] = Field(default_factory=list)
-    used_in_projects: list[str] = Field(default_factory=list)
     status: str
     source_title: str
     source_url: str
@@ -375,30 +374,6 @@ class ConflictOut(BaseModel):
     description: str
     resolution: str
     source_url: str
-
-
-class GameExampleOut(BaseModel):
-    title: str
-    year: int
-    developer: str
-    engine: str
-    format: str
-    world_type: str
-    scale: str
-    platforms: list[str]
-    target_resolution: str
-    target_fps: int
-    object_count_level: str
-    npc_count_level: str
-    multiplayer: bool
-    player_count: int
-    features: list[str]
-    optimizations_used: list[str]
-    summary: str
-    performance_outcome: str
-    source_title: str
-    source_url: str
-    verified_by: str
 
 
 class HardwareCPUOut(BaseModel):
@@ -493,6 +468,9 @@ class RecommendationOut(BaseModel):
     # ускорение разработки как ускорение игры.
     effect_scope: str
     effect_scope_label: str
+    # Группа равнозначных: разница с лидером меньше порога различимости TOPSIS.
+    equivalent_to_leader: bool = False
+    score_gap: float = 0.0
 
 
 class RiskOut(BaseModel):
@@ -541,6 +519,26 @@ class NonClientMethodOut(BaseModel):
     reason: str
 
 
+class SubsystemBreakdown(BaseModel):
+    """Разбор стоимости по подсистемам.
+
+    Значения — нормированные доли работы подсистемы внутри своего процессора
+    (сумма по всем подсистемам равна 1.0). Это позволяет видеть, какая именно
+    часть кадра определяет требование, а не только итоговое число.
+    """
+
+    label: str
+    share: float
+
+
+class MemoryComposition(BaseModel):
+    """Состав памяти: из чего сложилась оценка RAM и VRAM."""
+
+    label: str
+    ram_gb: float = 0.0
+    vram_gb: float = 0.0
+
+
 class HardwareEstimateOut(BaseModel):
     required_gpu_index: float
     required_cpu_index: float
@@ -573,11 +571,102 @@ class HardwareEstimateOut(BaseModel):
     # «не повлияло» от «забыто при расчёте».
     non_client_methods: list[NonClientMethodOut] = Field(default_factory=list)
 
+    # --- Подсистемный разбор (исправление расчётной модели) -----------------
+    # Раздельная стоимость последовательной (главный поток) и параллельной
+    # работы CPU: подбор процессора учитывает обе характеристики, а не одну.
+    cpu_main_thread_cost: float = 0.0
+    cpu_parallel_cost: float = 0.0
+    cpu_subsystems: list[SubsystemBreakdown] = Field(default_factory=list)
+    # GPU: обычный рендеринг, трассировка лучей и требуемая память считаются
+    # раздельно и не складываются в общую «скидку».
+    gpu_raster_cost: float = 0.0
+    gpu_rt_cost: float = 0.0
+    gpu_subsystems: list[SubsystemBreakdown] = Field(default_factory=list)
+    # Наиболее медленный участок обработки кадра — он и ограничивает результат.
+    bottleneck: str = ""
+    bottleneck_label: str = ""
+    # Состав памяти: буферы и ресурсы складываются, а не перемножаются.
+    memory_composition: list[MemoryComposition] = Field(default_factory=list)
+    # Последствия выбора для качества, сети и внедрения.
+    consequences: list[str] = Field(default_factory=list)
+    # Требование к накопителю отдельной строкой: это самостоятельный результат,
+    # а не только оговорка.
+    storage_requirement: str = ""
 
-class SimilarGameOut(BaseModel):
-    example: GameExampleOut
-    similarity: float
-    matching_optimizations: list[str]
+
+class PracticeCheckOut(BaseModel):
+    """Блок «Сверка с практикой».
+
+    В текущей версии это заглушка: сверка с реальными играми не выполняется,
+    паспорта игр не загружаются и показатели точности не вычисляются. Блок
+    существует, чтобы граница была видна пользователю, а не подразумевалась.
+    """
+
+    status: str = "in_development"
+    title: str = "Сверка с практикой — в разработке"
+    message: str = (
+        "Сверка расчёта с реальными играми не выполняется: паспорта игр "
+        "не загружаются, показатели точности не вычисляются. Заявленная "
+        "погрешность ±70% является целью модели, а не подтверждённым результатом."
+    )
+    details: list[str] = Field(default_factory=list)
+
+
+class ContributionItem(BaseModel):
+    """Вклад одного фактора в результат.
+
+    `delta` — относительное изменение стоимости (доля, не процент). Нулевой
+    вклад означает «фактор учтён, но не изменил стоимость» и не равен
+    «фактор потерян при расчёте».
+    """
+
+    label: str
+    delta: float
+    detail: str = ""
+
+
+class ContributionsOut(BaseModel):
+    """Вклад параметров анкеты и выбранных решений в результат."""
+
+    parameters: list[ContributionItem] = Field(default_factory=list)
+    methods: list[ContributionItem] = Field(default_factory=list)
+    # Явные допущения: значения, которых нет в анкете и которые подставлены
+    # расчётом. Без их перечисления «не указано» читается как «не влияет».
+    assumptions: list[str] = Field(default_factory=list)
+    # Причины, по которым эффект решения не вошёл в расчёт, с указанием решения.
+    exclusions: list[str] = Field(default_factory=list)
+
+
+class StageNoteOut(BaseModel):
+    """Предупреждение или предложение, привязанное к стадии проекта."""
+
+    code: str
+    title: str
+    text: str
+
+
+class StageGuidanceOut(BaseModel):
+    """Что означает текущая стадия для выбора решений.
+
+    Стадия влияет не только на штраф за позднее внедрение: часть решений
+    физически нельзя внедрить после того, как контент создан. Без явного блока
+    пользователь видел один и тот же список рекомендаций на концепте и перед
+    релизом.
+    """
+
+    stage: str
+    stage_label: str
+    summary: str
+    available_levels: list[str] = Field(default_factory=list)
+    available_level_labels: list[str] = Field(default_factory=list)
+    blocked_levels: list[str] = Field(default_factory=list)
+    blocked_level_labels: list[str] = Field(default_factory=list)
+    # Уровни, у которых закрыта только часть решений: говорить «уровень закрыт»
+    # про них нельзя — половина решений остаётся доступной.
+    restricted_levels: list[str] = Field(default_factory=list)
+    restricted_level_labels: list[str] = Field(default_factory=list)
+    warnings: list[StageNoteOut] = Field(default_factory=list)
+    suggestions: list[StageNoteOut] = Field(default_factory=list)
 
 
 class RecommendationResult(BaseModel):
@@ -603,7 +692,11 @@ class RecommendationResult(BaseModel):
     basket_dependencies: list[BasketConflictOut] = Field(default_factory=list)
     basket_synergies: list[BasketConflictOut] = Field(default_factory=list)
     hardware: HardwareEstimateOut | None = None
-    similar_games: list[SimilarGameOut] = Field(default_factory=list)
+    practice_check: "PracticeCheckOut" = Field(default_factory=lambda: PracticeCheckOut())
+    contributions: "ContributionsOut" = Field(default_factory=lambda: ContributionsOut())
+    stage_guidance: "StageGuidanceOut" = Field(default_factory=lambda: StageGuidanceOut(
+        stage="", stage_label="", summary="",
+    ))
     meta: dict[str, Any] = Field(default_factory=dict)
     basket_codes: list[str] = Field(default_factory=list)
     input_key: str = ""
@@ -622,78 +715,6 @@ class RecommendationResult(BaseModel):
                 self, "input_key", input_fingerprint(self.profile, self.basket_codes)
             )
         return self
-
-
-class SuggestedMethod(BaseModel):
-    """Кандидат в корзину, найденный в файлах проекта (эвристика, не факт)."""
-
-    method_code: str
-    reason: str
-
-
-class ProjectImportOut(BaseModel):
-    """Частичная анкета из файлов движка + прозрачность извлечения.
-
-    `profile` — предпросмотр полной анкеты для показа пользователю. Применять
-    его целиком нельзя: незаполненные поля в нём содержат значения по
-    умолчанию, а не ответы пользователя. Для применения служит `patch` — только
-    действительно извлечённые из файлов поля.
-    """
-
-    profile: ProjectProfile
-    #: Только извлечённые поля в нормализованном виде. Именно этот набор
-    #: накладывается на существующую анкету; пустой patch не должен ничего
-    #: сбрасывать.
-    patch: dict[str, Any] = Field(default_factory=dict)
-    filled: list[str] = Field(default_factory=list)
-    suggested: list[SuggestedMethod] = Field(default_factory=list)
-    detected: list[str] = Field(default_factory=list)
-    warnings: list[str] = Field(default_factory=list)
-
-
-class PresetFile(BaseModel):
-    name: str
-    language: str
-    content: str
-
-
-class ProjectPresetsOut(BaseModel):
-    files: list[PresetFile] = Field(default_factory=list)
-    native_verified: bool = False
-    notes: list[str] = Field(default_factory=list)
-
-
-class FeedbackIn(BaseModel):
-    method_code: str = Field(min_length=1, max_length=64)
-    useful: bool
-
-
-class FeedbackOut(BaseModel):
-    public_id: str
-    method_code: str
-    up: int
-    down: int
-
-
-class MethodFeedbackOut(BaseModel):
-    method_code: str
-    up: int
-    down: int
-    total: int
-    helpful_rate: float
-
-
-class ConfidenceSuggestionOut(BaseModel):
-    method_code: str
-    current_confidence: float
-    suggested_confidence: float
-    reason: str
-
-
-class FeedbackSummaryOut(BaseModel):
-    projects_with_feedback: int
-    methods: list[MethodFeedbackOut] = Field(default_factory=list)
-    suggestions: list[ConfidenceSuggestionOut] = Field(default_factory=list)
 
 
 def input_fingerprint(

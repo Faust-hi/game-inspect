@@ -11,6 +11,8 @@
 """
 from __future__ import annotations
 
+import pytest
+
 from app.schemas.catalog import ProjectProfile
 from app.services.hardware import _load_indices
 
@@ -39,9 +41,9 @@ def _estimate(client, basket=(), **overrides):
     return response.json()
 
 
-def test_macos_only_has_no_pc_reference(client):
-    """Аудит-проба D06: platforms=[macos] не возвращает GeForce RTX 2060."""
-    est = _estimate(client, platforms=["macos"])
+def test_nonpc_only_has_no_pc_reference(client):
+    """Аудит-проба D06: platforms=[ps5] не возвращает GeForce RTX 2060."""
+    est = _estimate(client, platforms=["ps5"])
     assert est["reference_gpu"] is None, est["reference_gpu"]
     assert est["reference_cpu"] is None, est["reference_cpu"]
     assert est["alternative_gpus"] == []
@@ -53,7 +55,7 @@ def test_macos_only_has_no_pc_reference(client):
 
 def test_mixed_platforms_keep_pc_reference_with_warning(client):
     """Смешанная цель сохраняет PC-ориентир, но честно предупреждает."""
-    est = _estimate(client, platforms=["pc_windows", "macos"])
+    est = _estimate(client, platforms=["pc_windows", "ps5"])
     assert est["reference_gpu"] is not None
     scope = " ".join([*est["applicability_limits"], *est["caveats"]])
     assert "только для Windows/Linux ПК" in scope, scope
@@ -85,8 +87,15 @@ def test_displayed_fps_does_not_scale_cpu_with_fixed_base():
     }
     low = _load_indices(ProjectProfile(target_fps=60, **kwargs), [])
     high = _load_indices(ProjectProfile(target_fps=120, **kwargs), [])
+    # CPU-нагрузка не меняется: такт физики и рендер привязаны к базовому FPS.
     assert high["cpu_index"] == low["cpu_index"]
-    assert high["gpu_index"] == low["gpu_index"]
+    # Стоимость отрисованных кадров не меняется, но генерация добавляет
+    # отдельную подсистему.
+    for key in ("geometry", "shading", "lighting_shadows", "transparency", "raster"):
+        assert high["gpu_subsystem_load"][key] == pytest.approx(
+            low["gpu_subsystem_load"][key]
+        )
+    assert high["gpu_subsystem_load"]["frame_generation"] > 0
 
 
 def test_target_fps_still_scales_cpu_without_generation():

@@ -255,6 +255,14 @@ def assess_selected_methods(
                 f"{relation.a_code} / {relation.b_code}: не проверено. "
                 "Совместимость не подтверждена отдельно. " + (relation.description or "")
             )
+        else:
+            # Неизвестный тип связи. Раньше такая запись не попадала ни в одну
+            # ветку и связь молча исчезала из расчёта: в базе она была, но не
+            # исключала и не предупреждала. Неопределённость обязана быть видна.
+            warnings.append(
+                f"{relation.a_code} / {relation.b_code}: тип связи «{ctype}» не распознан. "
+                "Связь не учтена в расчёте. " + (relation.description or "")
+            )
     available -= rejected
     notes.extend(warnings)
     # Удаление обязательной зависимости может сделать неприменимой всю цепочку.

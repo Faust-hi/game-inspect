@@ -1,7 +1,5 @@
 /** Экран 11. Итоговый план проекта. Одновременно является печатной формой отчёта. */
-import { useMemo, useState } from 'react';
-import { api } from '../api';
-import { downloadTextFile } from '../export';
+import { useMemo } from 'react';
 import { useEnsureResult, useStore } from '../store';
 import {
   Badge,
@@ -41,14 +39,7 @@ const STAGE_ORDER: Record<string, number> = {
   post_release: 7,
 };
 
-interface Props {
-  onExportJson: () => void;
-  onExportPdf: () => void;
-  projectId: string | null;
-  onSave: () => void;
-}
-
-export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Props) {
+export function PlanScreen() {
   const { profile, basket, result, catalog, calculating } = useStore();
 
   useEnsureResult();
@@ -88,16 +79,6 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
       <Card
         title={`Итоговый план: ${profile.name}`}
         hint={`${profile.format} · ${profile.world_type} · масштаб ${profile.scale} · ${profile.engine} · ${profile.target_resolution} / ${profile.target_quality} / ${profile.target_fps} FPS`}
-        actions={
-          <div className="btn-row no-print">
-            <button className="btn btn-sm" onClick={onExportJson}>
-              Скачать JSON
-            </button>
-            <button className="btn btn-sm btn-primary" onClick={onExportPdf}>
-              Сохранить в PDF
-            </button>
-          </div>
-        }
       >
         <div className="xsmall faint">
           Сформирован {new Date().toLocaleDateString('ru-RU')} · стадия проекта:{' '}
@@ -246,6 +227,38 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
             <Metric label="VRAM" value={`${hw.estimated_vram_gb} ГБ`} />
             <Metric label="RAM" value={`${hw.estimated_ram_gb} ГБ`} />
           </div>
+          {hw.bottleneck_label && (
+            <div className="small muted" style={{ marginTop: 8 }}>
+              Узкое место: <strong>{hw.bottleneck_label}</strong>
+            </div>
+          )}
+          {hw.cpu_subsystems.length > 0 && (
+            <div className="xsmall faint" style={{ marginTop: 8 }}>
+              CPU (последовательная: {hw.cpu_main_thread_cost.toFixed(2)} мс, параллельная: {hw.cpu_parallel_cost.toFixed(2)} мс):{' '}
+              {hw.cpu_subsystems.map(s => `${s.label} ${(s.share * 100).toFixed(0)}%`).join(', ')}
+            </div>
+          )}
+          {hw.gpu_subsystems.length > 0 && (
+            <div className="xsmall faint" style={{ marginTop: 4 }}>
+              GPU (растр: {hw.gpu_raster_cost.toFixed(2)} мс, RT: {hw.gpu_rt_cost.toFixed(2)} мс):{' '}
+              {hw.gpu_subsystems.map(s => `${s.label} ${(s.share * 100).toFixed(0)}%`).join(', ')}
+            </div>
+          )}
+          {hw.memory_composition.length > 0 && (
+            <div className="xsmall faint" style={{ marginTop: 4 }}>
+              Память: {hw.memory_composition.map(m => `${m.label} RAM ${m.ram_gb} / VRAM ${m.vram_gb}`).join('; ')}
+            </div>
+          )}
+          {hw.storage_requirement && (
+            <div className="xsmall faint" style={{ marginTop: 4 }}>
+              Накопитель: {hw.storage_requirement}
+            </div>
+          )}
+          {hw.consequences.length > 0 && (
+            <div className="xsmall faint" style={{ marginTop: 4 }}>
+              Последствия: {hw.consequences.join(' ')}
+            </div>
+          )}
           <div className="small muted" style={{ marginTop: 10 }}>
             {hw.reference_gpu && <>Видеокарта: {hw.reference_gpu.model}. </>}
             {hw.reference_cpu && <>Процессор: {hw.reference_cpu.model}. </>}
@@ -260,24 +273,53 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
         </Card>
       )}
 
-      {result.similar_games.length > 0 && (
-        <Card title="Сверка с практикой" hint="Ближайшие подтверждённые примеры.">
+      <Card title="Сверка с практикой" hint="В разработке.">
+        <Callout tone="info">
+          {result.practice_check.title}
+        </Callout>
+        <p className="small muted">{result.practice_check.message}</p>
+      </Card>
+
+      {result.contributions.parameters.length > 0 && (
+        <Card title="Вклад параметров анкеты" hint="Во сколько раз параметр меняет стоимость кадра.">
           <ul className="reason-list">
-            {[...result.similar_games]
-              .sort((a, b) => b.similarity - a.similarity)
-              .slice(0, 5)
-              .map((item) => (
-                <li key={`${item.example.title}-${item.example.year}`}>
-                  <strong>
-                    {item.example.title} ({item.example.year})
-                  </strong>{' '}
-                  — сходство {Math.round(item.similarity * 100)}%.{' '}
-                  {item.matching_optimizations.length > 0
-                    ? `Совпадает с вашим набором: ${item.matching_optimizations.length} решений.`
-                    : `Применённые решения: ${item.example.optimizations_used.join(', ')}.`}{' '}
-                  {item.example.performance_outcome}
-                </li>
-              ))}
+            {result.contributions.parameters.map((item, i) => (
+              <li key={i}>
+                <strong>{item.label}</strong> — {item.delta > 0 ? '+' : ''}{item.delta}. {item.detail}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {result.contributions.methods.length > 0 && (
+        <Card title="Вклад выбранных решений">
+          <ul className="reason-list">
+            {result.contributions.methods.map((item, i) => (
+              <li key={i}>
+                <strong>{item.label}</strong> — {item.delta > 0 ? '+' : ''}{item.delta}. {item.detail}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {result.contributions.assumptions.length > 0 && (
+        <Card title="Допущения расчёта">
+          <ul className="reason-list">
+            {result.contributions.assumptions.map((a, i) => (
+              <li key={i}>{a}</li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {result.contributions.exclusions.length > 0 && (
+        <Card title="Исключённые из расчёта эффекты">
+          <ul className="reason-list">
+            {result.contributions.exclusions.map((e, i) => (
+              <li key={i}>{e}</li>
+            ))}
           </ul>
         </Card>
       )}
@@ -293,119 +335,6 @@ export function PlanScreen({ onExportJson, onExportPdf, projectId, onSave }: Pro
           </ul>
         </Card>
       )}
-
-      <PlanPresets />
-      <PlanFeedback
-        projectId={projectId}
-        onSave={onSave}
-        methods={selected.map((m) => ({ code: m.code, name: m.name }))}
-      />
     </>
-  );
-}
-
-function PlanPresets() {
-  const { profile, basket } = useStore();
-  const [error, setError] = useState<string | null>(null);
-
-  const handleDownload = async () => {
-    setError(null);
-    try {
-      const { files } = await api.presets(profile, basket);
-      for (const file of files) {
-        downloadTextFile(file.name, file.content, file.name.endsWith('.json') ? 'application/json' : 'text/plain');
-      }
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  };
-
-  return (
-    <Card
-      title="Пример настроек движка"
-      hint="Только допустимые опубликованные методы выбранного движка. Native-применимость не проверена."
-      actions={
-        <div className="btn-row no-print">
-          <button className="btn btn-sm" onClick={() => void handleDownload()}>
-            Скачать пример
-          </button>
-        </div>
-      }
-    >
-      <p className="small muted">
-        Перед использованием проверьте ключи и их смысл в минимальном проекте своей версии движка.
-        Файл представляет инструкцию для ручной проверки.
-      </p>
-      {error && <Callout tone="danger" title="Не удалось сформировать пресеты">{error}</Callout>}
-    </Card>
-  );
-}
-
-function PlanFeedback({
-  projectId,
-  onSave,
-  methods,
-}: {
-  projectId: string | null;
-  onSave: () => void;
-  methods: { code: string; name: string }[];
-}) {
-  const [votes, setVotes] = useState<Record<string, { up: number; down: number }>>({});
-  const [error, setError] = useState<string | null>(null);
-
-  const handleVote = async (code: string, useful: boolean) => {
-    if (!projectId) return;
-    setError(null);
-    try {
-      const result = await api.feedback(projectId, code, useful);
-      setVotes((prev) => ({ ...prev, [code]: { up: result.up, down: result.down } }));
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  };
-
-  return (
-    <Card
-      title="Пригодилось ли решение"
-      hint="Оценки копятся локально и помогают пересматривать достоверность методов. Ничего не меняется само — предложения смотрит человек."
-    >
-      {methods.length === 0 && <Empty>Корзина пуста — оценивать нечего.</Empty>}
-      {!projectId && methods.length > 0 && (
-        <div className="btn-row">
-          <button className="btn btn-sm btn-primary" onClick={onSave}>
-            Сохранить проект, чтобы оценивать
-          </button>
-        </div>
-      )}
-      {projectId &&
-        methods.map((method) => {
-          const vote = votes[method.code];
-          return (
-            <div key={method.code} className="method-row">
-              <strong className="small">{method.name}</strong>{' '}
-              {vote && (
-                <span className="xsmall faint">
-                  +{vote.up} / −{vote.down}
-                </span>
-              )}
-              <div className="btn-row" style={{ marginTop: 6 }}>
-                <button
-                  className="btn btn-sm"
-                  onClick={() => void handleVote(method.code, true)}
-                >
-                  Пригодилось
-                </button>
-                <button
-                  className="btn btn-sm"
-                  onClick={() => void handleVote(method.code, false)}
-                >
-                  Не пригодилось
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      {error && <Callout tone="danger" title="Не удалось отправить оценку">{error}</Callout>}
-    </Card>
   );
 }

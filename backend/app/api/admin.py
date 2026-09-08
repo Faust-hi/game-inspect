@@ -5,7 +5,6 @@ import csv
 import io
 import json
 import logging
-import uuid
 from typing import Any
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
@@ -17,21 +16,17 @@ from ..config import settings
 from ..database import get_db
 from ..errors import ApiError, ErrorCode
 from ..models.entities import (
-    Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU,
-    Method, MethodEngineLink, Project, PublicationLog, ValidationIssue,
+    Conflict, Engine, EngineTool, GameFunction, HardwareCPU, HardwareGPU,
+    Method, MethodEngineLink, PublicationLog, ValidationIssue,
 )
 from ..models.enums import Status
-from ..schemas.catalog import (
-    BasketRequest, FeedbackIn, FeedbackOut, FeedbackSummaryOut,
-)
 from ..schemas.import_rows import (
     CONFLICT_KEY_FIELDS, as_str_list, list_columns, normalize_row, row_key,
 )
 from .. import repositories
 from ..seed import seeder
-from ..services import feedback as feedback_service
-from ..services import publication, recommender
-from .catalog import method_to_out, used_in_map
+from ..services import publication
+from .catalog import method_to_out
 
 logger = logging.getLogger("gamedev_dss.admin")
 
@@ -52,10 +47,8 @@ def overview(db: Session = Depends(get_db)):
         "engine_tools": db.scalar(select(func.count(EngineTool.id))),
         "method_engine_links": db.scalar(select(func.count(MethodEngineLink.id))),
         "conflicts": db.scalar(select(func.count(Conflict.id))),
-        "game_examples": db.scalar(select(func.count(GameExample.id))),
         "hardware_cpu": db.scalar(select(func.count(HardwareCPU.id))),
         "hardware_gpu": db.scalar(select(func.count(HardwareGPU.id))),
-        "projects": db.scalar(select(func.count(Project.id))),
     }
     issues = db.scalars(select(ValidationIssue).order_by(ValidationIssue.severity)).all()
     return {
@@ -172,8 +165,8 @@ class StatusIn(BaseModel):
 @router.get("/methods", summary="Список методов со всеми статусами")
 def admin_methods(db: Session = Depends(get_db)):
     rows = db.scalars(select(Method).order_by(Method.code)).all()
-    mapping = used_in_map(db)
-    return [method_to_out(db, m, used_in=mapping.get(m.code, [])) for m in rows]
+
+    return [method_to_out(db, m) for m in rows]
 
 
 @router.post("/methods", summary="Добавить или обновить метод")
@@ -468,7 +461,6 @@ SUPPORTED_IMPORT = {
     "methods": Method,
     "game_functions": GameFunction,
     "engine_tools": EngineTool,
-    "game_examples": GameExample,
     "hardware_cpu": HardwareCPU,
     "hardware_gpu": HardwareGPU,
     "conflicts": Conflict,
@@ -638,8 +630,6 @@ def _find_existing(db: Session, model, entity: str, data: dict):
         return db.scalar(select(model).where(*conditions))
     if entity in ("hardware_cpu", "hardware_gpu"):
         key_field = "model"
-    elif entity == "game_examples":
-        key_field = "title"
     else:
         key_field = "code"
     value = data.get(key_field)
@@ -663,8 +653,7 @@ async def import_entity(
 
     key_label = (
         " / ".join(CONFLICT_KEY_FIELDS) if entity == "conflicts"
-        else ("model" if entity in ("hardware_cpu", "hardware_gpu")
-              else ("title" if entity == "game_examples" else "code"))
+        else ("model" if entity in ("hardware_cpu", "hardware_gpu") else "code")
     )
     problems = _validate_rows(model, rows, entity, key_label, db)
     if problems:
@@ -726,120 +715,3 @@ async def _read_upload(file: UploadFile) -> bytes:
 
 def json_loads(raw: bytes):
     return json.loads(raw.decode("utf-8-sig"))
-
-
-# ---------------------------------------------------------------------------
-# Сохранение проектов (локальное, без срока хранения)
-# ---------------------------------------------------------------------------
-projects_router = APIRouter(prefix="/projects", tags=["Проекты"])
-
-
-@projects_router.post("", summary="Сохранить проект")
-def save_project(payload: BasketRequest, db: Session = Depends(get_db)):
-    public_id = uuid.uuid4().hex[:16]
-    # Снимок ранжирования считается сервером, а не принимается от клиента:
-    # иначе в сводку оценок попадут чужие порядки.
-    snapshot = recommender.build_recommendations(db, payload.profile, payload.basket or [])
-    project = Project(
-        public_id=public_id,
-        name=payload.profile.name[:200],
-        profile=payload.profile.model_dump(),
-        basket=(payload.basket or [])[:200],
-        result={
-            "schema_version": 2,
-            "snapshot": snapshot.model_dump(mode="json"),
-            "feedback": {},
-        },
-    )
-    db.add(project)
-    db.commit()
-    return {"public_id": public_id, "result": snapshot}
-
-
-@projects_router.get("/{public_id}", summary="Загрузить сохранённый проект")
-def get_project(public_id: str, db: Session = Depends(get_db)):
-    if len(public_id) > 36 or not public_id.isalnum():
-        raise HTTPException(404, "Проект не найден")
-    project = db.scalar(select(Project).where(Project.public_id == public_id))
-    if not project:
-        raise HTTPException(404, "Проект не найден")
-
-    return {
-        "public_id": project.public_id,
-        "name": project.name,
-        "profile": project.profile,
-        "basket": project.basket,
-        "schema_version": (project.result or {}).get("schema_version", 1),
-        "result": ((project.result or {}).get("snapshot")
-                   if isinstance((project.result or {}).get("snapshot"), dict) else None),
-        "snapshot_status": ("complete" if (project.result or {}).get("schema_version") == 2
-                            else "legacy_incomplete"),
-    }
-
-
-def _project_or_404(public_id: str, db: Session) -> Project:
-    if len(public_id) > 36 or not public_id.isalnum():
-        raise HTTPException(404, "Проект не найден")
-    project = db.scalar(select(Project).where(Project.public_id == public_id))
-    if not project:
-        raise HTTPException(404, "Проект не найден")
-    return project
-
-
-@projects_router.post("/{public_id}/feedback", response_model=FeedbackOut, summary="Оценить применимость решения")
-def project_feedback(public_id: str, payload: FeedbackIn, db: Session = Depends(get_db)):
-    """Голос «пригодилось / не пригодилось» по методу из сохранённого проекта.
-
-    Один проект и снимок дают одно наблюдение по методу; повтор заменяет голос.
-    """
-    project = _project_or_404(public_id, db)
-    known = db.scalar(select(Method.id).where(Method.code == payload.method_code))
-    if not known:
-        raise HTTPException(404, "Метод не найден")
-    stored = dict(project.result or {})
-    snapshot = stored.get("snapshot")
-    if not isinstance(snapshot, dict) or payload.method_code not in snapshot.get("accounted_method_codes", []):
-        raise HTTPException(409, "Метод не включён в полный снимок проекта. Сохраните актуальный расчёт.")
-    votes = dict(stored.get("feedback") or {})
-    votes[payload.method_code] = {"up": int(payload.useful), "down": int(not payload.useful)}
-    stored["feedback"] = votes
-    project.result = stored
-    db.commit()
-    current = votes[payload.method_code]
-    return {"public_id": public_id, "method_code": payload.method_code,
-            "up": current["up"], "down": current["down"]}
-
-
-@router.get("/feedback-summary", response_model=FeedbackSummaryOut, summary="Сводка оценок и предложения по достоверности")
-def feedback_summary(db: Session = Depends(get_db)):
-    """Агрегирует голоса по всем проектам. Предложения не применяются сами:
-    их вносит человек через административный раздел."""
-    merged: dict[str, dict[str, int]] = {}
-    with_feedback = 0
-    for project in db.scalars(select(Project)):
-        votes = (project.result or {}).get("feedback") or {}
-        if votes:
-            with_feedback += 1
-        for code, entry in votes.items():
-            slot = merged.setdefault(code, {"up": 0, "down": 0})
-            slot["up"] += int(entry.get("up", 0))
-            slot["down"] += int(entry.get("down", 0))
-    summary = feedback_service.summarize(merged)
-    current = {
-        code: confidence for code, confidence in
-        db.execute(select(Method.code, Method.confidence)).all()
-    }
-    suggestions = feedback_service.suggest_confidence_adjustments(summary, current)
-    return {
-        "projects_with_feedback": with_feedback,
-        "methods": [
-            {"method_code": row.method_code, "up": row.up, "down": row.down,
-             "total": row.total, "helpful_rate": round(row.helpful_rate, 3)}
-            for row in summary
-        ],
-        "suggestions": [
-            {"method_code": item.method_code, "current_confidence": item.current_confidence,
-             "suggested_confidence": item.suggested_confidence, "reason": item.reason}
-            for item in suggestions
-        ],
-    }

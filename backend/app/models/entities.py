@@ -235,39 +235,6 @@ class Conflict(Base):
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
 
-class GameExample(Base):
-    """Реальный пример использования в вышедшей игре."""
-
-    __tablename__ = "game_examples"
-    __table_args__ = (UniqueConstraint("title", name="uq_game_examples_title"), STATUS_CHECK)
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    title: Mapped[str] = mapped_column(String(200), nullable=False)
-    year: Mapped[int] = mapped_column(Integer, default=0)
-    developer: Mapped[str] = mapped_column(String(200), default="")
-    engine: Mapped[str] = mapped_column(String(80), default="")
-    format: Mapped[str] = mapped_column(String(10), default="3D")
-    world_type: Mapped[str] = mapped_column(String(20), default="open_world")
-    scale: Mapped[str] = mapped_column(String(20), default="medium")
-    platforms: Mapped[list[str]] = mapped_column(JSON, default=list)
-    target_resolution: Mapped[str] = mapped_column(String(20), default="1080p")
-    target_fps: Mapped[int] = mapped_column(Integer, default=60)
-    object_count_level: Mapped[str] = mapped_column(String(10), default="medium")
-    npc_count_level: Mapped[str] = mapped_column(String(10), default="medium")
-    multiplayer: Mapped[bool] = mapped_column(Boolean, default=False)
-    player_count: Mapped[int] = mapped_column(Integer, default=1)
-    features: Mapped[list[str]] = mapped_column(JSON, default=list)
-    optimizations_used: Mapped[list[str]] = mapped_column(JSON, default=list)
-    summary: Mapped[str] = mapped_column(Text, default="")
-    performance_outcome: Mapped[str] = mapped_column(Text, default="")
-    source_title: Mapped[str] = mapped_column(String(300), default="")
-    source_url: Mapped[str] = mapped_column(String(600), default="")
-    source_date: Mapped[str] = mapped_column(String(20), default="")
-    verified_by: Mapped[str] = mapped_column(String(30), default="dev_blog")
-    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
-    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
-
-
 class HardwareCPU(Base):
     __tablename__ = "hardware_cpu"
     __table_args__ = (
@@ -333,21 +300,6 @@ class HardwareGPU(Base):
     source_url: Mapped[str] = mapped_column(String(600), default="")
     source_date: Mapped[str] = mapped_column(String(20), default="")
     status: Mapped[str] = mapped_column(String(20), default=DRAFT)
-    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
-
-
-class Project(Base):
-    """Сохранённый профиль проекта и результат расчёта (доступ по идентификатору)."""
-
-    __tablename__ = "projects"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    public_id: Mapped[str] = mapped_column(String(36), nullable=False, unique=True, index=True)
-    name: Mapped[str] = mapped_column(String(200), default="Проект")
-    profile: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
-    basket: Mapped[list[str]] = mapped_column(JSON, default=list)
-    result: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
-    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
 

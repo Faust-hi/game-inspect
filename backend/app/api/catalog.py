@@ -19,39 +19,14 @@ from ..models.enums import (
     RenderAPI, Scale, SolutionLevel, Status, StorageType, UpscalingMethod, WorldType,
 )
 from ..schemas.catalog import (
-    ConflictOut, EngineOut, EngineToolOut, GameExampleOut, GameFunctionOut,
-    MethodOut,
+    ConflictOut, EngineOut, EngineToolOut, GameFunctionOut, MethodOut,
+    StageGuidanceOut,
 )
-from ..services import serializers
+from ..services import serializers, stage_guidance
 from ..services.serializers import label_of as _label
 from ..services.serializers import link_out
 
 router = APIRouter(prefix="/catalog", tags=["Каталоги"])
-
-
-def _used_in_projects(db: Session, method_code: str) -> list[str]:
-    """Проекты каталога, где решение применено.
-
-    Производное поле без новой таблицы: связь «метод — проект» уже лежит в
-    `GameExample.optimizations_used` кодами методов. Считается только по
-    опубликованному срезу, чтобы черновики Трека 2 не попадали в карточку.
-    """
-    titles = []
-    for example in repositories.examples(db):
-        if method_code in (example.optimizations_used or []):
-            titles.append(example.title)
-    return sorted(titles)
-
-
-def used_in_map(db: Session) -> dict[str, list[str]]:
-    """Карта «код метода — проекты-применители» одним проходом по примерам."""
-    mapping: dict[str, list[str]] = {}
-    for example in repositories.examples(db):
-        for code in example.optimizations_used or []:
-            mapping.setdefault(code, []).append(example.title)
-    for titles in mapping.values():
-        titles.sort()
-    return mapping
 
 
 # Shared serializers preserve these public aliases for administrative callers.
@@ -79,15 +54,13 @@ def list_methods(
     db: Session = Depends(get_db),
 ):
     rows = repositories.methods(db)
-    # Один проход по примерам на весь список вместо запроса на каждый метод.
-    mapping = used_in_map(db)
     out = []
     for m in rows:
         if function and (not m.function or m.function.code != function):
             continue
         if kind and m.kind != kind:
             continue
-        method = method_to_out_public(db, m, used_in=mapping.get(m.code, []))
+        method = method_to_out_public(db, m)
         if engine and not any(link.engine_code == engine for link in method.engine_links):
             continue
         out.append(method)
@@ -138,9 +111,18 @@ def list_conflicts(db: Session = Depends(get_db)):
     ]
 
 
-@router.get("/examples", response_model=list[GameExampleOut], summary="Подтверждённые примеры игр")
-def list_examples(db: Session = Depends(get_db)):
-    return [serializers.example_out(e) for e in repositories.examples(db)]
+@router.get("/stage-guidance", response_model=StageGuidanceOut,
+            summary="Предупреждения и предложения для стадии проекта")
+def get_stage_guidance(
+    stage: str = Query("prototype", description="Код стадии разработки"),
+):
+    """Что означает стадия: закрытые уровни решений, предупреждения, предложения.
+
+    Маршрут не требует расчёта: экран стадии показывает ограничения сразу после
+    выбора, а не после нажатия «рассчитать». Неизвестный код стадии сводится к
+    прототипу — то же правило действует и в расчёте.
+    """
+    return stage_guidance.guidance_out(stage)
 
 
 @router.get("/hardware", summary="Каталог оборудования")

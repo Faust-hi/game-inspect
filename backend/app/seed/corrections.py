@@ -51,6 +51,36 @@ def correct_shadow_relation(db: Session) -> int:
     return 1
 
 
+#: Устаревшие значения `conflict_type`, которые встречаются в базах, созданных
+#: до разделения связей на типы. Код обрабатывает только значения перечисления
+#: `ConflictType`, поэтому старые записи не исключали методы и не давали
+#: предупреждений — связь существовала в базе, но ни на что не влияла.
+LEGACY_CONFLICT_TYPES = {
+    "conflict": "hard_conflict",   # был единственный тип запрета
+    "synergy": "complement",       # синергия, в новом формате — complement
+}
+
+
+def correct_legacy_conflict_types(db: Session) -> int:
+    """Привести устаревшие типы связей к значениям перечисления.
+
+    Исправление общее, а не точечное: в отличие от `correct_shadow_relation`
+    оно не может сослаться на одну известную запись, потому что устаревшие
+    значения мог получить любой конфликт. Меняются только те строки, у которых
+    тип заведомо не входит в перечисление, — осознанная правка администратора
+    с корректным типом не трогается.
+    """
+    updated = 0
+    for legacy, actual in LEGACY_CONFLICT_TYPES.items():
+        rows = list(db.scalars(select(Conflict).where(Conflict.conflict_type == legacy)))
+        for row in rows:
+            row.conflict_type = actual
+            updated += 1
+    if updated:
+        db.flush()
+    return updated
+
+
 def correct_splitscreen_dependency(db: Session) -> int:
     """Убрать ложную зависимость split-screen от сетевого кода (D42).
 

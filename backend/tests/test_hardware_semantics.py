@@ -6,10 +6,12 @@ from sqlalchemy import select
 from app.models.entities import Conflict, GameFunction, HardwareGPU, Method
 from app.schemas.catalog import ProjectProfile
 from app.seed import seeder
+from app.seed.functions_data import GAME_FUNCTIONS
 from app.seed.seeder import sync_function_taxonomy
 from app.seed.corrections import correct_shadow_relation
 from app.services.recommender import aggregate_load
 from app.services.rules import assess_selected_methods
+from app.services import hardware
 from app.services.hardware import _load_indices, _pick_gpu, estimate_hardware
 
 
@@ -82,10 +84,18 @@ def test_seed_hardware_tolerates_unknown_optional_values(db, monkeypatch):
 
 
 def test_physics_tick_scales_only_physics_contribution():
+    """Удвоение частоты такта физики удваивает только подсистему physics."""
     profile = ProjectProfile(functions=["physics_simulation"], physics_tick_hz=60)
     base = _load_indices(profile, [])
     changed = _load_indices(profile.model_copy(update={"physics_tick_hz": 120}), [])
-    assert base["cpu_index"] < changed["cpu_index"] < 2 * base["cpu_index"]
+    assert changed["cpu_subsystem_load"]["physics"] == pytest.approx(
+        2 * base["cpu_subsystem_load"]["physics"]
+    )
+    # Последовательные подсистемы не затронуты.
+    for key in ("main_thread", "render_prep"):
+        assert changed["cpu_subsystem_load"].get(key, 0.0) == pytest.approx(
+            base["cpu_subsystem_load"].get(key, 0.0)
+        )
 
 
 def test_larger_budget_does_not_make_same_scene_cheaper():
@@ -118,22 +128,24 @@ def test_gpu_requires_enough_vram_without_user_limit():
     small = HardwareGPU(model="Small", perf_class=1, raster_score=0.5, vram_gb=2)
     enough = HardwareGPU(model="Enough", perf_class=2, raster_score=0.6, vram_gb=8)
     selected, _ = _pick_gpu(
-        [small, enough], 0.4, required_rt=False, vram_limit_gb=None, vram_gb=6,
+        [small, enough], raster_index=0.4, rt_index=0.0, required_rt=False, vram_gb=6,
     )
     assert selected is enough
     selected, _ = _pick_gpu(
-        [small], 0.4, required_rt=False, vram_limit_gb=None, vram_gb=6,
+        [small], raster_index=0.4, rt_index=0.0, required_rt=False, vram_gb=6,
     )
     assert selected is None
 
 
 def test_alternatives_meet_estimated_load_and_memory(db):
     result = estimate_hardware(db, ProjectProfile(), [])
+    indices = _load_indices(ProjectProfile(), [])
     for gpu in result.alternative_gpus:
         assert gpu.raster_score >= result.required_gpu_index
         assert gpu.vram_gb >= result.estimated_vram_gb
     for cpu in result.alternative_cpus:
-        assert cpu.multi_thread_score >= result.required_cpu_index
+        assert cpu.single_thread_score >= indices["cpu_st_index"]
+        assert cpu.multi_thread_score >= indices["cpu_mt_index"]
 
 
 def test_dlss_requires_declared_support_in_reference_and_alternatives(db):
@@ -164,9 +176,19 @@ def test_frame_generation_does_not_invent_base_fps(fps):
 
 
 def test_explicit_base_fps_has_no_extra_gpu_discount():
+    """Базовый 60 FPS + генерация до 120: рендер не снижается, генерация отдельна."""
     baseline = _load_indices(ProjectProfile(target_fps=60), [])
-    generated = _load_indices(ProjectProfile(target_fps=120, frame_generation=True, base_render_fps=60), [])
-    assert generated["gpu_index"] == baseline["gpu_index"]
+    generated = _load_indices(
+        ProjectProfile(target_fps=120, frame_generation=True, base_render_fps=60), []
+    )
+    # Отрисованных кадров по-прежнему 60: стоимость рендеринга не изменилась.
+    for key in ("geometry", "shading", "lighting_shadows", "transparency", "raster"):
+        assert generated["gpu_subsystem_load"][key] == pytest.approx(
+            baseline["gpu_subsystem_load"][key]
+        )
+    # Генерация учтена отдельной стоимостью, а не как скидка.
+    assert generated["gpu_subsystem_load"]["frame_generation"] > 0
+    assert generated["gpu_index"] > baseline["gpu_index"]
     assert any("стоимость генератора" in gap for gap in generated["modeling_gaps"])
 
 
@@ -207,6 +229,173 @@ def test_selected_method_respects_min_scale_in_hardware_estimate(db):
     assert selected.required_cpu_index == baseline.required_cpu_index
     assert selected.required_gpu_index == baseline.required_gpu_index
     assert any("масштабе мира" in note for note in selected.caveats)
+
+
+def test_memory_is_not_bottleneck_without_deficit(db):
+    """Память не ограничивает кадр, пока рабочий набор укладывается в объём.
+
+    Раньше `memory_pressure` считался как гигабайты, делённые на норматив, и
+    сравнивался с долями бюджета кадра: величина порядка единицы всегда
+    выигрывала у величины порядка 0.1, и узким местом объявлялась память у
+    57 игр из 58. В сравнении участвует только дефицит.
+    """
+    profile = ProjectProfile(
+        scale="medium", target_resolution="1080p", target_quality="high",
+        functions=["character_animation", "ai_pathfinding"],
+        vram_limit_gb=16, ram_limit_gb=32,
+    )
+    result = estimate_hardware(db, profile, [])
+    assert result.estimated_vram_gb < 16 * hardware.MEMORY_PRESSURE_FREE_SHARE
+    assert result.bottleneck != "memory"
+    assert not any("простой подкачки" in item for item in result.caveats)
+
+
+def test_memory_deficit_becomes_bottleneck(db):
+    """Заданный предел памяти, который не выполняется, делает память узким местом."""
+    profile = ProjectProfile(
+        scale="very_large", object_count_level="high", npc_count_level="high",
+        functions=["open_world_streaming", "large_scale_terrain", "procedural_vegetation"],
+        vram_limit_gb=4,
+    )
+    result = estimate_hardware(db, profile, [])
+    assert result.estimated_vram_gb > profile.vram_limit_gb
+    assert result.bottleneck == "memory"
+    assert any("простой подкачки" in item for item in result.caveats)
+
+
+def test_bottleneck_distinguishes_contrasting_projects(db):
+    """Узкое место — диагностика: на контрастных проектах оно различается."""
+    variants = {
+        "обычный проект 1080p": ProjectProfile(
+            scale="medium", target_resolution="1080p", target_quality="high",
+            functions=["character_animation", "ai_pathfinding"],
+        ),
+        "4K и ультра": ProjectProfile(
+            scale="very_large", object_count_level="high",
+            target_resolution="2160p", target_quality="ultra",
+            functions=["open_world_streaming", "dynamic_shadows", "volumetric_effects"],
+        ),
+        "дефицит видеопамяти": ProjectProfile(
+            scale="very_large", object_count_level="high", npc_count_level="high",
+            functions=["open_world_streaming", "large_scale_terrain", "procedural_vegetation"],
+            vram_limit_gb=4,
+        ),
+    }
+    found = {name: estimate_hardware(db, profile, []).bottleneck
+             for name, profile in variants.items()}
+    assert len(set(found.values())) == len(found), found
+    assert found["4K и ультра"] == "gpu_raster"
+    assert found["дефицит видеопамяти"] == "memory"
+
+
+def test_ram_estimate_is_never_below_vram(db):
+    """Ресурсы видеопамяти присутствуют и в оперативной памяти.
+
+    Оценка «видеопамять больше оперативной» описывает конфигурацию, на которой
+    игра не запустится: такого быть не должно ни при каком профиле.
+    """
+    for profile in (
+        ProjectProfile(),
+        ProjectProfile(scale="very_large", object_count_level="high",
+                       npc_count_level="high", target_resolution="2160p",
+                       target_quality="ultra"),
+        ProjectProfile(scale="small", target_resolution="720p", target_quality="low"),
+    ):
+        result = estimate_hardware(db, profile, [])
+        assert result.estimated_ram_gb >= result.estimated_vram_gb + hardware.RAM_OVER_VRAM_RESERVE_GB, profile.scale
+
+
+def test_memory_composition_sums_match_estimates(db):
+    """Состав памяти, показанный пользователю, сходится с итоговой оценкой."""
+    result = estimate_hardware(db, ProjectProfile(scale="very_large", object_count_level="high"), [])
+    assert result.memory_composition
+    assert sum(item.ram_gb for item in result.memory_composition) == pytest.approx(
+        result.estimated_ram_gb, abs=0.15
+    )
+    assert sum(item.vram_gb for item in result.memory_composition) == pytest.approx(
+        result.estimated_vram_gb, abs=0.15
+    )
+
+
+def test_ram_estimate_reacts_to_scale(db):
+    """Коридор оценки памяти обязан повторять разницу масштаба проектов.
+
+    Раньше весь коридор укладывался в ×1.6 на выборке от Portal 2007 до
+    Alan Wake 2: постоянная часть (система, движок, аудио) составляла больше
+    половины оценки и съедала различия проектов.
+    """
+    small = estimate_hardware(
+        db, ProjectProfile(format="2D", scale="small", object_count_level="low",
+                           npc_count_level="low", target_resolution="720p",
+                           target_quality="low"), []
+    )
+    large = estimate_hardware(
+        db, ProjectProfile(scale="very_large", object_count_level="high",
+                           npc_count_level="high", target_resolution="2160p",
+                           target_quality="ultra"), []
+    )
+    assert large.estimated_ram_gb / small.estimated_ram_gb >= 2.0
+
+
+def test_every_catalog_function_has_a_measurable_model_effect(db):
+    """Ни одна функция каталога не должна молча не влиять на модель.
+
+    Функция без вклада в подсистемы — это флажок, который пользователь
+    отмечает, а расчёт не замечает. Проверка ловит именно такие записи.
+    """
+    # Функции производства: их эффект лежит вне кадра (размер сборки, время
+    # сборки, процесс), поэтому статью бюджета они не меняют.
+    no_frame_cost = {"art_pipeline", "build_delivery"}
+    base = ProjectProfile(scale="large", object_count_level="high")
+    for code in {fn["code"] for fn in GAME_FUNCTIONS} - no_frame_cost:
+        without = hardware.build_model(base, [], None)
+        with_fn = hardware.build_model(
+            base.model_copy(update={"functions": [code]}), [], None
+        )
+        assert (without.cpu != with_fn.cpu) or (without.gpu != with_fn.gpu) or (
+            without.memory != with_fn.memory
+        ), f"Функция {code} не влияет ни на одну подсистему"
+
+
+def test_ray_tracing_functions_are_visible_in_the_model(db):
+    """Трассировка пути и выборочные RT-эффекты — разные статьи бюджета."""
+    plain = hardware.build_model(ProjectProfile(), [], None)
+    assert plain.gpu["rt"] == 0.0
+
+    effects = hardware.build_model(
+        ProjectProfile(functions=["ray_traced_effects"]), [], None
+    )
+    full = hardware.build_model(
+        ProjectProfile(functions=["path_tracing"]), [], None
+    )
+    assert 0.0 < effects.gpu["rt"] < full.gpu["rt"]
+
+
+def test_path_tracing_defines_the_ray_tracing_bottleneck(db):
+    """Проект с трассировкой пути упирается в RT, а не в главный поток."""
+    profile = ProjectProfile(
+        scale="large", object_count_level="high",
+        target_resolution="1440p", target_quality="high",
+        functions=["character_animation", "ai_pathfinding", "path_tracing"],
+    )
+    assert estimate_hardware(db, profile, []).bottleneck == "gpu_rt"
+
+
+def test_gameplay_and_simulation_functions_load_their_own_subsystems(db):
+    """Геймплейные подсистемы нагружают свои статьи, а не размываются в общий множитель."""
+    cases = {
+        "advanced_npc_ai": ("cpu", "ai"),
+        "vehicle_simulation": ("cpu", "physics"),
+        "gameplay_ability_system": ("cpu", "main_thread"),
+        "procedural_terrain": ("cpu", "streaming"),
+        "mesh_shaders": ("gpu", "geometry"),
+        "dynamic_lighting": ("gpu", "lighting_shadows"),
+    }
+    plain = hardware.build_model(ProjectProfile(), [], None)
+    for code, (scope, subsystem) in cases.items():
+        with_fn = hardware.build_model(ProjectProfile(functions=[code]), [], None)
+        costs = with_fn.cpu if scope == "cpu" else with_fn.gpu
+        assert costs[subsystem] > (plain.cpu if scope == "cpu" else plain.gpu)[subsystem], code
 
 
 def test_selected_method_conditions_are_visible_in_both_estimates(db):

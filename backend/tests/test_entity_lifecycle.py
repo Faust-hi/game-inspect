@@ -14,7 +14,7 @@ import pytest
 from sqlalchemy import select
 
 from app.models.entities import (
-    Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU,
+    Conflict, Engine, EngineTool, GameFunction, HardwareCPU, HardwareGPU,
     Method, MethodEngineLink, PublicationLog,
 )
 from app.models.enums import Status
@@ -76,12 +76,6 @@ def _gpu(db, model: str, **overrides) -> HardwareGPU:
     }, overrides)
 
 
-def _example(db, title: str, **overrides) -> GameExample:
-    return _add(db, GameExample, {
-        "title": title, "source_url": SOURCE_URL, "source_title": SOURCE_TITLE,
-    }, overrides)
-
-
 def _conflict(db, a_code: str, b_code: str, **overrides) -> Conflict:
     return _add(db, Conflict, {
         "a_code": a_code, "b_code": b_code, "conflict_type": "hard_conflict",
@@ -101,7 +95,6 @@ def catalog_rows(db):
         "engine_tools": tool,
         "method_engine_links": None,  # заполняется ниже: нужны метод и инструмент
         "conflicts": _conflict(db, "tmp_a", "tmp_b"),
-        "game_examples": _example(db, "Пример tmp"),
         "hardware_cpu": _cpu(db, "Test CPU tmp"),
         "hardware_gpu": _gpu(db, "Test GPU tmp"),
     }

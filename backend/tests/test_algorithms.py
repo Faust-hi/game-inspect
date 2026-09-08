@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 
 from app.schemas.catalog import ProjectProfile
-from app.services import gower, rules
+from app.services import rules
 from app.services.topsis import NEUTRAL_SCORE, Criterion, topsis
 
 
@@ -126,48 +126,6 @@ def test_topsis_identical_columns_do_not_produce_zero():
 
 # ---------------------------------------------------------------------------
 # Расстояние Гауэра
-# ---------------------------------------------------------------------------
-def test_gower_identical_vectors_have_zero_distance():
-    profile = ProjectProfile(format="3D", world_type="open_world", scale="large")
-    a = gower.project_vector(profile)
-    result = gower.gower_distance(a, a)
-    assert result.distance == pytest.approx(0.0)
-    assert result.similarity == pytest.approx(1.0)
-
-
-def test_gower_different_formats_increase_distance():
-    base = ProjectProfile(format="3D", world_type="open_world", scale="large")
-    other = ProjectProfile(format="2D", world_type="open_world", scale="large")
-    d = gower.gower_distance(gower.project_vector(base), gower.project_vector(other))
-    assert d.distance > 0.0
-
-
-def test_gower_missing_values_are_excluded():
-    """Отсутствующий признак не должен искажать расстояние."""
-    a = {"format": "3D", "scale": 0.8, "target_resolution": None}
-    b = {"format": "3D", "scale": 0.8, "target_resolution": 2.0}
-    with_resolution = gower.gower_distance(a, b)
-    assert with_resolution.comparable_weight > 0.0
-    # Разрешение исключено из сравнения, поэтому расстояние определяется
-    # только совпадающими признаками и равно нулю.
-    assert with_resolution.distance == pytest.approx(0.0)
-
-
-def test_gower_find_similar_returns_ranked_list(db):
-    from app.models.entities import GameExample
-    from sqlalchemy import select
-
-    examples = list(db.scalars(select(GameExample).where(GameExample.status == "published")))
-    profile = ProjectProfile(format="3D", world_type="open_world", scale="large",
-                             functions=["crowd_simulation"])
-    result = gower.find_similar(profile, examples, top_n=5)
-    assert len(result) == 5
-    similarities = [item[1] for item in result]
-    assert similarities == sorted(similarities, reverse=True)
-
-
-# ---------------------------------------------------------------------------
-# Экспертные правила
 # ---------------------------------------------------------------------------
 def test_rule_excludes_incompatible_format(db):
     from sqlalchemy import select

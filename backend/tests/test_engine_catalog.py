@@ -17,7 +17,6 @@ LEGACY_CODES = ["unreal", "unity", "godot", "cryengine", "source", "heroengine",
 CALCULATION_ENDPOINTS = [
     "/api/recommend",
     "/api/load-profile",
-    "/api/similar-games",
     "/api/hardware-estimate",
 ]
 

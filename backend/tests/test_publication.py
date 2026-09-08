@@ -11,7 +11,7 @@ import json
 import pytest
 
 from app.models.entities import (
-    Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU, Method,
+    Engine, EngineTool, GameFunction, HardwareCPU, HardwareGPU, Method,
 )
 from app.services import publication
 from app.services.publication import Status
@@ -91,7 +91,6 @@ PUBLIC_ENDPOINTS = [
     ("/api/catalog/functions", "code"),
     ("/api/catalog/methods", "code"),
     ("/api/catalog/engines", "code"),
-    ("/api/catalog/examples", "title"),
     ("/api/catalog/conflicts", "a_code"),
 ]
 
@@ -111,7 +110,6 @@ def test_public_catalogs_expose_only_published(client, db, endpoint, key):
         "/api/catalog/functions": GameFunction,
         "/api/catalog/methods": Method,
         "/api/catalog/engines": Engine,
-        "/api/catalog/examples": GameExample,
         "/api/catalog/conflicts": None,
     }[endpoint]
     if model is not None:

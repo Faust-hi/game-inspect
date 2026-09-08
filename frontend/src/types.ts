@@ -261,41 +261,6 @@ export interface SuggestedMethod {
   reason: string;
 }
 
-export interface ProjectImport {
-  profile: ProjectProfile;
-  /**
-   * Только реально извлечённые из файлов поля.
-   *
-   * `profile` — это предпросмотр полной анкеты: незаполненные поля в нём
-   * содержат значения по умолчанию. Применение `profile` целиком сбросило бы
-   * ответы пользователя, поэтому применяется только `patch`.
-   */
-  patch: Partial<ProjectProfile>;
-  filled: string[];
-  suggested: SuggestedMethod[];
-  detected: string[];
-  warnings: string[];
-}
-
-export interface PresetFile {
-  name: string;
-  language: string;
-  content: string;
-}
-
-export interface FeedbackVote {
-  public_id: string;
-  method_code: string;
-  up: number;
-  down: number;
-}
-
-export interface FeedbackSummary {
-  projects_with_feedback: number;
-  methods: { method_code: string; up: number; down: number; total: number; helpful_rate: number }[];
-  suggestions: { method_code: string; current_confidence: number; suggested_confidence: number; reason: string }[];
-}
-
 export interface Recommendation {
   method_code: string;
   method_name: string;
@@ -323,6 +288,8 @@ export interface Recommendation {
   source_url: string;
   effect_scope: string;
   effect_scope_label: string;
+  equivalent_to_leader?: boolean;
+  score_gap?: number;
 }
 
 export interface Risk {
@@ -359,6 +326,17 @@ export interface BasketConflict {
   resolution: string;
 }
 
+export interface SubsystemBreakdown {
+  label: string;
+  share: number;
+}
+
+export interface MemoryComposition {
+  label: string;
+  ram_gb: number;
+  vram_gb: number;
+}
+
 export interface HardwareEstimate {
   required_gpu_index: number;
   required_cpu_index: number;
@@ -384,6 +362,18 @@ export interface HardwareEstimate {
   modeling_gaps: string[];
   /** Решения, не вошедшие в расчёт: их эффект не относится к компьютеру игрока. */
   non_client_methods: NonClientMethod[];
+  /** Подсистемный разбор (исправление расчётной модели). */
+  cpu_main_thread_cost: number;
+  cpu_parallel_cost: number;
+  cpu_subsystems: SubsystemBreakdown[];
+  gpu_raster_cost: number;
+  gpu_rt_cost: number;
+  gpu_subsystems: SubsystemBreakdown[];
+  bottleneck: string;
+  bottleneck_label: string;
+  memory_composition: MemoryComposition[];
+  consequences: string[];
+  storage_requirement: string;
 }
 
 /** Решение из корзины, исключённое из аппаратной оценки с указанием причины. */
@@ -395,10 +385,47 @@ export interface NonClientMethod {
   reason: string;
 }
 
-export interface SimilarGame {
-  example: GameExample;
-  similarity: number;
-  matching_optimizations: string[];
+export interface ContributionItem {
+  label: string;
+  delta: number;
+  detail: string;
+}
+
+export interface Contributions {
+  parameters: ContributionItem[];
+  methods: ContributionItem[];
+  assumptions: string[];
+  exclusions: string[];
+}
+
+export interface PracticeCheck {
+  status: string;
+  title: string;
+  message: string;
+  details: string[];
+}
+
+/** Предупреждение или предложение, привязанное к стадии проекта. */
+export interface StageNote {
+  code: string;
+  title: string;
+  text: string;
+}
+
+/** Что означает текущая стадия для выбора решений. */
+export interface StageGuidance {
+  stage: string;
+  stage_label: string;
+  summary: string;
+  available_levels: string[];
+  available_level_labels: string[];
+  blocked_levels: string[];
+  blocked_level_labels: string[];
+  /** Уровни, у которых закрыта только часть решений. */
+  restricted_levels: string[];
+  restricted_level_labels: string[];
+  warnings: StageNote[];
+  suggestions: StageNote[];
 }
 
 export interface RecommendationResult {
@@ -417,19 +444,68 @@ export interface RecommendationResult {
   basket_dependencies: BasketConflict[];
   basket_synergies: BasketConflict[];
   hardware: HardwareEstimate | null;
-  similar_games: SimilarGame[];
+  practice_check: PracticeCheck;
+  contributions: Contributions;
+  stage_guidance?: StageGuidance | null;
   meta: Record<string, unknown>;
   /** Отпечаток входа, для которого выполнен расчёт (присваивается backend). */
   input_key: string;
 }
 
-export interface SavedProject {
-  public_id: string;
-  name: string;
+/** Сводка расчёта, сохранённая вместе с версией набора. */
+export interface VersionSummary {
+  algorithm_version?: string | null;
+  catalog_revision?: string | null;
+  /** Ограниченный список лидеров: полный результат сохранять незачем. */
+  recommendations: { code: string; name: string; score: number }[];
+  basket_size: number;
+  hardware: {
+    reference_cpu: string | null;
+    reference_gpu: string | null;
+    estimated_ram_gb: number | null;
+    estimated_vram_gb: number | null;
+    bottleneck_label: string | null;
+    confidence_label: string | null;
+  } | null;
+  conflict_count: number;
+}
+
+/**
+ * Сохранённая версия набора решений.
+ *
+ * Патч или обновление игры меняет набор решений, и прежний набор должен
+ * остаться доступным: без него нельзя сказать, что именно изменил патч.
+ * Версия хранит не только коды, но и сводку расчёта — иначе сравнение версий
+ * свелось бы к списку кодов и не показывало изменение аппаратной оценки.
+ */
+export interface ProjectVersion {
+  id: string;
+  /** Порядковый номер, начиная с 1: «версия 3» понятнее идентификатора. */
+  number: number;
+  label: string;
+  note: string;
+  created_at: string;
   profile: ProjectProfile;
   basket: string[];
-  result: RecommendationResult | null;
-  snapshot_status: 'complete' | 'legacy_incomplete';
+  /** Отпечаток входа: совпадение с текущим ключом означает «изменений нет». */
+  input_key: string;
+  summary: VersionSummary | null;
+}
+
+/** Разница между сохранённой версией и текущим набором. */
+export interface VersionDiff {
+  added: string[];
+  removed: string[];
+  kept: string[];
+  /** Изменившиеся поля профиля с человекочитаемыми названиями. */
+  profile_changes: { field: string; label: string; from: string; to: string }[];
+  hardware: {
+    ram_delta_gb: number | null;
+    vram_delta_gb: number | null;
+    cpu_changed: boolean;
+    gpu_changed: boolean;
+    bottleneck_changed: boolean;
+  } | null;
 }
 
 export interface ValidationIssue {
@@ -470,7 +546,6 @@ export interface SeedReport {
   engine_tools: number;
   method_engine_links: number;
   conflicts: number;
-  game_examples: number;
   hardware_records: number;
   validation_issues: number;
   added: Record<string, number>;

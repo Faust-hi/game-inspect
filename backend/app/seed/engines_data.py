@@ -158,6 +158,18 @@ ENGINE_TOOLS: list[dict] = [
           "Поддержка больших миров за счёт double-координат иorigin rebasing.", "runtime", "UE_LWC"),
     _tool("ue_lod", "unreal", "Static Mesh LOD", "рендер",
           "Автоматическая и ручная генерация уровней детализации мешей.", "editor", "UE_LOD"),
+    _tool("ue_gas", "unreal", "Gameplay Ability System", "геймплей",
+          "Плагин способностей: атрибуты, эффекты, теги, кулдауны и Machine состояний активации.",
+          "runtime", docs_url="https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-ability-system-for-unreal-engine",
+          source_title="Unreal Engine: Gameplay Ability System"),
+    _tool("ue_behavior_tree", "unreal", "Behavior Tree", "ИИ",
+          "Деревья поведений с общей памятью (blackboard), декораторами и сервисами для индивидуального ИИ.",
+          "runtime", docs_url="https://dev.epicgames.com/documentation/en-us/unreal-engine/behavior-trees-in-unreal-engine",
+          source_title="Unreal Engine: Behavior Trees"),
+    _tool("ue_vehicles", "unreal", "Chaos Vehicles", "физика",
+          "Физика колёсного транспорта на Chaos: подвеска, сцепление, привод и повреждения.",
+          "runtime", docs_url="https://dev.epicgames.com/documentation/en-us/unreal-engine/vehicles-in-unreal-engine",
+          source_title="Unreal Engine: Vehicles"),
 
     # ---------------- Unity ----------------
     _tool("u_dots", "unity", "Entities / DOTS", "архитектура",

@@ -461,7 +461,6 @@ class Level3(str, Enum):
 class Platform(str, Enum):
     PC_WINDOWS = "pc_windows"
     PC_LINUX = "pc_linux"
-    MACOS = "macos"
     ANDROID = "android"
     IOS = "ios"
     SWITCH = "switch"
@@ -476,7 +475,6 @@ class Platform(str, Enum):
         return {
             "pc_windows": "PC (Windows)",
             "pc_linux": "PC (Linux)",
-            "macos": "macOS",
             "android": "Android",
             "ios": "iOS",
             "switch": "Nintendo Switch",

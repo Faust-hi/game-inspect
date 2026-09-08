@@ -10,14 +10,15 @@ import {
   type ReactNode,
 } from 'react';
 import { api } from './api';
+import { loadVersions, saveVersions, summaryOf } from './versions';
 import type {
   Conflict,
   Engine,
   Enums,
-  GameExample,
   GameFunction,
   Method,
   ProjectProfile,
+  ProjectVersion,
   RecommendationResult,
 } from './types';
 
@@ -107,7 +108,6 @@ interface CatalogState {
   methods: Method[];
   engines: Engine[];
   conflicts: Conflict[];
-  examples: GameExample[];
   loading: boolean;
   error: string | null;
 }
@@ -115,6 +115,15 @@ interface CatalogState {
 interface ProjectStore {
   profile: ProjectProfile;
   basket: string[];
+  /**
+   * История версий набора: патчи и обновления проекта.
+   *
+   * Хранится на клиенте и переживает переключение экранов, но не перезапуск
+   * браузера — история нужна для сравнения в рамках рабочей сессии.
+   */
+  versions: ProjectVersion[];
+  /** Есть несохранённые изменения относительно последней версии. */
+  hasUnsavedChanges: boolean;
   result: RecommendationResult | null;
   /** Отпечаток входа, для которого получен `result`. */
   resultKey: string | null;
@@ -134,13 +143,17 @@ interface ProjectStore {
   calculate: () => Promise<void>;
   reloadCatalog: () => Promise<void>;
   loadProject: (profile: ProjectProfile, basket: string[], snapshot?: RecommendationResult | null) => void;
+  /** Сохранить текущий набор как версию: прежняя версия остаётся для сравнения. */
+  saveVersion: (label: string, note?: string) => void;
+  restoreVersion: (id: string) => void;
+  deleteVersion: (id: string) => void;
 }
 
 const StoreContext = createContext<ProjectStore | null>(null);
 
 function loadPersisted(): { profile: ProjectProfile; basket: string[] } | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object' || !('profile' in parsed) || !('basket' in parsed)) return null;
@@ -172,6 +185,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const persisted = useMemo(loadPersisted, []);
   const [profile, setProfile] = useState<ProjectProfile>(persisted?.profile ?? DEFAULT_PROFILE);
   const [basket, setBasketState] = useState<string[]>(persisted?.basket ?? []);
+  const [versions, setVersions] = useState<ProjectVersion[]>(loadVersions);
   const [result, setResult] = useState<RecommendationResult | null>(null);
   const [resultKey, setResultKey] = useState<string | null>(null);
   const [calculating, setCalculating] = useState(false);
@@ -183,7 +197,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     methods: [],
     engines: [],
     conflicts: [],
-    examples: [],
     loading: true,
     error: null,
   });
@@ -213,15 +226,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     discardResult();
     setCatalog((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const [enums, functions, methods, engines, conflicts, examples] = await Promise.all([
+      const [enums, functions, methods, engines, conflicts] = await Promise.all([
         api.enums(),
         api.functions(),
         api.methods(),
         api.engines(),
         api.conflicts(),
-        api.examples(),
       ]);
-      setCatalog({ enums, functions, methods, engines, conflicts, examples, loading: false, error: null });
+      setCatalog({ enums, functions, methods, engines, conflicts, loading: false, error: null });
     } catch (error) {
       setCatalog((prev) => ({
         ...prev,
@@ -237,12 +249,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ profile, basket }));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ profile, basket }));
       setStorageError(null);
     } catch {
-      setStorageError('Автосохранение в браузере недоступно. Сохраните проект на сервере или скачайте JSON.');
+      setStorageError('Автосохранение в браузере недоступно.');
     }
   }, [profile, basket]);
+
+  // История версий сохраняется отдельно от анкеты: она накапливается, и терять
+  // её при перезагрузке страницы внутри сессии нельзя.
+  useEffect(() => {
+    if (!saveVersions(versions)) {
+      setStorageError('Автосохранение истории версий в браузере недоступно.');
+    }
+  }, [versions]);
 
   // Снятие результата при размонтировании: запрос не должен доживать до
   // обновления состояния уже отсутствующего компонента.
@@ -260,6 +280,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     discardResult();
     setProfile(DEFAULT_PROFILE);
     setBasketState([]);
+    // Сброс — это новый проект: история версий прежнего проекта к нему не
+    // относится и иначе сравнение версий смешивало бы разные проекты.
+    setVersions([]);
   }, [discardResult]);
 
   const setBasket = useCallback(
@@ -296,6 +319,45 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [discardResult],
   );
 
+  const saveVersion = useCallback(
+    (label: string, note = '') => {
+      // Сохранение не меняет вход, поэтому результат не сбрасывается.
+      // Номер версии берётся из истории: после удаления промежуточной версии
+      // номера не должны повторяться.
+      const created: ProjectVersion = {
+        id: `v${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`,
+        number: 0,
+        label: label.trim(),
+        note: note.trim(),
+        created_at: new Date().toISOString(),
+        profile: { ...profile },
+        basket: [...basket],
+        input_key: inputKeyOf(profile, basket),
+        summary: summaryOf(result, basket),
+      };
+      setVersions((prev) => {
+        const number = prev.reduce((max, item) => Math.max(max, item.number), 0) + 1;
+        return [...prev, { ...created, number }];
+      });
+    },
+    [profile, basket, result],
+  );
+
+  const restoreVersion = useCallback(
+    (id: string) => {
+      const target = versions.find((item) => item.id === id);
+      if (!target) return;
+      discardResult();
+      setProfile({ ...DEFAULT_PROFILE, ...target.profile });
+      setBasketState([...target.basket]);
+    },
+    [versions, discardResult],
+  );
+
+  const deleteVersion = useCallback((id: string) => {
+    setVersions((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
   const calculate = useCallback(async () => {
     // Прежний запрос отменяется: его результат уже никому не нужен.
     inFlight.current?.abort();
@@ -329,10 +391,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const resultStale = result !== null && resultKey !== null && resultKey !== inputKey;
 
+  /**
+   * Есть изменения, не сохранённые в историю версий.
+   *
+   * Без этой пометки пользователь не видит, что набор менялся после
+   * подтверждения: патч сохранён, дальше правки внесены, но непонятно, что
+   * именно сравнивается с прошлой версией.
+   */
+  const hasUnsavedChanges =
+    versions.length > 0 && versions[versions.length - 1].input_key !== inputKey;
+
   const value: ProjectStore = useMemo(
     () => ({
       profile,
       basket,
+      versions,
+      hasUnsavedChanges,
       result,
       resultKey,
       inputKey,
@@ -349,10 +423,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       calculate,
       reloadCatalog,
       loadProject,
+      saveVersion,
+      restoreVersion,
+      deleteVersion,
     }),
     [
       profile,
       basket,
+      versions,
+      hasUnsavedChanges,
       result,
       resultKey,
       inputKey,
@@ -369,6 +448,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       calculate,
       reloadCatalog,
       loadProject,
+      saveVersion,
+      restoreVersion,
+      deleteVersion,
     ],
   );
 

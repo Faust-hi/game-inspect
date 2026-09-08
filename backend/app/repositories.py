@@ -15,7 +15,7 @@ from sqlalchemy import Select, func, select
 from sqlalchemy.orm import Session
 
 from .models.entities import (
-    Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU,
+    Conflict, Engine, EngineTool, GameFunction, HardwareCPU, HardwareGPU,
     Method, MethodEngineLink,
 )
 from .models.enums import Status
@@ -65,10 +65,6 @@ def conflicts(db: Session) -> list[Conflict]:
     return list(db.scalars(_published(Conflict).order_by(Conflict.a_code, Conflict.b_code)))
 
 
-def examples(db: Session) -> list[GameExample]:
-    return list(db.scalars(_published(GameExample).order_by(GameExample.title)))
-
-
 def hardware_cpu(db: Session) -> list[HardwareCPU]:
     return list(
         db.scalars(_published(HardwareCPU).order_by(HardwareCPU.multi_thread_score.desc()))
@@ -109,7 +105,6 @@ def published_snapshot_counts(db: Session) -> dict[str, int]:
         "engines": _count(Engine),
         "engine_tools": _count(EngineTool),
         "conflicts": _count(Conflict),
-        "examples": _count(GameExample),
         "hardware_cpu": _count(HardwareCPU),
         "hardware_gpu": _count(HardwareGPU),
     }

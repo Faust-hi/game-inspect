@@ -62,6 +62,9 @@ export function RecommendationList({
                   {item.flags.map((flag, index) => (
                     <Flag key={flag} code={flag} label={item.flag_labels[index] ?? flag} />
                   ))}
+                  {item.equivalent_to_leader && (
+                    <Flag code="tied_leader" label="равнозначно с лидером" />
+                  )}
                   {item.stability && (
                     <span
                       className="faint xsmall"

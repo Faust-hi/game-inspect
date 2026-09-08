@@ -3,6 +3,6 @@ from .enums import (  # noqa: F401
     Platform, Priority, RelationType, Scale, SolutionLevel, Status, WorldType,
 )
 from .entities import (  # noqa: F401
-    Base, Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU,
-    HardwareGPU, Method, MethodEngineLink, Project, ValidationIssue,
+    Base, Conflict, Engine, EngineTool, GameFunction, HardwareCPU,
+    HardwareGPU, Method, MethodEngineLink, ValidationIssue,
 )

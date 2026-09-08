@@ -285,6 +285,94 @@ GAME_FUNCTIONS: list[dict] = [
         "sort_order": 155,
         "source_key": "UE_SAVEGAME",
     },
+    # --- Трассировка лучей -------------------------------------------------
+    # Отдельные функции, а не варианты «освещения вообще»: стоимость полной
+    # трассировки пути и выборочных трассировочных эффектов различается на
+    # порядок, поэтому в расчёте это разные статьи бюджета.
+    {
+        "code": "path_tracing",
+        "name": "Трассировка пути",
+        "description": "Полное решение уравнения переноса излучения трассировкой пути: весь свет кадра считается лучами, без разделения на растровые проходы.",
+        "category": "Освещение",
+        "formats": ["3D"],
+        "typical_world_types": ["linear", "hub", "arena", "open_world"],
+        "sort_order": 42,
+        "source_key": "WIKI_PATH_TRACING",
+    },
+    {
+        "code": "ray_traced_effects",
+        "name": "Трассировочные эффекты (тени, отражения, AO)",
+        "description": "Выборочная трассировка лучей поверх растрового кадра: отражения, тени, ambient occlusion, глобальное освещение.",
+        "category": "Освещение",
+        "formats": ["3D"],
+        "typical_world_types": ["linear", "hub", "arena", "open_world"],
+        "sort_order": 44,
+        "source_key": "WIKI_RAY_TRACING",
+    },
+    {
+        "code": "dynamic_lighting",
+        "name": "Множественные динамические источники света",
+        "description": "Десятки и сотни подвижных источников света в кадре, влияющих на материалы без предварительного расчёта.",
+        "category": "Освещение",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "sandbox"],
+        "sort_order": 46,
+        "source_key": "WIKI_GLOBAL_ILLUMINATION",
+    },
+    {
+        "code": "mesh_shaders",
+        "name": "Меш-шейдеры и генерация геометрии на GPU",
+        "description": "Программируемая сборка и отсечение примитивов на GPU: мешлеты, task/mesh-стадии, процедурная генерация без участия CPU.",
+        "category": "Рендер",
+        "formats": ["3D", "2.5D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "procedural", "sandbox"],
+        "sort_order": 149,
+        "source_key": "MS_MESH_SHADER",
+    },
+    {
+        "code": "procedural_terrain",
+        "name": "Процедурная генерация ландшафта и мира",
+        "description": "Генерация рельефа, биомов и наполнения мира по правилам в рантайме или при сборке, вместо размечения вручную.",
+        "category": "Мир и загрузка",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["procedural", "open_world", "sandbox"],
+        "sort_order": 25,
+        "source_key": "WIKI_PROCEDURAL",
+    },
+    # --- Геймплейные и симуляционные подсистемы ----------------------------
+    # Введены по результатам аудита: признаки вида «нано-костюм», «геройские
+    # способности», «транспорт», «стелс-ИИ» встречаются в партиях часто и
+    # раньше не попадали ни в одну функцию каталога.
+    {
+        "code": "gameplay_ability_system",
+        "name": "Геймплейные способности и модификаторы",
+        "description": "Наборы способностей персонажа, модификаторы состояния, режимы брони и усиления, влияющие на симуляцию и отрисовку.",
+        "category": "Геймплей",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "sandbox"],
+        "sort_order": 95,
+        "source_key": "GPP_STATE",
+    },
+    {
+        "code": "vehicle_simulation",
+        "name": "Транспорт и физика движения",
+        "description": "Управляемые средства передвижения: колёсная и гусеничная динамика, полёт, плавание, повреждения и взаимодействие со средой.",
+        "category": "Симуляция",
+        "formats": ["3D", "2.5D"],
+        "typical_world_types": ["open_world", "arena", "sandbox", "linear"],
+        "sort_order": 85,
+        "source_key": "WIKI_VEHICLE_DYNAMICS",
+    },
+    {
+        "code": "advanced_npc_ai",
+        "name": "Поведенческий ИИ NPC",
+        "description": "Индивидуальное поведение неигровых персонажей: деревья поведений и конечные автоматы, стелс-реакции, компаньоны, режиссёр событий.",
+        "category": "Симуляция",
+        "formats": ["3D", "2.5D", "2D"],
+        "typical_world_types": ["open_world", "linear", "hub", "arena", "sandbox"],
+        "sort_order": 115,
+        "source_key": "WIKI_GAME_AI",
+    },
 ]
 
 

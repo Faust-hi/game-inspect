@@ -462,6 +462,63 @@ SOURCES: dict[str, dict[str, str]] = {
         "url": "https://gamma.cs.unc.edu/ORCA/",
         "date": "2011-01-01",
     },
+    # --- Трассировка лучей, меш-шейдеры, процедурная генерация ------------
+    "WIKI_PATH_TRACING": {
+        "title": "Path tracing",
+        "url": "https://en.wikipedia.org/wiki/Path_tracing",
+        "date": "2025-01-01",
+    },
+    "WIKI_RAY_TRACING": {
+        "title": "Ray tracing (graphics)",
+        "url": "https://en.wikipedia.org/wiki/Ray_tracing_(graphics)",
+        "date": "2025-01-01",
+    },
+    "MS_MESH_SHADER": {
+        "title": "DirectX mesh shader specification",
+        "url": "https://microsoft.github.io/DirectX-Specs/d3d/MeshShader.html",
+        "date": "2025-01-01",
+    },
+    "WIKI_PROCEDURAL": {
+        "title": "Procedural generation",
+        "url": "https://en.wikipedia.org/wiki/Procedural_generation",
+        "date": "2025-01-01",
+    },
+    "WIKI_GLOBAL_ILLUMINATION": {
+        "title": "Global illumination",
+        "url": "https://en.wikipedia.org/wiki/Global_illumination",
+        "date": "2025-01-01",
+    },
+    # --- Геймплейные и симуляционные подсистемы ---------------------------
+    "WIKI_GAME_AI": {
+        "title": "Video game artificial intelligence",
+        "url": "https://en.wikipedia.org/wiki/Video_game_artificial_intelligence",
+        "date": "2025-01-01",
+    },
+    "WIKI_BEHAVIOR_TREE": {
+        "title": "Behavior tree (artificial intelligence, robotics and control)",
+        "url": "https://en.wikipedia.org/wiki/Behavior_tree_(artificial_intelligence,_robotics_and_control)",
+        "date": "2025-01-01",
+    },
+    "WIKI_FSM": {
+        "title": "Finite-state machine",
+        "url": "https://en.wikipedia.org/wiki/Finite-state_machine",
+        "date": "2025-01-01",
+    },
+    "GPP_STATE": {
+        "title": "Game Programming Patterns: State",
+        "url": "https://gameprogrammingpatterns.com/state.html",
+        "date": "2025-01-01",
+    },
+    "WIKI_VEHICLE_DYNAMICS": {
+        "title": "Vehicle dynamics",
+        "url": "https://en.wikipedia.org/wiki/Vehicle_dynamics",
+        "date": "2025-01-01",
+    },
+    "WIKI_RIGID_BODY": {
+        "title": "Rigid body dynamics",
+        "url": "https://en.wikipedia.org/wiki/Rigid_body_dynamics",
+        "date": "2025-01-01",
+    },
 }
 
 

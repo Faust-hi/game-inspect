@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from typing import Any, Iterable
 
 from ..models.entities import (
-    Conflict, Engine, EngineTool, GameExample, GameFunction, HardwareCPU, HardwareGPU,
+    Conflict, Engine, EngineTool, GameFunction, HardwareCPU, HardwareGPU,
     Method, MethodEngineLink,
 )
 from ..models.enums import (
@@ -114,7 +114,6 @@ ENTITY_POLICIES: dict[str, EntityPolicy] = {
         Conflict, "Связь методов", ("a_code", "b_code", "conflict_type"),
         requires_source_title=False, requires_name=False,
     ),
-    "game_examples": EntityPolicy(GameExample, "Пример игры", ("title",)),
     "hardware_cpu": EntityPolicy(HardwareCPU, "Процессор", ("model",)),
     "hardware_gpu": EntityPolicy(HardwareGPU, "Видеокарта", ("model",)),
 }

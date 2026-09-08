@@ -36,14 +36,14 @@ APPLICATION_STEPS_REVISION = "f225calib01"
 
 #: Голова цепочки. Ставится только после сверки: либо база создана
 #: миграциями, либо её структура уже соответствует голове (см. ниже).
-HEAD_REVISION = "ef01scope01"
+HEAD_REVISION = "e103004d1fae"
 
 #: Таблицы исходной схемы. Их наличие отличает базу, созданную приложением до
 #: миграций, от чужого файла: штамповать чужую структуру запрещено.
 EXPECTED_INITIAL_TABLES = frozenset({
     "game_functions", "methods", "engines", "engine_tools",
-    "method_engine_links", "conflicts", "game_examples",
-    "hardware_cpu", "hardware_gpu", "projects",
+    "method_engine_links", "conflicts",
+    "hardware_cpu", "hardware_gpu",
 })
 
 #: Состояние последнего запуска миграций для health-check. Процесс отвечает
@@ -131,7 +131,9 @@ def _legacy_stamp_revision(database_url: str, tables: set[str]) -> str | None:
     from .database import Base
     from .models import entities  # registers every supported table
 
-    if tables != set(Base.metadata.tables):
+    _LEGACY_REMOVED_TABLES = frozenset({"game_examples", "projects"})
+    expected_tables = set(Base.metadata.tables) | _LEGACY_REMOVED_TABLES
+    if not tables.issubset(expected_tables):
         return None
     columns = _method_columns(database_url)
     optional = {"application_steps", "effect_scope"} - columns

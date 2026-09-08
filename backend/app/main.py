@@ -20,7 +20,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .api import admin, catalog, project_exchange, recommend
+from .api import admin, catalog, recommend
 from .config import FRONTEND_DIST, settings
 from .database import SessionLocal
 from .errors import ApiError, ErrorCode, code_for_status, error_payload
@@ -273,8 +273,6 @@ def create_app() -> FastAPI:
     app.include_router(catalog.enums_router, prefix=prefix)
     app.include_router(recommend.router, prefix=prefix)
     app.include_router(admin.router, prefix=prefix)
-    app.include_router(admin.projects_router, prefix=prefix)
-    app.include_router(project_exchange.router, prefix=prefix)
     _register_health(app)
 
     # Документация доступна по обоим адресам: /docs и /api/docs.

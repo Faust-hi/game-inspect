@@ -119,18 +119,6 @@ class EngineToolRow(ImportRow):
         return str(row.get("code") or "").strip() or None
 
 
-class GameExampleRow(ImportRow):
-    LIST_FIELDS = ("platforms", "optimizations_used")
-
-    title: str | None = None
-    platforms: list[str] | None = None
-    optimizations_used: list[str] | None = None
-
-    @classmethod
-    def key_of(cls, row: dict) -> str | None:
-        return str(row.get("title") or "").strip() or None
-
-
 class HardwareCPURow(ImportRow):
     model: str | None = None
     single_thread_score: float | None = None
@@ -184,7 +172,6 @@ ROW_SCHEMAS: dict[str, type[ImportRow]] = {
     "methods": MethodRow,
     "game_functions": GameFunctionRow,
     "engine_tools": EngineToolRow,
-    "game_examples": GameExampleRow,
     "hardware_cpu": HardwareCPURow,
     "hardware_gpu": HardwareGPURow,
     "conflicts": ConflictRow,
