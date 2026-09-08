@@ -190,11 +190,40 @@ def upsert_method(payload: MethodIn, db: Session = Depends(get_db)):
         db.add(obj)
         created = True
     else:
-        # Редактирование не меняет статус: запись остаётся там, где была.
         data.pop("status", None)
+        was_published = obj.status == Status.PUBLISHED.value
+        changed = _has_substantive_change(obj, data)
         for key, value in data.items():
             setattr(obj, key, value)
         created = False
+        if was_published:
+            # Правка опубликованной записи обязана сохранять требования
+            # публикации. Иначе штатным API можно убрать источник и оставить
+            # запись опубликованной: главный контракт каталога нарушается.
+            has_links = db.scalar(
+                select(func.count(MethodEngineLink.id)).where(
+                    MethodEngineLink.method_id == obj.id,
+                    MethodEngineLink.status == Status.PUBLISHED.value,
+                )
+            ) or 0
+            problems = publication.publication_problems(obj, has_links=has_links > 0)
+            if problems:
+                db.rollback()
+                raise ApiError(
+                    "Правка нарушает требования к публикации",
+                    code=ErrorCode.PUBLICATION_REJECTED,
+                    status=409,
+                    details=publication.deduplicate(problems),
+                )
+            if changed:
+                # Содержательная правка снимает прежнее подтверждение: запись
+                # уходит на повторную проверку, а не остаётся подтверждённой.
+                obj.status = Status.REVIEWED.value
+                db.add(PublicationLog(
+                    entity=Method.__tablename__, entity_code=obj.code,
+                    from_status=Status.PUBLISHED.value, to_status=Status.REVIEWED.value,
+                    actor="admin", comment="Содержательная правка опубликованной записи",
+                ))
     try:
         db.commit()
     except Exception:  # noqa: BLE001 — нарушение ограничения БД
@@ -234,9 +263,11 @@ def set_method_status(code: str, payload: StatusIn, db: Session = Depends(get_db
         ) or 0
         problems = publication.publication_problems(obj, has_links=has_links > 0)
         if problems:
-            raise HTTPException(
-                422,
-                {"error": "Публикация невозможна", "details": publication.deduplicate(problems)},
+            raise ApiError(
+                "Публикация невозможна",
+                code=ErrorCode.PUBLICATION_REJECTED,
+                status=422,
+                details=publication.deduplicate(problems),
             )
 
     previous = obj.status
@@ -429,6 +460,21 @@ def _validate_rows(
             for message in publication.record_problems(model, data)
         )
     return problems
+
+
+#: Поля, изменение которых не требует повторной проверки: служебная дата и
+#: порядок не меняют смысл утверждения.
+_NON_SUBSTANTIVE_FIELDS = frozenset({"updated_at", "id"})
+
+
+def _has_substantive_change(obj, data: dict) -> bool:
+    """Изменилось ли содержание записи, а не только служебные поля."""
+    for key, value in data.items():
+        if key in _NON_SUBSTANTIVE_FIELDS:
+            continue
+        if getattr(obj, key, None) != value:
+            return True
+    return False
 
 
 def _find_existing(db: Session, model, entity: str, data: dict):

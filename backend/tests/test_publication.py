@@ -286,3 +286,73 @@ def test_coerce_skips_empty_numbers():
 
     assert _coerce(Method, {"code": "x", "impact_cpu": ""}) == {"code": "x"}
     assert _coerce(Method, {"code": "x", "performance_gain": ""}) == {"code": "x"}
+
+
+# --- D16: правка не должна оставлять запись опубликованной без источника ---
+
+
+def _publish_method(client, code: str, **extra) -> None:
+    """Создать метод с источником и связью, затем опубликовать его."""
+    payload = {
+        "code": code, "name": f"Метод {code}",
+        "source_url": "https://example.org/source", "source_title": "Источник",
+        **extra,
+    }
+    response = client.post("/api/admin/methods", json=payload)
+    assert response.status_code in (200, 201), response.text
+    tool_code = client.get("/api/catalog/engines").json()[0]["tools"][0]["code"]
+    link = client.post("/api/admin/links", json={
+        "method_code": code, "tool_code": tool_code, "relation_type": "partial",
+    })
+    assert link.status_code in (200, 201), link.text
+    for status in ("reviewed", "published"):
+        response = client.patch(f"/api/admin/methods/{code}/status", json={"status": status})
+        assert response.status_code == 200, response.text
+
+
+def test_editing_published_method_without_source_is_rejected(client):
+    """Опубликованную запись нельзя оставить без источника правкой.
+
+    Раньше POST с существующим кодом и пустым `source_url` отвечал 200, и
+    публичная карточка оставалась опубликованной без источника — главный
+    контракт каталога нарушался штатным API.
+    """
+    _publish_method(client, "tmp_published_edit")
+    response = client.post("/api/admin/methods", json={
+        "code": "tmp_published_edit", "name": "Новое имя", "source_url": "",
+    })
+
+    assert response.status_code == 409, response.text
+    body = response.json()
+    assert isinstance(body["error"], str)
+    assert any("источник" in str(item).lower() for item in body["details"]), body["details"]
+    # Запись осталась опубликованной и неизменной.
+    stored = client.get("/api/catalog/methods").json()
+    assert any(item["code"] == "tmp_published_edit" for item in stored)
+
+
+def test_substantive_edit_sends_published_method_to_review(client):
+    """Содержательная правка снимает прежнее подтверждение."""
+    _publish_method(client, "tmp_published_change")
+    response = client.post("/api/admin/methods", json={
+        "code": "tmp_published_change", "name": "Другое название",
+        "source_url": "https://example.org/another", "source_title": "Другой источник",
+    })
+    assert response.status_code == 200, response.text
+
+    stored = next(
+        item for item in client.get("/api/admin/methods").json()
+        if item["code"] == "tmp_published_change"
+    )
+    assert stored["status"] == "reviewed", stored["status"]
+
+
+def test_edit_keeps_valid_publication_data(client):
+    """Правка, не нарушающая требований, проходит и снимает подтверждение."""
+    _publish_method(client, "tmp_published_ok")
+    response = client.post("/api/admin/methods", json={
+        "code": "tmp_published_ok", "name": "Обновлённое имя",
+        "source_url": "https://example.org/new", "source_title": "Новый источник",
+    })
+    assert response.status_code == 200, response.text
+    assert response.json()["created"] is False
