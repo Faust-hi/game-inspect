@@ -27,7 +27,7 @@ def main() -> None:
     )
 
     from app.database import SessionLocal
-    from app.models.entities import Engine, EngineTool, GameFunction, Method
+    from app.models.entities import Conflict, Engine, EngineTool, GameFunction, Method
 
     session = SessionLocal()
     try:
@@ -84,6 +84,34 @@ def main() -> None:
         encoding="utf-8",
     )
     print(f"engines={len(engines)} functions={len(functions)} methods={len(methods)}")
+
+    # Связи между методами выносятся отдельным файлом: они нужны для разбора
+    # взаимного влияния решений и не требуются при сопоставлении игр.
+    session = SessionLocal()
+    try:
+        relations = [
+            {
+                "a": c.a_code,
+                "b": c.b_code,
+                "type": c.conflict_type,
+                "severity": c.severity,
+                "description": c.description,
+                "resolution": c.resolution,
+                "source_url": c.source_url,
+            }
+            for c in session.query(Conflict)
+            .order_by(Conflict.conflict_type, Conflict.a_code, Conflict.b_code)
+            .all()
+        ]
+    finally:
+        session.close()
+
+    rel_out = pathlib.Path(__file__).resolve().parent / "relations.json"
+    rel_out.write_text(
+        json.dumps(relations, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+    print(f"relations={len(relations)}")
+    print(f"written: {rel_out}")
     print(f"written: {out}")
 
 

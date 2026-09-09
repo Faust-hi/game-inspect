@@ -1,0 +1,182 @@
+[
+ {
+  "a": "lightmap_atlas_baking",
+  "b": "hardware_raytraced_gi",
+  "type": "alternative",
+  "severity": 3,
+  "description": "Условная альтернатива для одной области освещения: запечённый свет и полностью динамическое освещение решают одну задачу разными способами. Смешанная сцена допустима — статичные объекты могут оставаться запечёнными, поэтому универсального запрета пара не образует.",
+  "resolution": "Определить область освещения, где применяется каждый механизм, и зафиксировать это до производства контента; без такого разделения выбрать одну схему.",
+  "source_url": "https://en.wikipedia.org/wiki/Lightmap"
+ },
+ {
+  "a": "cascaded_shadow_maps",
+  "b": "distance_field_shadows",
+  "type": "complement",
+  "severity": 1,
+  "description": "В Unreal Engine каскадные карты могут обслуживать ближнюю область, а Distance Field Shadows — область за пределом дистанции каскадов. Совместимость зависит от выбранного пути рендера; снижение стоимости не гарантируется.",
+  "resolution": "Разделить диапазоны расстояний, проверить переход между ними и поддержку объектов. Для другого движка подтвердить аналогичную схему отдельно.",
+  "source_url": "https://dev.epicgames.com/documentation/unreal-engine/using-distance-field-shadows-in-unreal-engine?lang=en-US"
+ },
+ {
+  "a": "gpu_particle_simulation",
+  "b": "particle_pooling",
+  "type": "complement",
+  "severity": 1,
+  "description": "CPU-пулинг и GPU-симуляция затрагивают разную работу: пулинг устраняет аллокации при создании систем, симуляция переносит расчёт на GPU. Абстрактные скидки не перемножаются.",
+  "resolution": "Применять совместно, учитывая стоимость каждого решения отдельно.",
+  "source_url": "https://en.wikipedia.org/wiki/Object_pool_pattern"
+ },
+ {
+  "a": "lightmap_2d_baking",
+  "b": "post_effect_selective",
+  "type": "complement",
+  "severity": 1,
+  "description": "Освещение и постобработка — независимые проходы: каждый учитывается своей стоимостью. Дополнительного бонуса только от совместного выбора нет.",
+  "resolution": "Применять совместно для 2D-проектов с большим числом источников света, учитывая каждый проход отдельно.",
+  "source_url": "https://docs.unity3d.com/Manual/progressive-lightmapper.html"
+ },
+ {
+  "a": "network_relevancy_priority",
+  "b": "delta_compression_state",
+  "type": "complement",
+  "severity": 1,
+  "description": "Relevancy и дельта-кодирование уменьшают разные части трафика: первое сокращает набор передаваемых объектов, второе — размер каждого обновления. Нужна единая модель набора и байтов; сравнение и упаковка добавляют CPU.",
+  "resolution": "Применять совместно, оценивая трафик в байтах и отдельные CPU-расходы на сравнение и упаковку.",
+  "source_url": "https://en.wikipedia.org/wiki/Delta_encoding"
+ },
+ {
+  "a": "pso_precaching_warmup",
+  "b": "async_loading_pipeline",
+  "type": "complement",
+  "severity": 1,
+  "description": "Оба решения уменьшают разные источники пауз: прогрев устраняет компиляцию шейдеров, асинхронная загрузка — ожидание чтения. Ни одно из них не гарантирует отсутствия всех пауз и не даёт постоянного бонуса FPS.",
+  "resolution": "Применять совместно для миров со стримингом, проверяя пики времени кадра на реальных переходах.",
+  "source_url": "https://docs.unity3d.com/Manual/ShaderLoadTimeOptimization.html"
+ },
+ {
+  "a": "quality_tier_scalability",
+  "b": "hardware_raytraced_gi",
+  "type": "complement",
+  "severity": 1,
+  "description": "Scalability выбирает реальный набор настроек, а не удешевляет уже рассчитанную трассировку: отдельной скидки к стоимости RT только от наличия тиров нет.",
+  "resolution": "Привязать RT-пресеты к верхним тирам и проверять на min-spec тира; стоимость каждого тира считать отдельно.",
+  "source_url": "https://docs.unity3d.com/Manual/class-QualitySettings.html"
+ },
+ {
+  "a": "skeletal_2d_deform",
+  "b": "sprite_atlas_batching",
+  "type": "complement",
+  "severity": 1,
+  "description": "Атлас повышает эффективность батчинга скелетной 2D-анимации, но не является обязательным условием: скелетная анимация работает и без общего атласа, просто с большим числом вызовов отрисовки.",
+  "resolution": "Планировать атласы вместе с переходом на скелетную анимацию; отсутствие атласа не делает решение неприменимым.",
+  "source_url": "https://en.wikipedia.org/wiki/Texture_atlas"
+ },
+ {
+  "a": "temporal_upscaling",
+  "b": "hardware_raytraced_gi",
+  "type": "complement",
+  "severity": 2,
+  "description": "Upscaler, denoiser и ray reconstruction — разные проходы со своей стоимостью. Совместимость апскейлера с трассировкой не даёт ещё одной скидки поверх стоимости реконструкции.",
+  "resolution": "Проектировать RT-пресеты в паре с апскейлером, учитывая стоимость денойзера и реконструкции отдельно.",
+  "source_url": "https://en.wikipedia.org/wiki/Deep_learning_super_sampling"
+ },
+ {
+  "a": "virtual_texturing",
+  "b": "heightmap_compression",
+  "type": "complement",
+  "severity": 1,
+  "description": "Совместимые форматы тайлов дополняют виртуальное текстурирование: сжатие повышает эффективность кэша и снижает трафик подкачки. Выигрыш зависит от формата, размера кэша и стоимости декодирования и не даётся автоматически.",
+  "resolution": "Проверить формат тайлов, размер кэша и стоимость декодирования; совместимость не означает дополнительной скидки к уже рассчитанному эффекту каждого решения.",
+  "source_url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-texturing-in-unreal-engine"
+ },
+ {
+  "a": "agent_update_budget",
+  "b": "crowd_instancing_impostors",
+  "type": "risk",
+  "severity": 1,
+  "description": "Снижение частоты обновления дальних агентов совместимо с их упрощённой отрисовкой, но независимость экономии AI и рендера внутри одной группы не доказана: заметность задержки требует проверки.",
+  "resolution": "Проверить на representative-сцене, что сниженная частота обновления остаётся незаметной на фоне упрощённых представлений.",
+  "source_url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/significance-manager-in-unreal-engine"
+ },
+ {
+  "a": "crowd_2d_instancing",
+  "b": "agent_update_budget",
+  "type": "risk",
+  "severity": 1,
+  "description": "Батчинг и расписание AI — разные виды работы. Не доказано, что снижение частоты обновления агентов всегда остаётся незаметным при массовой отрисовке одним батчем.",
+  "resolution": "Проверить реакцию агентов при сниженной частоте обновления на сценах с максимальным числом агентов.",
+  "source_url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/significance-manager-in-unreal-engine"
+ },
+ {
+  "a": "deterministic_lockstep",
+  "b": "multithreaded_physics_jobs",
+  "type": "risk",
+  "severity": 3,
+  "description": "Параллельная физика требует детерминированного порядка и математики: иначе результат зависит от планировщика и lockstep расходится. Проблема условная, а не запрет всех многопоточных реализаций физики.",
+  "resolution": "Обеспечить детерминированный порядок шагов и фиксированную математику либо параллелить только независимые read-only проходы.",
+  "source_url": "https://gafferongames.com/post/fix_your_timestep/"
+ },
+ {
+  "a": "gpu_procedural_placement",
+  "b": "lightmap_atlas_baking",
+  "type": "risk",
+  "severity": 2,
+  "description": "Запечённые данные существуют только для заранее известной геометрии, поэтому размещаемые в рантайме объекты остаются без лайтмапа. Ограничение распространяется на процедурную часть сцены: остальные объекты могут оставаться запечёнными.",
+  "resolution": "Использовать зонды освещённости для процедурных объектов и определить, какая часть сцены остаётся запечённой.",
+  "source_url": "https://docs.unity3d.com/Manual/LightProbes.html"
+ },
+ {
+  "a": "ml_frame_generation",
+  "b": "client_prediction_reconciliation",
+  "type": "risk",
+  "severity": 2,
+  "description": "Генерация кадров добавляет задержку и может давать визуальные артефакты при пересборке состояния. Генерация и предсказание не являются универсально несовместимыми алгоритмами.",
+  "resolution": "Измерить задержку ввода и артефакты реконсиляции; для competitive-режимов генерацию отключать.",
+  "source_url": "https://en.wikipedia.org/wiki/Deep_learning_super_sampling"
+ },
+ {
+  "a": "motion_matching",
+  "b": "animation_compression",
+  "type": "risk",
+  "severity": 2,
+  "description": "Риск относится к конкретной степени сжатия: искажённые позы ухудшают точность поиска в базе движений. Универсальной несовместимости motion matching и сжатия анимаций нет.",
+  "resolution": "Проверить точность подбора на выбранном уровне сжатия и исключить из сильного сжатия движения, участвующие в базе motion matching.",
+  "source_url": "https://en.wikipedia.org/wiki/Skinning"
+ },
+ {
+  "a": "skeletal_2d_deform",
+  "b": "sprite_sheet_compression",
+  "type": "risk",
+  "severity": 1,
+  "description": "Риск качества при конкретном сжатии: потери заметнее на деформируемых частях тела, чем на готовых кадрах покадровой анимации. Это не несовместимость скелетной анимации и сжатия как таковых.",
+  "resolution": "Для скелетной анимации использовать менее агрессивное сжатие и проверить артефакты на деформируемых частях.",
+  "source_url": "https://en.wikipedia.org/wiki/Mipmap"
+ },
+ {
+  "a": "static_shadow_caching",
+  "b": "hardware_raytraced_gi",
+  "type": "risk",
+  "severity": 2,
+  "description": "Кэш теней рассчитан на неизменное освещение, а трассировка пересчитывает его заново: выигрыш кэша зависит от доли статичных источников. Разные виды света и теней могут сосуществовать, поэтому запрета пара не образует.",
+  "resolution": "Кэшировать только тени статических источников и явно задать правила инвалидации кэша при изменении освещения.",
+  "source_url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine"
+ },
+ {
+  "a": "tiled_clustered_light_culling",
+  "b": "depth_prepass_early_z",
+  "type": "risk",
+  "severity": 2,
+  "description": "Часть алгоритмов light culling использует вход глубины, но обязательный полный depth pre-pass для всей категории не требуется: это условие конкретной реализации, а не свойство подхода.",
+  "resolution": "Определить по выбранной реализации, нужен ли проход глубины, и учитывать его стоимость отдельно от классификации источников.",
+  "source_url": "https://www.cse.chalmers.se/~uffe/clustered_shading_preprint.pdf"
+ },
+ {
+  "a": "planar_reflection_budget",
+  "b": "screen_space_gi",
+  "type": "unknown",
+  "severity": 1,
+  "description": "Экранное GI — непрямое освещение, а не экранные отражения (SSR): утверждение, будто экранное GI уже считает плоские отражения, ошибочно. Запрета пара не образует, но совместная стоимость двух проходов не подтверждена измерением отдельно.",
+  "resolution": "Проверить суммарную стоимость плоских отражений и экранного GI на representative-сцене; каждый проход учитывается своей стоимостью.",
+  "source_url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/lumen-global-illumination-and-reflections-in-unreal-engine"
+ }
+]

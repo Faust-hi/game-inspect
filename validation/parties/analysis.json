@@ -1,0 +1,2465 @@
+{
+ "meta": {
+  "n_games": 58,
+  "n_decisions": 982,
+  "n_technical": 558,
+  "n_excluded": 200,
+  "n_review": 224,
+  "n_matched": 264,
+  "coverage_technical_pct": 47.3,
+  "coverage_all_pct": 26.9,
+  "excluded_by_category": {
+   "контент и прогрессия": 97,
+   "монетизация": 41,
+   "сюжет и концовки": 39,
+   "музыка, озвучение, локализация": 11,
+   "реакция и продвижение": 8,
+   "дата выхода и издание": 4
+  },
+  "n_methods_catalog": 111,
+  "n_functions_catalog": 36
+ },
+ "functions": [
+  {
+   "code": "art_pipeline",
+   "name": "Арт-пайплайн",
+   "category": "Производство контента",
+   "n_methods_catalog": 2,
+   "n_games_rec": 58,
+   "n_games_impl": 3,
+   "n_distinct_recommended": 2,
+   "hit_rate": 5.2,
+   "top1_code": "normal_bake_retopology_pipeline",
+   "top1_name": "Запекание нормалей и ретопология",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.3374,
+   "best_score": 0.7595,
+   "top3": [
+    {
+     "code": "normal_bake_retopology_pipeline",
+     "name": "Запекание нормалей и ретопология",
+     "score": 0.7595,
+     "n_games": 58
+    },
+    {
+     "code": "art_direction_stylization",
+     "name": "Стилизация вместо фотореализма",
+     "score": 0.4221,
+     "n_games": 58
+    }
+   ]
+  },
+  {
+   "code": "audio_system",
+   "name": "Аудиосистема",
+   "category": "Звук",
+   "n_methods_catalog": 2,
+   "n_games_rec": 58,
+   "n_games_impl": 2,
+   "n_distinct_recommended": 2,
+   "hit_rate": 3.4,
+   "top1_code": "audio_streaming_compression",
+   "top1_name": "Потоковое сжатие аудио",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.0552,
+   "best_score": 0.7051,
+   "top3": [
+    {
+     "code": "audio_streaming_compression",
+     "name": "Потоковое сжатие аудио",
+     "score": 0.7051,
+     "n_games": 58
+    },
+    {
+     "code": "audio_occlusion_propagation",
+     "name": "Аудио-окклюзия лучами и HRTF",
+     "score": 0.6499,
+     "n_games": 58
+    }
+   ]
+  },
+  {
+   "code": "build_delivery",
+   "name": "Сборка и доставка контента",
+   "category": "Производство",
+   "n_methods_catalog": 2,
+   "n_games_rec": 58,
+   "n_games_impl": 2,
+   "n_distinct_recommended": 2,
+   "hit_rate": 3.4,
+   "top1_code": "differential_patch_pipeline",
+   "top1_name": "Дифференциальные патчи",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.1673,
+   "best_score": 0.7384,
+   "top3": [
+    {
+     "code": "differential_patch_pipeline",
+     "name": "Дифференциальные патчи",
+     "score": 0.7384,
+     "n_games": 58
+    },
+    {
+     "code": "build_size_startup_budgets",
+     "name": "Бюджеты размера сборки и старта",
+     "score": 0.5711,
+     "n_games": 58
+    }
+   ]
+  },
+  {
+   "code": "geometry_pipeline",
+   "name": "Конвейер геометрии",
+   "category": "Рендер",
+   "n_methods_catalog": 1,
+   "n_games_rec": 58,
+   "n_games_impl": 6,
+   "n_distinct_recommended": 1,
+   "hit_rate": 10.3,
+   "top1_code": "mesh_index_optimization",
+   "top1_name": "Оптимизация индексов меша (vertex cache / overdraw)",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.0,
+   "best_score": 0.7147,
+   "top3": [
+    {
+     "code": "mesh_index_optimization",
+     "name": "Оптимизация индексов меша (vertex cache / overdraw)",
+     "score": 0.7147,
+     "n_games": 58
+    }
+   ]
+  },
+  {
+   "code": "project_architecture",
+   "name": "Архитектура проекта",
+   "category": "Производство",
+   "n_methods_catalog": 1,
+   "n_games_rec": 58,
+   "n_games_impl": 25,
+   "n_distinct_recommended": 1,
+   "hit_rate": 43.1,
+   "top1_code": "composition_bootstrap_architecture",
+   "top1_name": "Композиционный каркас проекта",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.0,
+   "best_score": 0.3768,
+   "top3": [
+    {
+     "code": "composition_bootstrap_architecture",
+     "name": "Композиционный каркас проекта",
+     "score": 0.3768,
+     "n_games": 58
+    }
+   ]
+  },
+  {
+   "code": "render_scalability",
+   "name": "Масштабирование качества",
+   "category": "Рендер",
+   "n_methods_catalog": 1,
+   "n_games_rec": 58,
+   "n_games_impl": 0,
+   "n_distinct_recommended": 1,
+   "hit_rate": 0.0,
+   "top1_code": "quality_tier_scalability",
+   "top1_name": "Тиры качества и scalability-группы",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.0,
+   "best_score": 0.7245,
+   "top3": [
+    {
+     "code": "quality_tier_scalability",
+     "name": "Тиры качества и scalability-группы",
+     "score": 0.7245,
+     "n_games": 58
+    }
+   ]
+  },
+  {
+   "code": "rendering_architecture",
+   "name": "Архитектура рендера",
+   "category": "Рендер",
+   "n_methods_catalog": 5,
+   "n_games_rec": 58,
+   "n_games_impl": 3,
+   "n_distinct_recommended": 4,
+   "hit_rate": 3.4,
+   "top1_code": "tiled_clustered_light_culling",
+   "top1_name": "Тайловое и кластерное отсечение источников света",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.1953,
+   "best_score": 0.6708,
+   "top3": [
+    {
+     "code": "tiled_clustered_light_culling",
+     "name": "Тайловое и кластерное отсечение источников света",
+     "score": 0.6708,
+     "n_games": 58
+    },
+    {
+     "code": "hiz_software_occlusion",
+     "name": "Программное отсечение по Hi-Z",
+     "score": 0.6198,
+     "n_games": 58
+    },
+    {
+     "code": "bindless_uber_shaders",
+     "name": "Bindless-ресурсы и uber-шейдеры",
+     "score": 0.502,
+     "n_games": 58
+    }
+   ]
+  },
+  {
+   "code": "upscaling_frame_generation",
+   "name": "Масштабирование и генерация кадров",
+   "category": "Рендер",
+   "n_methods_catalog": 1,
+   "n_games_rec": 58,
+   "n_games_impl": 2,
+   "n_distinct_recommended": 1,
+   "hit_rate": 3.4,
+   "top1_code": "ml_frame_generation",
+   "top1_name": "ML-генерация кадров",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.0,
+   "best_score": 0.6821,
+   "top3": [
+    {
+     "code": "ml_frame_generation",
+     "name": "ML-генерация кадров",
+     "score": 0.6821,
+     "n_games": 58
+    }
+   ]
+  },
+  {
+   "code": "open_world_streaming",
+   "name": "Потоковая загрузка открытого мира",
+   "category": "Мир и загрузка",
+   "n_methods_catalog": 7,
+   "n_games_rec": 56,
+   "n_games_impl": 16,
+   "n_distinct_recommended": 6,
+   "hit_rate": 16.1,
+   "top1_code": "gpu_compute_culling",
+   "top1_name": "Отсечение объектов на GPU (compute)",
+   "top1_share": 0.554,
+   "jaccard": 0.497,
+   "spread": 0.5132,
+   "best_score": 0.7807,
+   "top3": [
+    {
+     "code": "gpu_compute_culling",
+     "name": "Отсечение объектов на GPU (compute)",
+     "score": 0.7807,
+     "n_games": 25
+    },
+    {
+     "code": "hierarchical_lod",
+     "name": "Иерархические LOD (HLOD)",
+     "score": 0.7424,
+     "n_games": 25
+    },
+    {
+     "code": "baked_occlusion_culling",
+     "name": "Запечённое отсечение по окклюзии",
+     "score": 0.7212,
+     "n_games": 31
+    }
+   ]
+  },
+  {
+   "code": "post_processing",
+   "name": "Постобработка изображения",
+   "category": "Рендер",
+   "n_methods_catalog": 7,
+   "n_games_rec": 43,
+   "n_games_impl": 20,
+   "n_distinct_recommended": 7,
+   "hit_rate": 16.3,
+   "top1_code": "temporal_upscaling",
+   "top1_name": "Временное масштабирование изображения",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.6258,
+   "best_score": 0.8165,
+   "top3": [
+    {
+     "code": "temporal_upscaling",
+     "name": "Временное масштабирование изображения",
+     "score": 0.8165,
+     "n_games": 43
+    },
+    {
+     "code": "dynamic_resolution_scaling",
+     "name": "Динамическое разрешение рендера",
+     "score": 0.8161,
+     "n_games": 43
+    },
+    {
+     "code": "screenspace_light_shafts",
+     "name": "Экранные световые валы (пост-процесс)",
+     "score": 0.8146,
+     "n_games": 43
+    }
+   ]
+  },
+  {
+   "code": "character_animation",
+   "name": "Анимация персонажей",
+   "category": "Персонажи",
+   "n_methods_catalog": 7,
+   "n_games_rec": 40,
+   "n_games_impl": 4,
+   "n_distinct_recommended": 4,
+   "hit_rate": 2.5,
+   "top1_code": "animation_lod_budget",
+   "top1_name": "LOD анимации и бюджет обновлений",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.2697,
+   "best_score": 0.6587,
+   "top3": [
+    {
+     "code": "animation_lod_budget",
+     "name": "LOD анимации и бюджет обновлений",
+     "score": 0.6587,
+     "n_games": 40
+    },
+    {
+     "code": "animation_compression",
+     "name": "Сжатие анимационных данных",
+     "score": 0.6239,
+     "n_games": 40
+    },
+    {
+     "code": "gpu_skinning_compute",
+     "name": "Скиннинг на GPU",
+     "score": 0.4335,
+     "n_games": 40
+    }
+   ]
+  },
+  {
+   "code": "runtime_memory",
+   "name": "Память и сборка мусора",
+   "category": "Производительность",
+   "n_methods_catalog": 1,
+   "n_games_rec": 40,
+   "n_games_impl": 7,
+   "n_distinct_recommended": 1,
+   "hit_rate": 10.0,
+   "top1_code": "managed_gc_alloc_budget",
+   "top1_name": "Нулевой бюджет аллокаций в горячем цикле",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.0,
+   "best_score": 0.7443,
+   "top3": [
+    {
+     "code": "managed_gc_alloc_budget",
+     "name": "Нулевой бюджет аллокаций в горячем цикле",
+     "score": 0.7443,
+     "n_games": 40
+    }
+   ]
+  },
+  {
+   "code": "ai_pathfinding",
+   "name": "ИИ и поиск пути",
+   "category": "Симуляция",
+   "n_methods_catalog": 4,
+   "n_games_rec": 38,
+   "n_games_impl": 6,
+   "n_distinct_recommended": 4,
+   "hit_rate": 7.9,
+   "top1_code": "rvo_local_avoidance",
+   "top1_name": "Локальное избегание агентов (RVO/ORCA)",
+   "top1_share": 1.0,
+   "jaccard": 0.95,
+   "spread": 0.4375,
+   "best_score": 0.7688,
+   "top3": [
+    {
+     "code": "rvo_local_avoidance",
+     "name": "Локальное избегание агентов (RVO/ORCA)",
+     "score": 0.7688,
+     "n_games": 38
+    },
+    {
+     "code": "time_sliced_pathfinding",
+     "name": "Поиск пути с распределением по кадрам",
+     "score": 0.7108,
+     "n_games": 38
+    },
+    {
+     "code": "flow_field_pathing",
+     "name": "Поле направлений (flow field)",
+     "score": 0.6605,
+     "n_games": 35
+    }
+   ]
+  },
+  {
+   "code": "multiplayer_netcode",
+   "name": "Сетевой код мультиплеера",
+   "category": "Сеть",
+   "n_methods_catalog": 6,
+   "n_games_rec": 38,
+   "n_games_impl": 15,
+   "n_distinct_recommended": 6,
+   "hit_rate": 13.2,
+   "top1_code": "delta_compression_state",
+   "top1_name": "Дельта-компрессия сетевого состояния",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.4975,
+   "best_score": 0.7212,
+   "top3": [
+    {
+     "code": "delta_compression_state",
+     "name": "Дельта-компрессия сетевого состояния",
+     "score": 0.7212,
+     "n_games": 38
+    },
+    {
+     "code": "headless_dedicated_server",
+     "name": "Выделенный сервер без графики",
+     "score": 0.6103,
+     "n_games": 38
+    },
+    {
+     "code": "network_relevancy_priority",
+     "name": "Сетевая релевантность и приоритизация",
+     "score": 0.4184,
+     "n_games": 38
+    }
+   ]
+  },
+  {
+   "code": "large_scale_terrain",
+   "name": "Крупномасштабный ландшафт",
+   "category": "Мир и загрузка",
+   "n_methods_catalog": 5,
+   "n_games_rec": 21,
+   "n_games_impl": 4,
+   "n_distinct_recommended": 5,
+   "hit_rate": 0.0,
+   "top1_code": "neural_texture_compression",
+   "top1_name": "Нейросжатие текстур",
+   "top1_share": 1.0,
+   "jaccard": 0.81,
+   "spread": 0.4305,
+   "best_score": 0.7342,
+   "top3": [
+    {
+     "code": "neural_texture_compression",
+     "name": "Нейросжатие текстур",
+     "score": 0.7342,
+     "n_games": 21
+    },
+    {
+     "code": "heightmap_compression",
+     "name": "Сжатие карт высот и материалов ландшафта",
+     "score": 0.7013,
+     "n_games": 21
+    },
+    {
+     "code": "terrain_clipmap",
+     "name": "Клипмап / CDLOD ландшафта",
+     "score": 0.5692,
+     "n_games": 16
+    }
+   ]
+  },
+  {
+   "code": "destruction_simulation",
+   "name": "Разрушения и геометрические кэши",
+   "category": "Симуляция",
+   "n_methods_catalog": 1,
+   "n_games_rec": 12,
+   "n_games_impl": 9,
+   "n_distinct_recommended": 1,
+   "hit_rate": 8.3,
+   "top1_code": "destruction_geometry_cache",
+   "top1_name": "Запечённые кэши разрушений",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.0,
+   "best_score": 0.5395,
+   "top3": [
+    {
+     "code": "destruction_geometry_cache",
+     "name": "Запечённые кэши разрушений",
+     "score": 0.5395,
+     "n_games": 12
+    }
+   ]
+  },
+  {
+   "code": "physics_simulation",
+   "name": "Физическая симуляция",
+   "category": "Симуляция",
+   "n_methods_catalog": 5,
+   "n_games_rec": 12,
+   "n_games_impl": 16,
+   "n_distinct_recommended": 5,
+   "hit_rate": 33.3,
+   "top1_code": "collision_layer_matrix",
+   "top1_name": "Матрица слоёв коллизий",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.4875,
+   "best_score": 0.7448,
+   "top3": [
+    {
+     "code": "collision_layer_matrix",
+     "name": "Матрица слоёв коллизий",
+     "score": 0.7448,
+     "n_games": 12
+    },
+    {
+     "code": "physics_lod_sleeping",
+     "name": "LOD физики и спящие тела",
+     "score": 0.6765,
+     "n_games": 12
+    },
+    {
+     "code": "broadphase_spatial_partitioning",
+     "name": "Оптимизация широкой фазы (BVH / spatial hash)",
+     "score": 0.6119,
+     "n_games": 12
+    }
+   ]
+  },
+  {
+   "code": "dynamic_shadows",
+   "name": "Динамические тени",
+   "category": "Освещение",
+   "n_methods_catalog": 6,
+   "n_games_rec": 8,
+   "n_games_impl": 1,
+   "n_distinct_recommended": 5,
+   "hit_rate": 0.0,
+   "top1_code": "screen_space_contact_shadows",
+   "top1_name": "Контактные тени в экранном пространстве",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.3584,
+   "best_score": 0.6936,
+   "top3": [
+    {
+     "code": "screen_space_contact_shadows",
+     "name": "Контактные тени в экранном пространстве",
+     "score": 0.6936,
+     "n_games": 8
+    },
+    {
+     "code": "static_shadow_caching",
+     "name": "Кэширование теней от статических объектов",
+     "score": 0.5151,
+     "n_games": 8
+    },
+    {
+     "code": "cascaded_shadow_maps",
+     "name": "Каскадные карты теней",
+     "score": 0.4833,
+     "n_games": 8
+    }
+   ]
+  },
+  {
+   "code": "advanced_npc_ai",
+   "name": "Поведенческий ИИ NPC",
+   "category": "Симуляция",
+   "n_methods_catalog": 2,
+   "n_games_rec": 7,
+   "n_games_impl": 8,
+   "n_distinct_recommended": 2,
+   "hit_rate": 28.6,
+   "top1_code": "npc_perception_budget",
+   "top1_name": "Бюджет восприятия NPC",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.2752,
+   "best_score": 0.6376,
+   "top3": [
+    {
+     "code": "npc_perception_budget",
+     "name": "Бюджет восприятия NPC",
+     "score": 0.6376,
+     "n_games": 7
+    },
+    {
+     "code": "behaviour_tree_update_budget",
+     "name": "Деревья поведений с бюджетом обновления",
+     "score": 0.3624,
+     "n_games": 7
+    }
+   ]
+  },
+  {
+   "code": "dynamic_lighting",
+   "name": "Множественные динамические источники света",
+   "category": "Освещение",
+   "n_methods_catalog": 2,
+   "n_games_rec": 7,
+   "n_games_impl": 12,
+   "n_distinct_recommended": 2,
+   "hit_rate": 28.6,
+   "top1_code": "light_range_attenuation_lod",
+   "top1_name": "Упрощение затухания источников по дистанции",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.6706,
+   "best_score": 0.8353,
+   "top3": [
+    {
+     "code": "light_range_attenuation_lod",
+     "name": "Упрощение затухания источников по дистанции",
+     "score": 0.8353,
+     "n_games": 7
+    },
+    {
+     "code": "dynamic_light_priority_budget",
+     "name": "Приоритезация и бюджет динамических источников",
+     "score": 0.1647,
+     "n_games": 7
+    }
+   ]
+  },
+  {
+   "code": "gameplay_ability_system",
+   "name": "Геймплейные способности и модификаторы",
+   "category": "Геймплей",
+   "n_methods_catalog": 2,
+   "n_games_rec": 5,
+   "n_games_impl": 4,
+   "n_distinct_recommended": 2,
+   "hit_rate": 20.0,
+   "top1_code": "ability_visual_effect_budget",
+   "top1_name": "Бюджет визуальных эффектов способностей",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.4312,
+   "best_score": 0.7156,
+   "top3": [
+    {
+     "code": "ability_visual_effect_budget",
+     "name": "Бюджет визуальных эффектов способностей",
+     "score": 0.7156,
+     "n_games": 5
+    },
+    {
+     "code": "data_driven_ability_system",
+     "name": "Данные-ориентированная система способностей",
+     "score": 0.2844,
+     "n_games": 5
+    }
+   ]
+  },
+  {
+   "code": "procedural_terrain",
+   "name": "Процедурная генерация ландшафта и мира",
+   "category": "Мир и загрузка",
+   "n_methods_catalog": 2,
+   "n_games_rec": 5,
+   "n_games_impl": 3,
+   "n_distinct_recommended": 2,
+   "hit_rate": 40.0,
+   "top1_code": "terrain_generation_streaming_budget",
+   "top1_name": "Бюджет генерации и кэш чанков",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.696,
+   "best_score": 0.848,
+   "top3": [
+    {
+     "code": "terrain_generation_streaming_budget",
+     "name": "Бюджет генерации и кэш чанков",
+     "score": 0.848,
+     "n_games": 5
+    },
+    {
+     "code": "chunked_procedural_terrain",
+     "name": "Чанковая генерация процедурного ландшафта",
+     "score": 0.152,
+     "n_games": 5
+    }
+   ]
+  },
+  {
+   "code": "baked_lighting",
+   "name": "Запечённое освещение",
+   "category": "Освещение",
+   "n_methods_catalog": 4,
+   "n_games_rec": 4,
+   "n_games_impl": 4,
+   "n_distinct_recommended": 3,
+   "hit_rate": 0.0,
+   "top1_code": "lightmap_compression_streaming",
+   "top1_name": "Сжатие и потоковая подкачка лайтмапов",
+   "top1_share": 1.0,
+   "jaccard": 0.778,
+   "spread": 0.228,
+   "best_score": 0.6371,
+   "top3": [
+    {
+     "code": "lightmap_compression_streaming",
+     "name": "Сжатие и потоковая подкачка лайтмапов",
+     "score": 0.6371,
+     "n_games": 4
+    },
+    {
+     "code": "gpu_lightmap_baking",
+     "name": "GPU-ускоренный пересчёт освещения",
+     "score": 0.4839,
+     "n_games": 4
+    },
+    {
+     "code": "lightmap_atlas_baking",
+     "name": "Запекание освещения в лайтмапы",
+     "score": 0.4091,
+     "n_games": 2
+    }
+   ]
+  },
+  {
+   "code": "particle_systems",
+   "name": "Системы частиц",
+   "category": "Визуальные эффекты",
+   "n_methods_catalog": 4,
+   "n_games_rec": 4,
+   "n_games_impl": 7,
+   "n_distinct_recommended": 3,
+   "hit_rate": 25.0,
+   "top1_code": "particle_pooling",
+   "top1_name": "Пулинг систем частиц",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.4521,
+   "best_score": 0.7937,
+   "top3": [
+    {
+     "code": "particle_pooling",
+     "name": "Пулинг систем частиц",
+     "score": 0.7937,
+     "n_games": 4
+    },
+    {
+     "code": "flipbook_particles",
+     "name": "Flipbook-текстуры вместо симуляции",
+     "score": 0.6873,
+     "n_games": 4
+    },
+    {
+     "code": "gpu_particle_simulation",
+     "name": "Симуляция частиц на GPU",
+     "score": 0.3416,
+     "n_games": 4
+    }
+   ]
+  },
+  {
+   "code": "ray_traced_effects",
+   "name": "Трассировочные эффекты (тени, отражения, AO)",
+   "category": "Освещение",
+   "n_methods_catalog": 2,
+   "n_games_rec": 4,
+   "n_games_impl": 16,
+   "n_distinct_recommended": 2,
+   "hit_rate": 75.0,
+   "top1_code": "rt_effect_resolution_budget",
+   "top1_name": "Половинное разрешение и кэш трассировочных эффектов",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.234,
+   "best_score": 0.617,
+   "top3": [
+    {
+     "code": "rt_effect_resolution_budget",
+     "name": "Половинное разрешение и кэш трассировочных эффектов",
+     "score": 0.617,
+     "n_games": 4
+    },
+    {
+     "code": "selective_ray_traced_effects",
+     "name": "Выборочная трассировка отдельных эффектов",
+     "score": 0.383,
+     "n_games": 4
+    }
+   ]
+  },
+  {
+   "code": "vehicle_simulation",
+   "name": "Транспорт и физика движения",
+   "category": "Симуляция",
+   "n_methods_catalog": 2,
+   "n_games_rec": 4,
+   "n_games_impl": 10,
+   "n_distinct_recommended": 2,
+   "hit_rate": 50.0,
+   "top1_code": "vehicle_simulation_lod",
+   "top1_name": "Уровни детализации симуляции транспорта",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.2584,
+   "best_score": 0.6292,
+   "top3": [
+    {
+     "code": "vehicle_simulation_lod",
+     "name": "Уровни детализации симуляции транспорта",
+     "score": 0.6292,
+     "n_games": 4
+    },
+    {
+     "code": "raycast_vehicle_physics",
+     "name": "Физика транспорта на рейкастах подвески",
+     "score": 0.3708,
+     "n_games": 4
+    }
+   ]
+  },
+  {
+   "code": "volumetric_effects",
+   "name": "Объёмные эффекты (туман, облака, дымка)",
+   "category": "Визуальные эффекты",
+   "n_methods_catalog": 2,
+   "n_games_rec": 4,
+   "n_games_impl": 10,
+   "n_distinct_recommended": 2,
+   "hit_rate": 50.0,
+   "top1_code": "volumetric_half_resolution",
+   "top1_name": "Расчёт объёмов в пониженном разрешении",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.3674,
+   "best_score": 0.6837,
+   "top3": [
+    {
+     "code": "volumetric_half_resolution",
+     "name": "Расчёт объёмов в пониженном разрешении",
+     "score": 0.6837,
+     "n_games": 4
+    },
+    {
+     "code": "froxel_volumetric_fog",
+     "name": "Объёмный туман на froxel-сетке",
+     "score": 0.3163,
+     "n_games": 4
+    }
+   ]
+  },
+  {
+   "code": "water_simulation",
+   "name": "Водные поверхности",
+   "category": "Визуальные эффекты",
+   "n_methods_catalog": 3,
+   "n_games_rec": 3,
+   "n_games_impl": 17,
+   "n_distinct_recommended": 3,
+   "hit_rate": 66.7,
+   "top1_code": "screen_space_water_simple",
+   "top1_name": "Упрощённая вода в экранном пространстве",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.3081,
+   "best_score": 0.668,
+   "top3": [
+    {
+     "code": "screen_space_water_simple",
+     "name": "Упрощённая вода в экранном пространстве",
+     "score": 0.668,
+     "n_games": 3
+    },
+    {
+     "code": "gerstner_fft_water",
+     "name": "Волны Герстнера и FFT на GPU",
+     "score": 0.4952,
+     "n_games": 3
+    },
+    {
+     "code": "planar_reflection_budget",
+     "name": "Бюджет плоских отражений",
+     "score": 0.3599,
+     "n_games": 3
+    }
+   ]
+  },
+  {
+   "code": "path_tracing",
+   "name": "Трассировка пути",
+   "category": "Освещение",
+   "n_methods_catalog": 2,
+   "n_games_rec": 2,
+   "n_games_impl": 2,
+   "n_distinct_recommended": 2,
+   "hit_rate": 100.0,
+   "top1_code": "path_tracing_sample_denoiser_budget",
+   "top1_name": "Бюджет выборок и денойзинг трассировки пути",
+   "top1_share": 1.0,
+   "jaccard": 1.0,
+   "spread": 0.315,
+   "best_score": 0.6575,
+   "top3": [
+    {
+     "code": "path_tracing_sample_denoiser_budget",
+     "name": "Бюджет выборок и денойзинг трассировки пути",
+     "score": 0.6575,
+     "n_games": 2
+    },
+    {
+     "code": "full_path_tracing_pipeline",
+     "name": "Трассировка пути как основное освещение",
+     "score": 0.3425,
+     "n_games": 2
+    }
+   ]
+  },
+  {
+   "code": "crowd_simulation",
+   "name": "Толпы NPC",
+   "category": "Персонажи",
+   "n_methods_catalog": 4,
+   "n_games_rec": 1,
+   "n_games_impl": 5,
+   "n_distinct_recommended": 3,
+   "hit_rate": 100.0,
+   "top1_code": "agent_update_budget",
+   "top1_name": "Распределение бюджета обновлений агентов",
+   "top1_share": 1.0,
+   "jaccard": null,
+   "spread": 0.3444,
+   "best_score": 0.6712,
+   "top3": [
+    {
+     "code": "agent_update_budget",
+     "name": "Распределение бюджета обновлений агентов",
+     "score": 0.6712,
+     "n_games": 1
+    },
+    {
+     "code": "crowd_instancing_impostors",
+     "name": "Инстансинг и импосторы для толпы",
+     "score": 0.5883,
+     "n_games": 1
+    },
+    {
+     "code": "ecs_data_oriented_crowd",
+     "name": "Толпа на ECS / Data-Oriented архитектуре",
+     "score": 0.3268,
+     "n_games": 1
+    }
+   ]
+  },
+  {
+   "code": "dynamic_global_illumination",
+   "name": "Динамическое глобальное освещение",
+   "category": "Освещение",
+   "n_methods_catalog": 6,
+   "n_games_rec": 1,
+   "n_games_impl": 3,
+   "n_distinct_recommended": 6,
+   "hit_rate": 100.0,
+   "top1_code": "screen_space_gi",
+   "top1_name": "Экранное глобальное освещение (SSGI)",
+   "top1_share": 1.0,
+   "jaccard": null,
+   "spread": 0.3991,
+   "best_score": 0.5796,
+   "top3": [
+    {
+     "code": "screen_space_gi",
+     "name": "Экранное глобальное освещение (SSGI)",
+     "score": 0.5796,
+     "n_games": 1
+    },
+    {
+     "code": "temporal_radiance_cache",
+     "name": "Кэш излучения с временным накоплением",
+     "score": 0.5772,
+     "n_games": 1
+    },
+    {
+     "code": "irradiance_volume_probes",
+     "name": "Зонды освещённости (irradiance volume)",
+     "score": 0.5607,
+     "n_games": 1
+    }
+   ]
+  },
+  {
+   "code": "mesh_shaders",
+   "name": "Меш-шейдеры и генерация геометрии на GPU",
+   "category": "Рендер",
+   "n_methods_catalog": 2,
+   "n_games_rec": 1,
+   "n_games_impl": 1,
+   "n_distinct_recommended": 2,
+   "hit_rate": 100.0,
+   "top1_code": "gpu_meshlet_culling_budget",
+   "top1_name": "Бюджет отсечения мешлетов на GPU",
+   "top1_share": 1.0,
+   "jaccard": null,
+   "spread": 0.659,
+   "best_score": 0.8295,
+   "top3": [
+    {
+     "code": "gpu_meshlet_culling_budget",
+     "name": "Бюджет отсечения мешлетов на GPU",
+     "score": 0.8295,
+     "n_games": 1
+    },
+    {
+     "code": "meshlet_pipeline_adoption",
+     "name": "Конвейер мешлетов на меш-шейдерах",
+     "score": 0.1705,
+     "n_games": 1
+    }
+   ]
+  },
+  {
+   "code": "procedural_vegetation",
+   "name": "Растительность и объекты окружения",
+   "category": "Мир и загрузка",
+   "n_methods_catalog": 5,
+   "n_games_rec": 1,
+   "n_games_impl": 7,
+   "n_distinct_recommended": 4,
+   "hit_rate": 0.0,
+   "top1_code": "vegetation_atlas_lod",
+   "top1_name": "Атласы и запечённые LOD растительности",
+   "top1_share": 1.0,
+   "jaccard": null,
+   "spread": 0.4474,
+   "best_score": 0.7182,
+   "top3": [
+    {
+     "code": "vegetation_atlas_lod",
+     "name": "Атласы и запечённые LOD растительности",
+     "score": 0.7182,
+     "n_games": 1
+    },
+    {
+     "code": "impostors_billboards",
+     "name": "Импосторы и билборды для дальнего плана",
+     "score": 0.6593,
+     "n_games": 1
+    },
+    {
+     "code": "gpu_instancing_vegetation",
+     "name": "GPU-инстансинг растительности",
+     "score": 0.4259,
+     "n_games": 1
+    }
+   ]
+  },
+  {
+   "code": "save_system",
+   "name": "Система сохранений",
+   "category": "Прогресс и данные",
+   "n_methods_catalog": 2,
+   "n_games_rec": 0,
+   "n_games_impl": 1,
+   "n_distinct_recommended": 0,
+   "hit_rate": 0.0,
+   "top1_code": null,
+   "top1_name": "",
+   "top1_share": 0.0,
+   "jaccard": null,
+   "spread": 0.0,
+   "best_score": 0.0,
+   "top3": []
+  }
+ ],
+ "relations": {
+  "n_declared": 20,
+  "n_pairs_possible": 6105,
+  "coverage_pct": 0.328,
+  "by_type": {
+   "alternative": 1,
+   "complement": 9,
+   "risk": 9,
+   "unknown": 1
+  },
+  "hubs": [
+   {
+    "code": "hardware_raytraced_gi",
+    "name": "Глобальное освещение на аппаратной трассировке лучей",
+    "n": 4
+   },
+   {
+    "code": "lightmap_atlas_baking",
+    "name": "Запекание освещения в лайтмапы",
+    "n": 2
+   },
+   {
+    "code": "skeletal_2d_deform",
+    "name": "Скелетная 2D-анимация вместо покадровой",
+    "n": 2
+   },
+   {
+    "code": "agent_update_budget",
+    "name": "Распределение бюджета обновлений агентов",
+    "n": 2
+   },
+   {
+    "code": "cascaded_shadow_maps",
+    "name": "Каскадные карты теней",
+    "n": 1
+   },
+   {
+    "code": "distance_field_shadows",
+    "name": "Тени на дистанционных полях (SDF)",
+    "n": 1
+   },
+   {
+    "code": "gpu_particle_simulation",
+    "name": "Симуляция частиц на GPU",
+    "n": 1
+   },
+   {
+    "code": "particle_pooling",
+    "name": "Пулинг систем частиц",
+    "n": 1
+   }
+  ],
+  "observed": [
+   {
+    "a": "lightmap_atlas_baking",
+    "b": "hardware_raytraced_gi",
+    "type": "alternative",
+    "severity": 3,
+    "description": "Условная альтернатива для одной области освещения: запечённый свет и полностью динамическое освещение решают одну задачу разными способами. Смешанная сцена допустима — статичные объекты могут оставаться запечёнными, поэтому универсального запрета пара не образует.",
+    "both": 1,
+    "either": 5,
+    "share_both_of_either": 0.2
+   },
+   {
+    "a": "cascaded_shadow_maps",
+    "b": "distance_field_shadows",
+    "type": "complement",
+    "severity": 1,
+    "description": "В Unreal Engine каскадные карты могут обслуживать ближнюю область, а Distance Field Shadows — область за пределом дистанции каскадов. Совместимость зависит от выбранного пути рендера; снижение стоимости не гарантируется.",
+    "both": 0,
+    "either": 1,
+    "share_both_of_either": 0.0
+   },
+   {
+    "a": "gpu_particle_simulation",
+    "b": "particle_pooling",
+    "type": "complement",
+    "severity": 1,
+    "description": "CPU-пулинг и GPU-симуляция затрагивают разную работу: пулинг устраняет аллокации при создании систем, симуляция переносит расчёт на GPU. Абстрактные скидки не перемножаются.",
+    "both": 1,
+    "either": 7,
+    "share_both_of_either": 0.14
+   },
+   {
+    "a": "lightmap_2d_baking",
+    "b": "post_effect_selective",
+    "type": "complement",
+    "severity": 1,
+    "description": "Освещение и постобработка — независимые проходы: каждый учитывается своей стоимостью. Дополнительного бонуса только от совместного выбора нет.",
+    "both": 0,
+    "either": 6,
+    "share_both_of_either": 0.0
+   },
+   {
+    "a": "network_relevancy_priority",
+    "b": "delta_compression_state",
+    "type": "complement",
+    "severity": 1,
+    "description": "Relevancy и дельта-кодирование уменьшают разные части трафика: первое сокращает набор передаваемых объектов, второе — размер каждого обновления. Нужна единая модель набора и байтов; сравнение и упаковка добавляют CPU.",
+    "both": 0,
+    "either": 0,
+    "share_both_of_either": null
+   },
+   {
+    "a": "pso_precaching_warmup",
+    "b": "async_loading_pipeline",
+    "type": "complement",
+    "severity": 1,
+    "description": "Оба решения уменьшают разные источники пауз: прогрев устраняет компиляцию шейдеров, асинхронная загрузка — ожидание чтения. Ни одно из них не гарантирует отсутствия всех пауз и не даёт постоянного бонуса FPS.",
+    "both": 0,
+    "either": 6,
+    "share_both_of_either": 0.0
+   },
+   {
+    "a": "quality_tier_scalability",
+    "b": "hardware_raytraced_gi",
+    "type": "complement",
+    "severity": 1,
+    "description": "Scalability выбирает реальный набор настроек, а не удешевляет уже рассчитанную трассировку: отдельной скидки к стоимости RT только от наличия тиров нет.",
+    "both": 0,
+    "either": 2,
+    "share_both_of_either": 0.0
+   },
+   {
+    "a": "skeletal_2d_deform",
+    "b": "sprite_atlas_batching",
+    "type": "complement",
+    "severity": 1,
+    "description": "Атлас повышает эффективность батчинга скелетной 2D-анимации, но не является обязательным условием: скелетная анимация работает и без общего атласа, просто с большим числом вызовов отрисовки.",
+    "both": 0,
+    "either": 0,
+    "share_both_of_either": null
+   },
+   {
+    "a": "temporal_upscaling",
+    "b": "hardware_raytraced_gi",
+    "type": "complement",
+    "severity": 2,
+    "description": "Upscaler, denoiser и ray reconstruction — разные проходы со своей стоимостью. Совместимость апскейлера с трассировкой не даёт ещё одной скидки поверх стоимости реконструкции.",
+    "both": 2,
+    "either": 9,
+    "share_both_of_either": 0.22
+   },
+   {
+    "a": "virtual_texturing",
+    "b": "heightmap_compression",
+    "type": "complement",
+    "severity": 1,
+    "description": "Совместимые форматы тайлов дополняют виртуальное текстурирование: сжатие повышает эффективность кэша и снижает трафик подкачки. Выигрыш зависит от формата, размера кэша и стоимости декодирования и не даётся автоматически.",
+    "both": 0,
+    "either": 2,
+    "share_both_of_either": 0.0
+   },
+   {
+    "a": "agent_update_budget",
+    "b": "crowd_instancing_impostors",
+    "type": "risk",
+    "severity": 1,
+    "description": "Снижение частоты обновления дальних агентов совместимо с их упрощённой отрисовкой, но независимость экономии AI и рендера внутри одной группы не доказана: заметность задержки требует проверки.",
+    "both": 0,
+    "either": 3,
+    "share_both_of_either": 0.0
+   },
+   {
+    "a": "crowd_2d_instancing",
+    "b": "agent_update_budget",
+    "type": "risk",
+    "severity": 1,
+    "description": "Батчинг и расписание AI — разные виды работы. Не доказано, что снижение частоты обновления агентов всегда остаётся незаметным при массовой отрисовке одним батчем.",
+    "both": 0,
+    "either": 3,
+    "share_both_of_either": 0.0
+   },
+   {
+    "a": "deterministic_lockstep",
+    "b": "multithreaded_physics_jobs",
+    "type": "risk",
+    "severity": 3,
+    "description": "Параллельная физика требует детерминированного порядка и математики: иначе результат зависит от планировщика и lockstep расходится. Проблема условная, а не запрет всех многопоточных реализаций физики.",
+    "both": 1,
+    "either": 11,
+    "share_both_of_either": 0.09
+   },
+   {
+    "a": "gpu_procedural_placement",
+    "b": "lightmap_atlas_baking",
+    "type": "risk",
+    "severity": 2,
+    "description": "Запечённые данные существуют только для заранее известной геометрии, поэтому размещаемые в рантайме объекты остаются без лайтмапа. Ограничение распространяется на процедурную часть сцены: остальные объекты могут оставаться запечёнными.",
+    "both": 0,
+    "either": 8,
+    "share_both_of_either": 0.0
+   },
+   {
+    "a": "ml_frame_generation",
+    "b": "client_prediction_reconciliation",
+    "type": "risk",
+    "severity": 2,
+    "description": "Генерация кадров добавляет задержку и может давать визуальные артефакты при пересборке состояния. Генерация и предсказание не являются универсально несовместимыми алгоритмами.",
+    "both": 1,
+    "either": 5,
+    "share_both_of_either": 0.2
+   },
+   {
+    "a": "motion_matching",
+    "b": "animation_compression",
+    "type": "risk",
+    "severity": 2,
+    "description": "Риск относится к конкретной степени сжатия: искажённые позы ухудшают точность поиска в базе движений. Универсальной несовместимости motion matching и сжатия анимаций нет.",
+    "both": 0,
+    "either": 2,
+    "share_both_of_either": 0.0
+   },
+   {
+    "a": "skeletal_2d_deform",
+    "b": "sprite_sheet_compression",
+    "type": "risk",
+    "severity": 1,
+    "description": "Риск качества при конкретном сжатии: потери заметнее на деформируемых частях тела, чем на готовых кадрах покадровой анимации. Это не несовместимость скелетной анимации и сжатия как таковых.",
+    "both": 0,
+    "either": 0,
+    "share_both_of_either": null
+   },
+   {
+    "a": "static_shadow_caching",
+    "b": "hardware_raytraced_gi",
+    "type": "risk",
+    "severity": 2,
+    "description": "Кэш теней рассчитан на неизменное освещение, а трассировка пересчитывает его заново: выигрыш кэша зависит от доли статичных источников. Разные виды света и теней могут сосуществовать, поэтому запрета пара не образует.",
+    "both": 0,
+    "either": 2,
+    "share_both_of_either": 0.0
+   },
+   {
+    "a": "tiled_clustered_light_culling",
+    "b": "depth_prepass_early_z",
+    "type": "risk",
+    "severity": 2,
+    "description": "Часть алгоритмов light culling использует вход глубины, но обязательный полный depth pre-pass для всей категории не требуется: это условие конкретной реализации, а не свойство подхода.",
+    "both": 0,
+    "either": 2,
+    "share_both_of_either": 0.0
+   },
+   {
+    "a": "planar_reflection_budget",
+    "b": "screen_space_gi",
+    "type": "unknown",
+    "severity": 1,
+    "description": "Экранное GI — непрямое освещение, а не экранные отражения (SSR): утверждение, будто экранное GI уже считает плоские отражения, ошибочно. Запрета пара не образует, но совместная стоимость двух проходов не подтверждена измерением отдельно.",
+    "both": 0,
+    "either": 6,
+    "share_both_of_either": 0.0
+   }
+  ]
+ },
+ "footprint": {
+  "n_pairs_with_shared_resource": 4363,
+  "n_declared_overlap": 18,
+  "contention_top": [
+   {
+    "a": "async_incremental_saves",
+    "b": "tilemap_chunk_streaming",
+    "a_name": "Асинхронные инкрементальные автосейвы",
+    "b_name": "Чанковая подгрузка тайловой карты",
+    "shared": [
+     "cpu",
+     "ram",
+     "disk"
+    ],
+    "contention": 3,
+    "synergy": 0,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "async_incremental_saves",
+    "b": "world_partition_streaming",
+    "a_name": "Асинхронные инкрементальные автосейвы",
+    "b_name": "Разбиение мира на ячейки с потоковой загрузкой",
+    "shared": [
+     "cpu",
+     "ram",
+     "disk"
+    ],
+    "contention": 3,
+    "synergy": 0,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "destruction_geometry_cache",
+    "b": "hierarchical_lod",
+    "a_name": "Запечённые кэши разрушений",
+    "b_name": "Иерархические LOD (HLOD)",
+    "shared": [
+     "cpu",
+     "ram",
+     "vram",
+     "disk"
+    ],
+    "contention": 3,
+    "synergy": 1,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "sdf_global_illumination",
+    "b": "splitscreen_render_budget",
+    "a_name": "Глобальное освещение на дистанционных полях (SDF)",
+    "b_name": "Бюджетирование split-screen",
+    "shared": [
+     "gpu",
+     "ram",
+     "vram"
+    ],
+    "contention": 3,
+    "synergy": 0,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "sdf_global_illumination",
+    "b": "virtual_shadow_maps",
+    "a_name": "Глобальное освещение на дистанционных полях (SDF)",
+    "b_name": "Виртуальные карты теней (VSM)",
+    "shared": [
+     "gpu",
+     "ram",
+     "vram"
+    ],
+    "contention": 3,
+    "synergy": 0,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "sdf_global_illumination",
+    "b": "voxel_cone_tracing",
+    "a_name": "Глобальное освещение на дистанционных полях (SDF)",
+    "b_name": "Воксельный конусный трейсинг",
+    "shared": [
+     "gpu",
+     "ram",
+     "vram"
+    ],
+    "contention": 3,
+    "synergy": 0,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "splitscreen_render_budget",
+    "b": "virtual_shadow_maps",
+    "a_name": "Бюджетирование split-screen",
+    "b_name": "Виртуальные карты теней (VSM)",
+    "shared": [
+     "gpu",
+     "ram",
+     "vram"
+    ],
+    "contention": 3,
+    "synergy": 0,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "splitscreen_render_budget",
+    "b": "voxel_cone_tracing",
+    "a_name": "Бюджетирование split-screen",
+    "b_name": "Воксельный конусный трейсинг",
+    "shared": [
+     "gpu",
+     "ram",
+     "vram"
+    ],
+    "contention": 3,
+    "synergy": 0,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "tilemap_chunk_streaming",
+    "b": "world_partition_streaming",
+    "a_name": "Чанковая подгрузка тайловой карты",
+    "b_name": "Разбиение мира на ячейки с потоковой загрузкой",
+    "shared": [
+     "cpu",
+     "ram",
+     "disk"
+    ],
+    "contention": 3,
+    "synergy": 0,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "virtual_shadow_maps",
+    "b": "voxel_cone_tracing",
+    "a_name": "Виртуальные карты теней (VSM)",
+    "b_name": "Воксельный конусный трейсинг",
+    "shared": [
+     "gpu",
+     "ram",
+     "vram"
+    ],
+    "contention": 3,
+    "synergy": 0,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "async_incremental_saves",
+    "b": "async_loading_pipeline",
+    "a_name": "Асинхронные инкрементальные автосейвы",
+    "b_name": "Асинхронная загрузка без блокировки кадра",
+    "shared": [
+     "cpu",
+     "disk"
+    ],
+    "contention": 2,
+    "synergy": 0,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "async_incremental_saves",
+    "b": "baked_occlusion_culling",
+    "a_name": "Асинхронные инкрементальные автосейвы",
+    "b_name": "Запечённое отсечение по окклюзии",
+    "shared": [
+     "cpu",
+     "ram",
+     "disk"
+    ],
+    "contention": 2,
+    "synergy": 0,
+    "offset": 1,
+    "declared": false
+   }
+  ],
+  "synergy_top": [
+   {
+    "a": "crowd_instancing_impostors",
+    "b": "lightmap_atlas_baking",
+    "a_name": "Инстансинг и импосторы для толпы",
+    "b_name": "Запекание освещения в лайтмапы",
+    "shared": [
+     "cpu",
+     "gpu",
+     "vram"
+    ],
+    "contention": 0,
+    "synergy": 3,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "crowd_instancing_impostors",
+    "b": "terrain_clipmap",
+    "a_name": "Инстансинг и импосторы для толпы",
+    "b_name": "Клипмап / CDLOD ландшафта",
+    "shared": [
+     "cpu",
+     "gpu",
+     "vram"
+    ],
+    "contention": 0,
+    "synergy": 3,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "headless_dedicated_server",
+    "b": "terrain_clipmap",
+    "a_name": "Выделенный сервер без графики",
+    "b_name": "Клипмап / CDLOD ландшафта",
+    "shared": [
+     "cpu",
+     "gpu",
+     "ram"
+    ],
+    "contention": 0,
+    "synergy": 3,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "headless_dedicated_server",
+    "b": "virtual_geometry_clusters",
+    "a_name": "Выделенный сервер без графики",
+    "b_name": "Виртуализированная геометрия (кластеризованный LOD)",
+    "shared": [
+     "cpu",
+     "gpu",
+     "ram"
+    ],
+    "contention": 0,
+    "synergy": 3,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "heightmap_compression",
+    "b": "neural_texture_compression",
+    "a_name": "Сжатие карт высот и материалов ландшафта",
+    "b_name": "Нейросжатие текстур",
+    "shared": [
+     "ram",
+     "vram",
+     "disk"
+    ],
+    "contention": 0,
+    "synergy": 3,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "heightmap_compression",
+    "b": "skeletal_2d_deform",
+    "a_name": "Сжатие карт высот и материалов ландшафта",
+    "b_name": "Скелетная 2D-анимация вместо покадровой",
+    "shared": [
+     "cpu",
+     "ram",
+     "vram",
+     "disk"
+    ],
+    "contention": 1,
+    "synergy": 3,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "heightmap_compression",
+    "b": "sprite_sheet_compression",
+    "a_name": "Сжатие карт высот и материалов ландшафта",
+    "b_name": "Сжатие листов спрайтов и мип-уровни",
+    "shared": [
+     "ram",
+     "vram",
+     "disk"
+    ],
+    "contention": 0,
+    "synergy": 3,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "lightmap_atlas_baking",
+    "b": "terrain_clipmap",
+    "a_name": "Запекание освещения в лайтмапы",
+    "b_name": "Клипмап / CDLOD ландшафта",
+    "shared": [
+     "cpu",
+     "gpu",
+     "ram",
+     "vram"
+    ],
+    "contention": 0,
+    "synergy": 3,
+    "offset": 1,
+    "declared": false
+   },
+   {
+    "a": "neural_texture_compression",
+    "b": "skeletal_2d_deform",
+    "a_name": "Нейросжатие текстур",
+    "b_name": "Скелетная 2D-анимация вместо покадровой",
+    "shared": [
+     "ram",
+     "vram",
+     "disk"
+    ],
+    "contention": 0,
+    "synergy": 3,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "neural_texture_compression",
+    "b": "sprite_sheet_compression",
+    "a_name": "Нейросжатие текстур",
+    "b_name": "Сжатие листов спрайтов и мип-уровни",
+    "shared": [
+     "ram",
+     "vram",
+     "disk"
+    ],
+    "contention": 0,
+    "synergy": 3,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "normal_bake_retopology_pipeline",
+    "b": "vegetation_atlas_lod",
+    "a_name": "Запекание нормалей и ретопология",
+    "b_name": "Атласы и запечённые LOD растительности",
+    "shared": [
+     "gpu",
+     "vram",
+     "disk"
+    ],
+    "contention": 0,
+    "synergy": 3,
+    "offset": 0,
+    "declared": false
+   },
+   {
+    "a": "skeletal_2d_deform",
+    "b": "sprite_sheet_compression",
+    "a_name": "Скелетная 2D-анимация вместо покадровой",
+    "b_name": "Сжатие листов спрайтов и мип-уровни",
+    "shared": [
+     "ram",
+     "vram",
+     "disk"
+    ],
+    "contention": 0,
+    "synergy": 3,
+    "offset": 0,
+    "declared": true
+   }
+  ]
+ },
+ "cooccurrence": {
+  "n_methods_used": 72,
+  "n_pairs_observed": 733,
+  "top": [
+   {
+    "a": "composition_bootstrap_architecture",
+    "b": "rt_effect_resolution_budget",
+    "a_name": "Композиционный каркас проекта",
+    "b_name": "Половинное разрешение и кэш трассировочных эффектов",
+    "n": 8,
+    "declared": false
+   },
+   {
+    "a": "rt_effect_resolution_budget",
+    "b": "selective_ray_traced_effects",
+    "a_name": "Половинное разрешение и кэш трассировочных эффектов",
+    "b_name": "Выборочная трассировка отдельных эффектов",
+    "n": 8,
+    "declared": false
+   },
+   {
+    "a": "composition_bootstrap_architecture",
+    "b": "dynamic_light_priority_budget",
+    "a_name": "Композиционный каркас проекта",
+    "b_name": "Приоритезация и бюджет динамических источников",
+    "n": 7,
+    "declared": false
+   },
+   {
+    "a": "composition_bootstrap_architecture",
+    "b": "gerstner_fft_water",
+    "a_name": "Композиционный каркас проекта",
+    "b_name": "Волны Герстнера и FFT на GPU",
+    "n": 7,
+    "declared": false
+   },
+   {
+    "a": "froxel_volumetric_fog",
+    "b": "gerstner_fft_water",
+    "a_name": "Объёмный туман на froxel-сетке",
+    "b_name": "Волны Герстнера и FFT на GPU",
+    "n": 6,
+    "declared": false
+   },
+   {
+    "a": "composition_bootstrap_architecture",
+    "b": "multithreaded_physics_jobs",
+    "a_name": "Композиционный каркас проекта",
+    "b_name": "Многопоточная физика на системе задач",
+    "n": 6,
+    "declared": false
+   },
+   {
+    "a": "hierarchical_lod",
+    "b": "mesh_index_optimization",
+    "a_name": "Иерархические LOD (HLOD)",
+    "b_name": "Оптимизация индексов меша (vertex cache / overdraw)",
+    "n": 6,
+    "declared": false
+   },
+   {
+    "a": "rt_effect_resolution_budget",
+    "b": "temporal_upscaling",
+    "a_name": "Половинное разрешение и кэш трассировочных эффектов",
+    "b_name": "Временное масштабирование изображения",
+    "n": 6,
+    "declared": false
+   },
+   {
+    "a": "behaviour_tree_update_budget",
+    "b": "gerstner_fft_water",
+    "a_name": "Деревья поведений с бюджетом обновления",
+    "b_name": "Волны Герстнера и FFT на GPU",
+    "n": 5,
+    "declared": false
+   },
+   {
+    "a": "composition_bootstrap_architecture",
+    "b": "froxel_volumetric_fog",
+    "a_name": "Композиционный каркас проекта",
+    "b_name": "Объёмный туман на froxel-сетке",
+    "n": 5,
+    "declared": false
+   },
+   {
+    "a": "selective_ray_traced_effects",
+    "b": "temporal_upscaling",
+    "a_name": "Выборочная трассировка отдельных эффектов",
+    "b_name": "Временное масштабирование изображения",
+    "n": 5,
+    "declared": false
+   },
+   {
+    "a": "composition_bootstrap_architecture",
+    "b": "temporal_upscaling",
+    "a_name": "Композиционный каркас проекта",
+    "b_name": "Временное масштабирование изображения",
+    "n": 5,
+    "declared": false
+   },
+   {
+    "a": "gerstner_fft_water",
+    "b": "rt_effect_resolution_budget",
+    "a_name": "Волны Герстнера и FFT на GPU",
+    "b_name": "Половинное разрешение и кэш трассировочных эффектов",
+    "n": 4,
+    "declared": false
+   },
+   {
+    "a": "composition_bootstrap_architecture",
+    "b": "headless_dedicated_server",
+    "a_name": "Композиционный каркас проекта",
+    "b_name": "Выделенный сервер без графики",
+    "n": 4,
+    "declared": false
+   },
+   {
+    "a": "composition_bootstrap_architecture",
+    "b": "time_sliced_pathfinding",
+    "a_name": "Композиционный каркас проекта",
+    "b_name": "Поиск пути с распределением по кадрам",
+    "n": 4,
+    "declared": false
+   }
+  ],
+  "most_used": [
+   {
+    "code": "composition_bootstrap_architecture",
+    "name": "Композиционный каркас проекта",
+    "n_games": 25
+   },
+   {
+    "code": "rt_effect_resolution_budget",
+    "name": "Половинное разрешение и кэш трассировочных эффектов",
+    "n_games": 16
+   },
+   {
+    "code": "gerstner_fft_water",
+    "name": "Волны Герстнера и FFT на GPU",
+    "n_games": 13
+   },
+   {
+    "code": "dynamic_light_priority_budget",
+    "name": "Приоритезация и бюджет динамических источников",
+    "n_games": 12
+   },
+   {
+    "code": "froxel_volumetric_fog",
+    "name": "Объёмный туман на froxel-сетке",
+    "n_games": 10
+   },
+   {
+    "code": "raycast_vehicle_physics",
+    "name": "Физика транспорта на рейкастах подвески",
+    "n_games": 10
+   },
+   {
+    "code": "multithreaded_physics_jobs",
+    "name": "Многопоточная физика на системе задач",
+    "n_games": 9
+   },
+   {
+    "code": "destruction_geometry_cache",
+    "name": "Запечённые кэши разрушений",
+    "n_games": 9
+   },
+   {
+    "code": "temporal_upscaling",
+    "name": "Временное масштабирование изображения",
+    "n_games": 9
+   },
+   {
+    "code": "selective_ray_traced_effects",
+    "name": "Выборочная трассировка отдельных эффектов",
+    "n_games": 8
+   },
+   {
+    "code": "managed_gc_alloc_budget",
+    "name": "Нулевой бюджет аллокаций в горячем цикле",
+    "n_games": 7
+   },
+   {
+    "code": "deferred_forward_plus_choice",
+    "name": "Выбор архитектуры рендера (deferred / forward+)",
+    "n_games": 6
+   },
+   {
+    "code": "planar_reflection_budget",
+    "name": "Бюджет плоских отражений",
+    "n_games": 6
+   },
+   {
+    "code": "headless_dedicated_server",
+    "name": "Выделенный сервер без графики",
+    "n_games": 6
+   },
+   {
+    "code": "hierarchical_lod",
+    "name": "Иерархические LOD (HLOD)",
+    "n_games": 6
+   }
+  ]
+ },
+ "association": [
+  {
+   "code": "selective_ray_traced_effects",
+   "name": "Выборочная трассировка отдельных эффектов",
+   "n_games": 8,
+   "d_cpu_index": {
+    "with": -0.024,
+    "without": -0.0167,
+    "diff": -0.0073
+   },
+   "d_gpu_index": {
+    "with": -0.1379,
+    "without": -0.0204,
+    "diff": -0.1176
+   },
+   "d_ram_gb": {
+    "with": 0.2,
+    "without": 0.0776,
+    "diff": 0.1224
+   },
+   "d_vram_gb": {
+    "with": 0.8375,
+    "without": 0.1879,
+    "diff": 0.6496
+   }
+  },
+  {
+   "code": "temporal_upscaling",
+   "name": "Временное масштабирование изображения",
+   "n_games": 9,
+   "d_cpu_index": {
+    "with": -0.0246,
+    "without": -0.0167,
+    "diff": -0.0079
+   },
+   "d_gpu_index": {
+    "with": -0.1099,
+    "without": -0.0204,
+    "diff": -0.0895
+   },
+   "d_ram_gb": {
+    "with": 0.3222,
+    "without": 0.0776,
+    "diff": 0.2446
+   },
+   "d_vram_gb": {
+    "with": 0.9667,
+    "without": 0.1879,
+    "diff": 0.7787
+   }
+  },
+  {
+   "code": "multithreaded_physics_jobs",
+   "name": "Многопоточная физика на системе задач",
+   "n_games": 9,
+   "d_cpu_index": {
+    "with": -0.0356,
+    "without": -0.0167,
+    "diff": -0.019
+   },
+   "d_gpu_index": {
+    "with": -0.0841,
+    "without": -0.0204,
+    "diff": -0.0637
+   },
+   "d_ram_gb": {
+    "with": 0.0667,
+    "without": 0.0776,
+    "diff": -0.0109
+   },
+   "d_vram_gb": {
+    "with": 0.5111,
+    "without": 0.1879,
+    "diff": 0.3232
+   }
+  },
+  {
+   "code": "rt_effect_resolution_budget",
+   "name": "Половинное разрешение и кэш трассировочных эффектов",
+   "n_games": 16,
+   "d_cpu_index": {
+    "with": -0.0277,
+    "without": -0.0167,
+    "diff": -0.011
+   },
+   "d_gpu_index": {
+    "with": -0.0694,
+    "without": -0.0204,
+    "diff": -0.049
+   },
+   "d_ram_gb": {
+    "with": 0.2062,
+    "without": 0.0776,
+    "diff": 0.1287
+   },
+   "d_vram_gb": {
+    "with": 0.5812,
+    "without": 0.1879,
+    "diff": 0.3933
+   }
+  },
+  {
+   "code": "hierarchical_lod",
+   "name": "Иерархические LOD (HLOD)",
+   "n_games": 6,
+   "d_cpu_index": {
+    "with": -0.0423,
+    "without": -0.0167,
+    "diff": -0.0257
+   },
+   "d_gpu_index": {
+    "with": -0.0498,
+    "without": -0.0204,
+    "diff": -0.0294
+   },
+   "d_ram_gb": {
+    "with": 0.3,
+    "without": 0.0776,
+    "diff": 0.2224
+   },
+   "d_vram_gb": {
+    "with": 0.3167,
+    "without": 0.1879,
+    "diff": 0.1287
+   }
+  },
+  {
+   "code": "mesh_index_optimization",
+   "name": "Оптимизация индексов меша (vertex cache / overdraw)",
+   "n_games": 6,
+   "d_cpu_index": {
+    "with": -0.0423,
+    "without": -0.0167,
+    "diff": -0.0257
+   },
+   "d_gpu_index": {
+    "with": -0.0498,
+    "without": -0.0204,
+    "diff": -0.0294
+   },
+   "d_ram_gb": {
+    "with": 0.3,
+    "without": 0.0776,
+    "diff": 0.2224
+   },
+   "d_vram_gb": {
+    "with": 0.3167,
+    "without": 0.1879,
+    "diff": 0.1287
+   }
+  },
+  {
+   "code": "froxel_volumetric_fog",
+   "name": "Объёмный туман на froxel-сетке",
+   "n_games": 10,
+   "d_cpu_index": {
+    "with": -0.0146,
+    "without": -0.0167,
+    "diff": 0.002
+   },
+   "d_gpu_index": {
+    "with": 0.0044,
+    "without": -0.0204,
+    "diff": 0.0247
+   },
+   "d_ram_gb": {
+    "with": 0.03,
+    "without": 0.0776,
+    "diff": -0.0476
+   },
+   "d_vram_gb": {
+    "with": 0.19,
+    "without": 0.1879,
+    "diff": 0.0021
+   }
+  },
+  {
+   "code": "behaviour_tree_update_budget",
+   "name": "Деревья поведений с бюджетом обновления",
+   "n_games": 5,
+   "d_cpu_index": {
+    "with": -0.0369,
+    "without": -0.0167,
+    "diff": -0.0203
+   },
+   "d_gpu_index": {
+    "with": 0.004,
+    "without": -0.0204,
+    "diff": 0.0244
+   },
+   "d_ram_gb": {
+    "with": 0.24,
+    "without": 0.0776,
+    "diff": 0.1624
+   },
+   "d_vram_gb": {
+    "with": 0.22,
+    "without": 0.1879,
+    "diff": 0.0321
+   }
+  },
+  {
+   "code": "managed_gc_alloc_budget",
+   "name": "Нулевой бюджет аллокаций в горячем цикле",
+   "n_games": 7,
+   "d_cpu_index": {
+    "with": -0.036,
+    "without": -0.0167,
+    "diff": -0.0194
+   },
+   "d_gpu_index": {
+    "with": 0.0004,
+    "without": -0.0204,
+    "diff": 0.0207
+   },
+   "d_ram_gb": {
+    "with": 0.0857,
+    "without": 0.0776,
+    "diff": 0.0081
+   },
+   "d_vram_gb": {
+    "with": 0.3857,
+    "without": 0.1879,
+    "diff": 0.1978
+   }
+  },
+  {
+   "code": "tickrate_budgeting",
+   "name": "Бюджетирование серверного тикрейта",
+   "n_games": 5,
+   "d_cpu_index": {
+    "with": 0.0135,
+    "without": -0.0167,
+    "diff": 0.0302
+   },
+   "d_gpu_index": {
+    "with": -0.0008,
+    "without": -0.0204,
+    "diff": 0.0196
+   },
+   "d_ram_gb": {
+    "with": -0.14,
+    "without": 0.0776,
+    "diff": -0.2176
+   },
+   "d_vram_gb": {
+    "with": 0.08,
+    "without": 0.1879,
+    "diff": -0.1079
+   }
+  },
+  {
+   "code": "headless_dedicated_server",
+   "name": "Выделенный сервер без графики",
+   "n_games": 6,
+   "d_cpu_index": {
+    "with": -0.0281,
+    "without": -0.0167,
+    "diff": -0.0115
+   },
+   "d_gpu_index": {
+    "with": -0.0032,
+    "without": -0.0204,
+    "diff": 0.0172
+   },
+   "d_ram_gb": {
+    "with": 0.05,
+    "without": 0.0776,
+    "diff": -0.0276
+   },
+   "d_vram_gb": {
+    "with": 0.1167,
+    "without": 0.1879,
+    "diff": -0.0713
+   }
+  },
+  {
+   "code": "async_loading_pipeline",
+   "name": "Асинхронная загрузка без блокировки кадра",
+   "n_games": 5,
+   "d_cpu_index": {
+    "with": -0.0413,
+    "without": -0.0167,
+    "diff": -0.0246
+   },
+   "d_gpu_index": {
+    "with": -0.0376,
+    "without": -0.0204,
+    "diff": -0.0172
+   },
+   "d_ram_gb": {
+    "with": 0.52,
+    "without": 0.0776,
+    "diff": 0.4424
+   },
+   "d_vram_gb": {
+    "with": 0.46,
+    "without": 0.1879,
+    "diff": 0.2721
+   }
+  },
+  {
+   "code": "gerstner_fft_water",
+   "name": "Волны Герстнера и FFT на GPU",
+   "n_games": 13,
+   "d_cpu_index": {
+    "with": -0.0361,
+    "without": -0.0167,
+    "diff": -0.0195
+   },
+   "d_gpu_index": {
+    "with": -0.0363,
+    "without": -0.0204,
+    "diff": -0.0159
+   },
+   "d_ram_gb": {
+    "with": 0.2,
+    "without": 0.0776,
+    "diff": 0.1224
+   },
+   "d_vram_gb": {
+    "with": 0.3846,
+    "without": 0.1879,
+    "diff": 0.1967
+   }
+  },
+  {
+   "code": "deferred_forward_plus_choice",
+   "name": "Выбор архитектуры рендера (deferred / forward+)",
+   "n_games": 6,
+   "d_cpu_index": {
+    "with": -0.0311,
+    "without": -0.0167,
+    "diff": -0.0144
+   },
+   "d_gpu_index": {
+    "with": -0.0048,
+    "without": -0.0204,
+    "diff": 0.0155
+   },
+   "d_ram_gb": {
+    "with": 0.05,
+    "without": 0.0776,
+    "diff": -0.0276
+   },
+   "d_vram_gb": {
+    "with": 0.1333,
+    "without": 0.1879,
+    "diff": -0.0546
+   }
+  },
+  {
+   "code": "gpu_particle_simulation",
+   "name": "Симуляция частиц на GPU",
+   "n_games": 5,
+   "d_cpu_index": {
+    "with": -0.03,
+    "without": -0.0167,
+    "diff": -0.0134
+   },
+   "d_gpu_index": {
+    "with": -0.0068,
+    "without": -0.0204,
+    "diff": 0.0136
+   },
+   "d_ram_gb": {
+    "with": 0.2,
+    "without": 0.0776,
+    "diff": 0.1224
+   },
+   "d_vram_gb": {
+    "with": 0.1,
+    "without": 0.1879,
+    "diff": -0.0879
+   }
+  },
+  {
+   "code": "composition_bootstrap_architecture",
+   "name": "Композиционный каркас проекта",
+   "n_games": 25,
+   "d_cpu_index": {
+    "with": -0.0177,
+    "without": -0.0167,
+    "diff": -0.0011
+   },
+   "d_gpu_index": {
+    "with": -0.0318,
+    "without": -0.0204,
+    "diff": -0.0115
+   },
+   "d_ram_gb": {
+    "with": 0.068,
+    "without": 0.0776,
+    "diff": -0.0096
+   },
+   "d_vram_gb": {
+    "with": 0.236,
+    "without": 0.1879,
+    "diff": 0.0481
+   }
+  },
+  {
+   "code": "post_effect_selective",
+   "name": "Выборочное применение экранных эффектов",
+   "n_games": 6,
+   "d_cpu_index": {
+    "with": -0.0272,
+    "without": -0.0167,
+    "diff": -0.0106
+   },
+   "d_gpu_index": {
+    "with": -0.0103,
+    "without": -0.0204,
+    "diff": 0.01
+   },
+   "d_ram_gb": {
+    "with": 0.0833,
+    "without": 0.0776,
+    "diff": 0.0057
+   },
+   "d_vram_gb": {
+    "with": -0.1167,
+    "without": 0.1879,
+    "diff": -0.3046
+   }
+  },
+  {
+   "code": "baked_occlusion_culling",
+   "name": "Запечённое отсечение по окклюзии",
+   "n_games": 5,
+   "d_cpu_index": {
+    "with": -0.0347,
+    "without": -0.0167,
+    "diff": -0.018
+   },
+   "d_gpu_index": {
+    "with": -0.0104,
+    "without": -0.0204,
+    "diff": 0.0099
+   },
+   "d_ram_gb": {
+    "with": 0.3,
+    "without": 0.0776,
+    "diff": 0.2224
+   },
+   "d_vram_gb": {
+    "with": 0.2,
+    "without": 0.1879,
+    "diff": 0.0121
+   }
+  },
+  {
+   "code": "destruction_geometry_cache",
+   "name": "Запечённые кэши разрушений",
+   "n_games": 9,
+   "d_cpu_index": {
+    "with": -0.0074,
+    "without": -0.0167,
+    "diff": 0.0093
+   },
+   "d_gpu_index": {
+    "with": -0.0119,
+    "without": -0.0204,
+    "diff": 0.0085
+   },
+   "d_ram_gb": {
+    "with": 0.0667,
+    "without": 0.0776,
+    "diff": -0.0109
+   },
+   "d_vram_gb": {
+    "with": 0.2667,
+    "without": 0.1879,
+    "diff": 0.0787
+   }
+  },
+  {
+   "code": "planar_reflection_budget",
+   "name": "Бюджет плоских отражений",
+   "n_games": 6,
+   "d_cpu_index": {
+    "with": -0.0033,
+    "without": -0.0167,
+    "diff": 0.0133
+   },
+   "d_gpu_index": {
+    "with": -0.0181,
+    "without": -0.0204,
+    "diff": 0.0023
+   },
+   "d_ram_gb": {
+    "with": 0.35,
+    "without": 0.0776,
+    "diff": 0.2724
+   },
+   "d_vram_gb": {
+    "with": 0.7333,
+    "without": 0.1879,
+    "diff": 0.5454
+   }
+  },
+  {
+   "code": "raycast_vehicle_physics",
+   "name": "Физика транспорта на рейкастах подвески",
+   "n_games": 10,
+   "d_cpu_index": {
+    "with": -0.0109,
+    "without": -0.0167,
+    "diff": 0.0058
+   },
+   "d_gpu_index": {
+    "with": -0.0222,
+    "without": -0.0204,
+    "diff": -0.0018
+   },
+   "d_ram_gb": {
+    "with": 0.11,
+    "without": 0.0776,
+    "diff": 0.0324
+   },
+   "d_vram_gb": {
+    "with": 0.06,
+    "without": 0.1879,
+    "diff": -0.1279
+   }
+  },
+  {
+   "code": "dynamic_light_priority_budget",
+   "name": "Приоритезация и бюджет динамических источников",
+   "n_games": 12,
+   "d_cpu_index": {
+    "with": -0.0206,
+    "without": -0.0167,
+    "diff": -0.004
+   },
+   "d_gpu_index": {
+    "with": -0.0187,
+    "without": -0.0204,
+    "diff": 0.0017
+   },
+   "d_ram_gb": {
+    "with": 0.2167,
+    "without": 0.0776,
+    "diff": 0.1391
+   },
+   "d_vram_gb": {
+    "with": 0.35,
+    "without": 0.1879,
+    "diff": 0.1621
+   }
+  }
+ ]
+}

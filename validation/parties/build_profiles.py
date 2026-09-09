@@ -1,5 +1,12 @@
 """Сборка профилей ProjectProfile для всех игр партий 01-11.
 
+Решения из партий сначала проходят отбор по технической значимости
+(`tech_scope`): монетизация, дата выхода, сюжетные развилки и число концовок
+в расчёт не попадают, а геймплейные решения, задающие технические требования
+(разрушаемость, масштаб мира, число NPC, мультиплеер), — попадают. Покрытие
+каталога считается по отобранным техническим решениям, иначе в знаменателе
+оказываются решения, которые база знаний не описывает по своей области.
+
 Выход: validation/parties/profiles.json
 """
 
@@ -15,6 +22,7 @@ ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
 from method_map import match_methods  # noqa: E402
+from tech_scope import classify  # noqa: E402
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -284,9 +292,20 @@ def main() -> None:
         obj = map_level(g["levels_raw"], 0)
         npc = map_level(g["levels_raw"], 1)
         funcs = derive_functions(g, world, scale)
-        basket, unmatched = [], []
+        basket, unmatched, excluded, review = [], [], [], []
         matched_decisions = 0
+        n_technical = 0
         for m in g["methods"]:
+            decision = classify(m["code"], m.get("impl") or "")
+            if not decision.technical:
+                # Нетехническое решение не попадает ни в корзину, ни в
+                # знаменатель покрытия, но и не исчезает: 이유 видна в отчёте.
+                if decision.scope == "non_technical":
+                    excluded.append({"code": m["code"], "category": decision.category})
+                else:
+                    review.append({"code": m["code"]})
+                continue
+            n_technical += 1
             hits = match_methods(m["code"], m["impl"])
             if hits:
                 basket.extend(hits)
@@ -330,10 +349,17 @@ def main() -> None:
                 "hw": g["hw"],
                 "profile": profile,
                 "basket": basket,
+                # Все решения, записанные в партии.
                 "n_decisions": len(g["methods"]),
+                # Технические решения: знаменатель покрытия каталога.
+                "n_technical": n_technical,
+                "n_excluded": len(excluded),
+                "n_review": len(review),
                 "n_matched": len(set(basket)),
                 "n_decisions_matched": matched_decisions,
                 "unmatched": unmatched,
+                "excluded": excluded,
+                "review": review,
             }
         )
     (HERE / "profiles.json").write_text(
@@ -342,7 +368,11 @@ def main() -> None:
     print(f"профилей: {len(profiles)}")
     tot_m = sum(p["n_matched"] for p in profiles)
     tot_d = sum(p["n_decisions"] for p in profiles)
-    print(f"решений всего: {tot_d}, сопоставлено с каталогом: {tot_m}")
+    tot_t = sum(p["n_technical"] for p in profiles)
+    tot_e = sum(p["n_excluded"] for p in profiles)
+    tot_r = sum(p["n_review"] for p in profiles)
+    print(f"решений всего: {tot_d}; технических: {tot_t}; "
+          f"исключено: {tot_e}; на разбор: {tot_r}; сопоставлено с каталогом: {tot_m}")
     for p in profiles:
         print(
             f"  {p['id']} {p['title'][:38:]:40s} {p['engine_dss']:10s} "

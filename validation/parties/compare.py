@@ -139,10 +139,19 @@ def main() -> None:
                 "load_vram": (load or {}).get("vram"),
                 "non_client": len(eb.get("non_client_methods") or []) if eb.get("non_client_methods") else 0,
                 # --- инженерные решения ---
+                # Покрытие считается по техническим решениям: монетизация,
+                # дата выхода, сюжетные развилки и концовки в знаменателе
+                # означали бы «пробел каталога» там, где его нет.
                 "n_decisions": r["n_decisions"],
+                "n_technical": r.get("n_technical", r["n_decisions"]),
+                "n_excluded": r.get("n_excluded", 0),
+                "n_review": r.get("n_review", 0),
                 "n_matched": r["n_matched"],
                 "n_decisions_matched": n_dm,
-                "coverage": round(100.0 * n_dm / r["n_decisions"], 1) if r["n_decisions"] else 0.0,
+                "coverage": (
+                    round(100.0 * n_dm / r["n_technical"], 1)
+                    if r.get("n_technical") else 0.0
+                ),
                 "basket_size": len(basket),
                 "n_recs": len(recs),
                 "top10": top10,

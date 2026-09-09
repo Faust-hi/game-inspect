@@ -54,13 +54,18 @@
    "fixed_timestep_physics"
   ],
   "n_decisions": 6,
+  "n_technical": 6,
+  "n_excluded": 0,
+  "n_review": 0,
   "n_matched": 4,
   "n_decisions_matched": 3,
   "unmatched": [
    "runtime_stencil_portal_rendering",
    "portal_momentum_conservation",
    "audio_propagation_through_portals"
-  ]
+  ],
+  "excluded": [],
+  "review": []
  },
  {
   "id": "p01-02",
@@ -124,12 +129,17 @@
    "tiled_clustered_light_culling"
   ],
   "n_decisions": 8,
+  "n_technical": 8,
+  "n_excluded": 0,
+  "n_review": 0,
   "n_matched": 10,
   "n_decisions_matched": 6,
   "unmatched": [
    "excursion_funnel_force_field",
    "audio_convolution_reverb"
-  ]
+  ],
+  "excluded": [],
+  "review": []
  },
  {
   "id": "p01-03",
@@ -191,13 +201,18 @@
    "physics_lod_sleeping"
   ],
   "n_decisions": 9,
+  "n_technical": 9,
+  "n_excluded": 0,
+  "n_review": 0,
   "n_matched": 8,
   "n_decisions_matched": 6,
   "unmatched": [
    "physics_gun_constraints",
    "find_in_sphere_hot_path_avoid",
    "wiremod_visual_programming"
-  ]
+  ],
+  "excluded": [],
+  "review": []
  },
  {
   "id": "p01-04",
@@ -262,12 +277,22 @@
    "post_effect_selective"
   ],
   "n_decisions": 8,
+  "n_technical": 7,
+  "n_excluded": 1,
+  "n_review": 0,
   "n_matched": 9,
-  "n_decisions_matched": 6,
+  "n_decisions_matched": 5,
   "unmatched": [
    "multiplayer_progression_unlock",
    "killstreak_server_logic"
-  ]
+  ],
+  "excluded": [
+   {
+    "code": "perk_system_categorization",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": []
  },
  {
   "id": "p01-05",
@@ -328,6 +353,9 @@
    "time_sliced_pathfinding"
   ],
   "n_decisions": 11,
+  "n_technical": 10,
+  "n_excluded": 1,
+  "n_review": 0,
   "n_matched": 5,
   "n_decisions_matched": 4,
   "unmatched": [
@@ -336,9 +364,15 @@
    "one_unit_per_tile_combat",
    "ai_four_layer_hierarchy",
    "ai_flavor_personality_matrix",
-   "procedural_resource_generation",
-   "voice_acting_native_languages"
-  ]
+   "procedural_resource_generation"
+  ],
+  "excluded": [
+   {
+    "code": "voice_acting_native_languages",
+    "category": "музыка, озвучение, локализация"
+   }
+  ],
+  "review": []
  },
  {
   "id": "p01-06",
@@ -401,13 +435,18 @@
    "particle_pooling"
   ],
   "n_decisions": 8,
+  "n_technical": 8,
+  "n_excluded": 0,
+  "n_review": 0,
   "n_matched": 7,
   "n_decisions_matched": 5,
   "unmatched": [
    "dismemberment_physics",
    "audio_flux_field_recording",
    "material_bullet_penetration"
-  ]
+  ],
+  "excluded": [],
+  "review": []
  },
  {
   "id": "p01-07",
@@ -472,11 +511,19 @@
    "temporal_upscaling"
   ],
   "n_decisions": 9,
+  "n_technical": 8,
+  "n_excluded": 1,
+  "n_review": 0,
   "n_matched": 8,
   "n_decisions_matched": 8,
-  "unmatched": [
-   "branching_narrative_state_graph"
-  ]
+  "unmatched": [],
+  "excluded": [
+   {
+    "code": "branching_narrative_state_graph",
+    "category": "сюжет и концовки"
+   }
+  ],
+  "review": []
  },
  {
   "id": "p01-08",
@@ -542,6 +589,9 @@
    "mesh_index_optimization"
   ],
   "n_decisions": 11,
+  "n_technical": 11,
+  "n_excluded": 0,
+  "n_review": 0,
   "n_matched": 9,
   "n_decisions_matched": 6,
   "unmatched": [
@@ -550,7 +600,9 @@
    "level_scaling_enemies",
    "specular_mapping_materials",
    "horse_armor_microtransaction"
-  ]
+  ],
+  "excluded": [],
+  "review": []
  },
  {
   "id": "p01-09",
@@ -605,18 +657,33 @@
   "basket": [
    "froxel_volumetric_fog",
    "gpu_particle_simulation",
-   "motion_matching",
    "post_effect_selective"
   ],
   "n_decisions": 8,
-  "n_matched": 4,
-  "n_decisions_matched": 4,
+  "n_technical": 5,
+  "n_excluded": 3,
+  "n_review": 0,
+  "n_matched": 3,
+  "n_decisions_matched": 3,
   "unmatched": [
    "garry_point_stealth_anchor",
-   "boss_fight_pattern_reuse",
-   "collectible_driven_exploration",
    "cape_animation_700_states"
-  ]
+  ],
+  "excluded": [
+   {
+    "code": "freeflow_combat_3button",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "boss_fight_pattern_reuse",
+    "category": "реакция и продвижение"
+   },
+   {
+    "code": "collectible_driven_exploration",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": []
  },
  {
   "id": "p01-10",
@@ -688,15 +755,24 @@
    "world_partition_streaming"
   ],
   "n_decisions": 14,
+  "n_technical": 13,
+  "n_excluded": 1,
+  "n_review": 0,
   "n_matched": 14,
   "n_decisions_matched": 9,
   "unmatched": [
    "server_authoritative_state",
    "controller_first_ui",
    "cross_platform_play",
-   "job_armory_system",
-   "active_time_event_fate"
-  ]
+   "job_armory_system"
+  ],
+  "excluded": [
+   {
+    "code": "active_time_event_fate",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": []
  },
  {
   "id": "p02-11",
@@ -764,19 +840,34 @@
    "time_sliced_pathfinding"
   ],
   "n_decisions": 17,
+  "n_technical": 14,
+  "n_excluded": 3,
+  "n_review": 0,
   "n_matched": 11,
   "n_decisions_matched": 8,
   "unmatched": [
    "substance_material_system",
    "superman_gravity_gun_fix",
    "procedural_facial_animation_via_chris",
-   "combined_action_puzzle_structure",
    "dispatchable_strider_combat",
    "provokable_ai (antlion, barnacle)",
-   "full_voice_acting_3_party",
-   "steam_preload_distribution",
-   "steam_required_drm"
-  ]
+   "steam_preload_distribution"
+  ],
+  "excluded": [
+   {
+    "code": "combined_action_puzzle_structure",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "full_voice_acting_3_party",
+    "category": "музыка, озвучение, локализация"
+   },
+   {
+    "code": "steam_required_drm",
+    "category": "дата выхода и издание"
+   }
+  ],
+  "review": []
  },
  {
   "id": "p02-12",
@@ -834,6 +925,9 @@
    "dynamic_light_priority_budget"
   ],
   "n_decisions": 9,
+  "n_technical": 8,
+  "n_excluded": 1,
+  "n_review": 0,
   "n_matched": 3,
   "n_decisions_matched": 3,
   "unmatched": [
@@ -841,9 +935,15 @@
    "gravity_gun_first_weapon",
    "enemy_tactics_ai_upgrade",
    "phong_fresnel_spec_alys",
-   "integrated_tutorial_in_narrative",
    "script_driven_companion_cover"
-  ]
+  ],
+  "excluded": [
+   {
+    "code": "integrated_tutorial_in_narrative",
+    "category": "сюжет и концовки"
+   }
+  ],
+  "review": []
  },
  {
   "id": "p02-13",
@@ -897,19 +997,36 @@
   },
   "basket": [],
   "n_decisions": 10,
+  "n_technical": 6,
+  "n_excluded": 2,
+  "n_review": 2,
   "n_matched": 0,
   "n_decisions_matched": 0,
   "unmatched": [
    "open_world_sections",
    "advanced_vehicle_chase",
    "magnusson_device_sticky_bomb",
-   "hunter_new_enemy",
    "improved_alyx_animations",
    "physics_puzzle_bridge",
-   "vortigaunt_healing_ritual",
-   "white_forest_rocket_finale",
-   "cliif_hanger_cliffhanger_death",
    "gnome_chompski_easter_egg"
+  ],
+  "excluded": [
+   {
+    "code": "hunter_new_enemy",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "cliif_hanger_cliffhanger_death",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "vortigaunt_healing_ritual"
+   },
+   {
+    "code": "white_forest_rocket_finale"
+   }
   ]
  },
  {
@@ -967,6 +1084,9 @@
    "planar_reflection_budget"
   ],
   "n_decisions": 10,
+  "n_technical": 10,
+  "n_excluded": 0,
+  "n_review": 0,
   "n_matched": 3,
   "n_decisions_matched": 3,
   "unmatched": [
@@ -977,7 +1097,9 @@
    "max_64_players",
    "source_engine_2006_transition",
    "source_engine_2013_mp_transition"
-  ]
+  ],
+  "excluded": [],
+  "review": []
  },
  {
   "id": "p02-15",
@@ -1038,11 +1160,12 @@
    "normal_bake_retopology_pipeline"
   ],
   "n_decisions": 21,
+  "n_technical": 18,
+  "n_excluded": 3,
+  "n_review": 0,
   "n_matched": 6,
-  "n_decisions_matched": 7,
+  "n_decisions_matched": 6,
   "unmatched": [
-   "procedural_narrative",
-   "music_director_client_side",
    "physics_based_hair_clothing",
    "leaning_curved_paths",
    "advanced_shadow_rendering",
@@ -1055,7 +1178,22 @@
    "tutorial_movie_preference",
    "up_to_4_player_coop",
    "versus_8_player"
-  ]
+  ],
+  "excluded": [
+   {
+    "code": "procedural_narrative",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "music_director_client_side",
+    "category": "музыка, озвучение, локализация"
+   },
+   {
+    "code": "survival_mode_2009_dlc",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": []
  },
  {
   "id": "p02-16",
@@ -1118,20 +1256,46 @@
    "rt_effect_resolution_budget"
   ],
   "n_decisions": 16,
+  "n_technical": 9,
+  "n_excluded": 5,
+  "n_review": 2,
   "n_matched": 6,
   "n_decisions_matched": 5,
   "unmatched": [
-   "director_encourages_longer_paths",
-   "uncommon_infected_per_campaign",
-   "three_new_special_infected",
-   "melee_weapon_system",
-   "four_tier_weapon_system",
    "houdini_water_flow_maps",
-   "new_realism_mode",
    "flashlight_attraction_mechanic",
-   "scavenge_mode_4v4",
    "expanded_mutation_system_2013",
    "mac_cross_play_2010"
+  ],
+  "excluded": [
+   {
+    "code": "director_encourages_longer_paths",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "uncommon_infected_per_campaign",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "melee_weapon_system",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "four_tier_weapon_system",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "new_realism_mode",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "three_new_special_infected"
+   },
+   {
+    "code": "scavenge_mode_4v4"
+   }
   ]
  },
  {
@@ -1186,28 +1350,67 @@
   "basket": [
    "composition_bootstrap_architecture",
    "gpu_procedural_placement",
-   "rt_effect_resolution_budget",
    "tickrate_budgeting"
   ],
   "n_decisions": 20,
-  "n_matched": 4,
-  "n_decisions_matched": 5,
+  "n_technical": 8,
+  "n_excluded": 8,
+  "n_review": 4,
+  "n_matched": 3,
+  "n_decisions_matched": 4,
   "unmatched": [
    "weapon_recoil_patterns_unique",
-   "glicko_rating_competitive",
    "valve_anti_cheat",
-   "prime_matchmaking_2016",
-   "trust_factor_2017",
-   "economy_based_on_rounds",
    "source_engine_2_transition",
-   "f2p_transition_2018",
-   "danger_zone_battle_royale",
-   "operations_system",
-   "music_kits_2014",
-   "glove_skins_2016",
-   "china_localization_2017",
-   "keys_untradeable_2019",
-   "loot_box_ban_belgium_netherlands_2018"
+   "danger_zone_battle_royale"
+  ],
+  "excluded": [
+   {
+    "code": "prime_matchmaking_2016",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "economy_based_on_rounds",
+    "category": "монетизация"
+   },
+   {
+    "code": "f2p_transition_2018",
+    "category": "монетизация"
+   },
+   {
+    "code": "music_kits_2014",
+    "category": "музыка, озвучение, локализация"
+   },
+   {
+    "code": "glove_skins_2016",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "china_localization_2017",
+    "category": "музыка, озвучение, локализация"
+   },
+   {
+    "code": "keys_untradeable_2019",
+    "category": "монетизация"
+   },
+   {
+    "code": "loot_box_ban_belgium_netherlands_2018",
+    "category": "монетизация"
+   }
+  ],
+  "review": [
+   {
+    "code": "port_then_full_game"
+   },
+   {
+    "code": "glicko_rating_competitive"
+   },
+   {
+    "code": "trust_factor_2017"
+   },
+   {
+    "code": "operations_system"
+   }
   ]
  },
  {
@@ -1262,23 +1465,49 @@
    "network_topology": "dedicated",
    "priority": "balanced"
   },
-  "basket": [
-   "rt_effect_resolution_budget"
-  ],
+  "basket": [],
   "n_decisions": 11,
-  "n_matched": 1,
-  "n_decisions_matched": 1,
+  "n_technical": 3,
+  "n_excluded": 4,
+  "n_review": 4,
+  "n_matched": 0,
+  "n_decisions_matched": 0,
   "unmatched": [
-   "interconnected_world_no_warping",
-   "bonfire_checkpoint_system",
-   "humanity_online_state",
    "covenant_faction_system",
    "bloodstain_player_messages",
-   "invasion_asymmetric_multiplayer",
-   "soul_currency_xp",
-   "parry_riposte_system",
-   "stats_vit_end_str_dex_int_fth",
-   "magic_attunement_slots"
+   "invasion_asymmetric_multiplayer"
+  ],
+  "excluded": [
+   {
+    "code": "interconnected_world_no_warping",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "bonfire_checkpoint_system",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "soul_currency_xp",
+    "category": "монетизация"
+   },
+   {
+    "code": "weapon_art_two_hand",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "humanity_online_state"
+   },
+   {
+    "code": "parry_riposte_system"
+   },
+   {
+    "code": "stats_vit_end_str_dex_int_fth"
+   },
+   {
+    "code": "magic_attunement_slots"
+   }
   ]
  },
  {
@@ -1336,18 +1565,35 @@
    "navmesh_tiling_streaming"
   ],
   "n_decisions": 11,
+  "n_technical": 7,
+  "n_excluded": 2,
+  "n_review": 2,
   "n_matched": 2,
   "n_decisions_matched": 2,
   "unmatched": [
-   "hollowing_hp_penalty",
    "expanded_ng_plus",
-   "new_enemy_positions_sotfs",
    "mtx_frame_rate_bug",
    "dx11_renderer_sotfs",
    "six_player_multiplayer_sotfs",
-   "durability_rework",
-   "covenant_of_the_dark",
-   "bonfire_aesthetics_expanded"
+   "durability_rework"
+  ],
+  "excluded": [
+   {
+    "code": "hollowing_hp_penalty",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "new_enemy_positions_sotfs",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "covenant_of_the_dark"
+   },
+   {
+    "code": "bonfire_aesthetics_expanded"
+   }
   ]
  },
  {
@@ -1404,19 +1650,43 @@
   },
   "basket": [],
   "n_decisions": 10,
+  "n_technical": 3,
+  "n_excluded": 3,
+  "n_review": 4,
   "n_matched": 0,
   "n_decisions_matched": 0,
   "unmatched": [
-   "weapon_skills_fp_consumption",
-   "faster_combat_post_bloodborne",
-   "estus_split_healing_fp",
    "larger_zones_fewer_count",
-   "boss_intensity_step_up",
-   "embered_form",
-   "soul_transposition",
    "integrated_multiplayer_scaling",
-   "color_grading_per_area",
-   "ashen_estus_ashen_flask"
+   "color_grading_per_area"
+  ],
+  "excluded": [
+   {
+    "code": "weapon_skills_fp_consumption",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "faster_combat_post_bloodborne",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "soul_transposition",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "estus_split_healing_fp"
+   },
+   {
+    "code": "boss_intensity_step_up"
+   },
+   {
+    "code": "embered_form"
+   },
+   {
+    "code": "ashen_estus_ashen_flask"
+   }
   ]
  },
  {
@@ -1472,21 +1742,47 @@
    "rt_effect_resolution_budget"
   ],
   "n_decisions": 13,
+  "n_technical": 5,
+  "n_excluded": 3,
+  "n_review": 5,
   "n_matched": 1,
   "n_decisions_matched": 1,
   "unmatched": [
-   "posture_combat_system",
-   "deflect_parry_timing",
-   "resurrection_on_death_limit",
    "prosthetic_arm_tools",
-   "grappling_hook_verticality",
    "stealth_kill_instant",
-   "no_character_creation_no_stats",
    "midboss_telegraph",
-   "tenchu_inspiration",
-   "no_online_multiplayer",
-   "japanese_setting_sengoku",
-   "free_update_october_2020"
+   "no_online_multiplayer"
+  ],
+  "excluded": [
+   {
+    "code": "posture_combat_system",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "deflect_parry_timing",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "resurrection_on_death_limit",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "grappling_hook_verticality"
+   },
+   {
+    "code": "no_character_creation_no_stats"
+   },
+   {
+    "code": "tenchu_inspiration"
+   },
+   {
+    "code": "japanese_setting_sengoku"
+   },
+   {
+    "code": "free_update_october_2020"
+   }
   ]
  },
  {
@@ -1552,19 +1848,37 @@
    "tilemap_chunk_streaming"
   ],
   "n_decisions": 15,
+  "n_technical": 11,
+  "n_excluded": 3,
+  "n_review": 1,
   "n_matched": 7,
   "n_decisions_matched": 5,
   "unmatched": [
-   "sites_of_grace_checkpoints",
    "ashes_of_war_weapon_mods",
    "spirit_summon_ash",
    "crafting_cookbooks",
    "stealth_mechanic_sekiro_influence",
-   "grrm_martin_worldbuilding",
-   "ffrk_jrpg_influences",
    "open_world_boss_design",
-   "first_fromsoftware_open_world",
-   "tarnished_edition_switch2"
+   "first_fromsoftware_open_world"
+  ],
+  "excluded": [
+   {
+    "code": "sites_of_grace_checkpoints",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "grrm_martin_worldbuilding",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "tarnished_edition_switch2",
+    "category": "монетизация"
+   }
+  ],
+  "review": [
+   {
+    "code": "ffrk_jrpg_influences"
+   }
   ]
  },
  {
@@ -1619,20 +1933,54 @@
   },
   "basket": [],
   "n_decisions": 11,
+  "n_technical": 1,
+  "n_excluded": 7,
+  "n_review": 3,
   "n_matched": 0,
   "n_decisions_matched": 0,
   "unmatched": [
-   "mech_assembly_4_weapons",
-   "weight_energy_constraints",
-   "arena_puzzle_meta_combat",
-   "no_debt_system",
-   "new_game_plus_2_more",
-   "ranked_matchmaking_added",
-   "light_mech_focus",
-   "ac_assembly_tweaking",
-   "dark_old_scifi_atmosphere",
-   "rubicon_3_planet_setting",
-   "story_branches_choice"
+   "light_mech_focus"
+  ],
+  "excluded": [
+   {
+    "code": "mech_assembly_4_weapons",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "weight_energy_constraints",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "arena_puzzle_meta_combat",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "new_game_plus_2_more",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "ranked_matchmaking_added",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "dark_old_scifi_atmosphere",
+    "category": "музыка, озвучение, локализация"
+   },
+   {
+    "code": "story_branches_choice",
+    "category": "сюжет и концовки"
+   }
+  ],
+  "review": [
+   {
+    "code": "no_debt_system"
+   },
+   {
+    "code": "ac_assembly_tweaking"
+   },
+   {
+    "code": "rubicon_3_planet_setting"
+   }
   ]
  },
  {
@@ -1689,23 +2037,47 @@
   },
   "basket": [
    "agent_update_budget",
-   "gpu_particle_simulation",
-   "motion_matching"
+   "gpu_particle_simulation"
   ],
   "n_decisions": 14,
-  "n_matched": 3,
-  "n_decisions_matched": 4,
+  "n_technical": 7,
+  "n_excluded": 3,
+  "n_review": 4,
+  "n_matched": 2,
+  "n_decisions_matched": 3,
   "unmatched": [
    "paris_1_to_1_scale",
-   "black_box_mission_design",
-   "cafe_theatre_upgrade_economy",
    "coop_mission_4p",
-   "hair_works_fur",
-   "day_night_cycle_paris",
    "procedural_paris_buildings",
-   "weather_time_anomalies",
-   "c ++ _c_sharp_codebase",
    "noshader_optimization"
+  ],
+  "excluded": [
+   {
+    "code": "black_box_mission_design",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "free_run_up_down_commands",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "cafe_theatre_upgrade_economy",
+    "category": "монетизация"
+   }
+  ],
+  "review": [
+   {
+    "code": "hair_works_fur"
+   },
+   {
+    "code": "day_night_cycle_paris"
+   },
+   {
+    "code": "weather_time_anomalies"
+   },
+   {
+    "code": "c ++ _c_sharp_codebase"
+   }
   ]
  },
  {
@@ -1762,26 +2134,53 @@
    "priority": "balanced"
   },
   "basket": [
-   "data_driven_ability_system",
    "gerstner_fft_water",
    "raycast_vehicle_physics",
    "terrain_generation_streaming_budget"
   ],
   "n_decisions": 15,
-  "n_matched": 4,
-  "n_decisions_matched": 4,
+  "n_technical": 7,
+  "n_excluded": 4,
+  "n_review": 4,
+  "n_matched": 3,
+  "n_decisions_matched": 3,
   "unmatched": [
    "hitbox_combat_system",
-   "eagle_senu_companion",
-   "level_recommendation_areas",
    "procedural_side_quests",
    "engwe_sensua_animations",
-   "dynamic_schedule_npcs",
-   "compass_replaces_minimap",
-   "crafting_resources",
-   "loots_boxes_limited_in_game",
-   "boss_phylakes_high_level",
-   "taming_predators"
+   "dynamic_schedule_npcs"
+  ],
+  "excluded": [
+   {
+    "code": "skill_tree_three_branches",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "compass_replaces_minimap",
+    "category": "монетизация"
+   },
+   {
+    "code": "crafting_resources",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "loots_boxes_limited_in_game",
+    "category": "монетизация"
+   }
+  ],
+  "review": [
+   {
+    "code": "eagle_senu_companion"
+   },
+   {
+    "code": "level_recommendation_areas"
+   },
+   {
+    "code": "boss_phylakes_high_level"
+   },
+   {
+    "code": "taming_predators"
+   }
   ]
  },
  {
@@ -1840,24 +2239,60 @@
    "navmesh_tiling_streaming"
   ],
   "n_decisions": 16,
+  "n_technical": 5,
+  "n_excluded": 7,
+  "n_review": 4,
   "n_matched": 1,
   "n_decisions_matched": 1,
   "unmatched": [
-   "dialogue_choice_system",
-   "two_protagonist_choose",
-   "hitbox_combat_refined",
-   "no_shield_blocking",
-   "faster_adrenaline_accumulation",
    "mercenary_nemesis_system",
    "conquest_battles_athens_sparta",
    "bounty_system",
-   "naval_combat_revamped",
-   "eisosphinx_creatures",
-   "isu_artifacts_lake_dweller",
-   "eagle_ikaros_companion",
-   "first_assassins_creed_with_choices",
-   "inspired_by_witcher3",
    "procedurally_generated_quests"
+  ],
+  "excluded": [
+   {
+    "code": "dialogue_choice_system",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "two_protagonist_choose",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "hitbox_combat_refined",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "no_shield_blocking",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "naval_combat_revamped",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "isu_artifacts_lake_dweller",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "first_assassins_creed_with_choices",
+    "category": "сюжет и концовки"
+   }
+  ],
+  "review": [
+   {
+    "code": "faster_adrenaline_accumulation"
+   },
+   {
+    "code": "eisosphinx_creatures"
+   },
+   {
+    "code": "eagle_ikaros_companion"
+   },
+   {
+    "code": "inspired_by_witcher3"
+   }
   ]
  },
  {
@@ -1916,25 +2351,57 @@
    "npc_perception_budget"
   ],
   "n_decisions": 17,
+  "n_technical": 7,
+  "n_excluded": 5,
+  "n_review": 5,
   "n_matched": 2,
   "n_decisions_matched": 1,
   "unmatched": [
-   "settlement_building_management",
-   "dual_wielding_any_weapon",
-   "flyting_rap_battles",
-   "orlog_dice_game",
    "raids_smaller_engagements",
    "jomsviking_shared_npc",
-   "raven_synin_scout",
    "difficulty_power_scaled",
    "assault_bigger_breach",
-   "river_raids_dlc",
-   "guaranteed_assassinate_option",
-   "eivor_oddin_reincarnation",
-   "eight_runic_skills_melee_ranged",
    "day_night_doesnt_affect_mission",
-   "inspired_by_god_of_war_but_historically_grounded",
    "no_more_animus_modern_day"
+  ],
+  "excluded": [
+   {
+    "code": "settlement_building_management",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "dual_wielding_any_weapon",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "eivor_oddin_reincarnation",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "eight_runic_skills_melee_ranged",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "inspired_by_god_of_war_but_historically_grounded",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "flyting_rap_battles"
+   },
+   {
+    "code": "orlog_dice_game"
+   },
+   {
+    "code": "raven_synin_scout"
+   },
+   {
+    "code": "river_raids_dlc"
+   },
+   {
+    "code": "guaranteed_assassinate_option"
+   }
   ]
  },
  {
@@ -1988,24 +2455,52 @@
    "priority": "balanced"
   },
   "basket": [
-   "headless_dedicated_server",
-   "rt_effect_resolution_budget"
+   "headless_dedicated_server"
   ],
   "n_decisions": 14,
-  "n_matched": 2,
-  "n_decisions_matched": 3,
+  "n_technical": 5,
+  "n_excluded": 3,
+  "n_review": 6,
+  "n_matched": 1,
+  "n_decisions_matched": 2,
   "unmatched": [
    "weight_weapon_feel",
-   "faction_war_meta_game",
-   "hero_archetypes_4_classes",
-   "gear_score_arcade_2018",
-   "orlog_dice_minigame",
-   "faction_war_persistent_meta",
-   "39_unique_heroes",
-   "sifu_style_guard_break",
    "external_animations_5000",
-   "ubisoft_for_honor_post_launch",
    "4k_60fps_next_gen_update"
+  ],
+  "excluded": [
+   {
+    "code": "art_of_battle_combat",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "hero_archetypes_4_classes",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "gear_score_arcade_2018",
+    "category": "музыка, озвучение, локализация"
+   }
+  ],
+  "review": [
+   {
+    "code": "faction_war_meta_game"
+   },
+   {
+    "code": "orlog_dice_minigame"
+   },
+   {
+    "code": "faction_war_persistent_meta"
+   },
+   {
+    "code": "39_unique_heroes"
+   },
+   {
+    "code": "sifu_style_guard_break"
+   },
+   {
+    "code": "ubisoft_for_honor_post_launch"
+   }
   ]
  },
  {
@@ -2073,25 +2568,57 @@
    "dynamic_light_priority_budget",
    "froxel_volumetric_fog",
    "gerstner_fft_water",
-   "gpu_instancing_vegetation",
    "time_sliced_pathfinding"
   ],
   "n_decisions": 20,
-  "n_matched": 8,
-  "n_decisions_matched": 8,
+  "n_technical": 11,
+  "n_excluded": 7,
+  "n_review": 2,
+  "n_matched": 7,
+  "n_decisions_matched": 7,
   "unmatched": [
    "radiant_quest_system",
    "dual_wielding_weapon_and_spell",
-   "dragon_shouts_fus_ro_dah",
-   "procedural_side_quests",
-   "dragon_encounter_random",
    "ttwm_world_map",
-   "dialogue_facial_animation_FACS",
-   "150_dungeons_handcrafted",
-   "244_quests_300_locations",
-   "radiant_story_orchestrator",
-   "compass_redesign",
-   "blacksmith_tree_forge_breakdown"
+   "dialogue_facial_animation_FACS"
+  ],
+  "excluded": [
+   {
+    "code": "wind_weighted_trees_branches",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "procedural_side_quests",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "150_dungeons_handcrafted",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "244_quests_300_locations",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "radiant_story_orchestrator",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "compass_redesign",
+    "category": "монетизация"
+   },
+   {
+    "code": "blacksmith_tree_forge_breakdown",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "dragon_shouts_fus_ro_dah"
+   },
+   {
+    "code": "dragon_encounter_random"
+   }
   ]
  },
  {
@@ -2154,21 +2681,54 @@
    "temporal_upscaling"
   ],
   "n_decisions": 20,
+  "n_technical": 9,
+  "n_excluded": 4,
+  "n_review": 7,
   "n_matched": 8,
   "n_decisions_matched": 8,
   "unmatched": [
-   "gun_gameplay_id_software_help",
-   "freeform_face_sculpting",
-   "layered_armor_system",
-   "700_weapon_modifications",
-   "deep_crafting_system",
-   "settlement_building_anywhere",
-   "electric_power_grid_settlements",
-   "fully_voiced_protagonist_first_time",
-   "vat_s_real_time_pause",
-   "wet_surfaces_material",
-   "filmic_tone_mapping",
-   "first_fallout_with_mods_on_console"
+   "wet_surfaces_material"
+  ],
+  "excluded": [
+   {
+    "code": "gun_gameplay_id_software_help",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "700_weapon_modifications",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "deep_crafting_system",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "fully_voiced_protagonist_first_time",
+    "category": "сюжет и концовки"
+   }
+  ],
+  "review": [
+   {
+    "code": "freeform_face_sculpting"
+   },
+   {
+    "code": "layered_armor_system"
+   },
+   {
+    "code": "settlement_building_anywhere"
+   },
+   {
+    "code": "electric_power_grid_settlements"
+   },
+   {
+    "code": "vat_s_real_time_pause"
+   },
+   {
+    "code": "filmic_tone_mapping"
+   },
+   {
+    "code": "first_fallout_with_mods_on_console"
+   }
   ]
  },
  {
@@ -2226,26 +2786,58 @@
    "rt_effect_resolution_budget"
   ],
   "n_decisions": 20,
+  "n_technical": 10,
+  "n_excluded": 5,
+  "n_review": 5,
   "n_matched": 3,
   "n_decisions_matched": 3,
   "unmatched": [
    "creation_engine_multiplayer",
    "quake_netcode_retrofit",
    "no_human_npcs_initially",
-   "scavenger_enemies",
-   "camp_anywhere_mobile",
-   "nuclear_missile_silos",
-   "atoms_microtransaction",
    "fallout_1st_subscription",
-   "canvas_bag_controversy",
    "data_breach_2018",
-   "wendigo_loot_duplication_bug",
    "later_npc_humans_wastelanders",
-   "steel_dawn_brotherhood_questline",
-   "expeditions_the_pitt",
-   "skyline_valley_2024",
-   "burning_springs_2025",
    "prime_membership"
+  ],
+  "excluded": [
+   {
+    "code": "scavenger_enemies",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "atoms_microtransaction",
+    "category": "монетизация"
+   },
+   {
+    "code": "canvas_bag_controversy",
+    "category": "реакция и продвижение"
+   },
+   {
+    "code": "wendigo_loot_duplication_bug",
+    "category": "монетизация"
+   },
+   {
+    "code": "steel_dawn_brotherhood_questline",
+    "category": "сюжет и концовки"
+   }
+  ],
+  "review": [
+   {
+    "code": "camp_anywhere_mobile"
+   },
+   {
+    "code": "nuclear_missile_silos"
+   },
+   {
+    "code": "expeditions_the_pitt"
+   },
+   {
+    "code": "skyline_valley_2024"
+   },
+   {
+    "code": "burning_springs_2025"
+   }
   ]
  },
  {
@@ -2310,28 +2902,69 @@
    "world_partition_streaming"
   ],
   "n_decisions": 29,
+  "n_technical": 15,
+  "n_excluded": 5,
+  "n_review": 9,
   "n_matched": 8,
-  "n_decisions_matched": 10,
+  "n_decisions_matched": 9,
   "unmatched": [
    "creation_engine_2_first_game",
-   "nasa_punk_aesthetic",
-   "1000_planets_landable",
    "ship_to_ship_combat",
-   "zero_g_combat",
-   "contraband_smuggling",
-   "outpost_construction_isometric",
-   "scan_resource_detection",
    "ng_plus_branching",
-   "id_software_graphics_help",
    "fov_slider_added_late",
-   "directstorage_support",
    "procedurally_generated_loadouts",
-   "nasa_punk_factions",
-   "negative_steam_reviews",
-   "shattered_space_dlc_2024",
-   "free_lanes_update_2026",
-   "terran_armada_dlc_2026",
-   "ps5_release_2026"
+   "free_lanes_update_2026"
+  ],
+  "excluded": [
+   {
+    "code": "zero_g_combat",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "negative_steam_reviews",
+    "category": "реакция и продвижение"
+   },
+   {
+    "code": "shattered_space_dlc_2024",
+    "category": "монетизация"
+   },
+   {
+    "code": "terran_armada_dlc_2026",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "ps5_release_2026",
+    "category": "дата выхода и издание"
+   }
+  ],
+  "review": [
+   {
+    "code": "nasa_punk_aesthetic"
+   },
+   {
+    "code": "1000_planets_landable"
+   },
+   {
+    "code": "contraband_smuggling"
+   },
+   {
+    "code": "outpost_construction_isometric"
+   },
+   {
+    "code": "scan_resource_detection"
+   },
+   {
+    "code": "id_software_graphics_help"
+   },
+   {
+    "code": "directstorage_support"
+   },
+   {
+    "code": "no_real_seamless_space"
+   },
+   {
+    "code": "nasa_punk_factions"
+   }
   ]
  },
  {
@@ -2393,21 +3026,54 @@
    "raycast_vehicle_physics"
   ],
   "n_decisions": 16,
+  "n_technical": 5,
+  "n_excluded": 4,
+  "n_review": 7,
   "n_matched": 4,
   "n_decisions_matched": 4,
   "unmatched": [
-   "cover_system",
-   "mobile_phone_ui",
-   "tv_internet_system",
-   "respect_system_friends",
-   "morality_choices",
-   "subway_travel",
-   "100000_photos_new_york",
-   "four_boroughs_hd_universe",
-   "win_release_extra_dev",
-   "custom_music_station_pc",
-   "multiplayer_32_players",
-   "Games_for_Windows_Live"
+   "multiplayer_32_players"
+  ],
+  "excluded": [
+   {
+    "code": "respect_system_friends",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "morality_choices",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "100000_photos_new_york",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "custom_music_station_pc",
+    "category": "музыка, озвучение, локализация"
+   }
+  ],
+  "review": [
+   {
+    "code": "cover_system"
+   },
+   {
+    "code": "mobile_phone_ui"
+   },
+   {
+    "code": "tv_internet_system"
+   },
+   {
+    "code": "subway_travel"
+   },
+   {
+    "code": "four_boroughs_hd_universe"
+   },
+   {
+    "code": "win_release_extra_dev"
+   },
+   {
+    "code": "Games_for_Windows_Live"
+   }
   ]
  },
  {
@@ -2471,32 +3137,72 @@
   "basket": [
    "composition_bootstrap_architecture",
    "dynamic_light_priority_budget",
-   "gerstner_fft_water",
    "motion_matching",
    "planar_reflection_budget",
    "temporal_upscaling"
   ],
   "n_decisions": 22,
-  "n_matched": 6,
-  "n_decisions_matched": 5,
+  "n_technical": 9,
+  "n_excluded": 7,
+  "n_review": 6,
+  "n_matched": 5,
+  "n_decisions_matched": 4,
   "unmatched": [
-   "three_protagonist_switch",
    "character_specific_abilities",
-   "procedural_heist_approach",
-   "dense_ecosystem_wildlife",
-   "stock_market_trading",
-   "procedural_properties_purchase",
-   "dynamic_music_radio",
    "bullet_software_rendering",
    "flight_simulation_models",
    "directx_11_renderer",
-   "first_person_mode_added_ps4_xb1",
-   "gta_online_separate_client",
-   "gta_online_continual_updates",
-   "dual_currency_gtadollars_atoms",
-   "procedural_heist_final",
-   "drawing_tablet_optional",
    "pc_only_first_person_views"
+  ],
+  "excluded": [
+   {
+    "code": "three_protagonist_switch",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "heist_accomplices_skill",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "stock_market_trading",
+    "category": "монетизация"
+   },
+   {
+    "code": "procedural_properties_purchase",
+    "category": "монетизация"
+   },
+   {
+    "code": "dynamic_music_radio",
+    "category": "музыка, озвучение, локализация"
+   },
+   {
+    "code": "dual_currency_gtadollars_atoms",
+    "category": "монетизация"
+   },
+   {
+    "code": "procedural_heist_final",
+    "category": "сюжет и концовки"
+   }
+  ],
+  "review": [
+   {
+    "code": "procedural_heist_approach"
+   },
+   {
+    "code": "dense_ecosystem_wildlife"
+   },
+   {
+    "code": "first_person_mode_added_ps4_xb1"
+   },
+   {
+    "code": "gta_online_separate_client"
+   },
+   {
+    "code": "gta_online_continual_updates"
+   },
+   {
+    "code": "drawing_tablet_optional"
+   }
   ]
  },
  {
@@ -2562,35 +3268,90 @@
    "raycast_vehicle_physics"
   ],
   "n_decisions": 31,
+  "n_technical": 10,
+  "n_excluded": 6,
+  "n_review": 15,
   "n_matched": 3,
   "n_decisions_matched": 5,
   "unmatched": [
-   "dynamic_weather_day_night",
-   "camp_moving_hq",
    "horse_stamina_core",
-   "dual_wielding",
-   "dead_eye_targeting_marking",
-   "weapon_condition_maintenance",
-   "core_system_health_stamina",
-   "body_weight_management",
-   "hair_growth_realistic",
    "cinematic_camera",
-   "ecology_realistic",
-   "story_driven_music_score",
-   "three_score_types",
-   "honor_system_with_impact",
-   "wanted_system_with_bounty",
-   "100_hours_work_weeks_crunch",
-   "1600_developers_across_studios",
-   "5_us_states_fictional",
-   "bounty_poster_generation",
    "stranger_random_encounters",
-   "railroad_train_hijack",
-   "minigames_dominoes_poker",
    "scripted_sequences",
-   "rd_online_separate_client",
-   "rd_online_no_major_updates_july_2022",
    "8_dlc_cancelled"
+  ],
+  "excluded": [
+   {
+    "code": "dual_wielding",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "weapon_condition_maintenance",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "core_system_health_stamina",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "story_driven_music_score",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "three_score_types",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "honor_system_with_impact",
+    "category": "сюжет и концовки"
+   }
+  ],
+  "review": [
+   {
+    "code": "dynamic_weather_day_night"
+   },
+   {
+    "code": "camp_moving_hq"
+   },
+   {
+    "code": "dead_eye_targeting_marking"
+   },
+   {
+    "code": "body_weight_management"
+   },
+   {
+    "code": "hair_growth_realistic"
+   },
+   {
+    "code": "ecology_realistic"
+   },
+   {
+    "code": "wanted_system_with_bounty"
+   },
+   {
+    "code": "100_hours_work_weeks_crunch"
+   },
+   {
+    "code": "1600_developers_across_studios"
+   },
+   {
+    "code": "5_us_states_fictional"
+   },
+   {
+    "code": "bounty_poster_generation"
+   },
+   {
+    "code": "railroad_train_hijack"
+   },
+   {
+    "code": "minigames_dominoes_poker"
+   },
+   {
+    "code": "rd_online_separate_client"
+   },
+   {
+    "code": "rd_online_no_major_updates_july_2022"
+   }
   ]
  },
  {
@@ -2646,22 +3407,51 @@
   },
   "basket": [],
   "n_decisions": 13,
+  "n_technical": 5,
+  "n_excluded": 6,
+  "n_review": 2,
   "n_matched": 0,
   "n_decisions_matched": 0,
   "unmatched": [
-   "ue4_ground_up_remake",
    "lighting_environment_improvements",
    "high_resolution_textures",
-   "new_weapon_models_gta_sa",
    "4k_60_fps_current_gen",
-   "mobile_app_companion",
-   "rockstar_launcher_required",
    "post_launch_cleanup_patches",
-   "removed_songs_due_to_licensing",
-   "8000_user_reviews_steam_mixed",
-   "pulled_from_pc_sale_september_2022",
-   "refund_window_offered",
    "apex_engine_grove_street"
+  ],
+  "excluded": [
+   {
+    "code": "ue4_ground_up_remake",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "new_weapon_models_gta_sa",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "rockstar_launcher_required",
+    "category": "дата выхода и издание"
+   },
+   {
+    "code": "removed_songs_due_to_licensing",
+    "category": "музыка, озвучение, локализация"
+   },
+   {
+    "code": "8000_user_reviews_steam_mixed",
+    "category": "реакция и продвижение"
+   },
+   {
+    "code": "pulled_from_pc_sale_september_2022",
+    "category": "дата выхода и издание"
+   }
+  ],
+  "review": [
+   {
+    "code": "mobile_app_companion"
+   },
+   {
+    "code": "refund_window_offered"
+   }
   ]
  },
  {
@@ -2728,24 +3518,54 @@
    "post_effect_selective"
   ],
   "n_decisions": 22,
+  "n_technical": 13,
+  "n_excluded": 5,
+  "n_review": 4,
   "n_matched": 7,
   "n_decisions_matched": 7,
   "unmatched": [
-   "glory_kill_melee_execution",
    "chainsaw_ammo_refill",
    "id_tech_6_new_geometry_pipeline",
-   "glory_kill_recovery",
-   "in_game_modern_weapons",
    "pentagram_powerups",
    "multiplayer_loadout_2_weapons",
    "demon_runes_player_mod",
-   "snapmap_social",
-   "classic_weapon_centering",
-   "doomguy_slayer_named_in_dlc2",
-   "photo_mode_2017",
-   "arcade_mode_addition",
-   "in_game_collectibles_easter_eggs",
-   "classic_doom_levels_hidden"
+   "arcade_mode_addition"
+  ],
+  "excluded": [
+   {
+    "code": "glory_kill_melee_execution",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "in_game_modern_weapons",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "snapmap_social",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "classic_weapon_centering",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "in_game_collectibles_easter_eggs",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "glory_kill_recovery"
+   },
+   {
+    "code": "doomguy_slayer_named_in_dlc2"
+   },
+   {
+    "code": "photo_mode_2017"
+   },
+   {
+    "code": "classic_doom_levels_hidden"
+   }
   ]
  },
  {
@@ -2808,23 +3628,47 @@
    "selective_ray_traced_effects"
   ],
   "n_decisions": 20,
+  "n_technical": 13,
+  "n_excluded": 3,
+  "n_review": 4,
   "n_matched": 4,
   "n_decisions_matched": 6,
   "unmatched": [
-   "platforming_puzzles",
    "battlemode_asymmetric_1v2",
-   "meat_hook_grappling",
-   "flame_belcher_armor_recharge",
-   "chainsaw_ammo_fuel",
    "weak_point_damage_modifier",
    "ai_chess_piece_targeting",
-   "doom_hunter_arena_challenge",
-   "arena_challenges_dynamic_scaling",
    "id_tech_7_extended_vulkan_support",
-   "fortress_of_doom_hub",
    "combat_pacing_horizontal_vertical",
    "meat_hook_pull_player",
    "ai_chess_advisor"
+  ],
+  "excluded": [
+   {
+    "code": "platforming_puzzles",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "doom_hunter_arena_challenge",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "arena_challenges_dynamic_scaling",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "meat_hook_grappling"
+   },
+   {
+    "code": "flame_belcher_armor_recharge"
+   },
+   {
+    "code": "chainsaw_ammo_fuel"
+   },
+   {
+    "code": "fortress_of_doom_hub"
+   }
   ]
  },
  {
@@ -2888,29 +3732,46 @@
    "virtual_texturing"
   ],
   "n_decisions": 26,
+  "n_technical": 22,
+  "n_excluded": 2,
+  "n_review": 2,
   "n_matched": 6,
   "n_decisions_matched": 6,
   "unmatched": [
    "procedural_textures_partially",
    "streaming_from_optical_media",
-   "60hz_optional_oculus_rift_dev_kit",
    "open_world_fps_driving",
    "open_world_light_wasteland",
    "procedural_lighting_ambient_occlusion",
    "upgraded_visual_fidelity_2011",
    "multiplayer_road_rage_coop",
    "mac_os_x_no_multiplayer",
-   "linux_version_planned_cancelled",
    "wingstick_boomerang",
-   "wang_basic_quest_design",
    "anvil_vehicle_upgrades",
    "nanocyte_nanotrites_superhuman",
    "level_geometry_corrupt_glass",
-   "breaking_bad_viral_marketing",
    "competitive_multiplayer_skirmish",
    "pc_optimized_nvidia_amd",
    "first_id_tech5_release",
    "craters_pipeline_shaders"
+  ],
+  "excluded": [
+   {
+    "code": "wang_basic_quest_design",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "breaking_bad_viral_marketing",
+    "category": "монетизация"
+   }
+  ],
+  "review": [
+   {
+    "code": "60hz_optional_oculus_rift_dev_kit"
+   },
+   {
+    "code": "linux_version_planned_cancelled"
+   }
   ]
  },
  {
@@ -2973,26 +3834,61 @@
    "tickrate_budgeting"
   ],
   "n_decisions": 19,
+  "n_technical": 8,
+  "n_excluded": 6,
+  "n_review": 5,
   "n_matched": 3,
   "n_decisions_matched": 2,
   "unmatched": [
    "hero_shooter_active_passive_abilities",
-   "free_to_play_business_model",
-   "battle_pass_cosmetics",
-   "champion_unlock_currency",
    "saber3d_engine_hybrid",
-   "snapmap_excluded",
-   "no_console_versions",
-   "warpaint_skins_buyable",
-   "esports_$1m_announced_tournament",
    "mix_id_tech_saber",
    "demakes_community",
-   "classic_arena_legacy",
-   "bf_blazkowicz_crossover",
-   "runes_temp_demon_form",
    "hybrid_idtech_saber_engine",
-   "skullz_pack",
    "wulf_glass_engine_2017"
+  ],
+  "excluded": [
+   {
+    "code": "free_to_play_business_model",
+    "category": "монетизация"
+   },
+   {
+    "code": "battle_pass_cosmetics",
+    "category": "монетизация"
+   },
+   {
+    "code": "champion_unlock_currency",
+    "category": "монетизация"
+   },
+   {
+    "code": "snapmap_excluded",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "warpaint_skins_buyable",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "esports_$1m_announced_tournament",
+    "category": "реакция и продвижение"
+   }
+  ],
+  "review": [
+   {
+    "code": "no_console_versions"
+   },
+   {
+    "code": "classic_arena_legacy"
+   },
+   {
+    "code": "bf_blazkowicz_crossover"
+   },
+   {
+    "code": "runes_temp_demon_form"
+   },
+   {
+    "code": "skullz_pack"
+   }
   ]
  },
  {
@@ -3064,38 +3960,76 @@
    "virtual_texturing"
   ],
   "n_decisions": 35,
+  "n_technical": 21,
+  "n_excluded": 3,
+  "n_review": 11,
   "n_matched": 8,
   "n_decisions_matched": 6,
   "unmatched": [
-   "nanosuit_power_armor_speed_cloak_strength",
-   "nanosuit_energy_management",
-   "weapon_modification_dynamic",
    "binoculars_with_electronic_tagging",
    "soft_shadows_pcss",
-   "depth_of_field_bokeh",
    "parallax_occlusion_mapping",
    "tesselation_hardware_direct3d11",
    "1_million_lines_of_code",
    "hardware_tessellation_pc",
    "1gb_texture_data_85k_shaders",
-   "lingshan_island_jungle",
-   "alien_cephalopod_redesign",
-   "nanosuit_dynamic_visor",
    "vehicle_tanks_helicopters_apc",
    "dx9_dx10_dual_mode",
    "soundtrack_inon_zur",
-   "can_it_run_crysis_meme",
    "dx9_very_high_cheat",
    "multiplayer_2014_terminated",
    "console_2011_no_multiplayer_no_dlc",
-   "initial_pc_demo_controversy",
-   "100k_units_first_2_weeks",
-   "3_million_units_by_2010",
-   "crysis_warhead_standalone_expansion",
    "crysis_remastered_2020",
-   "lost_level_ascension_added_2020",
-   "nv_partnership_gameworks",
-   "can_it_run_crysis_remastered_setting"
+   "nv_partnership_gameworks"
+  ],
+  "excluded": [
+   {
+    "code": "weapon_modification_dynamic",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "initial_pc_demo_controversy",
+    "category": "реакция и продвижение"
+   },
+   {
+    "code": "crysis_warhead_standalone_expansion",
+    "category": "монетизация"
+   }
+  ],
+  "review": [
+   {
+    "code": "nanosuit_power_armor_speed_cloak_strength"
+   },
+   {
+    "code": "nanosuit_energy_management"
+   },
+   {
+    "code": "depth_of_field_bokeh"
+   },
+   {
+    "code": "lingshan_island_jungle"
+   },
+   {
+    "code": "alien_cephalopod_redesign"
+   },
+   {
+    "code": "nanosuit_dynamic_visor"
+   },
+   {
+    "code": "can_it_run_crysis_meme"
+   },
+   {
+    "code": "100k_units_first_2_weeks"
+   },
+   {
+    "code": "3_million_units_by_2010"
+   },
+   {
+    "code": "lost_level_ascension_added_2020"
+   },
+   {
+    "code": "can_it_run_crysis_remastered_setting"
+   }
   ]
  },
  {
@@ -3156,21 +4090,18 @@
    "priority": "balanced"
   },
   "basket": [
-   "destruction_geometry_cache",
-   "npc_perception_budget"
+   "destruction_geometry_cache"
   ],
   "n_decisions": 20,
-  "n_matched": 2,
-  "n_decisions_matched": 2,
+  "n_technical": 13,
+  "n_excluded": 0,
+  "n_review": 7,
+  "n_matched": 1,
+  "n_decisions_matched": 1,
   "unmatched": [
-   "nanosuit_2_combined_modes",
    "nanosuit_cloak_stealth_kill",
-   "tactical_suit_visor",
    "tessellation_dx11_pc",
    "hrtf_audio_oculus_2",
-   "stereo_3d_support",
-   "new_york_manhattan_recreated",
-   "ceph_humanoid_redesign",
    "steamworks_pc_multiplayer",
    "directx_11_high_res_textures",
    "high_resolution_texture_pack",
@@ -3179,8 +4110,31 @@
    "multiplayer_hacked_beta_leak",
    "multiplayer_servers_killed_2014",
    "soundtrack_hans_zimmer_lorne_balfe",
-   "hdtv_2d_3d_compatible",
    "tesselation_abuse_criticism"
+  ],
+  "excluded": [],
+  "review": [
+   {
+    "code": "nanosuit_2_combined_modes"
+   },
+   {
+    "code": "tactical_suit_visor"
+   },
+   {
+    "code": "stereo_3d_support"
+   },
+   {
+    "code": "new_york_manhattan_recreated"
+   },
+   {
+    "code": "ceph_humanoid_redesign"
+   },
+   {
+    "code": "novelization_peter_watts"
+   },
+   {
+    "code": "hdtv_2d_3d_compatible"
+   }
   ]
  },
  {
@@ -3240,34 +4194,70 @@
    "network_topology": "dedicated",
    "priority": "balanced"
   },
-  "basket": [
-   "irradiance_volume_probes"
-  ],
+  "basket": [],
   "n_decisions": 22,
-  "n_matched": 1,
-  "n_decisions_matched": 1,
+  "n_technical": 9,
+  "n_excluded": 4,
+  "n_review": 9,
+  "n_matched": 0,
+  "n_decisions_matched": 0,
   "unmatched": [
-   "compound_bow_primary_weapon",
-   "hacking_minigame",
    "rip_and_throw_ability",
-   "kill_streak_dog_tags",
-   "optional_objectives_layers",
-   "seven_wonders_open_levels",
-   "nanodome_post_apocalyptic",
    "celestials_war_return",
    "performance_capture_prophet",
-   "archangel_satellite_arsenal",
-   "nanodome_cliff_hanging_liana",
    "dx11_pc_required",
    "per_voxel_lighting_hbao_etc",
-   "wolfs_dangerous_close_quarters",
-   "limited_ammo_force_reuse",
-   "100_people_development_team",
    "66_million_budget",
    "lost_island_dlc_2013",
-   "205k_copies_debut_month_NA",
    "dynamic_music_aggression",
    "server_closure_2023_ea"
+  ],
+  "excluded": [
+   {
+    "code": "compound_bow_primary_weapon",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "hacking_minigame",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "archangel_satellite_arsenal",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "nanodome_cliff_hanging_liana",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "kill_streak_dog_tags"
+   },
+   {
+    "code": "optional_objectives_layers"
+   },
+   {
+    "code": "seven_wonders_open_levels"
+   },
+   {
+    "code": "nanodome_post_apocalyptic"
+   },
+   {
+    "code": "wolfs_dangerous_close_quarters"
+   },
+   {
+    "code": "limited_ammo_force_reuse"
+   },
+   {
+    "code": "100_people_development_team"
+   },
+   {
+    "code": "205k_copies_debut_month_NA"
+   },
+   {
+    "code": "wii_u_version_cancelled"
+   }
   ]
  },
  {
@@ -3336,33 +4326,89 @@
    "selective_ray_traced_effects"
   ],
   "n_decisions": 28,
+  "n_technical": 7,
+  "n_excluded": 6,
+  "n_review": 15,
   "n_matched": 5,
-  "n_decisions_matched": 4,
+  "n_decisions_matched": 3,
   "unmatched": [
-   "extraction_shooter_mechanic",
-   "boss_clues_progressive_reveal",
-   "permadeath_lose_everything",
-   "burn_ace_poker_hand",
-   "slow_learning_curve_2024",
-   "bounty_clash_2024",
-   "new_map_released_2024",
-   "4k_ps5_xsx_support",
    "improved_engine_2024",
-   "ps4_xbox_one_delisted",
    "sound_design_innovative",
-   "ambient_zombie_spawn",
-   "battle_royale_soul_survivor_mode",
    "multi_hunter_2v12",
-   "teleportation_via_trait",
-   "sponsors_dlc",
-   "post_malone_event_2024",
-   "no_crossplay_ps4_xbox",
-   "6_unique_boss_monsters",
-   "heirloom_weapons_permanent_unlocks",
-   "traits_system_meta",
-   "burn_time_one_shoot_legendary",
-   "tv_series_adaptation",
-   "revived_vigil_legacy"
+   "no_crossplay_ps4_xbox"
+  ],
+  "excluded": [
+   {
+    "code": "permadeath_lose_everything",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "new_map_released_2024",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "teleportation_via_trait",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "sponsors_dlc",
+    "category": "монетизация"
+   },
+   {
+    "code": "post_malone_event_2024",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "heirloom_weapons_permanent_unlocks",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "extraction_shooter_mechanic"
+   },
+   {
+    "code": "boss_clues_progressive_reveal"
+   },
+   {
+    "code": "burn_ace_poker_hand"
+   },
+   {
+    "code": "slow_learning_curve_2024"
+   },
+   {
+    "code": "bounty_clash_2024"
+   },
+   {
+    "code": "4k_ps5_xsx_support"
+   },
+   {
+    "code": "ps4_xbox_one_delisted"
+   },
+   {
+    "code": "ambient_zombie_spawn"
+   },
+   {
+    "code": "battle_royale_soul_survivor_mode"
+   },
+   {
+    "code": "darksight_balance_meta"
+   },
+   {
+    "code": "6_unique_boss_monsters"
+   },
+   {
+    "code": "traits_system_meta"
+   },
+   {
+    "code": "burn_time_one_shoot_legendary"
+   },
+   {
+    "code": "tv_series_adaptation"
+   },
+   {
+    "code": "revived_vigil_legacy"
+   }
   ]
  },
  {
@@ -3433,20 +4479,41 @@
    "world_partition_streaming"
   ],
   "n_decisions": 28,
+  "n_technical": 22,
+  "n_excluded": 1,
+  "n_review": 5,
   "n_matched": 10,
-  "n_decisions_matched": 17,
+  "n_decisions_matched": 16,
   "unmatched": [
    "commander_mode_rts_view",
    "64_player_multiplayer",
-   "3_factions_us_china_russia",
-   "war_of_2020_setting",
    "tessellation_overhaul",
    "full_hd_rendering_pc",
    "parallax_occlusion_mapping_frostbite",
-   "hbao_horizon_based_ao",
-   "rich_presence_landscape",
-   "hd_texture_pool",
-   "battlefield_4_premium"
+   "hd_texture_pool"
+  ],
+  "excluded": [
+   {
+    "code": "battlefield_4_premium",
+    "category": "монетизация"
+   }
+  ],
+  "review": [
+   {
+    "code": "3_factions_us_china_russia"
+   },
+   {
+    "code": "war_of_2020_setting"
+   },
+   {
+    "code": "manta_surface_surfacing"
+   },
+   {
+    "code": "hbao_horizon_based_ao"
+   },
+   {
+    "code": "rich_presence_landscape"
+   }
   ]
  },
  {
@@ -3511,26 +4578,60 @@
    "raycast_vehicle_physics"
   ],
   "n_decisions": 21,
+  "n_technical": 10,
+  "n_excluded": 5,
+  "n_review": 6,
   "n_matched": 3,
   "n_decisions_matched": 4,
   "unmatched": [
    "behemoth_class_ship",
    "operations_multi_map_mode",
-   "elite_classes_frontlines",
-   "war_stories_anthology",
    "melee_weapon_3_classes",
-   "dynamic_weather_dust_storm",
-   "gas_mask_mechanic",
-   "war_pigeons_capture",
-   "supply_drop_tsar",
    "shock_operations_2018_patch",
-   "back_to_basic_2018",
-   "air_assault_apocalypse",
-   "voice_overs_native_language",
-   "behemoth_infantry_class",
    "13_2_launch_maps",
-   "5_expansion_dlc",
    "13_2_million_open_beta_players"
+  ],
+  "excluded": [
+   {
+    "code": "war_stories_anthology",
+    "category": "монетизация"
+   },
+   {
+    "code": "supply_drop_tsar",
+    "category": "монетизация"
+   },
+   {
+    "code": "air_assault_apocalypse",
+    "category": "монетизация"
+   },
+   {
+    "code": "voice_overs_native_language",
+    "category": "музыка, озвучение, локализация"
+   },
+   {
+    "code": "5_expansion_dlc",
+    "category": "монетизация"
+   }
+  ],
+  "review": [
+   {
+    "code": "elite_classes_frontlines"
+   },
+   {
+    "code": "dynamic_weather_dust_storm"
+   },
+   {
+    "code": "gas_mask_mechanic"
+   },
+   {
+    "code": "war_pigeons_capture"
+   },
+   {
+    "code": "back_to_basic_2018"
+   },
+   {
+    "code": "behemoth_infantry_class"
+   }
   ]
  },
  {
@@ -3604,25 +4705,57 @@
    "voxel_cone_tracing"
   ],
   "n_decisions": 25,
+  "n_technical": 14,
+  "n_excluded": 3,
+  "n_review": 8,
   "n_matched": 9,
   "n_decisions_matched": 9,
   "unmatched": [
-   "grand_operations_continuation",
-   "company_squad_system",
-   "firestorm_battle_royale",
-   "continuous_wartales_mode",
-   "fortification_system",
-   "no_premium_pass",
-   "tow_dynamic_narrative",
    "combined_arms_coop",
-   "attrition_system_reworked",
-   "world_war_2_focus",
    "animation_procedural_motion",
    "no_lobby_browser_pc",
    "physical_based_rendering",
-   "5_war_stories",
-   "firestorm_64_players_br",
-   "6_seasons_tides_of_war"
+   "firestorm_64_players_br"
+  ],
+  "excluded": [
+   {
+    "code": "no_premium_pass",
+    "category": "монетизация"
+   },
+   {
+    "code": "tow_dynamic_narrative",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "5_war_stories",
+    "category": "монетизация"
+   }
+  ],
+  "review": [
+   {
+    "code": "grand_operations_continuation"
+   },
+   {
+    "code": "company_squad_system"
+   },
+   {
+    "code": "firestorm_battle_royale"
+   },
+   {
+    "code": "continuous_wartales_mode"
+   },
+   {
+    "code": "fortification_system"
+   },
+   {
+    "code": "attrition_system_reworked"
+   },
+   {
+    "code": "world_war_2_focus"
+   },
+   {
+    "code": "6_seasons_tides_of_war"
+   }
   ]
  },
  {
@@ -3684,31 +4817,59 @@
    "priority": "balanced"
   },
   "basket": [
-   "composition_bootstrap_architecture",
-   "rt_effect_resolution_budget"
+   "composition_bootstrap_architecture"
   ],
   "n_decisions": 20,
-  "n_matched": 2,
-  "n_decisions_matched": 2,
+  "n_technical": 10,
+  "n_excluded": 1,
+  "n_review": 9,
+  "n_matched": 1,
+  "n_decisions_matched": 1,
   "unmatched": [
    "128_player_multiplayer_pc_nextgen",
    "plus_weapon_attachment_system",
-   "extreme_weather_tornado_sandstorm",
-   "specialist_system_replaces_classes",
    "no_single_player_campaign",
-   "hazard_zone_extraction",
    "cross_play_first_battlefield",
    "breakthrough_64_removed_2022",
    "map_clustering_design",
-   "non_binary_specialist",
    "no_server_browser_pc_long",
-   "weather_affects_gameplay",
-   "7_seasons_4_years",
-   "specialist_count_14",
    "class_system_legacy_revival",
-   "irish_returns_from_bf4",
-   "exosuit_mech_specialists",
    "no_mod_tools"
+  ],
+  "excluded": [
+   {
+    "code": "support_class_brought_back",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "extreme_weather_tornado_sandstorm"
+   },
+   {
+    "code": "specialist_system_replaces_classes"
+   },
+   {
+    "code": "hazard_zone_extraction"
+   },
+   {
+    "code": "non_binary_specialist"
+   },
+   {
+    "code": "weather_affects_gameplay"
+   },
+   {
+    "code": "7_seasons_4_years"
+   },
+   {
+    "code": "specialist_count_14"
+   },
+   {
+    "code": "irish_returns_from_bf4"
+   },
+   {
+    "code": "exosuit_mech_specialists"
+   }
   ]
  },
  {
@@ -3766,33 +4927,87 @@
   },
   "basket": [
    "art_direction_stylization",
-   "composition_bootstrap_architecture",
    "raycast_vehicle_physics",
    "rt_effect_resolution_budget",
    "selective_ray_traced_effects"
   ],
   "n_decisions": 22,
-  "n_matched": 5,
-  "n_decisions_matched": 4,
+  "n_technical": 4,
+  "n_excluded": 11,
+  "n_review": 7,
+  "n_matched": 4,
+  "n_decisions_matched": 3,
   "unmatched": [
-   "star_wars_three_eras",
-   "starfighter_arcade",
-   "heroes_villains_classes",
-   "campaign_30_hours",
-   "star_cards_progression",
-   "loot_crate_system_controversial",
-   "progression_overhaul_2018",
-   "all_heroes_unlocked_2018",
-   "no_paid_loot_crates_2018",
-   "microtransactions_disabled_2017",
-   "no_season_pass_free_seasons",
-   "campaign_motive_studios",
-   "starfighter_criterion",
-   "star_wars_lore_mix",
-   "heroes_vs_villains_4v4",
-   "extraction_2v2",
-   "starfighter_hero_ships",
-   "credits_only_cosmetic"
+   "starfighter_hero_ships"
+  ],
+  "excluded": [
+   {
+    "code": "campaign_30_hours",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "star_cards_progression",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "loot_crate_system_controversial",
+    "category": "монетизация"
+   },
+   {
+    "code": "progression_overhaul_2018",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "all_heroes_unlocked_2018",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "no_paid_loot_crates_2018",
+    "category": "монетизация"
+   },
+   {
+    "code": "microtransactions_disabled_2017",
+    "category": "монетизация"
+   },
+   {
+    "code": "no_season_pass_free_seasons",
+    "category": "монетизация"
+   },
+   {
+    "code": "campaign_motive_studios",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "star_wars_lore_mix",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "credits_only_cosmetic",
+    "category": "монетизация"
+   }
+  ],
+  "review": [
+   {
+    "code": "star_wars_three_eras"
+   },
+   {
+    "code": "starfighter_arcade"
+   },
+   {
+    "code": "heroes_villains_classes"
+   },
+   {
+    "code": "starfighter_criterion"
+   },
+   {
+    "code": "capital_supremacy_clone_wars"
+   },
+   {
+    "code": "heroes_vs_villains_4v4"
+   },
+   {
+    "code": "extraction_2v2"
+   }
   ]
  },
  {
@@ -3853,7 +5068,6 @@
    "priority": "balanced"
   },
   "basket": [
-   "audio_streaming_compression",
    "cascaded_shadow_maps",
    "composition_bootstrap_architecture",
    "hardware_raytraced_gi",
@@ -3864,36 +5078,94 @@
    "variable_rate_shading"
   ],
   "n_decisions": 32,
-  "n_matched": 9,
-  "n_decisions_matched": 5,
+  "n_technical": 12,
+  "n_excluded": 10,
+  "n_review": 10,
+  "n_matched": 8,
+  "n_decisions_matched": 4,
   "unmatched": [
    "physicalized_hud_no_minimap",
-   "gas_mask_cleaning_cracking",
-   "filter_battery_management",
-   "weapon_modification_silencer_laser",
    "watch_durability_cleaning",
    "resource_scavenging_chemistry",
    "stealth_darkness_mechanic",
-   "throwable_distraction_can",
    "human_npc_karma_system",
-   "weather_time_dynamic_weather",
    "day_night_affects_npc_behavior",
-   "campfire_safehouse",
-   "open_areas_with_aurora_train",
-   "choice_driven_endings",
-   "collectible_diary_postcards",
-   "weapons_must_be_cleaned",
-   "backpack_as_crafting_station",
-   "bow_silent_kills",
    "explorable_no_quest_markers",
-   "approach_mission_varied",
-   "realistic_dynamic_weather_storms",
-   "minimal_subsurface_rendering",
-   "epic_games_store_year_exclusive",
-   "game_works_3_year_support",
-   "two_colonels_dlc_august_2019",
-   "sams_story_dlc_february_2020",
-   "ranger_update_march_2019"
+   "minimal_subsurface_rendering"
+  ],
+  "excluded": [
+   {
+    "code": "weapon_modification_silencer_laser",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "throwable_distraction_can",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "choice_driven_endings",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "collectible_diary_postcards",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "weapons_must_be_cleaned",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "backpack_as_crafting_station",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "approach_mission_varied",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "game_works_3_year_support",
+    "category": "монетизация"
+   },
+   {
+    "code": "two_colonels_dlc_august_2019",
+    "category": "монетизация"
+   },
+   {
+    "code": "sams_story_dlc_february_2020",
+    "category": "монетизация"
+   }
+  ],
+  "review": [
+   {
+    "code": "gas_mask_cleaning_cracking"
+   },
+   {
+    "code": "filter_battery_management"
+   },
+   {
+    "code": "weather_time_dynamic_weather"
+   },
+   {
+    "code": "rain_masks_footsteps"
+   },
+   {
+    "code": "campfire_safehouse"
+   },
+   {
+    "code": "open_areas_with_aurora_train"
+   },
+   {
+    "code": "bow_silent_kills"
+   },
+   {
+    "code": "realistic_dynamic_weather_storms"
+   },
+   {
+    "code": "epic_games_store_year_exclusive"
+   },
+   {
+    "code": "ranger_update_march_2019"
+   }
   ]
  },
  {
@@ -3962,25 +5234,57 @@
    "post_effect_selective"
   ],
   "n_decisions": 26,
+  "n_technical": 17,
+  "n_excluded": 5,
+  "n_review": 4,
   "n_matched": 9,
-  "n_decisions_matched": 10,
+  "n_decisions_matched": 8,
   "unmatched": [
    "physicalized_ui_minimal_hud",
    "non_lethal_stealth_option",
-   "takedown_lethal_non_lethal",
-   "cover_system_dynamic",
-   "hacking_minigame_two_modes",
-   "remote_hacking_through_walls",
    "adaptive_ammo_recycling",
    "prague_hub_open_world",
-   "choice_dialogue_branches",
-   "director_cut_praxis_kits",
    "city_xploration_day_night",
    "pbr_physically_based_rendering",
    "directx_12_pc",
-   "tressfx_hair_amd",
    "prague_realistic_lighting",
    "advanced_tessellation"
+  ],
+  "excluded": [
+   {
+    "code": "praxis_kit_progression",
+    "category": "монетизация"
+   },
+   {
+    "code": "takedown_lethal_non_lethal",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "hacking_minigame_two_modes",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "remote_hacking_through_walls",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "choice_dialogue_branches",
+    "category": "сюжет и концовки"
+   }
+  ],
+  "review": [
+   {
+    "code": "experimental_aug_overheat"
+   },
+   {
+    "code": "cover_system_dynamic"
+   },
+   {
+    "code": "director_cut_praxis_kits"
+   },
+   {
+    "code": "tressfx_hair_amd"
+   }
   ]
  },
  {
@@ -4039,44 +5343,107 @@
   },
   "basket": [
    "async_incremental_saves",
-   "behaviour_tree_update_budget",
    "composition_bootstrap_architecture",
-   "gpu_instancing_vegetation",
    "npc_perception_budget",
    "physics_lod_sleeping",
    "raycast_vehicle_physics",
-   "rt_effect_resolution_budget",
-   "snapshot_slot_saves",
-   "time_sliced_pathfinding"
+   "snapshot_slot_saves"
   ],
   "n_decisions": 37,
-  "n_matched": 10,
-  "n_decisions_matched": 13,
+  "n_technical": 15,
+  "n_excluded": 12,
+  "n_review": 10,
+  "n_matched": 6,
+  "n_decisions_matched": 9,
   "unmatched": [
    "realistic_combat_physics",
-   "16_equipment_slots_layered",
    "perishable_food_spoilage",
-   "weapons_degrade_clean",
-   "skill_based_minigames",
-   "lockpicking_realistic",
    "theft_stealth_detection",
-   "reputation_consequences",
-   "classless_rpg_system",
-   "dialogue_timed_choices",
    "real_archery_bow_physics",
    "historical_real_materials",
-   "historical_real_locations",
-   "historical_1403_setting",
-   "melee_directional_attacks",
-   "weapon_combination_moves",
-   "lockpick_minigame_skill_based",
-   "alchemy_brewing",
-   "bow_aiming_realistic",
-   "historical_dialogue",
-   "night_cycle_full",
-   "tournaments_dlc",
-   "combat_academy_dlc",
    "ps5_xsx_2026_upgrade"
+  ],
+  "excluded": [
+   {
+    "code": "weapons_degrade_clean",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "skill_based_minigames",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "lockpicking_realistic",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "reputation_consequences",
+    "category": "реакция и продвижение"
+   },
+   {
+    "code": "dialogue_timed_choices",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "weapon_combination_moves",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "lockpick_minigame_skill_based",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "historical_dialogue",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "from_the_ashes_dlc",
+    "category": "монетизация"
+   },
+   {
+    "code": "three_amorous_dlc_band_bastards",
+    "category": "монетизация"
+   },
+   {
+    "code": "tournaments_dlc",
+    "category": "реакция и продвижение"
+   },
+   {
+    "code": "combat_academy_dlc",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "16_equipment_slots_layered"
+   },
+   {
+    "code": "clothing_wear_dirt_blood"
+   },
+   {
+    "code": "classless_rpg_system"
+   },
+   {
+    "code": "historical_real_locations"
+   },
+   {
+    "code": "historical_1403_setting"
+   },
+   {
+    "code": "melee_directional_attacks"
+   },
+   {
+    "code": "alchemy_brewing"
+   },
+   {
+    "code": "bow_aiming_realistic"
+   },
+   {
+    "code": "night_cycle_full"
+   },
+   {
+    "code": "switch_port_2024_saber"
+   }
   ]
  },
  {
@@ -4161,23 +5528,50 @@
    "virtual_geometry_clusters"
   ],
   "n_decisions": 24,
+  "n_technical": 16,
+  "n_excluded": 4,
+  "n_review": 4,
   "n_matched": 17,
   "n_decisions_matched": 10,
   "unmatched": [
-   "mind_place_investigation",
-   "writer_room_narrative",
    "flash_light_drain_focus",
-   "two_story_paths_alternating",
-   "no_minimap_compass",
-   "two_dlc_paid",
    "fortnite_crossover",
    "dead_by_daylight_crossover",
-   "photo_mode_realistic",
    "gtx_10_optimization_patch_2024",
-   "hunter_enemies_darkness_weak",
    "no_hud_physicalized",
-   "remaster_already_released",
-   "ps5_xsx_4k_native"
+   "remaster_already_released"
+  ],
+  "excluded": [
+   {
+    "code": "writer_room_narrative",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "two_story_paths_alternating",
+    "category": "сюжет и концовки"
+   },
+   {
+    "code": "no_minimap_compass",
+    "category": "контент и прогрессия"
+   },
+   {
+    "code": "hunter_enemies_darkness_weak",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": [
+   {
+    "code": "mind_place_investigation"
+   },
+   {
+    "code": "two_dlc_paid"
+   },
+   {
+    "code": "photo_mode_realistic"
+   },
+   {
+    "code": "ps5_xsx_4k_native"
+   }
   ]
  },
  {
@@ -4252,11 +5646,19 @@
    "world_partition_streaming"
   ],
   "n_decisions": 9,
+  "n_technical": 8,
+  "n_excluded": 0,
+  "n_review": 1,
   "n_matched": 14,
   "n_decisions_matched": 7,
   "unmatched": [
-   "police_system_rework_2_0",
    "hdd_to_ssd_mandatory"
+  ],
+  "excluded": [],
+  "review": [
+   {
+    "code": "police_system_rework_2_0"
+   }
   ]
  },
  {
@@ -4312,7 +5714,6 @@
    "priority": "balanced"
   },
   "basket": [
-   "client_prediction_reconciliation",
    "composition_bootstrap_architecture",
    "deterministic_lockstep",
    "dynamic_resolution_scaling",
@@ -4321,14 +5722,24 @@
    "tickrate_budgeting"
   ],
   "n_decisions": 9,
-  "n_matched": 7,
-  "n_decisions_matched": 5,
+  "n_technical": 8,
+  "n_excluded": 1,
+  "n_review": 0,
+  "n_matched": 6,
+  "n_decisions_matched": 4,
   "unmatched": [
    "ow_engine_2_rebuild",
    "netcode_rebuilt_30pct_latency",
    "format_6v6_to_5v5",
    "kernel_anticheat_in_engine"
-  ]
+  ],
+  "excluded": [
+   {
+    "code": "favor_the_shooter",
+    "category": "контент и прогрессия"
+   }
+  ],
+  "review": []
  },
  {
   "id": "p11-56",
@@ -4389,12 +5800,17 @@
    "tilemap_chunk_streaming"
   ],
   "n_decisions": 7,
+  "n_technical": 7,
+  "n_excluded": 0,
+  "n_review": 0,
   "n_matched": 3,
   "n_decisions_matched": 5,
   "unmatched": [
    "sodium_lithium_modern_fix",
    "bedrock_renderdragon_rewrite"
-  ]
+  ],
+  "excluded": [],
+  "review": []
  },
  {
   "id": "p11-57",
@@ -4454,14 +5870,23 @@
    "tickrate_budgeting"
   ],
   "n_decisions": 8,
+  "n_technical": 7,
+  "n_excluded": 1,
+  "n_review": 0,
   "n_matched": 4,
   "n_decisions_matched": 4,
   "unmatched": [
    "tick_64mm_128faceit_split",
    "panorama_ui_replace_scaleform",
-   "f2p_prime_trust_factor",
    "legacy_4465480_unlisted_2026"
-  ]
+  ],
+  "excluded": [
+   {
+    "code": "f2p_prime_trust_factor",
+    "category": "монетизация"
+   }
+  ],
+  "review": []
  },
  {
   "id": "p11-58",
@@ -4525,11 +5950,16 @@
    "time_sliced_pathfinding"
   ],
   "n_decisions": 9,
+  "n_technical": 9,
+  "n_excluded": 0,
+  "n_review": 0,
   "n_matched": 5,
   "n_decisions_matched": 7,
   "unmatched": [
    "view_distance_cpu_linear",
    "shadows_gpu_vs_cpu_split"
-  ]
+  ],
+  "excluded": [],
+  "review": []
  }
 ]
