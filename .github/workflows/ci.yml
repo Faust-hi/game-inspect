@@ -8,6 +8,26 @@ on:
   pull_request:
 
 jobs:
+  linux-startup:
+    name: Linux quick start
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Shell syntax
+        run: |
+          for script in start.sh backend/run.sh frontend/run.sh; do
+            bash -n "$script"
+          done
+      - name: Install, start both services and stop with Ctrl+C
+        run: python tools/smoke_linux_launcher.py
+
   backend:
     name: Backend
     runs-on: ubuntu-latest

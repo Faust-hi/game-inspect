@@ -1,5 +1,6 @@
 # Виртуальные окружения и зависимости
 .venv/
+.venv-linux/
 venv/
 env/
 node_modules/

@@ -23,7 +23,7 @@
 
 ## 1. Быстрый запуск
 
-Требования: Python 3.11+, Node.js 18+. Установка СУБД не требуется — по умолчанию
+Требования: Python 3.11+, Node.js 22+ с npm (предпочтительно LTS). В CI используются Python 3.13 и Node.js 22. Установка СУБД не требуется — по умолчанию
 используется локальный файл SQLite.
 
 ### Windows
@@ -38,7 +38,68 @@ start.bat
 
 Отдельные запуски, если окружение уже подготовлено: `backend\run.bat` и `frontend\run.bat`.
 
-### Вручную
+### Linux: Mint, Kali, Ubuntu, Debian и другие
+
+Из каталога проекта в терминале:
+
+```bash
+bash start.sh
+```
+
+Команда одна для разных дистрибутивов. Скрипт создаёт `.venv-linux`, устанавливает
+Python-зависимости из `backend/requirements.lock` и frontend через `npm ci`, затем
+запускает оба сервиса. Он проверяет их готовность, открывает браузер и остаётся
+в терминале; **Ctrl+C останавливает оба сервиса**. Адрес интерфейса:
+`http://127.0.0.1:5173`. На занятых портах запуск прекращается; чужие процессы
+не останавливаются. `sudo` для запуска проекта не нужен.
+
+Различается подготовка системных инструментов:
+
+| Семейство | Пакетный менеджер | Пакеты Python |
+| --- | --- | --- |
+| Mint / Kali / Ubuntu / Debian | `apt` | `python3`, `python3-venv`, `python3-pip` |
+| Fedora | `dnf` | `python3`, `python3-pip` |
+| Arch / Manjaro | `pacman` | `python`, `python-pip` |
+
+Например, для Mint/Kali/Ubuntu/Debian:
+
+```bash
+sudo apt update
+sudo apt install python3 python3-venv python3-pip
+```
+
+Отдельно установите **Node.js 22 или 24 LTS с npm** по [инструкции Node.js для Linux](https://nodejs.org/en/download).
+Версия `nodejs` в репозитории дистрибутива может быть старее требуемой.
+Проверьте инструменты перед запуском:
+
+```bash
+python3 --version
+node --version
+npm --version
+bash start.sh --check
+```
+
+Если системный Python старее 3.11, установите подходящую версию и укажите её:
+`DSS_PYTHON=python3.13 bash start.sh`. Системный Python не заменяется.
+Изоляция в venv также соответствует [правилам установки Python-пакетов в Kali](https://www.kali.org/docs/general-use/python3-external-packages/).
+Более старые дистрибутивы и другие архитектуры могут потребовать дополнительных
+средств сборки зависимостей; отдельной проверки на каждом дистрибутиве пока нет.
+
+После первой установки можно запускать без повторного скачивания зависимостей:
+
+```bash
+bash start.sh --skip-install
+bash start.sh --skip-install --no-browser  # например, без графического рабочего стола
+```
+
+Для отдельных сервисов: `bash backend/run.sh` и `bash frontend/run.sh` в двух
+терминалах. После изменения файлов зависимостей снова выполните `bash start.sh`.
+Скрипты работают и из пути с пробелами. Активация venv и `chmod +x` не требуются.
+При работе попеременно из Windows и Linux используйте отдельные копии проекта:
+`node_modules` содержит зависимости для конкретной ОС. Windows-окружение `.venv`
+и Linux-окружение `.venv-linux` разделены.
+
+### Вручную в Windows
 
 ```bash
 # Backend
@@ -52,6 +113,10 @@ cd frontend
 npm install
 npm run dev
 ```
+
+Для ручного запуска в Linux используйте `python3 -m venv ../.venv-linux`
+и `../.venv-linux/bin/python` вместо путей `.venv/Scripts/python.exe`.
+В командах миграций ниже применяется та же замена.
 
 При первом запуске backend автоматически создаёт схему и заполняет базу
 демонстрационными данными (`AUTO_SEED = true`). Повторный запуск не дублирует записи.
@@ -152,6 +217,8 @@ inspect-op/
 ├── wild200.json              факты 142 игр топ-200 для сверки (тот же формат + плюсы/минусы)
 ├── .github/workflows/ci.yml  непрерывная проверка: тесты, типы, миграции, сборка
 ├── start.bat                 одновременный запуск backend и frontend
+├── start.sh                  быстрый запуск в Linux (bash start.sh)
+├── tools/launch_linux.py     установка, проверка готовности и остановка Linux-сервисов
 ├── backend/run.bat           запуск только backend
 ├── frontend/run.bat          запуск только frontend
 └── README.md
