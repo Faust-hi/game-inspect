@@ -91,7 +91,16 @@ ENGINES: list[dict] = [
 
 def _tool(code: str, engine: str, name: str, subsystem: str, description: str,
           tool_type: str = "runtime", docs_key: str | None = None,
-          docs_url: str | None = None, source_title: str = "") -> dict:
+          docs_url: str | None = None, source_title: str = "",
+          min_version: str | None = None) -> dict:
+    """Инструмент движка.
+
+    `min_version` — минимальная версия движка, в которой встроенный инструмент
+    существует. Граница задаётся только там, где она следует из документации
+    вендора: пустое значение означает не «доступен всегда», а «граница не
+    подтверждена». Показывать встроенный Nanite доступным для UE 4.27 нельзя —
+    в этой версии его нет, и решение превращается в собственную реализацию.
+    """
     # Прямая ссылка имеет приоритет: нужна движкам Трека 1 (CryEngine / Source /
     # HeroEngine), чьи доки не входят в реестр SOURCES. Старые вызовы с docs_key
     # работают как раньше — поведение для них не меняется.
@@ -105,23 +114,29 @@ def _tool(code: str, engine: str, name: str, subsystem: str, description: str,
         "tool_type": tool_type,
         "docs_url": docs_url if docs_url is not None else s["url"],
         "source_title": source_title or s["title"],
+        "min_version": min_version,
     }
 
 
 ENGINE_TOOLS: list[dict] = [
     # ---------------- Unreal Engine 5 ----------------
+    # Nanite, Lumen, World Partition и виртуальные теневые карты появились
+    # вместе с UE 5.0: для 4.27 встроенного аналога нет, и метод превращается в
+    # собственную реализацию. Граница задана по документации Epic.
     _tool("ue_nanite", "unreal", "Nanite", "рендер",
           "Виртуализированная геометрия: автоматический LOD и кластеризованный растеризатор, "
-          "снимающий ограничение на количество полигонов.", "runtime", "UE_NANITE"),
+          "снимающий ограничение на количество полигонов.", "runtime", "UE_NANITE",
+          min_version="5.0"),
     _tool("ue_lumen", "unreal", "Lumen", "освещение",
           "Динамическое глобальное освещение и отражения на базе SDF, кэша освещённости и "
-          "трассировки лучей.", "runtime", "UE_LUMEN"),
+          "трассировки лучей.", "runtime", "UE_LUMEN", min_version="5.0"),
     _tool("ue_world_partition", "unreal", "World Partition", "мир",
           "Автоматическое разбиение мира на ячейки с потоковой загрузкой по дистанции, "
-          "заменяет ручную сборку уровней-подровней.", "editor", "UE_WORLDPARTITION"),
+          "заменяет ручную сборку уровней-подровней.", "editor", "UE_WORLDPARTITION",
+          min_version="5.0"),
     _tool("ue_vsm", "unreal", "Virtual Shadow Maps", "тени",
           "Виртуализированные карты теней высокого разрешения, заменяют каскадные карты теней.",
-          "runtime", "UE_VSM"),
+          "runtime", "UE_VSM", min_version="5.0"),
     _tool("ue_niagara", "unreal", "Niagara", "частицы",
           "Система частиц с поддержкой GPU-симуляции, вычислений на GPU и модульной структурой эмиттеров.",
           "runtime", "UE_NIAGARA"),
@@ -153,9 +168,11 @@ ENGINE_TOOLS: list[dict] = [
           "Компоненты инстансированного рендера большого количества одинаковых мешей.",
           "runtime", "UE_ISM"),
     _tool("ue_mass", "unreal", "Mass Entity", "ИИ",
-          "ECS-фреймворк для симуляции большого количества агентов и толпы.", "runtime", "UE_MASS"),
+          "ECS-фреймворк для симуляции большого количества агентов и толпы.", "runtime", "UE_MASS",
+          min_version="5.0"),
     _tool("ue_lwc", "unreal", "Large World Coordinates", "мир",
-          "Поддержка больших миров за счёт double-координат иorigin rebasing.", "runtime", "UE_LWC"),
+          "Поддержка больших миров за счёт double-координат иorigin rebasing.", "runtime", "UE_LWC",
+          min_version="5.0"),
     _tool("ue_lod", "unreal", "Static Mesh LOD", "рендер",
           "Автоматическая и ручная генерация уровней детализации мешей.", "editor", "UE_LOD"),
     _tool("ue_gas", "unreal", "Gameplay Ability System", "геймплей",

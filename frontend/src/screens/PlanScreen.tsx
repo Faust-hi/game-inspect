@@ -205,17 +205,41 @@ export function PlanScreen() {
         <div className="stat-grid">
           {(
             [
-              ['CPU', result.load_profile.cpu],
-              ['GPU', result.load_profile.gpu],
-              ['RAM', result.load_profile.ram],
-              ['VRAM', result.load_profile.vram],
-              ['Диск', result.load_profile.disk],
-              ['Сеть', result.load_profile.network],
+              ['CPU', 'cpu'],
+              ['GPU', 'gpu'],
+              ['RAM', 'ram'],
+              ['VRAM', 'vram'],
             ] as const
-          ).map(([label, value]) => (
-            <Metric key={label} label={label} value={value.toFixed(0)} hint="50 — без изменений" />
+          ).map(([label, key]) => (
+            <Metric
+              key={label}
+              label={label}
+              value={result.load_profile[key].toFixed(0)}
+              hint="50 — без изменений"
+            />
           ))}
+          {(['disk', 'network'] as const).map((key) => {
+            const detail = result.load_profile.per_resource[key];
+            const scored = detail && Math.abs(detail.raw) > 1e-6;
+            return (
+              <div key={key} className="metric">
+                <div className="label">{detail?.label ?? key}</div>
+                <div style={{ fontSize: 15, fontWeight: 650 }}>
+                  {detail?.level ?? 'нет данных'}
+                </div>
+                <div className="xsmall muted">
+                  {scored
+                    ? `${detail.direction}, экспертный балл ${detail.raw > 0 ? '+' : ''}${detail.raw}`
+                    : 'числовой оценки нет'}
+                </div>
+              </div>
+            );
+          })}
         </div>
+        <p className="xsmall faint">
+          Числовая шкала есть только у CPU, GPU, RAM и VRAM: по ним считается стоимость кадра.
+          Накопитель и сеть оценены качественно — модель не оценивает объём данных и трафик.
+        </p>
       </Card>
 
       {hw && (

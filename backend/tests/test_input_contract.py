@@ -99,6 +99,30 @@ def test_object_count_zero_and_one_are_distinguishable():
     assert zero < one
 
 
+@pytest.mark.parametrize(
+    "field,edge", (("object_count", 500), ("npc_count", 5)),
+)
+def test_count_scale_is_continuous_at_lower_bound(field, edge):
+    """Стык под-шкалы и логарифмической ветви не даёт провала.
+
+    Раньше 499 объектов давали оценку 0.04, а 500 — 0.0: нагрузка падала при
+    росте числа. Оценка на границе обязана быть не ниже оценки перед границей.
+    """
+    below = _effective_count(edge - 1, "medium", field)
+    at = _effective_count(edge, "medium", field)
+    above = _effective_count(edge + 1, "medium", field)
+    assert below <= at <= above, (below, at, above)
+
+
+@pytest.mark.parametrize("field", ("object_count", "npc_count"))
+def test_count_scale_never_decreases_across_full_range(field):
+    """Шкала счётчика неубывающая на всём допустимом диапазоне."""
+    values = [0, 1, 2, 3, 4, 5, 9, 10, 49, 50, 99, 100, 499, 500, 501,
+              1_000, 5_000, 10_000, 100_000, 1_000_000, 10_000_000]
+    estimates = [_effective_count(value, "medium", field) for value in values]
+    assert estimates == sorted(estimates), estimates
+
+
 # --- D09: выход за область применимости виден ------------------------------
 
 

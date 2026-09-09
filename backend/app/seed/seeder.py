@@ -25,8 +25,8 @@ from ..models.entities import (
 from ..models.enums import Status
 from . import engines_data, functions_data, methods_data
 from .corrections import (
-    correct_effect_scopes, correct_legacy_conflict_types, correct_shadow_relation,
-    correct_splitscreen_dependency,
+    correct_effect_scopes, correct_legacy_conflict_types, correct_method_sources,
+    correct_relation_types, correct_shadow_relation, correct_splitscreen_dependency,
 )
 
 PUBLISHED = Status.PUBLISHED.value
@@ -146,7 +146,9 @@ def seed_methods(db: Session, functions: dict[str, GameFunction], outcome: SeedO
     methods, _conflicts = methods_data.with_sources()
     out: dict[str, Method] = {}
     for data in methods:
-        function_code = data.pop("function_code", None)
+        # Чтение без `pop`: словари методов — общие с другими вызовами, и
+        # удаление ключа меняло бы исходные данные каталога.
+        function_code = data.get("function_code")
         payload = {k: v for k, v in data.items() if hasattr(Method, k) and k != "links"}
         payload.setdefault("status", PUBLISHED)
         if function_code and function_code in functions:
@@ -202,6 +204,8 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
         "legacy_conflict_types_corrected": correct_legacy_conflict_types(db),
         "effect_scopes_corrected": correct_effect_scopes(db),
         "splitscreen_dependency_corrected": correct_splitscreen_dependency(db),
+        "relation_types_corrected": correct_relation_types(db),
+        "method_sources_corrected": correct_method_sources(db),
     }
 
 
@@ -220,7 +224,10 @@ def seed_engines(db: Session, outcome: SeedOutcome) -> dict[str, Engine]:
 def seed_engine_tools(db: Session, engines: dict[str, Engine], outcome: SeedOutcome) -> dict[str, EngineTool]:
     out: dict[str, EngineTool] = {}
     for data in engines_data.ENGINE_TOOLS:
-        engine_code = data.pop("engine_code", None)
+        # Раньше код движка извлекался через `pop`, что изменяло исходный
+        # словарь каталога: при повторном заполнении в том же процессе ключ
+        # исчезал, и инструмент создавался без движка.
+        engine_code = data.get("engine_code")
         payload = {k: v for k, v in data.items() if hasattr(EngineTool, k)}
         payload.setdefault("status", PUBLISHED)
         if engine_code in engines:
@@ -432,6 +439,12 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     scopes_corrected = correct_effect_scopes(db)
     splitscreen_corrected = correct_splitscreen_dependency(db)
     legacy_conflicts = correct_legacy_conflict_types(db)
+    # Типы связей меняют расчёт целиком, поэтому приводятся к актуальному
+    # смыслу каталога и в уже существующих базах.
+    relations_corrected = correct_relation_types(db)
+    # Источники, подобранные по названию, а не по механизму, заменяются и в
+    # уже существующих базах: ссылка — часть обоснования карточки.
+    sources_corrected = correct_method_sources(db)
     db.commit()
     issues = validate_knowledge_base(db) if validate else []
     db.commit()
@@ -447,6 +460,7 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
         "effect_scopes_corrected": scopes_corrected,
         "splitscreen_dependency_corrected": splitscreen_corrected,
         "legacy_conflict_types_corrected": legacy_conflicts,
+        "relation_types_corrected": relations_corrected,
         **outcome.as_report(),
     }
 

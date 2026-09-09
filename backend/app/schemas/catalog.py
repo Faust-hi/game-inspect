@@ -185,9 +185,12 @@ _COUNT_BOUNDS: dict[str, tuple[int, int]] = {
 #: Численная оценка уровня, когда точное значение не указано.
 _LEVEL_FALLBACK: dict[str, float] = {"unknown": 0.55, "low": 0.25, "medium": 0.55, "high": 0.9}
 
-#: Максимальная оценка для количества ниже нижней границы логарифмической
-#: шкалы. Величина не является измеренной: она только сохраняет монотонность
-#: (один объект не может стоить дороже двух), не изобретая точности.
+#: Оценка, которой соответствует нижняя граница логарифмической шкалы.
+#: Величина не является измеренной: она задаёт долю шкалы, отводимую диапазону
+#: ниже нижней границы, чтобы обе ветви нормализации сходились в одной точке.
+#: Раньше под-шкала заканчивалась на этом значении, а логарифмическая ветвь
+#: начиналась с нуля: 499 объектов давали оценку 0.04, а 500 — 0.0, и нагрузка
+#: падала при увеличении числа. Шкала обязана быть неубывающей.
 _SUB_SCALE_MAX = 0.04
 
 
@@ -232,11 +235,15 @@ def _effective_count(value: int | None, level: str, field: str) -> float:
 
     span_low, span_high = count_scale_bounds(field)
     if value < span_low:
+        # Линейно внутри диапазона ниже нижней границы: 0 → 0, граница → _SUB_SCALE_MAX.
         return round(_SUB_SCALE_MAX * value / span_low, 6)
     ratio = (math.log10(float(value)) - math.log10(span_low)) / (
         math.log10(span_high) - math.log10(span_low)
     )
-    return max(0.0, min(1.0, ratio))
+    # Логарифмическая ветвь начинается там, где закончилась под-шкала, и идёт
+    # до единицы: иначе на границе диапазонов оценка падала бы скачком.
+    ratio = max(0.0, min(1.0, ratio))
+    return round(_SUB_SCALE_MAX + (1.0 - _SUB_SCALE_MAX) * ratio, 6)
 
 
 class BasketRequest(BaseModel):
@@ -276,6 +283,9 @@ class EngineToolOut(BaseModel):
     description: str
     tool_type: str
     docs_url: str
+    #: Минимальная версия движка, в которой встроенный инструмент существует.
+    #: None — граница не задана, а не «доступен в любой версии».
+    min_version: str | None = None
 
 
 class EngineOut(BaseModel):
@@ -310,6 +320,13 @@ class MethodEngineLinkOut(BaseModel):
     relation_label: str
     note: str
     docs_url: str
+    #: Минимальная версия движка, в которой существует встроенный инструмент.
+    tool_min_version: str | None = None
+    #: Доступность инструмента в версии движка проекта: True — доступен,
+    #: False — в этой версии его нет, None — проверить нельзя (версия не
+    #: указана или граница не задана). None не означает «доступен».
+    available: bool | None = None
+    availability_note: str | None = None
 
 
 class MethodOut(BaseModel):
@@ -482,6 +499,18 @@ class RiskOut(BaseModel):
 
 
 class LoadProfileOut(BaseModel):
+    """Сводный профиль нагрузки набора решений.
+
+    cpu, gpu, ram и vram — числовая шкала 0..100 с нейтральной серединой 50:
+    измеряется изменение стоимости кадра относительно того же проекта без
+    выбранных решений.
+
+    disk и network — качественные ресурсы. У них нет подсистемной модели
+    стоимости кадра, поэтому в числовых полях стоит нейтральное значение 50,
+    а смысл содержится в per_resource: направление, уровень влияния и
+    пояснение. Показывать эти два поля как «проценты нагрузки» нельзя.
+    """
+
     notes: list[str] = Field(default_factory=list)
     cpu: float
     gpu: float
@@ -539,6 +568,32 @@ class MemoryComposition(BaseModel):
     vram_gb: float = 0.0
 
 
+class PlatformTargetOut(BaseModel):
+    """Одна цель сборки в результатах оценки.
+
+    Цели выводятся раздельно: нативный графический путь Windows и Linux
+    различается, поэтому общий ориентир не заменяет результат каждой цели.
+    """
+
+    platform: str = Field(description="Код платформы: pc_windows или pc_linux")
+    label: str = Field(default="", description="Название цели")
+    render_api: str = Field(default="auto", description="Разрешённый графический API")
+    api_label: str = Field(default="", description="Название API")
+    api_source: str = Field(default="auto", description="explicit — задан, auto — выбран по ОС")
+    compatible: bool = Field(default=True, description="Есть ли нативный путь для цели")
+    engine_check: str = Field(
+        default="unknown", description="confirmed, mismatch или unknown"
+    )
+    notes: list[str] = Field(default_factory=list)
+    # Собственные результаты цели. Отсутствуют, если нативного пути нет.
+    cpu_index: float | None = None
+    gpu_index: float | None = None
+    ram_gb: float | None = None
+    vram_gb: float | None = None
+    # Цель с наибольшей потребностью: она объясняет общий ориентир.
+    binding: bool = False
+
+
 class HardwareEstimateOut(BaseModel):
     required_gpu_index: float
     required_cpu_index: float
@@ -570,6 +625,9 @@ class HardwareEstimateOut(BaseModel):
     # компьютере игрока. Перечислены явно: иначе пользователь не отличит
     # «не повлияло» от «забыто при расчёте».
     non_client_methods: list[NonClientMethodOut] = Field(default_factory=list)
+    # Цели сборки считаются и показываются раздельно: общий ориентир
+    # удовлетворяет каждой из них, а не усредняет их.
+    targets: list[PlatformTargetOut] = Field(default_factory=list)
 
     # --- Подсистемный разбор (исправление расчётной модели) -----------------
     # Раздельная стоимость последовательной (главный поток) и параллельной
@@ -648,21 +706,25 @@ class StageNoteOut(BaseModel):
 class StageGuidanceOut(BaseModel):
     """Что означает текущая стадия для выбора решений.
 
-    Стадия влияет не только на штраф за позднее внедрение: часть решений
-    физически нельзя внедрить после того, как контент создан. Без явного блока
-    пользователь видел один и тот же список рекомендаций на концепте и перед
-    релизом.
+    Стадия — это стоимость внедрения, а не физическое свойство реализации:
+    она меняет порядок внедрения, риски и предупреждения, но не удаляет
+    решение из расчёта. Архитектурное решение на релизе остаётся в списке с
+    пометкой о переработке: иначе оно пропадало бы из рекомендаций, продолжая
+    учитываться в корзине, и два экрана расходились.
     """
 
     stage: str
     stage_label: str
     summary: str
+    # Уровни, внедряемые на этой стадии без переработки.
     available_levels: list[str] = Field(default_factory=list)
     available_level_labels: list[str] = Field(default_factory=list)
-    blocked_levels: list[str] = Field(default_factory=list)
-    blocked_level_labels: list[str] = Field(default_factory=list)
-    # Уровни, у которых закрыта только часть решений: говорить «уровень закрыт»
-    # про них нельзя — половина решений остаётся доступной.
+    # Уровни, внедрение которых целиком требует переработки готовых материалов.
+    rework_levels: list[str] = Field(default_factory=list)
+    rework_level_labels: list[str] = Field(default_factory=list)
+    # Уровни, у которых переработку требует только часть решений: говорить
+    # «уровень требует переработки» про них нельзя — половина решений
+    # внедряется напрямую.
     restricted_levels: list[str] = Field(default_factory=list)
     restricted_level_labels: list[str] = Field(default_factory=list)
     warnings: list[StageNoteOut] = Field(default_factory=list)

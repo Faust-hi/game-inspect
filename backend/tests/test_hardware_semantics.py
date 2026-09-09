@@ -9,7 +9,7 @@ from app.seed import seeder
 from app.seed.functions_data import GAME_FUNCTIONS
 from app.seed.seeder import sync_function_taxonomy
 from app.seed.corrections import correct_shadow_relation
-from app.services.recommender import aggregate_load
+from app.services.recommender import _qualitative_level, aggregate_load
 from app.services.rules import assess_selected_methods
 from app.services import hardware
 from app.services.hardware import _load_indices, _pick_gpu, estimate_hardware
@@ -158,12 +158,37 @@ def test_dlss_requires_declared_support_in_reference_and_alternatives(db):
         assert any(item.lower().startswith("dlss") for item in gpu.hw_features)
 
 
-def test_missing_api_support_does_not_return_incompatible_reference(db):
-    result = estimate_hardware(db, ProjectProfile(render_api="metal"), [])
+def test_linux_with_directx_has_no_native_path(db):
+    """Linux + DirectX 12: цель без нативного пути не получает оборудования."""
+    result = estimate_hardware(
+        db, ProjectProfile(platforms=["pc_linux"], render_api="dx12"), []
+    )
     assert result.reference_gpu is None
+    assert result.reference_cpu is None
     assert result.alternative_gpus == []
     assert result.exceeds_catalog
-    assert result.unmet_limits
+    assert any("DirectX 12" in item and "Linux" in item for item in result.unmet_limits)
+    # Численный результат сохраняется, но без привязки к API.
+    assert result.required_gpu_index > 0
+    target = next(t for t in result.targets if t.platform == "pc_linux")
+    assert target.compatible is False
+    assert target.api_source == "explicit"
+
+
+def test_two_pc_targets_are_reported_separately(db):
+    """Windows и Linux считаются отдельно и обе показаны в результате."""
+    result = estimate_hardware(
+        db, ProjectProfile(platforms=["pc_windows", "pc_linux"]), []
+    )
+    platforms = {t.platform for t in result.targets}
+    assert platforms == {"pc_windows", "pc_linux"}
+    windows = next(t for t in result.targets if t.platform == "pc_windows")
+    linux = next(t for t in result.targets if t.platform == "pc_linux")
+    assert windows.render_api == "dx12" and windows.api_source == "auto"
+    assert linux.render_api == "vulkan" and linux.api_source == "auto"
+    # Общий ориентир не ниже результата каждой цели.
+    assert result.required_cpu_index >= max(windows.cpu_index, linux.cpu_index) - 1e-9
+    assert result.required_gpu_index >= max(windows.gpu_index, linux.gpu_index) - 1e-9
 
 
 @pytest.mark.parametrize("fps", [30, 60, 120])
@@ -344,6 +369,41 @@ def test_memory_composition_sums_match_estimates(db):
     )
 
 
+def test_local_views_scale_frame_work_not_full_buffers(db):
+    """Число локальных видов меняет кадровую работу, а не только память.
+
+    Раньше 1→4 вида не меняли CPU/GPU вообще, а память целевых буферов
+    умножалась на число камер, как если бы каждый вид занимал весь экран.
+    Правильная модель другая: подготовка рендера и геометрия повторяются для
+    каждого вида, пиксельные стадии не умножаются (итоговое разрешение
+    относится ко всему экрану), а буферы в сумме равны одному полноэкранному
+    набору плюс неразделяемые вспомогательные.
+    """
+    base = ProjectProfile(functions=["split_screen_rendering"])
+    rows = []
+    for views in (1, 2, 4):
+        result = _load_indices(base.model_copy(update={"local_view_count": views}), [])
+        rows.append(result)
+    one, two, four = rows
+
+    # Кадровая работа растёт с числом видов.
+    assert one["cpu_index"] < two["cpu_index"] < four["cpu_index"]
+    assert one["gpu_index"] < two["gpu_index"] < four["gpu_index"]
+    # Память растёт, но не в число видов: буферы не умножаются как полноэкранные.
+    assert one["vram_gb"] < four["vram_gb"]
+    assert four["vram_gb"] / one["vram_gb"] < 4.0
+    # Ресурсы сцены разделяются: RAM от числа видов не зависит.
+    assert one["ram_gb"] == four["ram_gb"]
+
+
+def test_local_view_count_without_function_still_counts(db):
+    """Явно заданное число видов учитывается и без выбранной функции split-screen."""
+    single = _load_indices(ProjectProfile(local_view_count=1), [])
+    four = _load_indices(ProjectProfile(local_view_count=4), [])
+    assert four["cpu_index"] > single["cpu_index"]
+    assert four["gpu_index"] > single["gpu_index"]
+
+
 def test_ram_estimate_reacts_to_scale(db):
     """Коридор оценки памяти обязан повторять разницу масштаба проектов.
 
@@ -361,7 +421,29 @@ def test_ram_estimate_reacts_to_scale(db):
                            npc_count_level="high", target_resolution="2160p",
                            target_quality="ultra"), []
     )
-    assert large.estimated_ram_gb / small.estimated_ram_gb >= 2.0
+    # Коридор проверяется по ресурсам самого проекта: резерв ОС и фона добавлен
+    # как явная постоянная величина и не должен ни сжимать, ни раздувать
+    # чувствительность модели к масштабу проекта.
+    reserve_components = {
+        hardware.MEMORY_COMPONENT_LABELS["system"],
+        hardware.MEMORY_COMPONENT_LABELS["background"],
+    }
+
+    def project_ram(result) -> float:
+        return sum(
+            item.ram_gb for item in result.memory_composition
+            if item.label not in reserve_components
+        )
+
+    assert project_ram(large) / project_ram(small) >= 2.0
+    # Полная потребность системы включает резерв один раз и не обнуляется.
+    # Допуск учитывает округление показа: итог округляется до 0.1 ГБ, а каждый
+    # компонент — до 0.01 ГБ, поэтому сумма компонентов может отличаться от
+    # итога на долю округления, помноженную на число компонентов.
+    tolerance = 0.05 + 0.01 * len(large.memory_composition)
+    assert large.estimated_ram_gb - project_ram(large) == pytest.approx(
+        hardware.OS_RAM_RESERVE_GB + hardware.BACKGROUND_RAM_RESERVE_GB, abs=tolerance
+    )
 
 
 def test_every_catalog_function_has_a_measurable_model_effect(db):
@@ -477,3 +559,77 @@ def test_shadow_relation_correction_preserves_manual_changes(db, admin_edited):
     assert correct_shadow_relation(db) == (0 if admin_edited else 1)
     assert row.conflict_type == ("hard_conflict" if admin_edited else "complement")
     assert correct_shadow_relation(db) == 0
+
+
+# ---------------------------------------------------------------------------
+# Качественные ресурсы в сводке нагрузки
+# ---------------------------------------------------------------------------
+QUALITATIVE_CASES = [
+    ("disk", "lightmap_atlas_baking", "baked_lighting", 2, "повышает", {"world_type": "linear"}),
+    ("network", "network_relevancy_priority", "multiplayer_netcode", -2, "снижает",
+     {"multiplayer": True}),
+]
+
+
+@pytest.mark.parametrize("resource,code,function,score,direction,overrides", QUALITATIVE_CASES)
+def test_disk_and_network_are_qualitative_not_percentages(
+    db, resource, code, function, score, direction, overrides,
+):
+    """Накопитель и сеть не превращаются в проценты нагрузки.
+
+    Раньше суммарный экспертный балл умножался на коэффициент и попадал на ту
+    же шкалу 0..100, что и измеренная стоимость кадра: число выглядело
+    результатом расчёта, хотя модель не считает ни объём данных, ни трафик и
+    не может подтвердить его источниками.
+    """
+    method = db.scalar(select(Method).where(Method.code == code))
+    profile = ProjectProfile(functions=[function], **overrides)
+
+    load = aggregate_load([method], profile)
+    detail = load.per_resource[resource]
+
+    assert detail["quantitative"] is False
+    assert detail["raw"] == pytest.approx(score)
+    assert detail["direction"] == direction
+    assert detail["level"] != "без значимого влияния"
+    # Числовое поле остаётся нейтральным: шкалы у ресурса нет.
+    assert detail["normalized"] == 50
+    assert load.disk == load.network == 50
+    assert "не оценивает" in detail["explanation"]
+    # Измеренные ресурсы при этом остаются измеренными.
+    for key in ("cpu", "gpu", "ram", "vram"):
+        assert load.per_resource[key]["quantitative"] is True
+
+
+@pytest.mark.parametrize("score,expected", [
+    (0, "без значимого влияния"),
+    (1, "небольшое"),
+    (-2, "небольшое"),
+    (3, "умеренное"),
+    (-5, "умеренное"),
+    (6, "существенное"),
+    (-14, "существенное"),
+])
+def test_qualitative_level_follows_magnitude(score, expected):
+    """Уровень влияния растёт с модулем суммарного балла, без единиц измерения."""
+    assert _qualitative_level(score) == expected
+
+
+def test_qualitative_resources_are_explained_only_when_affected(db):
+    method = db.scalar(select(Method).where(Method.code == "network_relevancy_priority"))
+    profile = ProjectProfile(functions=["multiplayer_netcode"], multiplayer=True)
+
+    assert any("оценены качественно" in note for note in aggregate_load([method], profile).notes)
+    assert not any("оценены качественно" in note for note in aggregate_load([], profile).notes)
+
+
+def test_load_profile_endpoint_marks_qualitative_resources(client):
+    response = client.post("/api/load-profile", json={
+        "profile": {"functions": ["multiplayer_netcode"], "multiplayer": True},
+        "basket": ["network_relevancy_priority"],
+    })
+    assert response.status_code == 200, response.text
+    detail = response.json()["per_resource"]["network"]
+    assert detail["quantitative"] is False
+    assert detail["level"] == "небольшое"
+    assert detail["normalized"] == 50

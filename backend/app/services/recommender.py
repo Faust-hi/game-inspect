@@ -34,6 +34,7 @@ from ..schemas.catalog import (
     StageNoteOut, input_fingerprint,
 )
 from ..seed.methods_data import FUNCTION_ASSIGNMENTS
+from . import engines as engine_service
 from . import hardware, rules, sensitivity, serializers, stage_guidance
 from .serializers import label_of as _label
 from .serializers import link_out
@@ -82,7 +83,7 @@ FLAG_LABELS = {
     "tied_leader": "равнозначно с лидером",
     "implement_now": "желательно внедрить сейчас",
     "late_difficult": "позднее внедрение затруднено",
-    "late_blocked": "внедрение на этой стадии практически закрыто",
+    "needs_rework": "требует переработки на этой стадии",
     "needs_prototyping": "требует прототипирования",
     "may_reduce_quality": "может снизить качество",
     "may_change_concept": "может изменить концепцию",
@@ -140,6 +141,7 @@ def detect_risks(
     conflicts: dict[str, list[str]] | None = None,
     engines: list | None = None,
     known_function_codes: set[str] | None = None,
+    version_notes: list[str] | None = None,
 ) -> list[RiskOut]:
     risks: list[RiskOut] = []
     conflicts = conflicts or {}
@@ -289,6 +291,21 @@ def detect_risks(
                 "или выбрать версию из перечня.",
             )
 
+    # Встроенный инструмент движка отсутствует в выбранной версии.
+    #
+    # Название инструмента не подтверждает его наличие в конкретной версии:
+    # Nanite нет в UE 4.27. Решение остаётся в расчёте — меняется способ
+    # получения эффекта и стоимость внедрения, а не физическая нагрузка.
+    if version_notes:
+        add(
+            "engine_tool_version", "Встроенный инструмент отсутствует в версии движка",
+            "medium",
+            " ".join(version_notes)
+            + " Готовый аналог в этой версии недоступен: эффект достигается собственной "
+            "реализацией, а не настройкой встроенной подсистемы.",
+            "Проверить версию движка либо заложить собственную реализацию и её стоимость.",
+        )
+
     # Конфликты внутри корзины.
     conflicting = [
         c for c in basket_codes
@@ -344,7 +361,9 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
     result = _build_recommendations(db, profile, basket_codes)
     selected = repositories.methods_by_codes(db, basket_codes)
     accounted, _ = rules.assess_selected_methods(selected, profile, repositories.conflicts(db))
-    result.selected_methods = [serializers.method_to_out_public(db, method) for method in selected]
+    result.selected_methods = [
+        serializers.method_to_out_public(db, method, profile=profile) for method in selected
+    ]
     result.accounted_method_codes = sorted(method.code for method in accounted)
     result.snapshot_id = uuid.uuid4().hex
     result.catalog_revision = published_revision(db)
@@ -392,21 +411,14 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
                 extra=f"Метод оправдан при масштабе мира не ниже «{method.min_scale}».",
             ))
             continue
-        # Стадия может закрыть решение полностью: архитектурное решение не
-        # внедряется после того, как контент создан, независимо от его ценности.
-        # Раньше такое решение оставалось в списке рекомендаций и только
-        # сопровождалось предупреждением, из-за чего стадия не меняла выдачу.
-        if stage_guidance.is_blocked(method, profile.stage):
-            excluded.append(_build_excluded(
-                method, functions, applicability,
-                extra=(
-                    f"Решение закрыто стадией «{DevStage(profile.stage).label}»: "
-                    f"уровень «{SolutionLevel(method.level).label}» с "
-                    f"{LateCost(method.late_cost).label} ценой позднего внедрения "
-                    "не может быть внедрён без переработки проекта."
-                ),
-            ))
-            continue
+        # Стадия не исключает решение: она определяет стоимость внедрения.
+        # Архитектурное решение на релизе не исчезает из физической модели —
+        # выбранная работающая реализация продолжает учитываться и в корзине,
+        # и в аппаратной оценке. Календарный запрет удалял решение из выдачи,
+        # оставляя его в расчёте, из-за чего список и корзина расходились.
+        # Вместо запрета решение помечается как требующее переработки.
+        if stage_guidance.needs_rework(method, profile.stage):
+            applicability.conditions.append(stage_guidance.rework_note(method, profile.stage))
         evaluated.append((method, applicability))
 
     if not evaluated:
@@ -454,12 +466,17 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
     for method, applicability in evaluated:
         resource = rules.resource_fit(method, profile)
         risk_value = (method.complexity - 1) / 4.0
+        late_penalty = applicability.late_penalty
+        if stage_guidance.needs_rework(method, profile.stage):
+            # Переработка удорожает внедрение, но не запрещает его: решение
+            # остаётся в списке и просто уступает в порядке внедрения.
+            late_penalty *= stage_guidance.REWORK_PENALTY_MULTIPLIER
         matrix.append([
             float(method.performance_gain),
             (method.quality_impact + 2) / 4.0,
             1.0 + method.concept_impact / 2.0,
             float(method.implementation_cost),
-            applicability.late_penalty,
+            late_penalty,
             risk_value,
             resource,
             float(method.confidence),
@@ -565,6 +582,7 @@ def _tail(
         ),
         "risks": detect_risks(
             profile, basket_codes, methods_by_code, conflicts, engines, known_function_codes,
+            version_notes=engine_service.method_version_notes(db, profile, basket_methods),
         ),
         "input_key": input_fingerprint(
             profile, [m.code for m in basket_methods],
@@ -617,14 +635,14 @@ def _stage_order(value: str) -> int:
 
 def _recommendation_flags(
     method: Method, applicability: rules.Applicability, rank: int, total: int,
-    *, comparable: bool, stage_order: int, method_stage: int, late_blocked: bool,
+    *, comparable: bool, stage_order: int, method_stage: int, needs_rework: bool,
     tied_with_leader: bool = False,
 ) -> list[str]:
     """Пометки решения: абсолютные признаки + относительное место в списке.
 
-    Абсолютные признаки приоритетнее относительных: метод с закрытым окном
-    внедрения не может одновременно «рекомендоваться» (D34). Пометка места
-    в ранге остаётся только у методов без запрета.
+    Переработка не является запретом, поэтому она не заменяет пометку места
+    в ранге: решение остаётся сопоставимым с остальными и дополнительно
+    помечается стоимостью внедрения.
     """
     flags: list[str] = []
     rank_flags: list[str] = []
@@ -640,16 +658,14 @@ def _recommendation_flags(
         # Единственный или неразличимый набор: относительного порядка нет,
         # и утверждать «не рекомендуется» было бы неправдой.
         rank_flags.append("single_option" if total == 1 else "comparison_limited")
-    if late_blocked:
-        flags.append("not_recommended")
-        flags.append("late_blocked")
-    else:
-        flags.extend(rank_flags)
+    flags.extend(rank_flags)
+    if needs_rework:
+        flags.append("needs_rework")
     if tied_with_leader and rank > 1:
         flags.append("tied_leader")
     if stage_order <= method_stage:
         flags.append("implement_now")
-    if method.late_cost in ("high", "critical") and applicability.stage_pressure > 0 and not late_blocked:
+    if method.late_cost in ("high", "critical") and applicability.stage_pressure > 0 and not needs_rework:
         flags.append("late_difficult")
     if method.requires_prototype or method.confidence < 0.7:
         flags.append("needs_prototyping")
@@ -730,9 +746,13 @@ def _recommendation_reasons(
     return reasons
 
 
-def _engine_support(db: Session, method: Method, engine_code: str):
-    """Аналог метода в выбранном движке + альтернативы из других движков."""
-    links = [link_out(db, link) for link in repositories.method_links(db, method.id)]
+def _engine_support(db: Session, method: Method, engine_code: str, profile=None):
+    """Аналог метода в выбранном движке + альтернативы из других движков.
+
+    Доступность встроенного инструмента проверяется по версии движка: Nanite
+    не существует в UE 4.27, и показывать его готовым аналогом нельзя.
+    """
+    links = [link_out(db, link, profile) for link in repositories.method_links(db, method.id)]
     links.sort(key=lambda link: (
         0 if link.engine_code == engine_code else 1,
         RELATION_PRIORITY.index(link.relation_type) if link.relation_type in RELATION_PRIORITY else 99,
@@ -751,18 +771,19 @@ def _build_recommendation(
     score_gap: float = 0.0,
     tied_count: int = 1,
 ) -> RecommendationOut:
-    # Метод сюда попадает только применимым, поэтому «не рекомендуется» здесь
-    # возможно лишь по абсолютному признаку — окно внедрения закрыто стадией.
+    # Метод сюда попадает применимым, а стадия влияет на стоимость внедрения,
+    # поэтому «не рекомендуется» здесь не выводится из календаря: позднее
+    # внедрение означает переработку, а не физическую невозможность реализации.
     stage_order = _stage_order(profile.stage)
     method_stage = _stage_order(method.recommended_stage)
-    late_blocked = (
+    needs_rework = stage_guidance.needs_rework(method, profile.stage) or (
         method.late_cost == "critical"
         and applicability.stage_pressure >= 1.0
         and stage_order > method_stage
     )
     flags = _recommendation_flags(
         method, applicability, rank, total, comparable=comparable,
-        stage_order=stage_order, method_stage=method_stage, late_blocked=late_blocked,
+        stage_order=stage_order, method_stage=method_stage, needs_rework=needs_rework,
         tied_with_leader=tied_with_leader,
     )
     reasons = _recommendation_reasons(
@@ -772,7 +793,7 @@ def _build_recommendation(
         score_gap=score_gap,
         tied_count=tied_count,
     )
-    support, alternatives = _engine_support(db, method, profile.engine)
+    support, alternatives = _engine_support(db, method, profile.engine, profile)
     function_code, function_name = _recommendation_function(method)
 
     return RecommendationOut(
@@ -858,6 +879,51 @@ RESOURCE_LABELS = {
     "disk": "накопитель", "network": "сеть",
 }
 
+#: Ресурсы, у которых нет подсистемной модели стоимости кадра.
+#:
+#: Для CPU, GPU, RAM и VRAM сводка считает стоимость кадра и может показать
+#: изменение в процентах. Для накопителя и сети такой модели нет: трафик и
+#: объём зависят от форматов, сжатия и сценария игры, а не только от выбранных
+#: решений. Раньше суммарный экспертный балл умножался на коэффициент и
+#: превращался в «проценты нагрузки» — число выглядело измерением, но им не
+#: было и расходилось с аппаратным объяснением. Теперь по этим ресурсам
+#: выдаётся качественная оценка направления и величины.
+QUALITATIVE_RESOURCES = ("disk", "network")
+
+#: Пороги суммарного экспертного балла для качественного уровня (по модулю).
+QUALITATIVE_LEVELS = ((6.0, "существенное"), (3.0, "умеренное"), (0.0, "небольшое"))
+
+#: Нейтральное значение шкалы: множитель стоимости 1.0.
+NEUTRAL_SCORE = 50.0
+
+
+def _qualitative_level(score: float) -> str:
+    """Уровень влияния по суммарному экспертному баллу (без единиц измерения)."""
+    magnitude = abs(score)
+    if magnitude < 1e-6:
+        return "без значимого влияния"
+    for threshold, label in QUALITATIVE_LEVELS:
+        if magnitude >= threshold:
+            return label
+    return "без значимого влияния"
+
+
+def _qualitative_explanation(key: str, score: float, level: str) -> str:
+    """Пояснение к качественной оценке: что именно сказано и чего в ней нет."""
+    label = RESOURCE_LABELS[key]
+    if abs(score) < 1e-6:
+        return (
+            f"Выбранные решения не меняют требования к {label}: "
+            "значимых эффектов в каталоге для них не указано."
+        )
+    sign = "снижает" if score < 0 else "повышает"
+    return (
+        f"Набор {sign} требования к {label}: суммарный экспертный балл "
+        f"{score:+g} — уровень влияния {level}. Это качественная оценка "
+        "направления и относительной величины: модель не оценивает ни объём "
+        "данных, ни скорость, ни трафик, поэтому числового требования здесь нет."
+    )
+
 
 def _impact_text(method: Method, positive: bool = True) -> list[str]:
     impacts = {
@@ -890,6 +956,10 @@ def aggregate_load(
     В сводку входят только клиентские эффекты: серверная экономия и ускорение
     разработки не меняют требования к компьютеру игрока. Невошедшие решения
     перечислены в пояснениях, чтобы их отсутствие не выглядело потерей данных.
+
+    Накопитель и сеть показаны качественно (направление и уровень влияния),
+    а не числом: для них нет подсистемной модели стоимости кадра, и процент
+    был бы выдуманной величиной.
     """
     selected, notes = rules.assess_selected_methods(methods, profile, relations)
     counted, outside_client = rules.split_by_effect_scope(selected)
@@ -910,33 +980,54 @@ def aggregate_load(
     def gpu_cost(model) -> float:
         return model.gpu_raster_ms + model.gpu_rt_ms
 
-    # Накопитель и сеть не имеют подсистем стоимости кадра: для них остается
-    # суммарная экспертная оценка выбранных решений.
-    totals = {"disk": 0, "network": 0}
-    for m in counted:
-        totals["disk"] += m.impact_disk
-        totals["network"] += m.impact_network
-
     relative = {
         "cpu": _ratio(cpu_cost(current), cpu_cost(baseline)),
         "gpu": _ratio(gpu_cost(current), gpu_cost(baseline)),
         "ram": _ratio(ram_now, ram_base),
         "vram": _ratio(vram_now, vram_base),
-        "disk": totals["disk"] * 0.08,
-        "network": totals["network"] * 0.08,
     }
 
     per_resource: dict[str, dict] = {}
-    for key in ("cpu", "gpu", "ram", "vram", "disk", "network"):
+    for key in ("cpu", "gpu", "ram", "vram"):
         raw = relative[key]
         # Нейтральное значение 50: множитель стоимости 1.0.
-        normalized = max(0.0, min(100.0, 50.0 * (1.0 + raw)))
+        normalized = max(0.0, min(100.0, NEUTRAL_SCORE * (1.0 + raw)))
         per_resource[key] = {
             "raw": round(raw, 4),
             "normalized": round(normalized, 1),
             "label": RESOURCE_LABELS[key],
             "direction": "снижает" if raw < -1e-6 else ("повышает" if raw > 1e-6 else "не влияет"),
+            "quantitative": True,
+            "unit": "относительное изменение стоимости кадра",
         }
+
+    # Накопитель и сеть не имеют подсистем стоимости кадра: для них остаётся
+    # суммарная экспертная оценка выбранных решений, показанная качественно.
+    totals = {"disk": 0, "network": 0}
+    for m in counted:
+        totals["disk"] += m.impact_disk
+        totals["network"] += m.impact_network
+
+    for key in QUALITATIVE_RESOURCES:
+        score = float(totals[key])
+        level = _qualitative_level(score)
+        per_resource[key] = {
+            "raw": round(score, 4),
+            # Нейтральное значение: числовой шкалы у ресурса нет, столбец не строится.
+            "normalized": NEUTRAL_SCORE,
+            "label": RESOURCE_LABELS[key],
+            "direction": "снижает" if score < -1e-6 else ("повышает" if score > 1e-6 else "не влияет"),
+            "quantitative": False,
+            "level": level,
+            "explanation": _qualitative_explanation(key, score, level),
+        }
+
+    if any(per_resource[key]["direction"] != "не влияет" for key in QUALITATIVE_RESOURCES):
+        notes.append(
+            "Накопитель и сеть оценены качественно: модель считает стоимость кадра "
+            "для CPU, GPU, RAM и VRAM, но не объём данных и не трафик, поэтому по "
+            "этим двум ресурсам указаны направление и уровень влияния, а не число."
+        )
 
     if estimate is not None and estimate.bottleneck_label:
         notes.append(

@@ -478,6 +478,26 @@ SOURCES: dict[str, dict[str, str]] = {
         "url": "https://microsoft.github.io/DirectX-Specs/d3d/MeshShader.html",
         "date": "2025-01-01",
     },
+    # Ссылка подобрана по механизму, а не по названию: прежний источник карты
+    # описывал временное сглаживание (TAA) и не обосновывал переменную частоту
+    # затенения. Спецификация задаёт уровни поддержки и способ выбора частоты.
+    "MS_VRS": {
+        "title": "Variable Rate Shading | DirectX-Specs",
+        "url": "https://microsoft.github.io/DirectX-Specs/d3d/VariableRateShading.html",
+        "date": "2026-09-09",
+    },
+    "UE_MOTION_MATCHING": {
+        "title": "Motion Matching in Unreal Engine",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/motion-matching-in-unreal-engine",
+        "date": "2026-09-09",
+    },
+    # Нейронное сжатие текстур описывается SDK, а не материалом про DLSS:
+    # режимы on-load и on-sample различаются по цене и по месту выполнения.
+    "NVIDIA_NTC": {
+        "title": "NVIDIA RTXNTC SDK",
+        "url": "https://github.com/NVIDIA-RTX/Rtxntc",
+        "date": "2026-09-09",
+    },
     "WIKI_PROCEDURAL": {
         "title": "Procedural generation",
         "url": "https://en.wikipedia.org/wiki/Procedural_generation",

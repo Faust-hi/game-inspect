@@ -143,6 +143,40 @@ export function HardwareScreen() {
           </div>
         )}
 
+        {(hw.targets ?? []).length > 0 && (
+          <div style={{ marginTop: 12 }}>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>
+              Цели сборки: расчёт раздельно по ОС
+            </div>
+            <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+              {(hw.targets ?? []).map((target) => (
+                <li key={target.platform} style={{ marginBottom: 6 }}>
+                  <strong>{target.label}</strong>
+                  {' — '}
+                  {target.api_label}
+                  {target.api_source === 'auto'
+                    ? ' (выбран по ОС)'
+                    : ' (задан в профиле)'}
+                  {target.compatible ? (
+                    <>
+                      {`: CPU ${target.cpu_index?.toFixed(2)}, GPU ${target.gpu_index?.toFixed(2)}, `}
+                      {`RAM ${target.ram_gb} ГБ, VRAM ${target.vram_gb} ГБ`}
+                      {target.binding ? ' — определяет общий ориентир' : ''}
+                    </>
+                  ) : (
+                    ': нативного пути нет, оборудование не подбирается'
+                  )}
+                  {target.notes.map((note) => (
+                    <div key={note} style={{ opacity: 0.85 }}>
+                      {note}
+                    </div>
+                  ))}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div className="stat-grid" style={{ marginTop: 16 }}>
           <Metric label="Класс GPU" value={hw.gpu_class} hint="из 5" />
           <Metric label="Класс CPU" value={hw.cpu_class} hint="из 5" />

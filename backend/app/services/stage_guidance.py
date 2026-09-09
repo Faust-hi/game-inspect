@@ -7,20 +7,28 @@
 
 Здесь стадия получает собственное содержание:
 
-- какие уровни решений ещё внедримы, а какие закрыты стадией;
+- какие уровни решений внедряются сейчас, а какие потребуют переработки;
 - что имеет смысл решить именно сейчас (предложения);
 - чем грозит текущая стадия (предупреждения).
 
 Предупреждения и предложения заданы для каждой стадии отдельно, а не
 выводятся из порядкового номера: у беты и релиза разные ограничения, хотя
 обе стадии поздние.
+
+Стадия — это стоимость внедрения, а не физическое свойство реализации.
+Поэтому она **не запрещает** решение: выбранная работающая реализация не
+исчезает из расчёта от того, какая сегодня дата. Архитектурное решение на
+релизе остаётся в списке, но помечается как требующее переработки и
+опускается ниже в порядке внедрения. Раньше поздние стадии полностью
+исключали архитектурный уровень: одно и то же решение пропадало из
+рекомендаций, но продолжало учитываться в корзине, и два экрана расходились.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 
 from ..models.entities import Method
-from ..models.enums import DevStage, SolutionLevel
+from ..models.enums import DevStage, LateCost, SolutionLevel
 from ..schemas.catalog import StageGuidanceOut, StageNoteOut
 from .serializers import label_of
 
@@ -41,23 +49,29 @@ class StageGuidance:
     stage: str
     stage_label: str
     summary: str
+    #: Уровни, внедряемые без переработки.
     available_levels: list[str]
-    blocked_levels: list[str]
+    #: Уровни, внедрение которых целиком требует переработки.
+    rework_levels: list[str]
+    #: Уровни, где переработку требует только часть решений.
     restricted_levels: list[str]
     warnings: list[StageNote]
     suggestions: list[StageNote]
 
 
-#: Уровни решений, закрытые стадией: позднее внедрение либо невозможно, либо
-#: требует переработки уже готовых материалов. Значение — множество пар
+#: Уровни решений, внедрение которых на этой стадии требует переработки уже
+#: готовых материалов. Значение — множество пар
 #: (уровень решения, цена позднего внедрения).
-_BLOCKED_BY_STAGE: dict[str, set[tuple[str, str]]] = {
+#:
+#: Это стоимость, а не запрет: решение остаётся в расчёте и в списке, но
+#: получает пометку о переработке и уступает в порядке внедрения.
+_REWORK_BY_STAGE: dict[str, set[tuple[str, str]]] = {
     "concept": set(),
     "preproduction": set(),
     "prototype": set(),
     "production": set(),
     # Архитектурные решения в каталоге имеют только высокую и критическую цену
-    # позднего внедрения, поэтому обе цены закрыты уже на альфе.
+    # позднего внедрения, поэтому обе цены требуют переработки уже на альфе.
     "alpha": {("architecture", "critical"), ("architecture", "high")},
     "beta": {("architecture", "critical"), ("architecture", "high")},
     "release": {
@@ -65,14 +79,14 @@ _BLOCKED_BY_STAGE: dict[str, set[tuple[str, str]]] = {
         ("production", "high"),
     },
     # После релиза пайплайн снова открыт: патчи и обновления перерабатывают
-    # контент, поэтому производственные решения возвращаются в число доступных.
+    # контент, поэтому производственные решения вновь выполнимы.
     "post_release": {("architecture", "critical"), ("architecture", "high")},
 }
 
 _GUIDANCE: dict[str, dict] = {
     "concept": {
         "summary": "Архитектура ещё не зафиксирована: любое решение внедряется минимальной ценой.",
-        "blocked": [],
+        "rework": [],
         "suggestions": [
             ("target_hw", "Определить целевую конфигурацию",
              "Зафиксировать целевые платформу, разрешение и частоту кадров: от них зависит "
@@ -95,7 +109,7 @@ _GUIDANCE: dict[str, dict] = {
     },
     "preproduction": {
         "summary": "Последний момент, когда архитектурные решения внедряются без переработки материалов.",
-        "blocked": [],
+        "rework": [],
         "suggestions": [
             ("close_architecture", "Закрыть архитектурные вопросы",
              "После перехода к производству смена схемы стриминга, памяти или пути рендера "
@@ -114,7 +128,7 @@ _GUIDANCE: dict[str, dict] = {
     },
     "prototype": {
         "summary": "Спорные решения проверяются экспериментом; архитектурные изменения уже дороже.",
-        "blocked": [],
+        "rework": [],
         "suggestions": [
             ("measure", "Измерить, а не оценить",
              "Решения с признаком «требует прототипа» должны быть подтверждены замером: "
@@ -129,7 +143,7 @@ _GUIDANCE: dict[str, dict] = {
     },
     "production": {
         "summary": "Идёт массовое наполнение контента: доступны производственные решения, алгоритмы и настройки.",
-        "blocked": [],
+        "rework": [],
         "suggestions": [
             ("process", "Оптимизировать процесс производства",
              "Пайплайн ассетов, сжатие и правила импорта дают выигрыш на всём объёме контента."),
@@ -143,8 +157,8 @@ _GUIDANCE: dict[str, dict] = {
         ],
     },
     "alpha": {
-        "summary": "Архитектура фактически зафиксирована: доступны алгоритмы, настройки и процесс производства.",
-        "blocked": ["architecture"],
+        "summary": "Архитектура фактически зафиксирована: алгоритмы, настройки и процесс производства внедряются напрямую, архитектурные правки требуют переработки.",
+        "rework": ["architecture"],
         "suggestions": [
             ("profile", "Профилировать по подсистемам",
              "Определить фактическое узкое место: оптимизация не того ресурса не даёт выигрыша."),
@@ -152,16 +166,17 @@ _GUIDANCE: dict[str, dict] = {
              "Алгоритмический уровень остаётся доступным и даёт наибольший выигрыш на этой стадии."),
         ],
         "warnings": [
-            ("architecture_locked", "Архитектурные решения закрыты",
-             "Решения уровня архитектуры с критической ценой позднего внедрения исключены из "
-             "расчёта: их внедрение требует переработки проекта."),
+            ("architecture_rework", "Архитектурные решения потребуют переработки",
+             "Решения уровня архитектуры с высокой и критической ценой позднего внедрения "
+             "остаются в списке, но их внедрение означает переработку уже созданных материалов: "
+             "они показаны последними в порядке внедрения."),
             ("content_freeze", "Избегать решений, влияющих на контент",
              "Любое изменение, требующее переработки ассетов, срывает наполнение уровней."),
         ],
     },
     "beta": {
         "summary": "Допустимы настройки и точечные алгоритмические улучшения, не требующие переработки контента.",
-        "blocked": ["architecture"],
+        "rework": ["architecture"],
         "suggestions": [
             ("settings", "Настроить качество и масштабирование",
              "Тиры качества, динамическое разрешение и масштабирование дают выигрыш без "
@@ -172,13 +187,14 @@ _GUIDANCE: dict[str, dict] = {
         "warnings": [
             ("regression", "Риск регрессий",
              "Изменения, влияющие на рендер или симуляцию, требуют полной проверки сборки."),
-            ("architecture_locked", "Архитектура недоступна",
-             "Архитектурные решения исключены из расчёта: они не могут быть внедрены на этой стадии."),
+            ("architecture_rework", "Архитектура потребует переработки",
+             "Архитектурные решения показаны с пометкой о переработке: внедрить их напрямую "
+             "на этой стадии нельзя без переработки материалов."),
         ],
     },
     "release": {
         "summary": "До релиза изменения ограничены настройками и исправлениями, не влияющими на контент.",
-        "blocked": ["architecture"],
+        "rework": ["architecture"],
         "suggestions": [
             ("safe_settings", "Только безопасные настройки",
              "Приоритет у решений уровня настроек с низкой ценой внедрения."),
@@ -189,16 +205,16 @@ _GUIDANCE: dict[str, dict] = {
              "изменил патч."),
         ],
         "warnings": [
-            ("no_content_change", "Изменения контента невозможны",
-             "Производственные и архитектурные решения исключены: они требуют переработки "
-             "материалов и пересборки."),
+            ("no_content_change", "Изменения контента невозможны в этой сборке",
+             "Производственные и архитектурные решения требуют переработки материалов и "
+             "пересборки: они показаны с пометкой о переработке и не входят в ближайший патч."),
             ("regression", "Любая правка влияет на выпускаемую сборку",
              "Изменения рендера и симуляции требуют проверки на регрессии перед выпуском."),
         ],
     },
     "post_release": {
         "summary": "После релиза доступны настройки, выборочные алгоритмические улучшения и переработка контента в патчах.",
-        "blocked": ["architecture"],
+        "rework": ["architecture"],
         "suggestions": [
             ("telemetry", "Работать по данным телеметрии",
              "Оптимизировать то, что подтверждено измерениями на реальных конфигурациях."),
@@ -211,8 +227,9 @@ _GUIDANCE: dict[str, dict] = {
         "warnings": [
             ("live_game", "Изменения затрагивают выпущенную игру",
              "Каждое решение влияет на уже установленную сборку и требует проверки на регрессии."),
-            ("architecture_locked", "Архитектура недоступна",
-             "Архитектурные решения исключены из расчёта: их внедрение означает переработку проекта."),
+            ("architecture_rework", "Архитектура потребует переработки",
+             "Архитектурные решения не исчезают из расчёта, но их внедрение означает "
+             "переработку проекта: они показаны с пометкой о переработке."),
         ],
     },
 }
@@ -223,38 +240,60 @@ def stage_code(value: str) -> str:
     return value if value in _GUIDANCE else DevStage.PROTOTYPE.value
 
 
-def is_blocked(method: Method, stage: str) -> bool:
-    """Закрыто ли решение текущей стадией."""
-    return (method.level, method.late_cost) in _BLOCKED_BY_STAGE.get(stage_code(stage), set())
+def needs_rework(method: Method, stage: str) -> bool:
+    """Потребует ли внедрение решения переработки на текущей стадии.
 
-
-def blocked_levels(stage: str) -> list[str]:
-    """Уровни решений, закрытые стадией целиком.
-
-    Значения заданы явно в таблице, а не выводятся из набора заблокированных
-    пар: «все цены внедрения закрыты» — свойство абстрактного пространства
-    признаков, а не каталога, и давало пустой список даже там, где уровень на
-    самом деле недоступен.
+    Это стоимость, а не запрет: решение остаётся в расчёте. Исключение делало
+    стадию физическим свойством реализации — одно и то же решение пропадало из
+    рекомендаций, но продолжало учитываться в корзине.
     """
-    return list(_GUIDANCE[stage_code(stage)]["blocked"])
+    return (method.level, method.late_cost) in _REWORK_BY_STAGE.get(stage_code(stage), set())
+
+
+def rework_levels(stage: str) -> list[str]:
+    """Уровни решений, внедрение которых целиком требует переработки.
+
+    Значения заданы явно в таблице, а не выводятся из набора пар: «все цены
+    внедрения требуют переработки» — свойство абстрактного пространства
+    признаков, а не каталога, и давало пустой список даже там, где уровень на
+    самом деле не внедряется напрямую.
+    """
+    return list(_GUIDANCE[stage_code(stage)]["rework"])
 
 
 def restricted_levels(stage: str) -> list[str]:
-    """Уровни, у которых стадия закрыла только часть решений.
+    """Уровни, у которых переработку требует только часть решений.
 
-    Отдельно от `blocked_levels`: сказать «уровень закрыт» про уровень, где
-    доступна половина решений, значило бы скрыть рабочие варианты.
+    Отдельно от `rework_levels`: сказать «уровень требует переработки» про
+    уровень, где половина решений внедряется напрямую, значило бы скрыть
+    рабочие варианты.
     """
-    pairs = _BLOCKED_BY_STAGE.get(stage_code(stage), set())
-    fully = set(blocked_levels(stage))
+    pairs = _REWORK_BY_STAGE.get(stage_code(stage), set())
+    fully = set(rework_levels(stage))
     return sorted(level for level in {level for level, _cost in pairs} if level not in fully)
+
+
+#: Насколько переработка удорожает внедрение. Множитель к штрафу за позднее
+#: внедрение: решение остаётся в списке, но уступает в порядке внедрения.
+REWORK_PENALTY_MULTIPLIER = 1.6
+
+
+def rework_note(method: Method, stage: str) -> str:
+    """Объяснение стоимости переработки для конкретного решения."""
+    return (
+        f"На стадии «{DevStage(stage_code(stage)).label}» внедрение потребует переработки: "
+        f"уровень «{SolutionLevel(method.level).label}» с "
+        f"{LateCost(method.late_cost).label} ценой позднего внедрения меняет уже готовые "
+        "материалы. Решение остаётся в расчёте, но в порядке внедрения идёт после тех, "
+        "что внедряются напрямую."
+    )
 
 
 def guidance(stage: str) -> StageGuidance:
     """Предупреждения и предложения для стадии."""
     code = stage_code(stage)
     data = _GUIDANCE[code]
-    blocked = blocked_levels(code)
+    blocked = rework_levels(code)
     restricted = restricted_levels(code)
     available = [level.value for level in SolutionLevel if level.value not in blocked]
     return StageGuidance(
@@ -262,7 +301,7 @@ def guidance(stage: str) -> StageGuidance:
         stage_label=DevStage(code).label,
         summary=data["summary"],
         available_levels=available,
-        blocked_levels=blocked,
+        rework_levels=blocked,
         restricted_levels=restricted,
         warnings=[StageNote(*item) for item in data["warnings"]],
         suggestions=[StageNote(*item) for item in data["suggestions"]],
@@ -283,8 +322,8 @@ def guidance_out(stage: str) -> StageGuidanceOut:
         summary=item.summary,
         available_levels=item.available_levels,
         available_level_labels=[label_of(SolutionLevel, level) for level in item.available_levels],
-        blocked_levels=item.blocked_levels,
-        blocked_level_labels=[label_of(SolutionLevel, level) for level in item.blocked_levels],
+        rework_levels=item.rework_levels,
+        rework_level_labels=[label_of(SolutionLevel, level) for level in item.rework_levels],
         restricted_levels=item.restricted_levels,
         restricted_level_labels=[label_of(SolutionLevel, level) for level in item.restricted_levels],
         warnings=[StageNoteOut(code=n.code, title=n.title, text=n.text) for n in item.warnings],

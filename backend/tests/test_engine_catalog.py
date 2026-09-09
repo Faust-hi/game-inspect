@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from app.models.entities import Engine
+from app.models.entities import Engine, EngineTool
 from app.services import engines as engine_catalog
 
 LEGACY_CODES = ["unreal", "unity", "godot", "cryengine", "source", "heroengine", "custom"]
@@ -32,7 +32,7 @@ def new_engine(db) -> Engine:
     return engine
 
 
-def _post(client, path: str, **profile_overrides):
+def _post(client, path: str, basket: list[str] | None = None, **profile_overrides):
     profile = {
         "name": "Проект", "format": "3D", "world_type": "open_world", "scale": "large",
         "stage": "prototype", "engine": "unreal", "platforms": ["pc_windows"],
@@ -40,7 +40,7 @@ def _post(client, path: str, **profile_overrides):
         "target_fps": 60,
     }
     profile.update(profile_overrides)
-    return client.post(path, json={"profile": profile, "basket": []})
+    return client.post(path, json={"profile": profile, "basket": basket or []})
 
 
 @pytest.mark.parametrize("path", CALCULATION_ENDPOINTS)
@@ -95,3 +95,61 @@ def test_empty_catalog_falls_back_to_legacy_codes(db):
 def test_engine_code_shape_is_checked(client, code):
     """Код движка — идентификатор, а не произвольный текст."""
     assert _post(client, "/api/recommend", engine=code).status_code == 422
+
+
+# --- Версия движка и наличие встроенного инструмента ------------------------
+
+@pytest.mark.parametrize("actual,required,expected", [
+    ("5.0", "5.0", True),
+    ("5.5", "5.0", True),
+    ("4.27", "5.0", False),
+    ("2022 LTS", "2021 LTS", True),
+    ("Source 2", "5.0", None),          # номер не извлекается
+    (None, "5.0", None),                # версия не указана
+    ("4.27", None, None),               # граница не задана
+])
+def test_version_at_least_distinguishes_unknown_from_available(actual, required, expected):
+    """Неопределённость не приравнивается к доступности инструмента."""
+    assert engine_catalog.version_at_least(actual, required) is expected
+
+
+def test_nanite_is_unavailable_for_ue_4_27(db):
+    """Встроенного Nanite в 4.27 нет: граница версии задана в каталоге."""
+    from sqlalchemy import select
+
+    tool = db.scalar(select(EngineTool).where(EngineTool.code == "ue_nanite"))
+    assert tool is not None and tool.min_version == "5.0"
+
+    unavailable = engine_catalog.unavailable_tools(db, "unreal", "4.27")
+    assert "ue_nanite" in unavailable, unavailable
+    assert engine_catalog.unavailable_tools(db, "unreal", "5.5") == {}
+
+
+def test_recommendation_marks_builtin_tool_missing_in_engine_version(client, db):
+    """Карточка не выдаёт отсутствующий в версии инструмент за готовый аналог."""
+    response = _post(
+        client, "/api/recommend", engine="unreal", engine_version="4.27",
+        functions=["large_scale_terrain"],
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    cards = [
+        row for row in payload["recommendations"]
+        if row["method_code"] == "virtual_geometry_clusters"
+    ]
+    assert cards, [row["method_code"] for row in payload["recommendations"]]
+    support = cards[0]["engine_support"]
+    assert support is not None and support["tool_code"] == "ue_nanite"
+    assert support["available"] is False
+    assert "4.27" in (support["availability_note"] or "")
+
+
+def test_missing_builtin_tool_becomes_visible_risk(client, db):
+    """Встроенный инструмент без версии — риск плана, а не молчаливая подмена."""
+    response = _post(
+        client, "/api/recommend", basket=["virtual_geometry_clusters"],
+        engine="unreal", engine_version="4.27", functions=["large_scale_terrain"],
+    )
+    assert response.status_code == 200
+    codes = {risk["code"] for risk in response.json()["risks"]}
+    assert "engine_tool_version" in codes, codes

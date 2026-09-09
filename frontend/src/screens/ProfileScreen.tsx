@@ -365,23 +365,26 @@ export function ProfileScreen() {
         </div>
       </Card>
 
-      <Card title="Масштаб сцены" hint="Если точные числа неизвестны, используйте качественные уровни.">
+      <Card
+        title="Масштаб сцены"
+        hint="Указываются одновременно активные сущности, а не всё содержимое проекта. Точное число имеет приоритет над уровнем. Масштаб мира влияет на стриминг и память, но не увеличивает стоимость кадра при том же числе активных сущностей."
+      >
         <div className="grid grid-2">
-          <Field label="Количество объектов">
+          <Field label="Активные объекты (уровень)">
             <Select
               value={profile.object_count_level}
               options={enums.levels}
               onChange={(value) => updateProfile({ object_count_level: value })}
             />
           </Field>
-          <Field label="Количество NPC">
+          <Field label="Активные NPC (уровень)">
             <Select
               value={profile.npc_count_level}
               options={enums.levels}
               onChange={(value) => updateProfile({ npc_count_level: value })}
             />
           </Field>
-          <Field label="Точное число объектов" hint="Необязательно">
+          <Field label="Точное число активных объектов" hint="Необязательно">
             <NumberInput
               value={profile.object_count ?? null}
               min={0}
@@ -389,7 +392,7 @@ export function ProfileScreen() {
               onChange={(value) => updateProfile({ object_count: value })}
             />
           </Field>
-          <Field label="Точное число NPC" hint="Необязательно">
+          <Field label="Точное число активных NPC" hint="Необязательно">
             <NumberInput
               value={profile.npc_count ?? null}
               min={0}

@@ -88,7 +88,7 @@ def list_engines(db: Session = Depends(get_db)):
             tools=[
                 EngineToolOut(
                     code=t.code, name=t.name, subsystem=t.subsystem, description=t.description,
-                    tool_type=t.tool_type, docs_url=t.docs_url,
+                    tool_type=t.tool_type, docs_url=t.docs_url, min_version=t.min_version,
                 )
                 for t in sorted(e.tools, key=lambda x: (x.subsystem, x.name))
                 if t.code in published_tools

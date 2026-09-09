@@ -1,0 +1,4535 @@
+[
+ {
+  "id": "p01-01",
+  "party": 1,
+  "title": "Portal (2007, Valve)",
+  "year": 2007,
+  "engine_dss": "source",
+  "engine_raw": "Source (Orange Box)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "1.7 GHz CPU, 512 MB RAM, GPU с поддержкой SSE (DX8.1 совместимая)"
+   },
+   {
+    "Rec HW": "Pentium 4 3.0 GHz, 1 GB RAM, DX9 GPU"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps), stencil + portal = основная статья fillrate"
+   }
+  ],
+  "profile": {
+   "name": "Portal (2007, Valve)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "small",
+   "stage": "release",
+   "engine": "source",
+   "engine_version": "1.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "low",
+   "npc_count_level": "low",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "physics_simulation",
+    "post_processing"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "baked_occlusion_culling",
+   "depth_prepass_early_z",
+   "deterministic_lockstep",
+   "fixed_timestep_physics"
+  ],
+  "n_decisions": 6,
+  "n_matched": 4,
+  "n_decisions_matched": 3,
+  "unmatched": [
+   "runtime_stencil_portal_rendering",
+   "portal_momentum_conservation",
+   "audio_propagation_through_portals"
+  ]
+ },
+ {
+  "id": "p01-02",
+  "party": 1,
+  "title": "Portal 2 (2011, Valve)",
+  "year": 2011,
+  "engine_dss": "source",
+  "engine_raw": "Source (Left 4 Dead branch, основан на Source 2007 / Orange Box)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo 2.0 GHz, 2 GB RAM, DX9 GPU 256 MB"
+   },
+   {
+    "Rec HW": "Quad-core CPU, 4 GB RAM, GPU 512 MB"
+   },
+   {
+    "Frame budget": "16.6 мс; гели и лазеры добавляют ~1-2 мс в больших сценах"
+   }
+  ],
+  "profile": {
+   "name": "Portal 2 (2011, Valve)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "source",
+   "engine_version": "2.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "low",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "physics_simulation",
+    "post_processing",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "deferred_forward_plus_choice",
+   "froxel_volumetric_fog",
+   "gerstner_fft_water",
+   "gpu_particle_simulation",
+   "lightmap_atlas_baking",
+   "managed_gc_alloc_budget",
+   "particle_pooling",
+   "planar_reflection_budget",
+   "rt_effect_resolution_budget",
+   "tiled_clustered_light_culling"
+  ],
+  "n_decisions": 8,
+  "n_matched": 10,
+  "n_decisions_matched": 6,
+  "unmatched": [
+   "excursion_funnel_force_field",
+   "audio_convolution_reverb"
+  ]
+ },
+ {
+  "id": "p01-03",
+  "party": 1,
+  "title": "Garry's Mod (2006, Facepunch Studios)",
+  "year": 2006,
+  "engine_dss": "source",
+  "engine_raw": "Source (через SDK)",
+  "frame_budget_ms": null,
+  "hw": [
+   {
+    "Min HW": "2 GHz, 1 GB RAM, GPU с поддержкой SSE2"
+   },
+   {
+    "Rec HW": "Quad-core CPU, 4 GB RAM, выделенный GPU"
+   },
+   {
+    "Frame budget": "зависит от аддонов; без Wiremod = близко к Source baseline"
+   }
+  ],
+  "profile": {
+   "name": "Garry's Mod (2006, Facepunch Studios)",
+   "format": "3D",
+   "world_type": "sandbox",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "source",
+   "engine_version": "1.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "low",
+   "player_count": 32,
+   "multiplayer": true,
+   "functions": [
+    "physics_simulation",
+    "multiplayer_netcode",
+    "post_processing"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "gpu_procedural_placement",
+   "headless_dedicated_server",
+   "hierarchical_lod",
+   "mesh_index_optimization",
+   "multithreaded_physics_jobs",
+   "particle_pooling",
+   "physics_lod_sleeping"
+  ],
+  "n_decisions": 9,
+  "n_matched": 8,
+  "n_decisions_matched": 6,
+  "unmatched": [
+   "physics_gun_constraints",
+   "find_in_sphere_hot_path_avoid",
+   "wiremod_visual_programming"
+  ]
+ },
+ {
+  "id": "p01-04",
+  "party": 1,
+  "title": "Call of Duty 4: Modern Warfare (2007, Infinity Ward)",
+  "year": 2007,
+  "engine_dss": "custom",
+  "engine_raw": "IW Engine 3.0 (собственный Infinity Ward; не публикуется как SDK)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Pentium 4 2.4 GHz / Athlon 64 2800+, 512 MB RAM, GeForce 6600 / Radeon X1600"
+   },
+   {
+    "Rec HW": "Core 2 Duo, 1 GB RAM, GeForce 7900 / Radeon X1900"
+   },
+   {
+    "Frame budget": "16.6 мс; рендер + AI + сеть на одном ядре (многопоточность ограничена)"
+   }
+  ],
+  "profile": {
+   "name": "Call of Duty 4: Modern Warfare (2007, Infinity Ward)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "medium",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "multiplayer_netcode",
+    "physics_simulation",
+    "dynamic_shadows",
+    "post_processing",
+    "character_animation"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "animation_lod_budget",
+   "audio_occlusion_propagation",
+   "baked_occlusion_culling",
+   "data_driven_ability_system",
+   "dynamic_light_priority_budget",
+   "fixed_timestep_physics",
+   "hierarchical_lod",
+   "mesh_index_optimization",
+   "post_effect_selective"
+  ],
+  "n_decisions": 8,
+  "n_matched": 9,
+  "n_decisions_matched": 6,
+  "unmatched": [
+   "multiplayer_progression_unlock",
+   "killstreak_server_logic"
+  ]
+ },
+ {
+  "id": "p01-05",
+  "party": 1,
+  "title": "Sid Meier's Civilization V (2010, Firaxis Games)",
+  "year": 2010,
+  "engine_dss": "custom",
+  "engine_raw": "LORE (Low Overhead Rendering Engine, собственный Firaxis)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo 1.8 GHz / Athlon X2 2.0 GHz, 2 GB RAM, DX9 GPU 256 MB"
+   },
+   {
+    "Rec HW": "Quad-core 2.4 GHz, 4 GB RAM, DX11 GPU 1 GB"
+   },
+   {
+    "Frame budget": "16.6 мс; AI на поздних ходах занимает больше всего"
+   }
+  ],
+  "profile": {
+   "name": "Sid Meier's Civilization V (2010, Firaxis Games)",
+   "format": "3D",
+   "world_type": "hub",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 6,
+   "multiplayer": true,
+   "functions": [
+    "ai_pathfinding",
+    "procedural_terrain",
+    "post_processing",
+    "multiplayer_netcode",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "deferred_forward_plus_choice",
+   "multithreaded_physics_jobs",
+   "navmesh_tiling_streaming",
+   "time_sliced_pathfinding"
+  ],
+  "n_decisions": 11,
+  "n_matched": 5,
+  "n_decisions_matched": 4,
+  "unmatched": [
+   "hardware_tessellation_terrain",
+   "gpu_raytraced_shadows",
+   "one_unit_per_tile_combat",
+   "ai_four_layer_hierarchy",
+   "ai_flavor_personality_matrix",
+   "procedural_resource_generation",
+   "voice_acting_native_languages"
+  ]
+ },
+ {
+  "id": "p01-06",
+  "party": 1,
+  "title": "Call of Duty: World at War (2008, Treyarch)",
+  "year": 2008,
+  "engine_dss": "custom",
+  "engine_raw": "IW Engine 3.0 (модифицированный от CoD4)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Pentium 4 3.0 GHz / Athlon 64 3200+, 512 MB RAM, GeForce 6600 / Radeon X1600"
+   },
+   {
+    "Rec HW": "Core 2 Duo, 1 GB RAM, GeForce 8600 / Radeon X1900"
+   },
+   {
+    "Frame budget": "16.6 мс; огонь и gore добавляют ~1-2 мс в сценах"
+   }
+  ],
+  "profile": {
+   "name": "Call of Duty: World at War (2008, Treyarch)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "medium",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "multiplayer_netcode",
+    "physics_simulation",
+    "particle_systems",
+    "dynamic_shadows",
+    "destruction_simulation"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "audio_occlusion_propagation",
+   "baked_occlusion_culling",
+   "behaviour_tree_update_budget",
+   "destruction_geometry_cache",
+   "froxel_volumetric_fog",
+   "gerstner_fft_water",
+   "particle_pooling"
+  ],
+  "n_decisions": 8,
+  "n_matched": 7,
+  "n_decisions_matched": 5,
+  "unmatched": [
+   "dismemberment_physics",
+   "audio_flux_field_recording",
+   "material_bullet_penetration"
+  ]
+ },
+ {
+  "id": "p01-07",
+  "party": 1,
+  "title": "The Witcher 2: Assassins of Kings Enhanced Edition (2011/2012, CD PROJEKT RED)",
+  "year": 2011,
+  "engine_dss": "custom",
+  "engine_raw": "REDengine (первая полностью собственная CDPR; ранее Witcher 1 — Aurora Engine)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo 2.2 GHz / Athlon 64 X2 2.4 GHz, 1 GB RAM (XP) / 2 GB (Vista/7), GeForce 8800 / Radeon HD 3850"
+   },
+   {
+    "Rec HW": "Core 2 Quad / Phenom X4, 4 GB RAM, GeForce 260 / Radeon HD 4850"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps цель); Havok-физика — основная статья CPU. **Ubersampling = 4x SSAA**: в 2011 резал fps вдвое даже на топ-картах (GTX 580 / Radeon HD 6970)"
+   }
+  ],
+  "profile": {
+   "name": "The Witcher 2: Assassins of Kings Enhanced Edition (2011/2012, CD PROJEKT RED)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "medium",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "physics_simulation",
+    "ai_pathfinding",
+    "post_processing",
+    "baked_lighting",
+    "open_world_streaming",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 30,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "animation_lod_budget",
+   "baked_occlusion_culling",
+   "broadphase_spatial_partitioning",
+   "deferred_forward_plus_choice",
+   "hierarchical_lod",
+   "lightmap_atlas_baking",
+   "mesh_index_optimization",
+   "temporal_upscaling"
+  ],
+  "n_decisions": 9,
+  "n_matched": 8,
+  "n_decisions_matched": 8,
+  "unmatched": [
+   "branching_narrative_state_graph"
+  ]
+ },
+ {
+  "id": "p01-08",
+  "party": 1,
+  "title": "The Elder Scrolls IV: Oblivion GOTY (2006/2007, Bethesda Game Studios)",
+  "year": 2006,
+  "engine_dss": "custom",
+  "engine_raw": "Gamebryo (NetImmerse/Gamebryo от Emergent Game Technologies)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Pentium 4 2.0 GHz / Athlon XP 2000+, 512 MB RAM, DX9 GPU 64 MB"
+   },
+   {
+    "Rec HW": "Pentium 4 3.0 GHz / Athlon 64 3000+, 1 GB RAM, GeForce 6600 / Radeon X1300"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps цель); HDR + LOD — основные статьи GPU; Radiant AI — CPU"
+   }
+  ],
+  "profile": {
+   "name": "The Elder Scrolls IV: Oblivion GOTY (2006/2007, Bethesda Game Studios)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "open_world_streaming",
+    "large_scale_terrain",
+    "ai_pathfinding",
+    "character_animation",
+    "dynamic_shadows",
+    "baked_lighting"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 30,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "baked_occlusion_culling",
+   "broadphase_spatial_partitioning",
+   "chunked_procedural_terrain",
+   "deferred_forward_plus_choice",
+   "dynamic_light_priority_budget",
+   "gpu_instancing_vegetation",
+   "hierarchical_lod",
+   "impostors_billboards",
+   "mesh_index_optimization"
+  ],
+  "n_decisions": 11,
+  "n_matched": 9,
+  "n_decisions_matched": 6,
+  "unmatched": [
+   "radiant_ai_schedule_graph",
+   "full_voice_acting_npc",
+   "level_scaling_enemies",
+   "specular_mapping_materials",
+   "horse_armor_microtransaction"
+  ]
+ },
+ {
+  "id": "p01-09",
+  "party": 1,
+  "title": "Batman: Arkham Asylum GOTY (2009/2010, Rocksteady Studios)",
+  "year": 2009,
+  "engine_dss": "unreal",
+  "engine_raw": "Unreal Engine 3",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo 2.4 GHz / Athlon X2 2.8 GHz, 1 GB RAM (XP) / 2 GB (Vista/7), GeForce 7900 / Radeon X1900"
+   },
+   {
+    "Rec HW": "Core 2 Quad, 3 GB RAM, GeForce 8800 / Radeon HD 3870"
+   },
+   {
+    "Frame budget": "16.6 мс; PhysX-частицы добавляют ~1-2 мс"
+   }
+  ],
+  "profile": {
+   "name": "Batman: Arkham Asylum GOTY (2009/2010, Rocksteady Studios)",
+   "format": "3D",
+   "world_type": "hub",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "unreal",
+   "engine_version": "3.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "medium",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "dynamic_shadows"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "froxel_volumetric_fog",
+   "gpu_particle_simulation",
+   "motion_matching",
+   "post_effect_selective"
+  ],
+  "n_decisions": 8,
+  "n_matched": 4,
+  "n_decisions_matched": 4,
+  "unmatched": [
+   "garry_point_stealth_anchor",
+   "boss_fight_pattern_reuse",
+   "collectible_driven_exploration",
+   "cape_animation_700_states"
+  ]
+ },
+ {
+  "id": "p01-10",
+  "party": 1,
+  "title": "Final Fantasy XIV Online (2013, Square Enix, A Realm Reborn)",
+  "year": 2013,
+  "engine_dss": "custom",
+  "engine_raw": "Собственный (полностью новая кодовая база «Version 2.0», секрет с 2011)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i5-8400 / Ryzen 5 2600, 16 GB RAM, GTX 970 4 GB / RX 480 4 GB"
+   },
+   {
+    "Rec HW": "Core i7-9700 / Ryzen 7 3700X, 16 GB RAM, RTX 2060 / RX 5600 XT"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps); в переполненных хабах — риск просадок"
+   }
+  ],
+  "profile": {
+   "name": "Final Fantasy XIV Online (2013, Square Enix, A Realm Reborn)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "multiplayer_netcode",
+    "ai_pathfinding",
+    "character_animation",
+    "dynamic_shadows",
+    "post_processing",
+    "open_world_streaming",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "async_loading_pipeline",
+   "differential_patch_pipeline",
+   "gerstner_fft_water",
+   "gpu_compute_culling",
+   "gpu_instancing_vegetation",
+   "headless_dedicated_server",
+   "hierarchical_lod",
+   "lightmap_atlas_baking",
+   "mesh_index_optimization",
+   "multithreaded_physics_jobs",
+   "rt_effect_resolution_budget",
+   "srp_batcher_discipline",
+   "tilemap_chunk_streaming",
+   "world_partition_streaming"
+  ],
+  "n_decisions": 14,
+  "n_matched": 14,
+  "n_decisions_matched": 9,
+  "unmatched": [
+   "server_authoritative_state",
+   "controller_first_ui",
+   "cross_platform_play",
+   "job_armory_system",
+   "active_time_event_fate"
+  ]
+ },
+ {
+  "id": "p02-11",
+  "party": 2,
+  "title": "Half-Life 2 (2004, Valve)",
+  "year": 2004,
+  "engine_dss": "source",
+  "engine_raw": "Source (debut release, 2004)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Pentium 4 2.0 GHz / Athlon XP 2000+, 512 MB RAM, DX9 GPU 64 MB"
+   },
+   {
+    "Rec HW": "Pentium 4 3.0 GHz / Athlon 64 3000+, 1 GB RAM, GeForce 6600 / Radeon X1300"
+   },
+   {
+    "Frame budget": "33.3 мс (60 fps цель)"
+   }
+  ],
+  "profile": {
+   "name": "Half-Life 2 (2004, Valve)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "source",
+   "engine_version": "1.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "low",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "physics_simulation",
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "dynamic_shadows",
+    "vehicle_simulation"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 30,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "broadphase_spatial_partitioning",
+   "client_prediction_reconciliation",
+   "composition_bootstrap_architecture",
+   "deterministic_lockstep",
+   "dynamic_light_priority_budget",
+   "fixed_timestep_physics",
+   "managed_gc_alloc_budget",
+   "navmesh_tiling_streaming",
+   "physics_lod_sleeping",
+   "rt_effect_resolution_budget",
+   "time_sliced_pathfinding"
+  ],
+  "n_decisions": 17,
+  "n_matched": 11,
+  "n_decisions_matched": 8,
+  "unmatched": [
+   "substance_material_system",
+   "superman_gravity_gun_fix",
+   "procedural_facial_animation_via_chris",
+   "combined_action_puzzle_structure",
+   "dispatchable_strider_combat",
+   "provokable_ai (antlion, barnacle)",
+   "full_voice_acting_3_party",
+   "steam_preload_distribution",
+   "steam_required_drm"
+  ]
+ },
+ {
+  "id": "p02-12",
+  "party": 2,
+  "title": "Half-Life 2: Episode One (2006, Valve)",
+  "year": 2006,
+  "engine_dss": "source",
+  "engine_raw": "Source 2006",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "аналогично HL2"
+   },
+   {
+    "Rec HW": "аналогично HL2 + 256 MB VRAM для HDR"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps); HDR добавляет ~1-2 мс"
+   }
+  ],
+  "profile": {
+   "name": "Half-Life 2: Episode One (2006, Valve)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "small",
+   "stage": "release",
+   "engine": "source",
+   "engine_version": "2.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "low",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "advanced_npc_ai",
+    "dynamic_shadows",
+    "character_animation",
+    "post_processing"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "client_prediction_reconciliation",
+   "destruction_geometry_cache",
+   "dynamic_light_priority_budget"
+  ],
+  "n_decisions": 9,
+  "n_matched": 3,
+  "n_decisions_matched": 3,
+  "unmatched": [
+   "alyx_ai_companion",
+   "gravity_gun_first_weapon",
+   "enemy_tactics_ai_upgrade",
+   "phong_fresnel_spec_alys",
+   "integrated_tutorial_in_narrative",
+   "script_driven_companion_cover"
+  ]
+ },
+ {
+  "id": "p02-13",
+  "party": 2,
+  "title": "Half-Life 2: Episode Two (2007, Valve)",
+  "year": 2007,
+  "engine_dss": "source",
+  "engine_raw": "Source 2007 (Orange Box)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "аналогично HL2 + 256 MB VRAM"
+   },
+   {
+    "Rec HW": "аналогично HL2"
+   },
+   {
+    "Frame budget": "16.6 мс; Vehicle-секции ~1-2 мс"
+   }
+  ],
+  "profile": {
+   "name": "Half-Life 2: Episode Two (2007, Valve)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "source",
+   "engine_version": "2.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "low",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "vehicle_simulation",
+    "dynamic_shadows",
+    "advanced_npc_ai",
+    "post_processing"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [],
+  "n_decisions": 10,
+  "n_matched": 0,
+  "n_decisions_matched": 0,
+  "unmatched": [
+   "open_world_sections",
+   "advanced_vehicle_chase",
+   "magnusson_device_sticky_bomb",
+   "hunter_new_enemy",
+   "improved_alyx_animations",
+   "physics_puzzle_bridge",
+   "vortigaunt_healing_ritual",
+   "white_forest_rocket_finale",
+   "cliif_hanger_cliffhanger_death",
+   "gnome_chompski_easter_egg"
+  ]
+ },
+ {
+  "id": "p02-14",
+  "party": 2,
+  "title": "Counter-Strike: Source (2004, Valve + Turtle Rock)",
+  "year": 2004,
+  "engine_dss": "source",
+  "engine_raw": "Source (debut Source Engine release — вышел ДО HL2)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Pentium 4 2.0 GHz / Athlon XP, 512 MB RAM, GeForce 6600 / Radeon X1300"
+   },
+   {
+    "Rec HW": "Core 2 Duo, 1 GB RAM, GeForce 8800 / Radeon HD 3870"
+   },
+   {
+    "Frame budget": "16.6 мс"
+   }
+  ],
+  "profile": {
+   "name": "Counter-Strike: Source (2004, Valve + Turtle Rock)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "small",
+   "stage": "release",
+   "engine": "source",
+   "engine_version": "1.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "low",
+   "npc_count_level": "low",
+   "player_count": 64,
+   "multiplayer": true,
+   "functions": [
+    "multiplayer_netcode",
+    "physics_simulation",
+    "post_processing"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "dynamic_light_priority_budget",
+   "managed_gc_alloc_budget",
+   "planar_reflection_budget"
+  ],
+  "n_decisions": 10,
+  "n_matched": 3,
+  "n_decisions_matched": 3,
+  "unmatched": [
+   "source_engine_ragdoll_physics",
+   "enhanced_physics_world",
+   "3d_skyboxes",
+   "bump_normal_specular_maps",
+   "max_64_players",
+   "source_engine_2006_transition",
+   "source_engine_2013_mp_transition"
+  ]
+ },
+ {
+  "id": "p02-15",
+  "party": 2,
+  "title": "Left 4 Dead (2008, Valve South)",
+  "year": 2008,
+  "engine_dss": "source",
+  "engine_raw": "Source 2008 (мультиядерный рендер)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Pentium 4 3.0 GHz / Athlon 64 3000+, 1 GB RAM, DX9 GPU 128 MB"
+   },
+   {
+    "Rec HW": "Core 2 Duo 2.4 GHz, 2 GB RAM, GeForce 7600 / Radeon X1600"
+   },
+   {
+    "Frame budget": "16.6 мс; AI Director + crowd (50+ Infected) — узкое место CPU"
+   }
+  ],
+  "profile": {
+   "name": "Left 4 Dead (2008, Valve South)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "small",
+   "stage": "release",
+   "engine": "source",
+   "engine_version": "2.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 4,
+   "multiplayer": true,
+   "functions": [
+    "multiplayer_netcode",
+    "advanced_npc_ai",
+    "post_processing",
+    "dynamic_lighting"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "behaviour_tree_update_budget",
+   "composition_bootstrap_architecture",
+   "froxel_volumetric_fog",
+   "gerstner_fft_water",
+   "multithreaded_physics_jobs",
+   "normal_bake_retopology_pipeline"
+  ],
+  "n_decisions": 21,
+  "n_matched": 6,
+  "n_decisions_matched": 7,
+  "unmatched": [
+   "procedural_narrative",
+   "music_director_client_side",
+   "physics_based_hair_clothing",
+   "leaning_curved_paths",
+   "advanced_shadow_rendering",
+   "dynamic_color_correction",
+   "film_grain_vignetting",
+   "infected_path_follower_ai",
+   "mocap_death_animations",
+   "infected_variation_24000",
+   "common_infected_navigation_constraint",
+   "tutorial_movie_preference",
+   "up_to_4_player_coop",
+   "versus_8_player"
+  ]
+ },
+ {
+  "id": "p02-16",
+  "party": 2,
+  "title": "Left 4 Dead 2 (2009, Valve South)",
+  "year": 2009,
+  "engine_dss": "source",
+  "engine_raw": "Source (мультиядерный, с улучшениями относительно L4D1)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "аналогично L4D1, но + DirectX 10 для Windows Vista"
+   },
+   {
+    "Rec HW": "Core 2 Duo, 2 GB RAM, GeForce 8600 / Radeon HD 3870"
+   },
+   {
+    "Frame budget": "16.6 мс; Director 2.0 + 8 special infected + Uncommon — CPU-heavy"
+   }
+  ],
+  "profile": {
+   "name": "Left 4 Dead 2 (2009, Valve South)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "small",
+   "stage": "release",
+   "engine": "source",
+   "engine_version": "1.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 4,
+   "multiplayer": true,
+   "functions": [
+    "advanced_npc_ai",
+    "physics_simulation",
+    "dynamic_lighting",
+    "particle_systems",
+    "water_simulation",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "behaviour_tree_update_budget",
+   "bindless_uber_shaders",
+   "composition_bootstrap_architecture",
+   "gerstner_fft_water",
+   "pso_precaching_warmup",
+   "rt_effect_resolution_budget"
+  ],
+  "n_decisions": 16,
+  "n_matched": 6,
+  "n_decisions_matched": 5,
+  "unmatched": [
+   "director_encourages_longer_paths",
+   "uncommon_infected_per_campaign",
+   "three_new_special_infected",
+   "melee_weapon_system",
+   "four_tier_weapon_system",
+   "houdini_water_flow_maps",
+   "new_realism_mode",
+   "flashlight_attraction_mechanic",
+   "scavenge_mode_4v4",
+   "expanded_mutation_system_2013",
+   "mac_cross_play_2010"
+  ]
+ },
+ {
+  "id": "p02-17",
+  "party": 2,
+  "title": "Counter-Strike: Global Offensive (2012, Valve + Hidden Path)",
+  "year": 2012,
+  "engine_dss": "source",
+  "engine_raw": "Source (позже Source 2 как CS2)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo E6600 / Athlon 64 X2 5600+, 2 GB RAM, GeForce 8600 / Radeon HD 3650"
+   },
+   {
+    "Rec HW": "Quad-core, 4 GB RAM, GeForce 9800 / Radeon HD 4870"
+   },
+   {
+    "Frame budget": "16.6 мс; минимальный рендер, сетевой код важнее"
+   }
+  ],
+  "profile": {
+   "name": "Counter-Strike: Global Offensive (2012, Valve + Hidden Path)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "small",
+   "stage": "release",
+   "engine": "source",
+   "engine_version": "2.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "low",
+   "npc_count_level": "low",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "multiplayer_netcode",
+    "physics_simulation",
+    "post_processing"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "gpu_procedural_placement",
+   "rt_effect_resolution_budget",
+   "tickrate_budgeting"
+  ],
+  "n_decisions": 20,
+  "n_matched": 4,
+  "n_decisions_matched": 5,
+  "unmatched": [
+   "weapon_recoil_patterns_unique",
+   "glicko_rating_competitive",
+   "valve_anti_cheat",
+   "prime_matchmaking_2016",
+   "trust_factor_2017",
+   "economy_based_on_rounds",
+   "source_engine_2_transition",
+   "f2p_transition_2018",
+   "danger_zone_battle_royale",
+   "operations_system",
+   "music_kits_2014",
+   "glove_skins_2016",
+   "china_localization_2017",
+   "keys_untradeable_2019",
+   "loot_box_ban_belgium_netherlands_2018"
+  ]
+ },
+ {
+  "id": "p03-18",
+  "party": 3,
+  "title": "Dark Souls: Remastered (2011/2018, FromSoftware + QLOC/Virtuos)",
+  "year": 2011,
+  "engine_dss": "custom",
+  "engine_raw": "FromSoftware in-house (без публичного названия)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo E6600 / Athlon 64 X2 5600+, 2 GB RAM, GeForce 8600 / Radeon HD 3850"
+   },
+   {
+    "Rec HW": "Quad-core, 4 GB RAM, GeForce 9800 / Radeon HD 4870"
+   },
+   {
+    "Frame budget": "33.3 мс (оригинал 30 fps); 16.6 мс (Remastered 60 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Dark Souls: Remastered (2011/2018, FromSoftware + QLOC/Virtuos)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "high",
+   "player_count": 6,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "baked_lighting",
+    "multiplayer_netcode",
+    "dynamic_lighting"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "rt_effect_resolution_budget"
+  ],
+  "n_decisions": 11,
+  "n_matched": 1,
+  "n_decisions_matched": 1,
+  "unmatched": [
+   "interconnected_world_no_warping",
+   "bonfire_checkpoint_system",
+   "humanity_online_state",
+   "covenant_faction_system",
+   "bloodstain_player_messages",
+   "invasion_asymmetric_multiplayer",
+   "soul_currency_xp",
+   "parry_riposte_system",
+   "stats_vit_end_str_dex_int_fth",
+   "magic_attunement_slots"
+  ]
+ },
+ {
+  "id": "p03-19",
+  "party": 3,
+  "title": "Dark Souls II: Scholar of the First Sin (2014/2015, FromSoftware)",
+  "year": 2014,
+  "engine_dss": "custom",
+  "engine_raw": "FromSoftware in-house (новая версия для DS2, директор Tomohiro Shibuya, не Миядзаки)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo E6600 / Athlon 64 X2 5600+, 2 GB RAM, GeForce 8600 / Radeon HD 3850 (оригинал)"
+   },
+   {
+    "Rec HW": "Core i3-2100 / Phenom X4 940, 4 GB RAM, GeForce GTX 750 / Radeon HD 6870"
+   },
+   {
+    "Frame budget": "16.6 мс (SotFS 60 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Dark Souls II: Scholar of the First Sin (2014/2015, FromSoftware)",
+   "format": "3D",
+   "world_type": "hub",
+   "scale": "large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 6,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "multiplayer_netcode",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "managed_gc_alloc_budget",
+   "navmesh_tiling_streaming"
+  ],
+  "n_decisions": 11,
+  "n_matched": 2,
+  "n_decisions_matched": 2,
+  "unmatched": [
+   "hollowing_hp_penalty",
+   "expanded_ng_plus",
+   "new_enemy_positions_sotfs",
+   "mtx_frame_rate_bug",
+   "dx11_renderer_sotfs",
+   "six_player_multiplayer_sotfs",
+   "durability_rework",
+   "covenant_of_the_dark",
+   "bonfire_aesthetics_expanded"
+  ]
+ },
+ {
+  "id": "p03-20",
+  "party": 3,
+  "title": "Dark Souls III: The Fire Fades (2016, FromSoftware)",
+  "year": 2016,
+  "engine_dss": "custom",
+  "engine_raw": "FromSoftware in-house (следующая итерация после Bloodborne)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i3-2100 / AMD A-8 3800, 4 GB RAM, GeForce GTX 750 / Radeon HD 7850"
+   },
+   {
+    "Rec HW": "Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 970 / Radeon R9 280X"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps); 8.3 мс (PS4 Pro boost)"
+   }
+  ],
+  "profile": {
+   "name": "Dark Souls III: The Fire Fades (2016, FromSoftware)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 6,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "baked_lighting",
+    "multiplayer_netcode",
+    "gameplay_ability_system"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [],
+  "n_decisions": 10,
+  "n_matched": 0,
+  "n_decisions_matched": 0,
+  "unmatched": [
+   "weapon_skills_fp_consumption",
+   "faster_combat_post_bloodborne",
+   "estus_split_healing_fp",
+   "larger_zones_fewer_count",
+   "boss_intensity_step_up",
+   "embered_form",
+   "soul_transposition",
+   "integrated_multiplayer_scaling",
+   "color_grading_per_area",
+   "ashen_estus_ashen_flask"
+  ]
+ },
+ {
+  "id": "p03-21",
+  "party": 3,
+  "title": "Sekiro: Shadows Die Twice (2019, FromSoftware + Activision)",
+  "year": 2019,
+  "engine_dss": "custom",
+  "engine_raw": "FromSoftware in-house (Sekiro Engine, преемник Bloodborne)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i3-2100 / AMD FX-4100, 4 GB RAM, GeForce GTX 750 Ti / Radeon HD 7950"
+   },
+   {
+    "Rec HW": "Core i5-2500K / AMD FX-6300, 8 GB RAM, GeForce GTX 1060 / Radeon RX 480"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps); 8.3 мс (PS4 Pro)"
+   }
+  ],
+  "profile": {
+   "name": "Sekiro: Shadows Die Twice (2019, FromSoftware + Activision)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "low",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "advanced_npc_ai",
+    "character_animation",
+    "post_processing"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "rt_effect_resolution_budget"
+  ],
+  "n_decisions": 13,
+  "n_matched": 1,
+  "n_decisions_matched": 1,
+  "unmatched": [
+   "posture_combat_system",
+   "deflect_parry_timing",
+   "resurrection_on_death_limit",
+   "prosthetic_arm_tools",
+   "grappling_hook_verticality",
+   "stealth_kill_instant",
+   "no_character_creation_no_stats",
+   "midboss_telegraph",
+   "tenchu_inspiration",
+   "no_online_multiplayer",
+   "japanese_setting_sengoku",
+   "free_update_october_2020"
+  ]
+ },
+ {
+  "id": "p03-22",
+  "party": 3,
+  "title": "Elden Ring (2022, FromSoftware + Bandai Namco)",
+  "year": 2022,
+  "engine_dss": "custom",
+  "engine_raw": "FromSoftware in-house (новая версия, возможно на основе Sekiro Engine)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-8400 / Ryzen 3 3300X, 12 GB RAM, GeForce GTX 1060 3GB / Radeon RX 580 4GB"
+   },
+   {
+    "Rec HW": "Core i7-8700K / Ryzen 5 3600X, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+   },
+   {
+    "Frame budget": "16.6 мс; на PS4 — 33.3 мс (30 fps cap)"
+   }
+  ],
+  "profile": {
+   "name": "Elden Ring (2022, FromSoftware + Bandai Namco)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 4,
+   "multiplayer": true,
+   "functions": [
+    "open_world_streaming",
+    "character_animation",
+    "ai_pathfinding",
+    "advanced_npc_ai",
+    "post_processing",
+    "large_scale_terrain",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "async_loading_pipeline",
+   "dynamic_light_priority_budget",
+   "raycast_vehicle_physics",
+   "rt_effect_resolution_budget",
+   "selective_ray_traced_effects",
+   "temporal_upscaling",
+   "tilemap_chunk_streaming"
+  ],
+  "n_decisions": 15,
+  "n_matched": 7,
+  "n_decisions_matched": 5,
+  "unmatched": [
+   "sites_of_grace_checkpoints",
+   "ashes_of_war_weapon_mods",
+   "spirit_summon_ash",
+   "crafting_cookbooks",
+   "stealth_mechanic_sekiro_influence",
+   "grrm_martin_worldbuilding",
+   "ffrk_jrpg_influences",
+   "open_world_boss_design",
+   "first_fromsoftware_open_world",
+   "tarnished_edition_switch2"
+  ]
+ },
+ {
+  "id": "p03-23",
+  "party": 3,
+  "title": "Armored Core VI: Fires of Rubicon (2023, FromSoftware)",
+  "year": 2023,
+  "engine_dss": "custom",
+  "engine_raw": "FromSoftware in-house (новая итерация после 10-летнего перерыва AC)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i7-4790 / Ryzen 5 2600, 12 GB RAM, GeForce GTX 1650 / Radeon RX 590"
+   },
+   {
+    "Rec HW": "Core i7-7700 / Ryzen 7 2700X, 12 GB RAM, GeForce GTX 1060 / Radeon RX 580"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps); **8.3 мс — нативная поддержка 120 fps на ПК впервые в истории FromSoftware, без рассинхронизации физического шага симуляции** (DF подтвердил: «120 fps с правильным p-step»)"
+   }
+  ],
+  "profile": {
+   "name": "Armored Core VI: Fires of Rubicon (2023, FromSoftware)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "small",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "low",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "gameplay_ability_system",
+    "particle_systems",
+    "post_processing",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [],
+  "n_decisions": 11,
+  "n_matched": 0,
+  "n_decisions_matched": 0,
+  "unmatched": [
+   "mech_assembly_4_weapons",
+   "weight_energy_constraints",
+   "arena_puzzle_meta_combat",
+   "no_debt_system",
+   "new_game_plus_2_more",
+   "ranked_matchmaking_added",
+   "light_mech_focus",
+   "ac_assembly_tweaking",
+   "dark_old_scifi_atmosphere",
+   "rubicon_3_planet_setting",
+   "story_branches_choice"
+  ]
+ },
+ {
+  "id": "p04-24",
+  "party": 4,
+  "title": "Assassin's Creed Unity (2014, Ubisoft Montreal)",
+  "year": 2014,
+  "engine_dss": "custom",
+  "engine_raw": "AnvilNext 2.0 (новая версия для PS4/Xbox One/PC)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i5-2500K / AMD FX-6350, 6 GB RAM, GeForce GTX 660 / Radeon R9 270X"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 780 / Radeon R9 290X"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps) из-за crowd 30,000 NPC"
+   }
+  ],
+  "profile": {
+   "name": "Assassin's Creed Unity (2014, Ubisoft Montreal)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 4,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "dynamic_lighting",
+    "multiplayer_netcode",
+    "open_world_streaming"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "agent_update_budget",
+   "gpu_particle_simulation",
+   "motion_matching"
+  ],
+  "n_decisions": 14,
+  "n_matched": 3,
+  "n_decisions_matched": 4,
+  "unmatched": [
+   "paris_1_to_1_scale",
+   "black_box_mission_design",
+   "cafe_theatre_upgrade_economy",
+   "coop_mission_4p",
+   "hair_works_fur",
+   "day_night_cycle_paris",
+   "procedural_paris_buildings",
+   "weather_time_anomalies",
+   "c ++ _c_sharp_codebase",
+   "noshader_optimization"
+  ]
+ },
+ {
+  "id": "p04-25",
+  "party": 4,
+  "title": "Assassin's Creed Origins (2017, Ubisoft Montreal)",
+  "year": 2017,
+  "engine_dss": "custom",
+  "engine_raw": "AnvilNext 2.0 (после Unity, переработан с фокусом на RPG)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i5-2400s / AMD FX-6350, 6 GB RAM, GeForce GTX 660 / Radeon R9 270X"
+   },
+   {
+    "Rec HW": "Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 760 / Radeon R9 280X"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps) — больше не на 60 fps как Unity"
+   }
+  ],
+  "profile": {
+   "name": "Assassin's Creed Origins (2017, Ubisoft Montreal)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "particle_systems",
+    "procedural_terrain",
+    "open_world_streaming",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "data_driven_ability_system",
+   "gerstner_fft_water",
+   "raycast_vehicle_physics",
+   "terrain_generation_streaming_budget"
+  ],
+  "n_decisions": 15,
+  "n_matched": 4,
+  "n_decisions_matched": 4,
+  "unmatched": [
+   "hitbox_combat_system",
+   "eagle_senu_companion",
+   "level_recommendation_areas",
+   "procedural_side_quests",
+   "engwe_sensua_animations",
+   "dynamic_schedule_npcs",
+   "compass_replaces_minimap",
+   "crafting_resources",
+   "loots_boxes_limited_in_game",
+   "boss_phylakes_high_level",
+   "taming_predators"
+  ]
+ },
+ {
+  "id": "p04-26",
+  "party": 4,
+  "title": "Assassin's Creed Odyssey (2018, Ubisoft Quebec)",
+  "year": 2018,
+  "engine_dss": "custom",
+  "engine_raw": "AnvilNext 2.0 (усовершенствован после Origins)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i5-2400s / AMD FX-6350, 8 GB RAM, GeForce GTX 660 / Radeon R9 270X"
+   },
+   {
+    "Rec HW": "Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 760 / Radeon R9 280X"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Assassin's Creed Odyssey (2018, Ubisoft Quebec)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "water_simulation",
+    "post_processing",
+    "open_world_streaming",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "navmesh_tiling_streaming"
+  ],
+  "n_decisions": 16,
+  "n_matched": 1,
+  "n_decisions_matched": 1,
+  "unmatched": [
+   "dialogue_choice_system",
+   "two_protagonist_choose",
+   "hitbox_combat_refined",
+   "no_shield_blocking",
+   "faster_adrenaline_accumulation",
+   "mercenary_nemesis_system",
+   "conquest_battles_athens_sparta",
+   "bounty_system",
+   "naval_combat_revamped",
+   "eisosphinx_creatures",
+   "isu_artifacts_lake_dweller",
+   "eagle_ikaros_companion",
+   "first_assassins_creed_with_choices",
+   "inspired_by_witcher3",
+   "procedurally_generated_quests"
+  ]
+ },
+ {
+  "id": "p04-27",
+  "party": 4,
+  "title": "Assassin's Creed Valhalla (2020, Ubisoft Montreal)",
+  "year": 2020,
+  "engine_dss": "custom",
+  "engine_raw": "AnvilNext 2.0 (новая итерация после Odyssey)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i5-4460 / AMD Ryzen 3 1200, 8 GB RAM, GeForce GTX 960 / Radeon R9 380 (4 GB)"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD Ryzen 5 1600, 8 GB RAM, GeForce GTX 1060 / Radeon RX 570"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps); с 60 fps патчем на next-gen"
+   }
+  ],
+  "profile": {
+   "name": "Assassin's Creed Valhalla (2020, Ubisoft Montreal)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "open_world_streaming",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "agent_update_budget",
+   "npc_perception_budget"
+  ],
+  "n_decisions": 17,
+  "n_matched": 2,
+  "n_decisions_matched": 1,
+  "unmatched": [
+   "settlement_building_management",
+   "dual_wielding_any_weapon",
+   "flyting_rap_battles",
+   "orlog_dice_game",
+   "raids_smaller_engagements",
+   "jomsviking_shared_npc",
+   "raven_synin_scout",
+   "difficulty_power_scaled",
+   "assault_bigger_breach",
+   "river_raids_dlc",
+   "guaranteed_assassinate_option",
+   "eivor_oddin_reincarnation",
+   "eight_runic_skills_melee_ranged",
+   "day_night_doesnt_affect_mission",
+   "inspired_by_god_of_war_but_historically_grounded",
+   "no_more_animus_modern_day"
+  ]
+ },
+ {
+  "id": "p04-28",
+  "party": 4,
+  "title": "For Honor (2017, Ubisoft Montreal)",
+  "year": 2017,
+  "engine_dss": "custom",
+  "engine_raw": "AnvilNext 2.0 (новая итерация, не AnvilPират)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i3-4150 / AMD FX-4350, 4 GB RAM, GeForce GTX 650 / Radeon R7 260X (2 GB)"
+   },
+   {
+    "Rec HW": "Core i5-7500 / AMD Ryzen 5 1400, 8 GB RAM, GeForce GTX 1050 Ti / Radeon RX 570 (4 GB)"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps) — единственный AC-тайтл в списке на 60 fps"
+   }
+  ],
+  "profile": {
+   "name": "For Honor (2017, Ubisoft Montreal)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "low",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "physics_simulation",
+    "multiplayer_netcode",
+    "post_processing"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "headless_dedicated_server",
+   "rt_effect_resolution_budget"
+  ],
+  "n_decisions": 14,
+  "n_matched": 2,
+  "n_decisions_matched": 3,
+  "unmatched": [
+   "weight_weapon_feel",
+   "faction_war_meta_game",
+   "hero_archetypes_4_classes",
+   "gear_score_arcade_2018",
+   "orlog_dice_minigame",
+   "faction_war_persistent_meta",
+   "39_unique_heroes",
+   "sifu_style_guard_break",
+   "external_animations_5000",
+   "ubisoft_for_honor_post_launch",
+   "4k_60fps_next_gen_update"
+  ]
+ },
+ {
+  "id": "p05-29",
+  "party": 5,
+  "title": "The Elder Scrolls V: Skyrim Special Edition (2011/2016, Bethesda Game Studios)",
+  "year": 2011,
+  "engine_dss": "custom",
+  "engine_raw": "Creation Engine (форк Fallout 3 Gamebryo)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo / Athlon X2 2.0 GHz, 2 GB RAM, GeForce 8800 / Radeon X1900 (512 MB)"
+   },
+   {
+    "Rec HW": "Core i5 / Phenom II, 4 GB RAM, GeForce GTX 260 / Radeon 4890"
+   },
+   {
+    "Min HW": "Core i5-750 / AMD Phenom X4, 8 GB RAM, GeForce GTX 470 / Radeon HD 7870 (2 GB)"
+   },
+   {
+    "Rec HW": "Core i5-2400 / AMD FX-8320, 8 GB RAM, GeForce GTX 770 / Radeon R9 280X (4 GB)"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps) на консолях; SE — 4K. **Havok timer жёстко привязан к 60 fps**: при частотах свыше 60 Гц физика теряла устойчивость (предметы в интерьерах приобретали сверхвысокие скорости, нанося урон игроку — типичная проблема Creation Engine без фиксированного delta-time)"
+   }
+  ],
+  "profile": {
+   "name": "The Elder Scrolls V: Skyrim Special Edition (2011/2016, Bethesda Game Studios)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "project_architecture",
+    "open_world_streaming",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "behaviour_tree_update_budget",
+   "broadphase_spatial_partitioning",
+   "composition_bootstrap_architecture",
+   "dynamic_light_priority_budget",
+   "froxel_volumetric_fog",
+   "gerstner_fft_water",
+   "gpu_instancing_vegetation",
+   "time_sliced_pathfinding"
+  ],
+  "n_decisions": 20,
+  "n_matched": 8,
+  "n_decisions_matched": 8,
+  "unmatched": [
+   "radiant_quest_system",
+   "dual_wielding_weapon_and_spell",
+   "dragon_shouts_fus_ro_dah",
+   "procedural_side_quests",
+   "dragon_encounter_random",
+   "ttwm_world_map",
+   "dialogue_facial_animation_FACS",
+   "150_dungeons_handcrafted",
+   "244_quests_300_locations",
+   "radiant_story_orchestrator",
+   "compass_redesign",
+   "blacksmith_tree_forge_breakdown"
+  ]
+ },
+ {
+  "id": "p05-30",
+  "party": 5,
+  "title": "Fallout 4 (2015, Bethesda Game Studios + id Software)",
+  "year": 2015,
+  "engine_dss": "custom",
+  "engine_raw": "Creation Engine (эволюция после Skyrim, id Software помогла с оружейной механикой)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i5-2300 / AMD FX-6300, 8 GB RAM, GeForce GTX 550 Ti / Radeon HD 7770 (2 GB)"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD FX-9590, 8 GB RAM, GeForce GTX 780 / Radeon R9 290X (3 GB)"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Fallout 4 (2015, Bethesda Game Studios + id Software)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "open_world_streaming"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "destruction_geometry_cache",
+   "froxel_volumetric_fog",
+   "gerstner_fft_water",
+   "planar_reflection_budget",
+   "post_effect_selective",
+   "raycast_vehicle_physics",
+   "screenspace_light_shafts",
+   "temporal_upscaling"
+  ],
+  "n_decisions": 20,
+  "n_matched": 8,
+  "n_decisions_matched": 8,
+  "unmatched": [
+   "gun_gameplay_id_software_help",
+   "freeform_face_sculpting",
+   "layered_armor_system",
+   "700_weapon_modifications",
+   "deep_crafting_system",
+   "settlement_building_anywhere",
+   "electric_power_grid_settlements",
+   "fully_voiced_protagonist_first_time",
+   "vat_s_real_time_pause",
+   "wet_surfaces_material",
+   "filmic_tone_mapping",
+   "first_fallout_with_mods_on_console"
+  ]
+ },
+ {
+  "id": "p05-31",
+  "party": 5,
+  "title": "Fallout 76 (2018, Bethesda Game Studios + BattleCry Studios)",
+  "year": 2018,
+  "engine_dss": "custom",
+  "engine_raw": "Creation Engine (модифицированный для multiplayer)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i5-6600k / AMD FX-8370, 8 GB RAM, GeForce GTX 660 / Radeon RX 460"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD Ryzen 5 1500X, 8 GB RAM, GeForce GTX 1060 / Radeon RX 580"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Fallout 76 (2018, Bethesda Game Studios + BattleCry Studios)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "unknown",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "multiplayer_netcode",
+    "open_world_streaming",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "headless_dedicated_server",
+   "rt_effect_resolution_budget"
+  ],
+  "n_decisions": 20,
+  "n_matched": 3,
+  "n_decisions_matched": 3,
+  "unmatched": [
+   "creation_engine_multiplayer",
+   "quake_netcode_retrofit",
+   "no_human_npcs_initially",
+   "scavenger_enemies",
+   "camp_anywhere_mobile",
+   "nuclear_missile_silos",
+   "atoms_microtransaction",
+   "fallout_1st_subscription",
+   "canvas_bag_controversy",
+   "data_breach_2018",
+   "wendigo_loot_duplication_bug",
+   "later_npc_humans_wastelanders",
+   "steel_dawn_brotherhood_questline",
+   "expeditions_the_pitt",
+   "skyline_valley_2024",
+   "burning_springs_2025",
+   "prime_membership"
+  ]
+ },
+ {
+  "id": "p05-32",
+  "party": 5,
+  "title": "Starfield (2023, Bethesda Game Studios)",
+  "year": 2023,
+  "engine_dss": "custom",
+  "engine_raw": "Creation Engine 2 (новая версия, первая игра на ней)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i7-6800K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 Ti / Radeon RX 5700 (8 GB), 125 GB SSD"
+   },
+   {
+    "Rec HW": "Core i5-12400 / Ryzen 5 5600X, 16 GB RAM, GeForce RTX 2080 / Radeon RX 6800 XT, SSD обязателен"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps); Xbox Series X 60 fps после апдейта"
+   }
+  ],
+  "profile": {
+   "name": "Starfield (2023, Bethesda Game Studios)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "procedural_terrain",
+    "character_animation",
+    "ai_pathfinding",
+    "open_world_streaming",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "4k",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "chunked_procedural_terrain",
+   "composition_bootstrap_architecture",
+   "data_driven_ability_system",
+   "dynamic_light_priority_budget",
+   "managed_gc_alloc_budget",
+   "rt_effect_resolution_budget",
+   "temporal_upscaling",
+   "world_partition_streaming"
+  ],
+  "n_decisions": 29,
+  "n_matched": 8,
+  "n_decisions_matched": 10,
+  "unmatched": [
+   "creation_engine_2_first_game",
+   "nasa_punk_aesthetic",
+   "1000_planets_landable",
+   "ship_to_ship_combat",
+   "zero_g_combat",
+   "contraband_smuggling",
+   "outpost_construction_isometric",
+   "scan_resource_detection",
+   "ng_plus_branching",
+   "id_software_graphics_help",
+   "fov_slider_added_late",
+   "directstorage_support",
+   "procedurally_generated_loadouts",
+   "nasa_punk_factions",
+   "negative_steam_reviews",
+   "shattered_space_dlc_2024",
+   "free_lanes_update_2026",
+   "terran_armada_dlc_2026",
+   "ps5_release_2026"
+  ]
+ },
+ {
+  "id": "p06-33",
+  "party": 6,
+  "title": "Grand Theft Auto IV (2008, Rockstar North)",
+  "year": 2008,
+  "engine_dss": "custom",
+  "engine_raw": "RAGE (Rockstar Advanced Game Engine, версия 1.0)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo 1.8 GHz, 1.5 GB RAM, GeForce 7900 / Radeon X1900 (256 MB)"
+   },
+   {
+    "Rec HW": "Core 2 Quad 2.4 GHz, 2.5 GB RAM, GeForce 8600 / Radeon HD 3870"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Grand Theft Auto IV (2008, Rockstar North)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 32,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "dynamic_lighting",
+    "multiplayer_netcode",
+    "open_world_streaming"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 30,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "gpu_particle_simulation",
+   "motion_matching",
+   "raycast_vehicle_physics"
+  ],
+  "n_decisions": 16,
+  "n_matched": 4,
+  "n_decisions_matched": 4,
+  "unmatched": [
+   "cover_system",
+   "mobile_phone_ui",
+   "tv_internet_system",
+   "respect_system_friends",
+   "morality_choices",
+   "subway_travel",
+   "100000_photos_new_york",
+   "four_boroughs_hd_universe",
+   "win_release_extra_dev",
+   "custom_music_station_pc",
+   "multiplayer_32_players",
+   "Games_for_Windows_Live"
+  ]
+ },
+ {
+  "id": "p06-34",
+  "party": 6,
+  "title": "Grand Theft Auto V (2013/2022, Rockstar North)",
+  "year": 2013,
+  "engine_dss": "custom",
+  "engine_raw": "RAGE 1.0 (overhauled) + Euphoria (NaturalMotion) + Bullet",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core 2 Quad Q6600 / AMD Phenom 9850, 4 GB RAM, GeForce 9800 GT / Radeon HD 4870 (1 GB)"
+   },
+   {
+    "Rec HW": "Core i5-3470 / AMD FX-8350, 8 GB RAM, GeForce GTX 660 / Radeon HD 7870 (2 GB)"
+   },
+   {
+    "Min HW": "Core i7-4770 / Ryzen 5 1500X, 16 GB RAM, GeForce GTX 1060 / Radeon RX 580 (8 GB)"
+   },
+   {
+    "Rec HW": "Core i7-8700K / Ryzen 7 2700X, 16 GB RAM, GeForce RTX 2080 / Radeon VII"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps на PC/PS5); 33.3 мс на PS3/360. **Физический лимит движка: при превышении 160–180 fps** в игре ломалась физика деформации транспорта и поведение скриптов в кат-сценах — требовалось программное ограничение кадровой частоты."
+   }
+  ],
+  "profile": {
+   "name": "Grand Theft Auto V (2013/2022, Rockstar North)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "dynamic_lighting",
+    "multiplayer_netcode",
+    "open_world_streaming",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "dynamic_light_priority_budget",
+   "gerstner_fft_water",
+   "motion_matching",
+   "planar_reflection_budget",
+   "temporal_upscaling"
+  ],
+  "n_decisions": 22,
+  "n_matched": 6,
+  "n_decisions_matched": 5,
+  "unmatched": [
+   "three_protagonist_switch",
+   "character_specific_abilities",
+   "procedural_heist_approach",
+   "dense_ecosystem_wildlife",
+   "stock_market_trading",
+   "procedural_properties_purchase",
+   "dynamic_music_radio",
+   "bullet_software_rendering",
+   "flight_simulation_models",
+   "directx_11_renderer",
+   "first_person_mode_added_ps4_xb1",
+   "gta_online_separate_client",
+   "gta_online_continual_updates",
+   "dual_currency_gtadollars_atoms",
+   "procedural_heist_final",
+   "drawing_tablet_optional",
+   "pc_only_first_person_views"
+  ]
+ },
+ {
+  "id": "p06-35",
+  "party": 6,
+  "title": "Red Dead Redemption 2 (2018/2019, Rockstar Games)",
+  "year": 2018,
+  "engine_dss": "custom",
+  "engine_raw": "RAGE 1.0 (новые улучшения для open world) + Euphoria + Bullet",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i5-2500K / AMD FX-6300, 8 GB RAM, GeForce GTX 770 / Radeon R9 280 (2 GB)"
+   },
+   {
+    "Rec HW": "Core i7-4770 / AMD Ryzen 5 1500X, 12 GB RAM, GeForce GTX 1060 / Radeon RX 480 (6 GB)"
+   },
+   {
+    "Rec HW": "Core i7-7700K / Ryzen 7 1800X, 16 GB RAM, GeForce RTX 2080 / Radeon VII"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps) — 1.5 года после PS4/Xbox One; 16.6 мс на мощном PC"
+   }
+  ],
+  "profile": {
+   "name": "Red Dead Redemption 2 (2018/2019, Rockstar Games)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 32,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "volumetric_effects",
+    "procedural_vegetation",
+    "open_world_streaming",
+    "large_scale_terrain",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "vulkan",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "froxel_volumetric_fog",
+   "raycast_vehicle_physics"
+  ],
+  "n_decisions": 31,
+  "n_matched": 3,
+  "n_decisions_matched": 5,
+  "unmatched": [
+   "dynamic_weather_day_night",
+   "camp_moving_hq",
+   "horse_stamina_core",
+   "dual_wielding",
+   "dead_eye_targeting_marking",
+   "weapon_condition_maintenance",
+   "core_system_health_stamina",
+   "body_weight_management",
+   "hair_growth_realistic",
+   "cinematic_camera",
+   "ecology_realistic",
+   "story_driven_music_score",
+   "three_score_types",
+   "honor_system_with_impact",
+   "wanted_system_with_bounty",
+   "100_hours_work_weeks_crunch",
+   "1600_developers_across_studios",
+   "5_us_states_fictional",
+   "bounty_poster_generation",
+   "stranger_random_encounters",
+   "railroad_train_hijack",
+   "minigames_dominoes_poker",
+   "scripted_sequences",
+   "rd_online_separate_client",
+   "rd_online_no_major_updates_july_2022",
+   "8_dlc_cancelled"
+  ]
+ },
+ {
+  "id": "p06-36",
+  "party": 6,
+  "title": "Grand Theft Auto: The Trilogy – Definitive Edition (2021, Grove Street Games)",
+  "year": 2021,
+  "engine_dss": "unreal",
+  "engine_raw": "**Unreal Engine 4** (не RAGE! ремастер на UE4)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-6600K / AMD FX-8150, 8 GB RAM, GeForce GTX 760 / Radeon R9 270 (2 GB)"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD Ryzen 5 1500X, 16 GB RAM, GeForce GTX 1070 / Radeon RX 580"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps на current gen)"
+   }
+  ],
+  "profile": {
+   "name": "Grand Theft Auto: The Trilogy – Definitive Edition (2021, Grove Street Games)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "large",
+   "stage": "release",
+   "engine": "unreal",
+   "engine_version": "4.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "medium",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "open_world_streaming",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "4k",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [],
+  "n_decisions": 13,
+  "n_matched": 0,
+  "n_decisions_matched": 0,
+  "unmatched": [
+   "ue4_ground_up_remake",
+   "lighting_environment_improvements",
+   "high_resolution_textures",
+   "new_weapon_models_gta_sa",
+   "4k_60_fps_current_gen",
+   "mobile_app_companion",
+   "rockstar_launcher_required",
+   "post_launch_cleanup_patches",
+   "removed_songs_due_to_licensing",
+   "8000_user_reviews_steam_mixed",
+   "pulled_from_pc_sale_september_2022",
+   "refund_window_offered",
+   "apex_engine_grove_street"
+  ]
+ },
+ {
+  "id": "p07-37",
+  "party": 7,
+  "title": "DOOM (2016, id Software)",
+  "year": 2016,
+  "engine_dss": "custom",
+  "engine_raw": "id Tech 6 (новая версия, разработана Tiago Sousa)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-2400 / FX-8320, 8 GB RAM, GeForce GTX 670 2GB / Radeon HD 7870"
+   },
+   {
+    "Rec HW": "Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 970 / Radeon R9 290"
+   },
+   {
+    "Rec HW": "Core i7-6700K / Ryzen 7 1700, 16 GB RAM, GeForce GTX 1080 / Radeon RX Vega 56"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps на current gen); 33.3 мс на Switch"
+   }
+  ],
+  "profile": {
+   "name": "DOOM (2016, id Software)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "small",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 12,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "dynamic_lighting",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "vulkan",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "async_loading_pipeline",
+   "composition_bootstrap_architecture",
+   "dynamic_light_priority_budget",
+   "gerstner_fft_water",
+   "gpu_particle_simulation",
+   "neural_texture_compression",
+   "post_effect_selective"
+  ],
+  "n_decisions": 22,
+  "n_matched": 7,
+  "n_decisions_matched": 7,
+  "unmatched": [
+   "glory_kill_melee_execution",
+   "chainsaw_ammo_refill",
+   "id_tech_6_new_geometry_pipeline",
+   "glory_kill_recovery",
+   "in_game_modern_weapons",
+   "pentagram_powerups",
+   "multiplayer_loadout_2_weapons",
+   "demon_runes_player_mod",
+   "snapmap_social",
+   "classic_weapon_centering",
+   "doomguy_slayer_named_in_dlc2",
+   "photo_mode_2017",
+   "arcade_mode_addition",
+   "in_game_collectibles_easter_eggs",
+   "classic_doom_levels_hidden"
+  ]
+ },
+ {
+  "id": "p07-38",
+  "party": 7,
+  "title": "DOOM Eternal (2020, id Software)",
+  "year": 2020,
+  "engine_dss": "custom",
+  "engine_raw": "id Tech 7 (продолжение id Tech 6)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-2500K / AMD FX-8320, 8 GB RAM, GeForce GTX 1050 Ti 4GB / Radeon RX 470 4GB"
+   },
+   {
+    "Rec HW": "Core i7-6700K / AMD Ryzen 5 1600, 16 GB RAM, GeForce GTX 1060 6GB / Radeon RX 580 8GB"
+   },
+   {
+    "Rec HW": "Core i9-9900K / Ryzen 7 3700X, 16 GB RAM, GeForce RTX 3070 / Radeon RX 6800"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps на modern GPU); 33.3 мс на Switch"
+   }
+  ],
+  "profile": {
+   "name": "DOOM Eternal (2020, id Software)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "destruction_simulation",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "vulkan",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "destruction_geometry_cache",
+   "planar_reflection_budget",
+   "rt_effect_resolution_budget",
+   "selective_ray_traced_effects"
+  ],
+  "n_decisions": 20,
+  "n_matched": 4,
+  "n_decisions_matched": 6,
+  "unmatched": [
+   "platforming_puzzles",
+   "battlemode_asymmetric_1v2",
+   "meat_hook_grappling",
+   "flame_belcher_armor_recharge",
+   "chainsaw_ammo_fuel",
+   "weak_point_damage_modifier",
+   "ai_chess_piece_targeting",
+   "doom_hunter_arena_challenge",
+   "arena_challenges_dynamic_scaling",
+   "id_tech_7_extended_vulkan_support",
+   "fortress_of_doom_hub",
+   "combat_pacing_horizontal_vertical",
+   "meat_hook_pull_player",
+   "ai_chess_advisor"
+  ]
+ },
+ {
+  "id": "p07-39",
+  "party": 7,
+  "title": "Rage (2011, id Software)",
+  "year": 2011,
+  "engine_dss": "custom",
+  "engine_raw": "id Tech 5 (последняя игра под руководством John Carmack до ухода в Oculus)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo 2.4 GHz / Athlon X2 2.4 GHz, 2 GB RAM, GeForce 8800 GTS 512 MB / Radeon HD 3850"
+   },
+   {
+    "Rec HW": "Core 2 Quad 2.66 GHz / Phenom X4 9850, 4 GB RAM, GeForce GTX 260 / Radeon HD 4870"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Rage (2011, id Software)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "vehicle_simulation",
+    "procedural_terrain",
+    "open_world_streaming",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 30,
+   "render_api": "opengl",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "destruction_geometry_cache",
+   "neural_texture_compression",
+   "normal_bake_retopology_pipeline",
+   "raycast_vehicle_physics",
+   "virtual_texturing"
+  ],
+  "n_decisions": 26,
+  "n_matched": 6,
+  "n_decisions_matched": 6,
+  "unmatched": [
+   "procedural_textures_partially",
+   "streaming_from_optical_media",
+   "60hz_optional_oculus_rift_dev_kit",
+   "open_world_fps_driving",
+   "open_world_light_wasteland",
+   "procedural_lighting_ambient_occlusion",
+   "upgraded_visual_fidelity_2011",
+   "multiplayer_road_rage_coop",
+   "mac_os_x_no_multiplayer",
+   "linux_version_planned_cancelled",
+   "wingstick_boomerang",
+   "wang_basic_quest_design",
+   "anvil_vehicle_upgrades",
+   "nanocyte_nanotrites_superhuman",
+   "level_geometry_corrupt_glass",
+   "breaking_bad_viral_marketing",
+   "competitive_multiplayer_skirmish",
+   "pc_optimized_nvidia_amd",
+   "first_id_tech5_release",
+   "craters_pipeline_shaders"
+  ]
+ },
+ {
+  "id": "p07-40",
+  "party": 7,
+  "title": "Quake Champions (2017/2022, id Software + Saber Interactive)",
+  "year": 2017,
+  "engine_dss": "custom",
+  "engine_raw": "Гибрид id Tech + Saber3D Engine (НЕ id Tech 6)",
+  "frame_budget_ms": 6.9,
+  "hw": [
+   {
+    "Min HW": "Core i3-4130 / FX-4100, 8 GB RAM, GeForce GT 730 / Radeon R7 250"
+   },
+   {
+    "Rec HW": "Core i5-6600K / Ryzen 5 1600, 8 GB RAM, GeForce GTX 660 / Radeon RX 460"
+   },
+   {
+    "Rec HW": "Core i7-7700K / Ryzen 7 1700, 16 GB RAM, GeForce GTX 1060 6GB / Radeon RX 580 8GB"
+   },
+   {
+    "Frame budget": "6.9 мс (144 fps для competitive)"
+   }
+  ],
+  "profile": {
+   "name": "Quake Champions (2017/2022, id Software + Saber Interactive)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "small",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "low",
+   "npc_count_level": "low",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "gameplay_ability_system",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 144,
+   "render_api": "vulkan",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "rt_effect_resolution_budget",
+   "tickrate_budgeting"
+  ],
+  "n_decisions": 19,
+  "n_matched": 3,
+  "n_decisions_matched": 2,
+  "unmatched": [
+   "hero_shooter_active_passive_abilities",
+   "free_to_play_business_model",
+   "battle_pass_cosmetics",
+   "champion_unlock_currency",
+   "saber3d_engine_hybrid",
+   "snapmap_excluded",
+   "no_console_versions",
+   "warpaint_skins_buyable",
+   "esports_$1m_announced_tournament",
+   "mix_id_tech_saber",
+   "demakes_community",
+   "classic_arena_legacy",
+   "bf_blazkowicz_crossover",
+   "runes_temp_demon_form",
+   "hybrid_idtech_saber_engine",
+   "skullz_pack",
+   "wulf_glass_engine_2017"
+  ]
+ },
+ {
+  "id": "p08-41",
+  "party": 8,
+  "title": "Crysis (2007, Crytek)",
+  "year": 2007,
+  "engine_dss": "cryengine",
+  "engine_raw": "CryEngine 2 (PC) / CryEngine 3 (PS3/Xbox 360/Remastered)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo 2.4 GHz / Athlon X2 2.6 GHz, 2 GB RAM, GeForce 8800 GTS 512 MB / Radeon HD 3850"
+   },
+   {
+    "Rec HW": "Core 2 Quad Q6600 / Phenom X4 9850, 4 GB RAM, GeForce 9800 GT / Radeon HD 4870"
+   },
+   {
+    "Rec HW": "Core i5-7600 / Ryzen 5 1600, 8 GB RAM, GeForce GTX 1070 / Radeon RX 580 (8 GB)"
+   },
+   {
+    "Rec HW": "Core i9-9900K / Ryzen 7 3700X, 16 GB RAM, GeForce RTX 3080 / Radeon RX 6800 XT"
+   },
+   {
+    "Frame budget": "33.3 мс (оригинал, 30 fps); 16.6 мс (Remastered, 60 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Crysis (2007, Crytek)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "cryengine",
+   "engine_version": "2.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 32,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "procedural_terrain",
+    "open_world_streaming",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "deferred_forward_plus_choice",
+   "froxel_volumetric_fog",
+   "gpu_instancing_vegetation",
+   "neural_texture_compression",
+   "post_effect_selective",
+   "screenspace_light_shafts",
+   "virtual_texturing"
+  ],
+  "n_decisions": 35,
+  "n_matched": 8,
+  "n_decisions_matched": 6,
+  "unmatched": [
+   "nanosuit_power_armor_speed_cloak_strength",
+   "nanosuit_energy_management",
+   "weapon_modification_dynamic",
+   "binoculars_with_electronic_tagging",
+   "soft_shadows_pcss",
+   "depth_of_field_bokeh",
+   "parallax_occlusion_mapping",
+   "tesselation_hardware_direct3d11",
+   "1_million_lines_of_code",
+   "hardware_tessellation_pc",
+   "1gb_texture_data_85k_shaders",
+   "lingshan_island_jungle",
+   "alien_cephalopod_redesign",
+   "nanosuit_dynamic_visor",
+   "vehicle_tanks_helicopters_apc",
+   "dx9_dx10_dual_mode",
+   "soundtrack_inon_zur",
+   "can_it_run_crysis_meme",
+   "dx9_very_high_cheat",
+   "multiplayer_2014_terminated",
+   "console_2011_no_multiplayer_no_dlc",
+   "initial_pc_demo_controversy",
+   "100k_units_first_2_weeks",
+   "3_million_units_by_2010",
+   "crysis_warhead_standalone_expansion",
+   "crysis_remastered_2020",
+   "lost_level_ascension_added_2020",
+   "nv_partnership_gameworks",
+   "can_it_run_crysis_remastered_setting"
+  ]
+ },
+ {
+  "id": "p08-42",
+  "party": 8,
+  "title": "Crysis 2 (2011, Crytek + Crytek UK)",
+  "year": 2011,
+  "engine_dss": "cryengine",
+  "engine_raw": "CryEngine 3 (первая игра на CryEngine 3)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo 2.4 GHz / Athlon X2 2.6 GHz, 2 GB RAM, GeForce 8800 GT / Radeon HD 3870"
+   },
+   {
+    "Rec HW": "Core i3-530 / Phenom II X4 905e, 4 GB RAM, GeForce GTS 250 / Radeon HD 5770"
+   },
+   {
+    "Rec HW": "Core i5-760 / Phenom II X4 955, 4 GB RAM, GeForce GTX 460 / Radeon HD 6850"
+   },
+   {
+    "Rec HW": "Core i5-7600 / Ryzen 5 1600, 8 GB RAM, GeForce GTX 1070 / Radeon RX 580"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Crysis 2 (2011, Crytek + Crytek UK)",
+   "format": "3D",
+   "world_type": "linear",
+   "scale": "small",
+   "stage": "release",
+   "engine": "cryengine",
+   "engine_version": "3.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "destruction_simulation",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 30,
+   "render_api": "dx9",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "destruction_geometry_cache",
+   "npc_perception_budget"
+  ],
+  "n_decisions": 20,
+  "n_matched": 2,
+  "n_decisions_matched": 2,
+  "unmatched": [
+   "nanosuit_2_combined_modes",
+   "nanosuit_cloak_stealth_kill",
+   "tactical_suit_visor",
+   "tessellation_dx11_pc",
+   "hrtf_audio_oculus_2",
+   "stereo_3d_support",
+   "new_york_manhattan_recreated",
+   "ceph_humanoid_redesign",
+   "steamworks_pc_multiplayer",
+   "directx_11_high_res_textures",
+   "high_resolution_texture_pack",
+   "4gb_gddr3_pc_recommended",
+   "3_9_million_pirated_downloads",
+   "multiplayer_hacked_beta_leak",
+   "multiplayer_servers_killed_2014",
+   "soundtrack_hans_zimmer_lorne_balfe",
+   "hdtv_2d_3d_compatible",
+   "tesselation_abuse_criticism"
+  ]
+ },
+ {
+  "id": "p08-43",
+  "party": 8,
+  "title": "Crysis 3 (2013, Crytek + Crytek UK)",
+  "year": 2013,
+  "engine_dss": "cryengine",
+  "engine_raw": "CryEngine 3 (с улучшениями: volumetric fog shadows, dynamic caustics, dynamic vegetation)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo E6600 / Athlon 64 X2 6000+, 2 GB RAM, GeForce 9800 GT / Radeon HD 3870 (только DX9?)"
+   },
+   {
+    "Rec HW": "Core i3-530 / Phenom II X4 905e, 4 GB RAM, GeForce GTS 250 / Radeon HD 5770"
+   },
+   {
+    "Rec HW": "Core i5-760 / Phenom II X4 955, 4 GB RAM, GeForce GTX 460 / Radeon HD 6850"
+   },
+   {
+    "Rec HW": "Core i5-7600 / Ryzen 5 1600, 8 GB RAM, GeForce GTX 1070 / Radeon RX 580"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Crysis 3 (2013, Crytek + Crytek UK)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "cryengine",
+   "engine_version": "3.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "open_world_streaming",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "irradiance_volume_probes"
+  ],
+  "n_decisions": 22,
+  "n_matched": 1,
+  "n_decisions_matched": 1,
+  "unmatched": [
+   "compound_bow_primary_weapon",
+   "hacking_minigame",
+   "rip_and_throw_ability",
+   "kill_streak_dog_tags",
+   "optional_objectives_layers",
+   "seven_wonders_open_levels",
+   "nanodome_post_apocalyptic",
+   "celestials_war_return",
+   "performance_capture_prophet",
+   "archangel_satellite_arsenal",
+   "nanodome_cliff_hanging_liana",
+   "dx11_pc_required",
+   "per_voxel_lighting_hbao_etc",
+   "wolfs_dangerous_close_quarters",
+   "limited_ammo_force_reuse",
+   "100_people_development_team",
+   "66_million_budget",
+   "lost_island_dlc_2013",
+   "205k_copies_debut_month_NA",
+   "dynamic_music_aggression",
+   "server_closure_2023_ea"
+  ]
+ },
+ {
+  "id": "p08-44",
+  "party": 8,
+  "title": "Hunt: Showdown 1896 (2019/2024, Crytek)",
+  "year": 2019,
+  "engine_dss": "cryengine",
+  "engine_raw": "CryEngine V (новая версия CryEngine с 2019; \"1896\" — 2024 обновление до CryEngine 5.11+)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-2500K / FX-8320, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7870"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 6GB / Radeon RX 580 8GB"
+   },
+   {
+    "Rec HW": "Core i7-9700K / Ryzen 7 2700, 16 GB RAM, GeForce RTX 2060 / Radeon RX 6600"
+   },
+   {
+    "Rec HW": "Core i7-12700K / Ryzen 7 5800X, 32 GB RAM, GeForce RTX 3080 / Radeon RX 6800 XT"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Hunt: Showdown 1896 (2019/2024, Crytek)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "cryengine",
+   "engine_version": "5.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "ray_traced_effects",
+    "open_world_streaming",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "data_driven_ability_system",
+   "gpu_procedural_placement",
+   "npc_perception_budget",
+   "rt_effect_resolution_budget",
+   "selective_ray_traced_effects"
+  ],
+  "n_decisions": 28,
+  "n_matched": 5,
+  "n_decisions_matched": 4,
+  "unmatched": [
+   "extraction_shooter_mechanic",
+   "boss_clues_progressive_reveal",
+   "permadeath_lose_everything",
+   "burn_ace_poker_hand",
+   "slow_learning_curve_2024",
+   "bounty_clash_2024",
+   "new_map_released_2024",
+   "4k_ps5_xsx_support",
+   "improved_engine_2024",
+   "ps4_xbox_one_delisted",
+   "sound_design_innovative",
+   "ambient_zombie_spawn",
+   "battle_royale_soul_survivor_mode",
+   "multi_hunter_2v12",
+   "teleportation_via_trait",
+   "sponsors_dlc",
+   "post_malone_event_2024",
+   "no_crossplay_ps4_xbox",
+   "6_unique_boss_monsters",
+   "heirloom_weapons_permanent_unlocks",
+   "traits_system_meta",
+   "burn_time_one_shoot_legendary",
+   "tv_series_adaptation",
+   "revived_vigil_legacy"
+  ]
+ },
+ {
+  "id": "p09-45",
+  "party": 9,
+  "title": "Battlefield 4 (2013, DICE)",
+  "year": 2013,
+  "engine_dss": "custom",
+  "engine_raw": "Frostbite 3 (новая версия)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo 2.0 GHz / Athlon X2 2.5 GHz, 2 GB RAM, GeForce 8800 GT / Radeon HD 3870"
+   },
+   {
+    "Rec HW": "Core i5-750 / Phenom II X4 955, 4 GB RAM, GeForce GTX 560 / Radeon HD 6950"
+   },
+   {
+    "Rec HW": "Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 660 / Radeon HD 7850"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Battlefield 4 (2013, DICE)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 64,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "destruction_simulation",
+    "water_simulation",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "deferred_forward_plus_choice",
+   "destruction_geometry_cache",
+   "dynamic_light_priority_budget",
+   "dynamic_resolution_scaling",
+   "froxel_volumetric_fog",
+   "gerstner_fft_water",
+   "gpu_procedural_placement",
+   "tickrate_budgeting",
+   "world_partition_streaming"
+  ],
+  "n_decisions": 28,
+  "n_matched": 10,
+  "n_decisions_matched": 17,
+  "unmatched": [
+   "commander_mode_rts_view",
+   "64_player_multiplayer",
+   "3_factions_us_china_russia",
+   "war_of_2020_setting",
+   "tessellation_overhaul",
+   "full_hd_rendering_pc",
+   "parallax_occlusion_mapping_frostbite",
+   "hbao_horizon_based_ao",
+   "rich_presence_landscape",
+   "hd_texture_pool",
+   "battlefield_4_premium"
+  ]
+ },
+ {
+  "id": "p09-46",
+  "party": 9,
+  "title": "Battlefield 1 (2016, DICE)",
+  "year": 2016,
+  "engine_dss": "custom",
+  "engine_raw": "Frostbite 3",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-6600K / AMD FX-6350, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7850"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 3GB / Radeon RX 480 4GB"
+   },
+   {
+    "Rec HW": "Core i7-6700K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Battlefield 1 (2016, DICE)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "destruction_simulation",
+    "volumetric_effects",
+    "large_scale_terrain",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "destruction_geometry_cache",
+   "gerstner_fft_water",
+   "raycast_vehicle_physics"
+  ],
+  "n_decisions": 21,
+  "n_matched": 3,
+  "n_decisions_matched": 4,
+  "unmatched": [
+   "behemoth_class_ship",
+   "operations_multi_map_mode",
+   "elite_classes_frontlines",
+   "war_stories_anthology",
+   "melee_weapon_3_classes",
+   "dynamic_weather_dust_storm",
+   "gas_mask_mechanic",
+   "war_pigeons_capture",
+   "supply_drop_tsar",
+   "shock_operations_2018_patch",
+   "back_to_basic_2018",
+   "air_assault_apocalypse",
+   "voice_overs_native_language",
+   "behemoth_infantry_class",
+   "13_2_launch_maps",
+   "5_expansion_dlc",
+   "13_2_million_open_beta_players"
+  ]
+ },
+ {
+  "id": "p09-47",
+  "party": 9,
+  "title": "Battlefield V (2018, DICE)",
+  "year": 2018,
+  "engine_dss": "custom",
+  "engine_raw": "Frostbite 3 (с RT)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-6600K / AMD FX-6350, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7850"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 3GB / Radeon RX 480 4GB"
+   },
+   {
+    "Rec HW": "Core i7-8700K / Ryzen 7 2700X, 16 GB RAM, GeForce RTX 2070 / Radeon VII"
+   },
+   {
+    "Rec HW": "Core i9-9900K / Ryzen 9 3900X, 16 GB RAM, GeForce RTX 3080 / Radeon RX 6800 XT"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Battlefield V (2018, DICE)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "ray_traced_effects",
+    "destruction_simulation",
+    "large_scale_terrain",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "async_loading_pipeline",
+   "composition_bootstrap_architecture",
+   "destruction_geometry_cache",
+   "dynamic_light_priority_budget",
+   "planar_reflection_budget",
+   "rt_effect_resolution_budget",
+   "selective_ray_traced_effects",
+   "temporal_upscaling",
+   "voxel_cone_tracing"
+  ],
+  "n_decisions": 25,
+  "n_matched": 9,
+  "n_decisions_matched": 9,
+  "unmatched": [
+   "grand_operations_continuation",
+   "company_squad_system",
+   "firestorm_battle_royale",
+   "continuous_wartales_mode",
+   "fortification_system",
+   "no_premium_pass",
+   "tow_dynamic_narrative",
+   "combined_arms_coop",
+   "attrition_system_reworked",
+   "world_war_2_focus",
+   "animation_procedural_motion",
+   "no_lobby_browser_pc",
+   "physical_based_rendering",
+   "5_war_stories",
+   "firestorm_64_players_br",
+   "6_seasons_tides_of_war"
+  ]
+ },
+ {
+  "id": "p09-48",
+  "party": 9,
+  "title": "Battlefield 2042 (2021, DICE)",
+  "year": 2021,
+  "engine_dss": "custom",
+  "engine_raw": "Frostbite (новейшая версия)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-6600K / AMD Ryzen 5 1600, 8 GB RAM, GeForce GTX 1050 Ti / Radeon RX 560"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD Ryzen 5 3600, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+   },
+   {
+    "Rec HW": "Core i9-9900K / Ryzen 7 3700X, 16 GB RAM, GeForce RTX 3070 / Radeon RX 6700 XT"
+   },
+   {
+    "Rec HW": "next-gen консоли нативно"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Battlefield 2042 (2021, DICE)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "volumetric_effects",
+    "large_scale_terrain",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "rt_effect_resolution_budget"
+  ],
+  "n_decisions": 20,
+  "n_matched": 2,
+  "n_decisions_matched": 2,
+  "unmatched": [
+   "128_player_multiplayer_pc_nextgen",
+   "plus_weapon_attachment_system",
+   "extreme_weather_tornado_sandstorm",
+   "specialist_system_replaces_classes",
+   "no_single_player_campaign",
+   "hazard_zone_extraction",
+   "cross_play_first_battlefield",
+   "breakthrough_64_removed_2022",
+   "map_clustering_design",
+   "non_binary_specialist",
+   "no_server_browser_pc_long",
+   "weather_affects_gameplay",
+   "7_seasons_4_years",
+   "specialist_count_14",
+   "class_system_legacy_revival",
+   "irish_returns_from_bf4",
+   "exosuit_mech_specialists",
+   "no_mod_tools"
+  ]
+ },
+ {
+  "id": "p09-49",
+  "party": 9,
+  "title": "Star Wars Battlefront II (2017, DICE + Motive + Criterion)",
+  "year": 2017,
+  "engine_dss": "custom",
+  "engine_raw": "Frostbite 3",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-6600K / AMD FX-6350, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7850"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 3GB / Radeon RX 480 4GB"
+   },
+   {
+    "Rec HW": "Core i7-6700K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Star Wars Battlefront II (2017, DICE + Motive + Criterion)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "art_direction_stylization",
+   "composition_bootstrap_architecture",
+   "raycast_vehicle_physics",
+   "rt_effect_resolution_budget",
+   "selective_ray_traced_effects"
+  ],
+  "n_decisions": 22,
+  "n_matched": 5,
+  "n_decisions_matched": 4,
+  "unmatched": [
+   "star_wars_three_eras",
+   "starfighter_arcade",
+   "heroes_villains_classes",
+   "campaign_30_hours",
+   "star_cards_progression",
+   "loot_crate_system_controversial",
+   "progression_overhaul_2018",
+   "all_heroes_unlocked_2018",
+   "no_paid_loot_crates_2018",
+   "microtransactions_disabled_2017",
+   "no_season_pass_free_seasons",
+   "campaign_motive_studios",
+   "starfighter_criterion",
+   "star_wars_lore_mix",
+   "heroes_vs_villains_4v4",
+   "extraction_2v2",
+   "starfighter_hero_ships",
+   "credits_only_cosmetic"
+  ]
+ },
+ {
+  "id": "p10-50",
+  "party": 10,
+  "title": "Metro Exodus (2019, 4A Games)",
+  "year": 2019,
+  "engine_dss": "custom",
+  "engine_raw": "4A Engine (собственный движок 4A Games, основан на предыдущих Metro 2033/Last Light)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-6600K / AMD FX-6350, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7850"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 3GB / Radeon RX 480 4GB"
+   },
+   {
+    "Rec HW": "Core i7-6700K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+   },
+   {
+    "Rec HW": "RTX 3060 / Radeon RX 6700 XT"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Metro Exodus (2019, 4A Games)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "ray_traced_effects",
+    "open_world_streaming"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "audio_streaming_compression",
+   "cascaded_shadow_maps",
+   "composition_bootstrap_architecture",
+   "hardware_raytraced_gi",
+   "lightmap_atlas_baking",
+   "rt_effect_resolution_budget",
+   "selective_ray_traced_effects",
+   "temporal_upscaling",
+   "variable_rate_shading"
+  ],
+  "n_decisions": 32,
+  "n_matched": 9,
+  "n_decisions_matched": 5,
+  "unmatched": [
+   "physicalized_hud_no_minimap",
+   "gas_mask_cleaning_cracking",
+   "filter_battery_management",
+   "weapon_modification_silencer_laser",
+   "watch_durability_cleaning",
+   "resource_scavenging_chemistry",
+   "stealth_darkness_mechanic",
+   "throwable_distraction_can",
+   "human_npc_karma_system",
+   "weather_time_dynamic_weather",
+   "day_night_affects_npc_behavior",
+   "campfire_safehouse",
+   "open_areas_with_aurora_train",
+   "choice_driven_endings",
+   "collectible_diary_postcards",
+   "weapons_must_be_cleaned",
+   "backpack_as_crafting_station",
+   "bow_silent_kills",
+   "explorable_no_quest_markers",
+   "approach_mission_varied",
+   "realistic_dynamic_weather_storms",
+   "minimal_subsurface_rendering",
+   "epic_games_store_year_exclusive",
+   "game_works_3_year_support",
+   "two_colonels_dlc_august_2019",
+   "sams_story_dlc_february_2020",
+   "ranger_update_march_2019"
+  ]
+ },
+ {
+  "id": "p10-51",
+  "party": 10,
+  "title": "Deus Ex: Mankind Divided (2016, Eidos-Montréal)",
+  "year": 2016,
+  "engine_dss": "custom",
+  "engine_raw": "**Dawn Engine** (новый собственный движок, основан на Glacier 2 от IO Interactive)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i5-2400 / AMD FX-8320, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7870"
+   },
+   {
+    "Rec HW": "Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 970 4GB / Radeon R9 290X 4GB"
+   },
+   {
+    "Rec HW": "Core i7-5820K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 / Radeon RX 480 8GB"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Deus Ex: Mankind Divided (2016, Eidos-Montréal)",
+   "format": "3D",
+   "world_type": "hub",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "gameplay_ability_system",
+    "ray_traced_effects"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "async_loading_pipeline",
+   "behaviour_tree_update_budget",
+   "composition_bootstrap_architecture",
+   "data_driven_ability_system",
+   "ecs_data_oriented_crowd",
+   "gerstner_fft_water",
+   "headless_dedicated_server",
+   "npc_perception_budget",
+   "post_effect_selective"
+  ],
+  "n_decisions": 26,
+  "n_matched": 9,
+  "n_decisions_matched": 10,
+  "unmatched": [
+   "physicalized_ui_minimal_hud",
+   "non_lethal_stealth_option",
+   "takedown_lethal_non_lethal",
+   "cover_system_dynamic",
+   "hacking_minigame_two_modes",
+   "remote_hacking_through_walls",
+   "adaptive_ammo_recycling",
+   "prague_hub_open_world",
+   "choice_dialogue_branches",
+   "director_cut_praxis_kits",
+   "city_xploration_day_night",
+   "pbr_physically_based_rendering",
+   "directx_12_pc",
+   "tressfx_hair_amd",
+   "prague_realistic_lighting",
+   "advanced_tessellation"
+  ]
+ },
+ {
+  "id": "p10-52",
+  "party": 10,
+  "title": "Kingdom Come: Deliverance (2018, Warhorse Studios)",
+  "year": 2018,
+  "engine_dss": "cryengine",
+  "engine_raw": "**CryEngine 3** (лицензирован у Crytek, с собственными модификациями)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i5-2500K / AMD FX-6300, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7850"
+   },
+   {
+    "Rec HW": "Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 3GB / Radeon RX 480 4GB"
+   },
+   {
+    "Rec HW": "Core i7-6700K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Kingdom Come: Deliverance (2018, Warhorse Studios)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "cryengine",
+   "engine_version": "3.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "physics_simulation",
+    "open_world_streaming"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "async_incremental_saves",
+   "behaviour_tree_update_budget",
+   "composition_bootstrap_architecture",
+   "gpu_instancing_vegetation",
+   "npc_perception_budget",
+   "physics_lod_sleeping",
+   "raycast_vehicle_physics",
+   "rt_effect_resolution_budget",
+   "snapshot_slot_saves",
+   "time_sliced_pathfinding"
+  ],
+  "n_decisions": 37,
+  "n_matched": 10,
+  "n_decisions_matched": 13,
+  "unmatched": [
+   "realistic_combat_physics",
+   "16_equipment_slots_layered",
+   "perishable_food_spoilage",
+   "weapons_degrade_clean",
+   "skill_based_minigames",
+   "lockpicking_realistic",
+   "theft_stealth_detection",
+   "reputation_consequences",
+   "classless_rpg_system",
+   "dialogue_timed_choices",
+   "real_archery_bow_physics",
+   "historical_real_materials",
+   "historical_real_locations",
+   "historical_1403_setting",
+   "melee_directional_attacks",
+   "weapon_combination_moves",
+   "lockpick_minigame_skill_based",
+   "alchemy_brewing",
+   "bow_aiming_realistic",
+   "historical_dialogue",
+   "night_cycle_full",
+   "tournaments_dlc",
+   "combat_academy_dlc",
+   "ps5_xsx_2026_upgrade"
+  ]
+ },
+ {
+  "id": "p10-53",
+  "party": 10,
+  "title": "Alan Wake 2 (2023, Remedy Entertainment)",
+  "year": 2023,
+  "engine_dss": "custom",
+  "engine_raw": "**Northlight Engine** (Remedy собственный, использовался в Quantum Break и Control)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-7600K / Ryzen 5 1600, 16 GB RAM, GeForce RTX 2060 / Radeon RX 6600"
+   },
+   {
+    "Rec HW": "Core i7-9700K / Ryzen 7 3700X, 16 GB RAM, GeForce RTX 3060 Ti / Radeon RX 6700 XT"
+   },
+   {
+    "Rec HW": "RTX 4070 / RX 7800 XT"
+   },
+   {
+    "Rec HW": "RTX 4080 / RX 7900 XTX"
+   },
+   {
+    "Rec HW": "30 fps на минималках, требует GTX 16/RTX 20+"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps)"
+   }
+  ],
+  "profile": {
+   "name": "Alan Wake 2 (2023, Remedy Entertainment)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "medium",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "character_animation",
+    "ai_pathfinding",
+    "post_processing",
+    "mesh_shaders",
+    "dynamic_global_illumination",
+    "path_tracing",
+    "open_world_streaming"
+   ],
+   "target_resolution": "4k",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "client_prediction_reconciliation",
+   "composition_bootstrap_architecture",
+   "full_path_tracing_pipeline",
+   "gerstner_fft_water",
+   "gpu_compute_culling",
+   "gpu_meshlet_culling_budget",
+   "hardware_raytraced_gi",
+   "irradiance_volume_probes",
+   "meshlet_pipeline_adoption",
+   "ml_frame_generation",
+   "multithreaded_physics_jobs",
+   "path_tracing_sample_denoiser_budget",
+   "rt_effect_resolution_budget",
+   "screenspace_light_shafts",
+   "selective_ray_traced_effects",
+   "temporal_upscaling",
+   "virtual_geometry_clusters"
+  ],
+  "n_decisions": 24,
+  "n_matched": 17,
+  "n_decisions_matched": 10,
+  "unmatched": [
+   "mind_place_investigation",
+   "writer_room_narrative",
+   "flash_light_drain_focus",
+   "two_story_paths_alternating",
+   "no_minimap_compass",
+   "two_dlc_paid",
+   "fortnite_crossover",
+   "dead_by_daylight_crossover",
+   "photo_mode_realistic",
+   "gtx_10_optimization_patch_2024",
+   "hunter_enemies_darkness_weak",
+   "no_hud_physicalized",
+   "remaster_already_released",
+   "ps5_xsx_4k_native"
+  ]
+ },
+ {
+  "id": "p11-54",
+  "party": 11,
+  "title": "Cyberpunk 2077 (2020, CD PROJEKT RED)",
+  "year": 2020,
+  "engine_dss": "custom",
+  "engine_raw": "REDengine 4 (последняя итерация; дальше — переход на UE5 для Orion)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core i5-3570K / FX-8310, 8 GB RAM, GTX 780 / RX 470, HDD"
+   },
+   {
+    "Min HW": "Core i7-6700 / Ryzen 5 1600, 12 GB RAM, GTX 1060 6GB / RX 580, **SSD обязателен**"
+   },
+   {
+    "Rec HW": "Core i9-12900 / Ryzen 9 7900X, 16 GB RAM, RTX 4080+, NVMe"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps raster); 33.3 мс (30 fps RT на консолях); path tracing — только с FG"
+   }
+  ],
+  "profile": {
+   "name": "Cyberpunk 2077 (2020, CD PROJEKT RED)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 1,
+   "multiplayer": false,
+   "functions": [
+    "open_world_streaming",
+    "crowd_simulation",
+    "path_tracing",
+    "upscaling_frame_generation",
+    "vehicle_simulation",
+    "large_scale_terrain"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 60,
+   "render_api": "dx12",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "auto",
+   "priority": "balanced"
+  },
+  "basket": [
+   "agent_update_budget",
+   "full_path_tracing_pipeline",
+   "hierarchical_lod",
+   "mesh_index_optimization",
+   "ml_frame_generation",
+   "multithreaded_physics_jobs",
+   "path_tracing_sample_denoiser_budget",
+   "raycast_vehicle_physics",
+   "rt_effect_resolution_budget",
+   "selective_ray_traced_effects",
+   "temporal_upscaling",
+   "tilemap_chunk_streaming",
+   "vehicle_simulation_lod",
+   "world_partition_streaming"
+  ],
+  "n_decisions": 9,
+  "n_matched": 14,
+  "n_decisions_matched": 7,
+  "unmatched": [
+   "police_system_rework_2_0",
+   "hdd_to_ssd_mandatory"
+  ]
+ },
+ {
+  "id": "p11-55",
+  "party": 11,
+  "title": "Overwatch → Overwatch 2 (2016/2022, Blizzard)",
+  "year": 2016,
+  "engine_dss": "custom",
+  "engine_raw": "собственный in-house (Overwatch Engine → **Overwatch Engine 2.0**, не UE5)",
+  "frame_budget_ms": 8.3,
+  "hw": [
+   {
+    "Min HW": "Core i3 / Phenom X3, 4 GB RAM, GTX 460 / HD 4850"
+   },
+   {
+    "Min HW": "Core i3-12100 / Ryzen 3, 6 GB RAM, GTX 600 / HD 7000"
+   },
+   {
+    "Rec HW": "Core i7 / Ryzen 7, 8 GB RAM, GTX 1060 / RX 580+"
+   },
+   {
+    "Frame budget": "8.3 мс (120 fps компетитив); 16.6 мс (60 fps казуал)"
+   }
+  ],
+  "profile": {
+   "name": "Overwatch → Overwatch 2 (2016/2022, Blizzard)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "small",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "low",
+   "npc_count_level": "medium",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "multiplayer_netcode",
+    "gameplay_ability_system",
+    "crowd_simulation"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 120,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "client_prediction_reconciliation",
+   "composition_bootstrap_architecture",
+   "deterministic_lockstep",
+   "dynamic_resolution_scaling",
+   "ecs_data_oriented_crowd",
+   "multithreaded_physics_jobs",
+   "tickrate_budgeting"
+  ],
+  "n_decisions": 9,
+  "n_matched": 7,
+  "n_decisions_matched": 5,
+  "unmatched": [
+   "ow_engine_2_rebuild",
+   "netcode_rebuilt_30pct_latency",
+   "format_6v6_to_5v5",
+   "kernel_anticheat_in_engine"
+  ]
+ },
+ {
+  "id": "p11-56",
+  "party": 11,
+  "title": "Minecraft: Java Edition + Bedrock (2011–…, Mojang)",
+  "year": 2011,
+  "engine_dss": "custom",
+  "engine_raw": "Java Edition (Java, LWJGL/OpenGL) vs Bedrock (C++, RenderDragon)",
+  "frame_budget_ms": 16.6,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo, 2 GB RAM, Intel HD (20–30 fps, короткие чанки)"
+   },
+   {
+    "Min HW": "Core i3, 4 GB RAM, Intel UHD / GTX 700 (60 fps на 8–12 чанков)"
+   },
+   {
+    "Rec HW": "Core i5 / Ryzen 5, 8 GB RAM, GTX 1060 / RX 580 + Sodium"
+   },
+   {
+    "Frame budget": "16.6 мс (60 fps); TPS-сервер — 50 мс тик (20 TPS)"
+   }
+  ],
+  "profile": {
+   "name": "Minecraft: Java Edition + Bedrock (2011–…, Mojang)",
+   "format": "3D",
+   "world_type": "procedural",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "medium",
+   "npc_count_level": "low",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "procedural_terrain",
+    "project_architecture",
+    "large_scale_terrain",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 60,
+   "render_api": "opengl",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "managed_gc_alloc_budget",
+   "multithreaded_physics_jobs",
+   "tilemap_chunk_streaming"
+  ],
+  "n_decisions": 7,
+  "n_matched": 3,
+  "n_decisions_matched": 5,
+  "unmatched": [
+   "sodium_lithium_modern_fix",
+   "bedrock_renderdragon_rewrite"
+  ]
+ },
+ {
+  "id": "p11-57",
+  "party": 11,
+  "title": "Counter-Strike: GO → Counter-Strike 2 (2012/2023, Valve)",
+  "year": 2012,
+  "engine_dss": "source",
+  "engine_raw": "Source (CS:GO) → **Source 2 (CS2, 09.2023)**",
+  "frame_budget_ms": 6.9,
+  "hw": [
+   {
+    "Min HW": "Core 2 Duo E6600, 2 GB RAM, GeForce 8600 / HD 3650"
+   },
+   {
+    "Rec HW": "Core i5, 8 GB RAM, GTX 1060 / RX 580"
+   },
+   {
+    "Rec HW": "Core i5-12400 / Ryzen 5 5600, 16 GB RAM, RTX 3060 / RX 6600"
+   },
+   {
+    "Frame budget": "6.9 мс (144 fps); 2.5 мс (400 fps, про-сцена)"
+   }
+  ],
+  "profile": {
+   "name": "Counter-Strike: GO → Counter-Strike 2 (2012/2023, Valve)",
+   "format": "3D",
+   "world_type": "arena",
+   "scale": "small",
+   "stage": "release",
+   "engine": "source",
+   "engine_version": "2.0",
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "low",
+   "npc_count_level": "low",
+   "player_count": 16,
+   "multiplayer": true,
+   "functions": [
+    "multiplayer_netcode",
+    "volumetric_effects"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "medium",
+   "target_fps": 144,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "client_prediction_reconciliation",
+   "differential_patch_pipeline",
+   "froxel_volumetric_fog",
+   "tickrate_budgeting"
+  ],
+  "n_decisions": 8,
+  "n_matched": 4,
+  "n_decisions_matched": 4,
+  "unmatched": [
+   "tick_64mm_128faceit_split",
+   "panorama_ui_replace_scaleform",
+   "f2p_prime_trust_factor",
+   "legacy_4465480_unlisted_2026"
+  ]
+ },
+ {
+  "id": "p11-58",
+  "party": 11,
+  "title": "Arma 3 (2013, Bohemia Interactive)",
+  "year": 2013,
+  "engine_dss": "custom",
+  "engine_raw": "Real Virtuality 4 (RV4, собственный Bohemia)",
+  "frame_budget_ms": 33.3,
+  "hw": [
+   {
+    "Min HW": "Core i5-2300 / Phenom II X4, 2 GB RAM, GTX 8800 / HD 3830"
+   },
+   {
+    "Min HW": "повышены до реалистичных entry-level (Steam-страница)"
+   },
+   {
+    "Rec HW": "Core i7 / Ryzen 7 (IPC+частота важнее ядер), 16 GB RAM, GTX 1060 / RX 580 + SSD"
+   },
+   {
+    "Frame budget": "33.3 мс (30 fps крупные миссии); 16.6 мс (60 fps малые кооп)"
+   }
+  ],
+  "profile": {
+   "name": "Arma 3 (2013, Bohemia Interactive)",
+   "format": "3D",
+   "world_type": "open_world",
+   "scale": "very_large",
+   "stage": "release",
+   "engine": "custom",
+   "engine_version": null,
+   "platforms": [
+    "pc_windows"
+   ],
+   "object_count_level": "high",
+   "npc_count_level": "high",
+   "player_count": 100,
+   "multiplayer": true,
+   "functions": [
+    "large_scale_terrain",
+    "advanced_npc_ai",
+    "project_architecture",
+    "open_world_streaming",
+    "multiplayer_netcode"
+   ],
+   "target_resolution": "1080p",
+   "target_quality": "high",
+   "target_fps": 30,
+   "render_api": "dx11",
+   "storage_type": "auto",
+   "memory_model": "auto",
+   "upscaling_method": "auto",
+   "network_topology": "dedicated",
+   "priority": "balanced"
+  },
+  "basket": [
+   "composition_bootstrap_architecture",
+   "headless_dedicated_server",
+   "managed_gc_alloc_budget",
+   "multithreaded_physics_jobs",
+   "time_sliced_pathfinding"
+  ],
+  "n_decisions": 9,
+  "n_matched": 5,
+  "n_decisions_matched": 7,
+  "unmatched": [
+   "view_distance_cpu_linear",
+   "shadows_gpu_vs_cpu_split"
+  ]
+ }
+]

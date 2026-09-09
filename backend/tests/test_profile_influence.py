@@ -73,8 +73,22 @@ def test_resolution_and_quality_change_estimate(client):
 
 
 def test_scale_changes_estimate(client):
-    assert estimate(client, scale="very_large")["required_gpu_index"] > estimate(
-        client, scale="small")["required_gpu_index"]
+    """Объём мира меняет память и объём контента, а не повторяет работу на кадр.
+
+    Раньше `scale` умножал стоимость кадра одновременно со счётчиками активных
+    объектов и NPC: один и тот же множитель `content` покрывал и объём мира, и
+    активную сцену. Физически размер мира определяет стриминг и резидентные
+    ресурсы, но при том же числе активных сущностей работа на кадр не растёт.
+    """
+    small = estimate(client, scale="small")
+    very_large = estimate(client, scale="very_large")
+    # Резидентные ресурсы и объём контента растут с размером мира.
+    assert very_large["estimated_ram_gb"] > small["estimated_ram_gb"]
+    assert very_large["estimated_vram_gb"] > small["estimated_vram_gb"]
+    assert very_large["estimated_draw_calls"] > small["estimated_draw_calls"]
+    # Работа на кадр задаётся активной сценой и от размера мира не зависит.
+    assert very_large["required_gpu_index"] == small["required_gpu_index"]
+    assert very_large["required_cpu_index"] == small["required_cpu_index"]
 
 
 def test_platforms_change_confidence(client):

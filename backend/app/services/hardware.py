@@ -83,10 +83,12 @@ from .. import repositories
 from ..models.entities import HardwareCPU, HardwareGPU
 from ..schemas.catalog import (
     ContributionItem, ContributionsOut, HardwareEstimateOut, MemoryComposition,
-    NonClientMethodOut, PracticeCheckOut, ProjectProfile, SubsystemBreakdown,
-    count_scale_bounds, level_unspecified,
+    NonClientMethodOut, PlatformTargetOut, PracticeCheckOut, ProjectProfile,
+    SubsystemBreakdown, count_scale_bounds, level_unspecified,
 )
+from . import engines as engine_service
 from . import rules, serializers
+from .targets import PlatformTarget, incompatible_notes, resolve_targets
 
 SCALE_FACTOR = {"small": 0.8, "medium": 1.0, "large": 1.25, "very_large": 1.5, "unknown": 1.0}
 RESOLUTION_FACTOR = {
@@ -330,15 +332,30 @@ FEATURE_GPU_SUBSYSTEM_LOAD: dict[str, dict[str, float]] = {
 #           размер компонента (0.20 = плюс 20%, -0.20 = минус 20%).
 #   "rt_ms" — абсолютная добавка стоимости трассировки лучей (мс на кадр):
 #             нужна для решений, которые вводят RT-проход там, где его не было.
+#             Значение задано на эталонном внутреннем разрешении (1080p без
+#             апскейлинга) и в расчёте масштабируется так же, как остальные
+#             зависящие от заливки стадии: число лучей растёт с числом пикселей.
+#   "render_scale" — множитель внутреннего разрешения, который решение задаёт
+#             само (динамическое разрешение). Перемножается с множителем
+#             апскейлера: это разные механизмы, но влияют на одну величину.
 #
 # Распределение задано явно для каждого решения: расчёт не обращается к
 # отсутствующему полю function_code и не выводит подсистему из названия.
 METHOD_SUBSYSTEM_EFFECTS: dict[str, dict] = {
     # --- Мир и потоковая загрузка ---
     "world_partition_streaming": {"cpu": {"streaming": 0.30, "main_thread": 0.12}, "mem": {"streaming": 0.35}},
-    "world_origin_shifting": {"cpu": {"main_thread": 0.06}},
+    # Сдвиг начала координат решает точность больших координат, а не стоимость
+    # кадра: сам перенос мира имеет собственную цену.
+    "world_origin_shifting": {
+        "note": "решает точность вычислений в больших координатах; стоимость кадра не "
+                "уменьшает, а сам перенос мира добавляет работу при его выполнении",
+    },
     "hierarchical_lod": {"cpu": {"render_prep": 0.18}, "gpu": {"geometry": 0.30, "raster": 0.10}, "mem": {"meshes": 0.12}},
-    "gpu_compute_culling": {"cpu": {"render_prep": 0.34, "main_thread": 0.10}, "gpu": {"compute": 0.20}},
+    # Отсечение на GPU — добавочный вычислительный проход, а не экономия compute:
+    # прежде карта давала скидку там, где решение само платит за работу.
+    # Экономия возникает во второй части — невидимая геометрия перестаёт
+    # обрабатываться, поэтому она показана отдельной строкой.
+    "gpu_compute_culling": {"cpu": {"render_prep": 0.34, "main_thread": 0.10}, "gpu": {"compute": -0.12, "geometry": 0.14}},
     "baked_occlusion_culling": {"cpu": {"render_prep": 0.20}, "gpu": {"geometry": 0.12, "raster": 0.08}, "mem": {"scene": 0.10}},
     "async_loading_pipeline": {"cpu": {"streaming": 0.22, "main_thread": 0.16}},
     "tiled_clustered_light_culling": {"gpu": {"lighting_shadows": 0.22, "shading": 0.06}, "mem": {"render_targets": -0.05}},
@@ -349,10 +366,16 @@ METHOD_SUBSYSTEM_EFFECTS: dict[str, dict] = {
     "virtual_texturing": {"gpu": {"shading": -0.05}, "mem": {"textures": -0.45, "streaming": 0.25}},
     "heightmap_compression": {"cpu": {"streaming": -0.08}, "mem": {"textures": -0.22, "streaming": -0.15}},
     "virtual_geometry_clusters": {"cpu": {"render_prep": 0.30}, "gpu": {"geometry": 0.26, "raster": 0.06}, "mem": {"meshes": -0.10}},
-    "neural_texture_compression": {"cpu": {"streaming": -0.06}, "gpu": {"shading": 0.04}, "mem": {"textures": -0.40}},
+    # NTC-on-Load и NTC-on-Sample различаются: при транскодировании резидентная
+    # видеопамять может не уменьшиться, а при обращении к сети добавляется
+    # inference. Универсальной экономии затенения у метода нет.
+    "neural_texture_compression": {"cpu": {"streaming": -0.06}, "gpu": {"compute": -0.08}, "mem": {"textures": -0.40}},
     # --- Растительность ---
     "gpu_instancing_vegetation": {"cpu": {"render_prep": 0.32, "main_thread": 0.08}, "gpu": {"geometry": 0.18, "raster": 0.06}, "mem": {"meshes": 0.06}},
-    "gpu_procedural_placement": {"cpu": {"parallel_sim": 0.30, "main_thread": 0.10}, "mem": {"scene": -0.30, "streaming": -0.20}},
+    # Размещение на GPU не бесплатно: есть вычислительный проход, а результат
+    # размещения и временные буферы занимают память. Прежде карта показывала
+    # только экономию, из-за чего ускорение выглядело без затрат.
+    "gpu_procedural_placement": {"cpu": {"parallel_sim": 0.30, "main_thread": 0.10}, "gpu": {"compute": -0.10}, "mem": {"scene": -0.30, "streaming": 0.10}},
     "impostors_billboards": {"gpu": {"geometry": 0.34, "shading": 0.10, "raster": 0.08}, "mem": {"meshes": -0.25, "textures": 0.08}},
     "vegetation_atlas_lod": {"gpu": {"geometry": 0.16, "shading": 0.08}, "mem": {"textures": -0.12}},
     # --- Глобальное освещение ---
@@ -376,53 +399,105 @@ METHOD_SUBSYSTEM_EFFECTS: dict[str, dict] = {
     "shadow_caster_2d_limits": {"cpu": {"render_prep": 0.16}, "gpu": {"lighting_shadows": 0.20, "raster": 0.08}},
     # --- Частицы ---
     "gpu_particle_simulation": {"cpu": {"parallel_sim": 0.32, "main_thread": 0.08}, "gpu": {"compute": -0.12}, "mem": {"meshes": 0.08}},
-    "particle_pooling": {"cpu": {"main_thread": 0.18}, "mem": {"scene": -0.10}},
+    # Пул удерживает объекты: он уменьшает аллокации и паузы сборки мусора, но
+    # не обязан занимать меньше памяти, чем исходный сценарий.
+    "particle_pooling": {"cpu": {"main_thread": 0.18}, "mem": {"scene": 0.04}},
     "flipbook_particles": {"cpu": {"parallel_sim": 0.30, "main_thread": 0.10}, "gpu": {"transparency": 0.18, "compute": 0.06}, "mem": {"textures": 0.10}},
     "sprite_particle_atlas": {"cpu": {"parallel_sim": 0.16}, "gpu": {"transparency": 0.14, "raster": 0.06}},
     # --- Физика ---
     "fixed_timestep_physics": {},
     "physics_lod_sleeping": {"cpu": {"physics": 0.30}},
-    "multithreaded_physics_jobs": {"cpu": {"physics": 0.10}},
+    # Многопоточность уже учтена моделью распараллеливания: вторая экономия
+    # поверх неё давала бы выигрыш, которого нет. Решение меняет распределение
+    # работы и критический путь, а не суммарную работу физики.
+    "multithreaded_physics_jobs": {
+        "note": "многопоточная физика меняет распределение работы и критический путь; "
+                "суммарная работа шага от этого не уменьшается, поэтому отдельной скидки "
+                "подсистемы сверх учтённого распараллеливания нет",
+    },
     "broadphase_spatial_partitioning": {"cpu": {"physics": 0.26}, "mem": {"scene": 0.10}},
     "collision_layer_matrix": {"cpu": {"physics": 0.28}},
     # --- Анимация ---
     "gpu_skinning_compute": {"cpu": {"animation": 0.34, "parallel_sim": 0.12}, "gpu": {"compute": -0.10}},
-    "animation_compression": {"cpu": {"streaming": -0.10}, "mem": {"meshes": -0.25}},
+    # Сжимается анимационный набор, а не вершинные буферы сцены: прежде эффект
+    # относили к компоненту геометрии, и сжатие анимаций выглядело как
+    # уменьшение мешей. Декодирование — работа анимационной подсистемы CPU.
+    "animation_compression": {"cpu": {"animation": -0.10}, "mem": {"animation": -0.25}},
     "animation_lod_budget": {"cpu": {"animation": 0.30}},
-    "motion_matching": {"cpu": {"animation": -0.30, "main_thread": -0.10}, "mem": {"meshes": 0.30}},
+    # Расход памяти — база движений и поисковые данные, а не геометрия персонажей.
+    "motion_matching": {"cpu": {"animation": -0.30, "main_thread": -0.10}, "mem": {"animation": 0.30}},
     "sprite_atlas_batching": {"cpu": {"render_prep": 0.30, "animation": 0.14}, "gpu": {"raster": 0.10}, "mem": {"meshes": 0.10, "textures": 0.10}},
     "sprite_sheet_compression": {"mem": {"textures": -0.30}},
-    "skeletal_2d_deform": {"cpu": {"animation": -0.12, "main_thread": -0.06}, "mem": {"meshes": -0.30, "textures": -0.15}},
+    # Скелетная анимация заменяет покадровый набор спрайтов: меняется состав
+    # анимационных данных, а не геометрия. Атлас не обязательная зависимость,
+    # поэтому прежняя универсальная скидка на текстуры завышена.
+    "skeletal_2d_deform": {"cpu": {"animation": -0.12, "main_thread": -0.06}, "mem": {"animation": -0.30, "textures": -0.08}},
     # --- Толпа и AI ---
     "ecs_data_oriented_crowd": {"cpu": {"ai": 0.34, "parallel_sim": 0.20}, "mem": {"scene": -0.10}},
     "crowd_instancing_impostors": {"cpu": {"render_prep": 0.16}, "gpu": {"geometry": 0.26, "shading": 0.10}, "mem": {"meshes": -0.15}},
     "crowd_2d_instancing": {"cpu": {"render_prep": 0.34}, "gpu": {"geometry": 0.18, "raster": 0.08}},
     "agent_update_budget": {"cpu": {"ai": 0.32}},
     "navmesh_tiling_streaming": {"cpu": {"main_thread": 0.12}, "mem": {"scene": -0.15, "streaming": 0.15}},
-    "time_sliced_pathfinding": {"cpu": {"ai": 0.20, "main_thread": 0.10}},
+    # Работа переносится на другие кадры, а не исчезает: суммарная стоимость
+    # поиска пути та же, меняется пик кадра и задержка ответа.
+    "time_sliced_pathfinding": {
+        "note": "раскладывает поиск пути по кадрам: суммарная работа AI не уменьшается, "
+                "снижается только пик кадра ценой задержки ответа, которую модель "
+                "отдельно не измеряет",
+    },
     "flow_field_pathing": {"cpu": {"ai": 0.34}, "mem": {"scene": 0.12}},
     "rvo_local_avoidance": {"cpu": {"ai": -0.14}},
     # --- Вода и объёмы ---
-    "gerstner_fft_water": {"cpu": {"physics": 0.20}, "gpu": {"shading": -0.08, "compute": -0.10}},
+    # Gerstner и FFT — разные алгоритмы: визуальная поверхность не заменяет
+    # автоматически физическую симуляцию, поэтому экономии физики нет.
+    "gerstner_fft_water": {"gpu": {"shading": -0.08, "compute": -0.10}},
     "screen_space_water_simple": {"gpu": {"shading": 0.26, "transparency": 0.16}, "mem": {"render_targets": -0.08}},
     "froxel_volumetric_fog": {"gpu": {"compute": -0.20, "transparency": -0.12}, "mem": {"render_targets": 0.10}},
     "volumetric_half_resolution": {"gpu": {"compute": 0.34, "transparency": 0.20}},
-    "planar_reflection_budget": {"cpu": {"render_prep": -0.14}, "gpu": {"raster": -0.24, "shading": -0.14}, "mem": {"render_targets": -0.05}},
+    # Ограниченное плоское отражение дешевле неограниченного, но дороже его
+    # отсутствия: здесь оценена стоимость ограниченного прохода, а база
+    # сравнения названа. Прежде та же карта называлась оптимизацией и
+    # уменьшала целевые буферы, одновременно добавляя проходы.
+    "planar_reflection_budget": {"cpu": {"render_prep": -0.14}, "gpu": {"raster": -0.24, "shading": -0.14}, "mem": {"render_targets": 0.10}},
     # --- Постобработка, апскейлинг, генерация кадров ---
-    "temporal_upscaling": {"gpu": {"post_processing": 0.10}, "mem": {"render_targets": 0.10}},
-    "dynamic_resolution_scaling": {"gpu": {"post_processing": 0.16}},
-    "deferred_forward_plus_choice": {"gpu": {"lighting_shadows": 0.16, "shading": 0.06}, "mem": {"render_targets": -0.20}},
+    # Внутреннее разрешение задаётся одним источником — полем анкеты
+    # `upscaling_method`. Карточка не вводит второй множитель поверх него:
+    # при `auto` она раскрывается во временной апскейлинг, при явно названном
+    # апскейлере поле уже описывает ту же стадию. Иначе поле и карточка давали
+    # два разных действия без различения реализации и дополнительной правки.
+    "temporal_upscaling": {"mem": {"render_targets": 0.10}},
+    # Динамическое разрешение меняет внутреннее разрешение, а не стоимость
+    # постобработки; небольшой рост постобработки — собственный проход
+    # масштабирования и замер времени кадра.
+    "dynamic_resolution_scaling": {"render_scale": 0.90, "gpu": {"post_processing": -0.04}},
+    # Карточка описывает выбор между двумя конвейерами, а не готовую оптимизацию:
+    # при разном числе источников, прозрачности и MSAA затраты различаются и по
+    # знаку. Пока выбор не сделан, модель не угадывает выигрыш ни одной ветви.
+    "deferred_forward_plus_choice": {
+        "note": "выбор между отложенным и forward+ конвейером: стоимость зависит от "
+                "числа источников, прозрачности и MSAA и может быть как ниже, так и "
+                "выше; без указания выбранной ветви численный эффект не начисляется",
+    },
     "variable_rate_shading": {"gpu": {"shading": 0.30}},
     "post_effect_selective": {"gpu": {"post_processing": 0.32}},
     "depth_prepass_early_z": {"cpu": {"render_prep": -0.08}, "gpu": {"raster": 0.26, "shading": 0.10}, "mem": {"render_targets": 0.05}},
     "screenspace_light_shafts": {"gpu": {"post_processing": -0.10}},
     # --- Рендер-архитектура ---
     "hiz_software_occlusion": {"cpu": {"main_thread": -0.12}, "gpu": {"geometry": 0.28, "raster": 0.10}},
-    "pso_precaching_warmup": {"cpu": {"main_thread": -0.10, "render_prep": 0.06}},
+    # Прогрев PSO устраняет пики компиляции, а не стоимость каждого кадра:
+    # постоянное замедление главного потока здесь не следовало из механизма.
+    "pso_precaching_warmup": {
+        "note": "прогрев конвейерных состояний уменьшает паузы компиляции ценой "
+                "предварительной работы и кэша; стоимость каждого кадра он не меняет, "
+                "поэтому в подсистемной модели численного вклада нет — эффект виден "
+                "на пиках времени кадра, которые модель не измеряет",
+    },
     "bindless_uber_shaders": {"cpu": {"render_prep": 0.34, "main_thread": 0.10}},
     "srp_batcher_discipline": {"cpu": {"render_prep": 0.32}},
     "mesh_index_optimization": {"gpu": {"geometry": 0.14, "raster": 0.08}},
-    "splitscreen_render_budget": {"cpu": {"render_prep": -0.20}, "gpu": {"raster": -0.22, "geometry": -0.12}, "mem": {"render_targets": -0.05}},
+    # Число видов уже масштабирует подготовку рендера и геометрию: бюджет
+    # ограничивает стоимость каждого вида, а не повторно включает split-screen.
+    "splitscreen_render_budget": {"mem": {"render_targets": -0.05}},
     "quality_tier_scalability": {},
     # --- Сеть ---
     "network_relevancy_priority": {"cpu": {"network": 0.30}},
@@ -439,31 +514,60 @@ METHOD_SUBSYSTEM_EFFECTS: dict[str, dict] = {
     # --- Разрушения ---
     "destruction_geometry_cache": {"cpu": {"physics": 0.34}, "mem": {"meshes": 0.20}},
     # --- Прочее (эффект не на компьютере игрока или без количественной оценки) ---
-    "normal_bake_retopology_pipeline": {"gpu": {"shading": 0.12}, "mem": {"meshes": -0.15, "textures": -0.10}},
-    "build_size_startup_budgets": {"mem": {"streaming": -0.15}},
+    # Ретопология сокращает геометрию, а нормали добавляют текстуры и выборку
+    # в затенении: прежняя одновременная экономия всех компонентов не следовала
+    # ни из одного механизма.
+    "normal_bake_retopology_pipeline": {"gpu": {"geometry": 0.12, "shading": -0.04}, "mem": {"meshes": -0.20, "textures": 0.06}},
+    # Само назначение бюджета не сокращает память: эффект появляется только
+    # после изменения состава сборки и загрузки. До этого шага списывать
+    # стриминговую память не на чем.
+    "build_size_startup_budgets": {
+        "note": "бюджет размера и старта задаёт предел, но сам по себе не меняет ни "
+                "состав сборки, ни стриминговые буферы: численный эффект появляется "
+                "после того, как ассеты действительно переложены по группам загрузки",
+    },
     "differential_patch_pipeline": {},
-    "composition_bootstrap_architecture": {"cpu": {"main_thread": 0.14}},
+    # Организация запуска и связывания систем относится ко времени старта и к
+    # удобству разработки: постоянного ускорения главного потока она не даёт,
+    # поэтому численного вклада в стоимость кадра нет и причина показана.
+    "composition_bootstrap_architecture": {
+        "note": "влияет на время старта и связность систем, а не на стоимость кадра: "
+                "ускоряется запуск и разбор зависимостей, постоянной экономии главного "
+                "потока в каждом кадре из этого не следует",
+    },
     "art_direction_stylization": {"gpu": {"shading": 0.14}},
     "snapshot_slot_saves": {"cpu": {"main_thread": -0.10}, "mem": {"streaming": 0.10}},
     "async_incremental_saves": {"cpu": {"main_thread": 0.10, "streaming": -0.08}, "mem": {"streaming": 0.15}},
-    "ml_frame_generation": {"gpu": {"post_processing": -0.10}, "mem": {"render_targets": 0.12}},
+    # Стоимость синтеза промежуточных кадров задаётся полем анкеты
+    # `frame_generation` с базовым FPS: только из него известно число
+    # генерируемых кадров. Карточка не добавляет второй численный эффект
+    # поверх этого — раньше поле и карточка начисляли две разные стоимости
+    # одного и того же ML-прохода.
+    "ml_frame_generation": {"mem": {"render_targets": 0.12}},
     # --- Трассировка лучей -------------------------------------------------
     # Полная трассировка пути забирает растровое освещение, но вводит свой
     # проход; экономия трассировочного бюджета задаётся по подсистеме `rt`.
+    # Полная трассировка пути — реализация функции `path_tracing`, а не второй
+    # базовый проход поверх неё: стоимость трассировки уже внесена функцией,
+    # поэтому фиксированная добавка удваивала бы один и тот же проход.
+    # Решение забирает растровое освещение и добавляет буферы накопления;
+    # число выборок и отскоков задаётся отдельным бюджетным решением.
     "full_path_tracing_pipeline": {
         "cpu": {"compute": -0.10},
         "gpu": {"lighting_shadows": 0.20},
         "mem": {"render_targets": 0.10},
-        "rt_ms": 2.5,
     },
     "path_tracing_sample_denoiser_budget": {
         "cpu": {"post_processing": -0.10},
         "gpu": {"rt": 0.42},
     },
+    # Выборочная трассировка — ограничение уже существующего прохода, а не
+    # новый: цена применяется к стоимости трассировки, которую вносит функция
+    # или полная реализация. Фиксированное время поверх включённой функции
+    # давало бы два прохода там, где выбран один.
     "selective_ray_traced_effects": {
-        "gpu": {"lighting_shadows": 0.10},
+        "gpu": {"rt": 0.35, "lighting_shadows": 0.10},
         "mem": {"render_targets": 0.08},
-        "rt_ms": 1.6,
     },
     "rt_effect_resolution_budget": {"gpu": {"rt": 0.55}, "mem": {"render_targets": -0.10}},
     # --- Динамическое освещение --------------------------------------------
@@ -496,9 +600,6 @@ METHOD_SUBSYSTEM_EFFECTS: dict[str, dict] = {
     "npc_perception_budget": {"cpu": {"ai": 0.26}},
 }
 
-#: Решения, которые включают отдельный проход трассировки лучей.
-_RT_METHODS = frozenset(code for code, eff in METHOD_SUBSYSTEM_EFFECTS.items() if "rt_ms" in eff)
-
 _API_FACTORS = {
     "auto": (1.00, 1.00),
     "dx9": (0.92, 1.15),
@@ -506,7 +607,6 @@ _API_FACTORS = {
     "dx12": (1.02, 0.94),
     "vulkan": (1.00, 0.95),
     "opengl": (0.96, 1.14),
-    "metal": (0.98, 0.95),
 }
 _STORAGE_RANK = {"hdd": 0, "sata_ssd": 1, "nvme": 2}
 _STORAGE_CPU_FACTOR = {"auto": 1.00, "hdd": 1.12, "sata_ssd": 1.04, "nvme": 0.98}
@@ -548,13 +648,25 @@ DEFAULT_NETWORK_TICK_HZ = 30.0
 #: невозможно, иначе решение «убирает» саму функцию.
 MAX_SUBSYSTEM_SAVING = 0.70
 
+#: Пределы изменения компонента памяти одним расчётом. Компонент не обнуляется
+#: полностью (решение не удаляет сам ресурс) и не разрастается безгранично:
+#: несколько добавочных расходов подряд иначе давали бы неправдоподобный объём.
+MEMORY_MAX_SAVING = 0.70
+MEMORY_MAX_INCREASE = 3.0
+
 
 # --- Компоненты памяти ------------------------------------------------------
 MEMORY_COMPONENT_LABELS: dict[str, str] = {
-    "system": "Резерв системы и драйверов",
+    "system": "ОС, драйверы и рабочий стол",
+    "background": "Фоновые приложения (лёгкий фон)",
     "engine": "Движок и исполняемый код",
     "scene": "Данные сцены и сущности",
     "meshes": "Геометрия и вершинные буферы",
+    # Анимационные данные выделены отдельно: сжатие анимаций, база движений
+    # motion matching и скелетная 2D-анимация меняют именно этот набор, а не
+    # геометрию сцены. Раньше эффект относили к общему компоненту геометрии,
+    # из-за чего сжатие анимаций выглядело как уменьшение вершинных буферов.
+    "animation": "Анимационные данные и базы движений",
     "textures": "Текстуры и материалы",
     "render_targets": "Целевые буферы рендера",
     "audio": "Аудиоресурсы и декодирование",
@@ -562,8 +674,8 @@ MEMORY_COMPONENT_LABELS: dict[str, str] = {
     "mirror": "Зеркало ресурсов в оперативной памяти",
 }
 _MEMORY_ORDER = [
-    "system", "engine", "scene", "meshes", "textures", "render_targets",
-    "audio", "streaming", "mirror",
+    "system", "background", "engine", "scene", "meshes", "animation", "textures",
+    "render_targets", "audio", "streaming", "mirror",
 ]
 
 #: Нормативы доступного объёма памяти, когда профиль не задаёт предела (ГБ).
@@ -581,6 +693,28 @@ MEMORY_DEFICIT_STALL_MS = 6.0
 #: Доля ресурсов видеопамяти, которая одновременно присутствует в оперативной
 #: памяти: исходник потоковой загрузки и CPU-копии геометрии и текстур.
 VRAM_MIRROR_SHARE = 0.25
+
+# --- Резерв операционной системы и фона ------------------------------------
+# «Фон всегда есть»: даже без браузера работают ОС, драйверы, службы и рабочий
+# стол. Резерв задаётся явно, одной величиной, и не растворяется в коэффициентах
+# решений: потребность игры и потребность окружения должны быть видны раздельно.
+#
+# Числа — открытое стартовое допущение приближённой модели, а не измеренный
+# расход Windows или Linux. Одинаковое значение для двух ОС не означает их
+# равенство: оно позволяет не выдумывать преимущество одной из них до замеров.
+# Резерв не добавляется поверх прежнего системного компонента, а заменяет его.
+OS_RAM_RESERVE_GB = 3.0
+#: Лёгкий фон: launcher, связь и сопутствующие процессы. Сценарий по умолчанию —
+#: обычный рабочий стол без параллельного рендера, записи и компиляции.
+BACKGROUND_RAM_RESERVE_GB = 1.0
+#: Видеопамять рабочего стола и других приложений. Относится к раздельной
+#: памяти: при единой памяти общие страницы не считаются дважды.
+OS_VRAM_RESERVE_GB = 0.5
+#: Доля условной мощности, резервируемая ОС и фону: игра не планируется на
+#: полную доступную мощность. Учитывается один раз при проверке кандидата и не
+#: меняет алгоритмический вклад выбранного решения.
+CPU_HEADROOM_SHARE = 0.10
+GPU_HEADROOM_SHARE = 0.05
 
 def _supports_ray_tracing(gpu: HardwareGPU) -> bool:
     """Проверяет наличие аппаратной трассировки лучей по признакам каталога."""
@@ -618,7 +752,7 @@ def _gpu_feature_support(gpu: HardwareGPU, required: str) -> bool | None:
     if req.startswith("directx"):
         tail = req.split()[-1]
         return _api_supports(gpu, f"dx{tail}") if tail.isdigit() else None
-    if req in {"vulkan", "opengl", "metal"}:
+    if req in {"vulkan", "opengl"}:
         return _api_supports(gpu, req)
     features = [str(f).lower() for f in (gpu.hw_features or [])]
     # «Variable Rate Shading» покрывает «… (Tier 1)», «Hardware Ray Tracing» —
@@ -667,12 +801,47 @@ def _platform_scope_note(non_pc: list[str]) -> str:
 #: недостаточно, поэтому ограничение фиксируется явно (G05).
 _UNIFIED_MEMORY_GAP = (
     "Модель памяти «unified»: общий пул RAM/VRAM оценён приблизительно; "
-    "универсальная скидка видеопамяти не применяется."
+    "объём памяти, фактически доступный GPU, задаётся системой и этой оценкой "
+    "не определяется."
 )
 
+#: Доля GPU-ресурсов сцены, которая при единой памяти не размещается второй
+#: копией в оперативной памяти. Оставшаяся часть — данные, необходимые CPU
+#: независимо от организации памяти (загрузочные буферы, исходники для
+#: процедурной генерации, системные структуры). Значение — экспертное
+#: допущение: точная доля зависит от движка и не измерена.
+UNIFIED_SHARED_SHARE = 0.85
 
-def _largest_impact(profile: ProjectProfile) -> float:
+
+def _world_volume(profile: ProjectProfile) -> float:
+    """Объём мира по качественному уровню `scale`.
+
+    Это размер мира целиком, а не число сущностей, обрабатываемых в кадре.
+    Объём мира определяет стриминг, резидентные ресурсы и объём контента —
+    но не повторяет ту же работу на кадре, которую уже задают активные
+    объекты и NPC. Раньше один и тот же множитель `content` включал и то, и
+    другое: увеличение размера мира автоматически увеличивало стоимость кадра
+    при неизменном числе активных сущностей.
+    """
     return SCALE_FACTOR.get(profile.scale, SCALE_FACTOR["unknown"])
+
+
+def _active_scene(profile: ProjectProfile) -> float:
+    """Объём активной сцены: одновременно обрабатываемые объекты и NPC.
+
+    Смысл именно такой: считается то, что реально участвует в кадре, а не всё
+    содержимое проекта. Активная сцена определяет работу на кадр; размер мира
+    к ней не прибавляется повторно.
+    """
+    return (
+        (0.85 + 0.35 * profile.object_count_effective)
+        * (0.85 + 0.35 * profile.npc_count_effective)
+    )
+
+
+def _world_content(profile: ProjectProfile, active: float) -> float:
+    """Объём контента: активная сцена в мире заданного размера."""
+    return active * _world_volume(profile)
 
 
 def _recommended_storage(profile: ProjectProfile, method_codes: set[str]) -> str:
@@ -777,6 +946,32 @@ _FPS_CALIBRATED_RANGE = (30, 144)
 #: Число игроков, после которого сетевой вклад перестаёт различаться.
 _PLAYER_SATURATION = 32
 
+# --- Локальные виды (split-screen) ------------------------------------------
+#: Подсистемы, работа которых повторяется для каждого локального вида:
+#: отсечение и подача геометрии выполняются отдельно для каждого вида.
+CPU_VIEW_SUBSYSTEMS: frozenset[str] = frozenset({"render_prep"})
+GPU_VIEW_SUBSYSTEMS: frozenset[str] = frozenset({"geometry"})
+
+#: Доля вспомогательных буферов вида (глубина, история временных эффектов),
+#: которые не разделяются между видами. Сами целевые буферы суммарно равны
+#: одному полноэкранному набору, потому что каждый вид занимает свою долю
+#: экрана: простое умножение полноэкранных буферов на число камер завышало
+#: память в число раз.
+VIEW_AUX_BUFFER_SHARE = 0.25
+
+
+def _local_views(profile: ProjectProfile) -> int:
+    """Число локальных видов: явно заданное или сценарное для split-screen.
+
+    Локальные виды — это не сетевые игроки: кооператив на одном экране
+    повторяет подготовку рендера и геометрию, но не сетевой трафик.
+    """
+    if profile.local_view_count is not None:
+        return max(1, int(profile.local_view_count))
+    if "split_screen_rendering" in profile.functions:
+        return 2
+    return 1
+
 
 def _fmt(value: float) -> str:
     """Целое число с пробельным разделителем разрядов: «10 000»."""
@@ -874,22 +1069,38 @@ class FrameModel:
     exclusions: list[str] = field(default_factory=list)
     parameter_contributions: list[ContributionItem] = field(default_factory=list)
     method_contributions: list[ContributionItem] = field(default_factory=list)
+    #: Объём активной сцены: работа на кадр.
     content: float = 1.0
+    #: Объём контента мира: активная сцена × размер мира. Стриминг и память.
+    world_content: float = 1.0
+    #: Единая физическая память CPU/GPU: общие ресурсы не размещаются дважды,
+    #: а потребность в системной памяти включает GPU-резидентные данные.
+    unified_memory: bool = False
 
 
-def _base_cpu_costs(profile: ProjectProfile, content: float) -> dict[str, float]:
-    """Базовая стоимость CPU-подсистем с учётом функций профиля."""
+def _base_cpu_costs(
+    profile: ProjectProfile, content: float, world_content: float | None = None
+) -> dict[str, float]:
+    """Базовая стоимость CPU-подсистем с учётом функций профиля.
+
+    `content` — активная сцена, она задаёт работу на кадр. `world_content`
+    — объём мира вместе с активной сценой: он определяет потоковую загрузку и
+    не умножает повторно ту же работу, которую задали счётчики сущностей.
+    """
+    if world_content is None:
+        world_content = content
     costs = {key: value for key, value in CPU_BASE_COST.items()}
     for fn in profile.functions:
         for subsystem, weight in FEATURE_CPU_SUBSYSTEM_LOAD.get(fn, {}).items():
             costs[subsystem] = costs.get(subsystem, 0.0) + weight * CPU_FEATURE_MS
 
-    # Масштаб сцены распределяется по подсистемам по-разному.
+    # Активная сцена распределяется по подсистемам по-разному.
     costs["main_thread"] *= 0.6 + 0.4 * content
     costs["render_prep"] *= content
-    for key in ("parallel_sim", "physics", "animation", "ai", "streaming"):
+    for key in ("parallel_sim", "physics", "animation", "ai", "network"):
         costs[key] *= content
-    costs["network"] *= content
+    # Потоковая загрузка зависит от объёма мира, а не только от активной сцены.
+    costs["streaming"] *= world_content
 
     # Мультиплеер: сетевая репликация — отдельная подсистема, а не общий множитель.
     if profile.multiplayer:
@@ -915,6 +1126,13 @@ def _base_cpu_costs(profile: ProjectProfile, content: float) -> dict[str, float]
         costs["ai"] *= factor
         costs["parallel_sim"] *= 1.0 + (factor - 1.0) * 0.5
 
+    # Локальные виды: отсечение и подача примитивов выполняются для каждого
+    # вида отдельно, а не один раз на весь экран.
+    views = _local_views(profile)
+    if views > 1:
+        for key in CPU_VIEW_SUBSYSTEMS:
+            costs[key] *= views
+
     # API и накопитель влияют на подготовку рендера и потоковую загрузку.
     _, api_cpu = _API_FACTORS.get(profile.render_api, _API_FACTORS["auto"])
     costs["render_prep"] *= api_cpu
@@ -924,7 +1142,11 @@ def _base_cpu_costs(profile: ProjectProfile, content: float) -> dict[str, float]
 
 
 def _base_gpu_costs(profile: ProjectProfile, content: float) -> dict[str, float]:
-    """Базовая стоимость GPU-подсистем с учётом функций профиля."""
+    """Базовая стоимость GPU-подсистем по активной сцене.
+
+    Объём мира здесь не участвует: он меняет стриминг и резидентную память, а
+    не число пикселей и примитивов, обрабатываемых в кадре.
+    """
     costs = {key: value for key, value in GPU_BASE_COST.items()}
     for fn in profile.functions:
         for subsystem, weight in FEATURE_GPU_SUBSYSTEM_LOAD.get(fn, {}).items():
@@ -947,37 +1169,93 @@ def _base_gpu_costs(profile: ProjectProfile, content: float) -> dict[str, float]
     costs["transparency"] *= content
     costs["compute"] *= 0.7 + 0.3 * content
 
+    # Локальные виды: геометрия обрабатывается отдельно для каждого вида.
+    # Пиксельные стадии не умножаются — итоговое разрешение относится ко всему
+    # экрану, а каждый вид занимает свою долю.
+    views = _local_views(profile)
+    if views > 1:
+        for key in GPU_VIEW_SUBSYSTEMS:
+            costs[key] *= views
+
     api_gpu, _ = _API_FACTORS.get(profile.render_api, _API_FACTORS["auto"])
     for key in costs:
         costs[key] *= api_gpu
     return costs
 
 
+def _method_render_scale(methods: list) -> tuple[float, list[str]]:
+    """Множитель внутреннего разрешения, который задают выбранные решения.
+
+    Динамическое разрешение меняет именно внутреннее разрешение, а не
+    стоимость постобработки: раньше оно давало скидку на `post_processing`,
+    из-за чего проход масштабирования изображения выглядел дешевле, а сами
+    пиксельные стадии не удешевлялись.
+    """
+    factor = 1.0
+    notes: list[str] = []
+    for method in methods:
+        value = METHOD_SUBSYSTEM_EFFECTS.get(method.code, {}).get("render_scale")
+        if not value:
+            continue
+        value = float(value)
+        factor *= value
+        notes.append(
+            f"«{method.name}» снижает внутреннее разрешение: множитель ×{value:g} "
+            "к стоимости стадий, зависящих от заливки."
+        )
+    return factor, notes
+
+
 def _apply_upscaling(
-    costs: dict[str, float], profile: ProjectProfile, method_codes: set[str]
-) -> tuple[str, list[str]]:
-    """Применить апскейлинг только к зависящим от разрешения стадиям."""
+    costs: dict[str, float], profile: ProjectProfile, method_codes: set[str],
+    method_scale: float = 1.0,
+) -> tuple[str, float, list[str]]:
+    """Применить апскейлинг только к зависящим от разрешения стадиям.
+
+    Возвращает `(апскейлер, итоговый множитель внутреннего разрешения,
+    пояснения)`. Итоговый множитель объединяет множитель апскейлера и
+    множитель решений, меняющих разрешение: это разные механизмы, но они
+    действуют на одну величину, и тот же множитель затем масштабирует
+    стоимость трассировки лучей.
+    """
     notes: list[str] = []
     upscaler = profile.upscaling_method
     if upscaler == "auto" and "temporal_upscaling" in method_codes:
         upscaler = "taa"
         notes.append("Апскейлинг не указан: принят временной апскейлинг из выбранного решения.")
-    factor = _UPSCALER_PIXEL_FACTOR.get(upscaler, 1.0)
-    if factor != 1.0:
+    if upscaler == "none" and "temporal_upscaling" in method_codes:
+        notes.append(
+            "Апскейлинг в анкете отключён, но выбрано решение «Временной апскейлинг»: "
+            "расчёт выполнен без снижения внутреннего разрешения. Прямой ввод анкеты "
+            "имеет приоритет, карточка добавляет только буферы истории; проверьте, "
+            "какой из двух вводов отражает проект."
+        )
+    factor = _UPSCALER_PIXEL_FACTOR.get(upscaler, 1.0) * method_scale
+    if abs(factor - 1.0) > 1e-9:
         for key in GPU_PIXEL_SUBSYSTEMS:
             costs[key] *= factor
         notes.append(
-            "Апскейлинг снижает стоимость стадий, зависящих от внутреннего разрешения; "
-            "геометрия и подготовка рендера на CPU не удешевляются."
+            f"Внутреннее разрешение учтено множителем ×{factor:g} к стоимости стадий, "
+            "зависящих от заливки; геометрия и подготовка рендера на CPU не "
+            "удешевляются. Тот же множитель применён к проходу трассировки лучей."
         )
     extra = _UPSCALER_POST_MS.get(upscaler, 0.0)
     if extra:
         costs["post_processing"] += extra
-    return upscaler, notes
+    return upscaler, factor, notes
 
 
 def _complement_pairs(relations) -> set[frozenset[str]]:
-    """Пары решений с обоснованным совместным эффектом (`complement`)."""
+    """Пары решений, отмеченные как дополняющие друг друга (`complement`).
+
+    Отметка описывает совместную применимость, а не измеренный совместный
+    эффект: два дополняющих решения решают разные задачи и не дают
+    автоматической скидки только от того, что выбраны вместе. Раньше пара
+    перемножала экономию как независимые доли, и «синергия» превращалась в
+    неподтверждённый численный бонус, которого нет в описании ни одного
+    решения. Список остаётся, чтобы объяснить пользователю, почему вторая
+    экономия не начислена.
+    """
     pairs: set[frozenset[str]] = set()
     for row in relations or ():
         if row.conflict_type == "complement":
@@ -991,12 +1269,22 @@ def _apply_method_effects(
     memory: dict[str, dict[str, float]],
     methods: list,
     relations,
+    rt_scale: float = 1.0,
 ) -> tuple[list[ContributionItem], list[str]]:
     """Распределить эффекты решений по подсистемам с учётом перекрытия.
 
     Экономия в одной подсистеме не суммируется: без обоснованного совместного
     эффекта учитывается наибольшая экономия, остальные перечисляются как
     перекрытые. Дополнительные затраты сохраняются всегда.
+
+    Порядок важен: сначала вводится сам проход трассировки лучей, затем к
+    получившейся стоимости применяются бюджетные решения. Раньше экономия
+    подсистемы `rt` применялась к нулевой базе и молча терялась: базовой
+    стоимости трассировки нет, её добавляют решения.
+
+    `rt_scale` — множитель стоимости трассировки по внутреннему разрешению и
+    API. Без него добавка из `rt_ms` оставалась неизменной при переходе
+    1080p → 4K, хотя число лучей растёт вместе с числом пикселей.
     """
     contributions: list[ContributionItem] = []
     exclusions: list[str] = []
@@ -1015,26 +1303,52 @@ def _apply_method_effects(
         if effect is None:
             unmapped.append(method.name)
             continue
-        if not effect:
+        # Пояснение к эффекту. Для решений, чей эффект лежит вне стоимости
+        # кадра, молчание было бы ошибкой: пользователь не отличил бы «не
+        # повлияло» от «забыто при расчёте». Причина показывается явно, даже
+        # когда численного вклада нет вовсе.
+        note = effect.get("note")
+        if note:
+            exclusions.append(f"«{method.name}»: {note}")
+        numeric = {key: value for key, value in effect.items() if key != "note"}
+        if not numeric:
             # Распределение задано пустым: эффект проявляется не в стоимости
             # кадра (например, только на сервере или в процессе разработки).
             continue
-        for subsystem, value in (effect.get("cpu") or {}).items():
+        for subsystem, value in (numeric.get("cpu") or {}).items():
             if value >= 0:
                 savings.setdefault(f"cpu:{subsystem}", []).append((method.code, value))
             else:
                 extra_cost.setdefault(f"cpu:{subsystem}", []).append((method.code, -value))
-        for subsystem, value in (effect.get("gpu") or {}).items():
+        for subsystem, value in (numeric.get("gpu") or {}).items():
             if value >= 0:
                 savings.setdefault(f"gpu:{subsystem}", []).append((method.code, value))
             else:
                 extra_cost.setdefault(f"gpu:{subsystem}", []).append((method.code, -value))
-        for component, value in (effect.get("mem") or {}).items():
+        for component, value in (numeric.get("mem") or {}).items():
             mem_delta.setdefault(component, []).append((method.code, value))
-        if effect.get("rt_ms"):
-            rt_add.append((method.code, float(effect["rt_ms"])))
+        if numeric.get("rt_ms"):
+            rt_add.append((method.code, float(numeric["rt_ms"])))
 
     names = {method.code: method.name for method in methods}
+
+    # Проход трассировки вводится до применения экономии: иначе решения,
+    # сокращающие бюджет трассировки, применялись бы к нулевой базе и их
+    # эффект терялся без объяснения.
+    for code, value in rt_add:
+        scaled = value * rt_scale
+        gpu["rt"] = gpu.get("rt", 0.0) + scaled
+        detail = "Вводит отдельный проход трассировки лучей."
+        if abs(rt_scale - 1.0) > 1e-9:
+            detail += (
+                f" Стоимость прохода масштабирована по внутреннему разрешению "
+                f"(×{rt_scale:g}): {value:g} мс на эталоне → {scaled:.2f} мс."
+            )
+        contributions.append(ContributionItem(
+            label=f"{names.get(code, code)}: трассировка лучей",
+            delta=round(scaled, 3),
+            detail=detail,
+        ))
 
     def apply_savings(scope: str, costs: dict[str, float]) -> None:
         for key, entries in list(savings.items()):
@@ -1051,15 +1365,9 @@ def _apply_method_effects(
             for code, value in entries:
                 if code == best_code:
                     continue
-                if frozenset((best_code, code)) in complements:
-                    # Обоснованное совместное действие: эффекты перемножаются
-                    # как независимые доли оставшейся работы.
-                    total_saving = min(
-                        MAX_SUBSYSTEM_SAVING,
-                        1.0 - (1.0 - total_saving) * (1.0 - min(MAX_SUBSYSTEM_SAVING, value)),
-                    )
-                else:
-                    superseded.append(code)
+                # Дополняющая пара не получает численного бонуса: эффекты
+                # перемножать нельзя без измерения совместного действия.
+                superseded.append(code)
             costs[subsystem] = base * (1.0 - total_saving)
             contributions.append(ContributionItem(
                 label=f"{names.get(best_code, best_code)}: {_subsystem_label(scope, subsystem)}",
@@ -1067,12 +1375,20 @@ def _apply_method_effects(
                 detail=f"Снижает стоимость подсистемы на {round(total_saving * 100)}%.",
             ))
             for code in superseded:
-                exclusions.append(
-                    f"«{names.get(code, code)}»: экономия в подсистеме "
-                    f"«{_subsystem_label(scope, subsystem)}» перекрыта решением "
-                    f"«{names.get(best_code, best_code)}» — совместный эффект не обоснован, "
-                    "повторно не учитывается."
-                )
+                if frozenset((best_code, code)) in complements:
+                    exclusions.append(
+                        f"«{names.get(code, code)}» и «{names.get(best_code, best_code)}» "
+                        "дополняют друг друга, но это не даёт численного бонуса: совместная "
+                        f"экономия в подсистеме «{_subsystem_label(scope, subsystem)}» без "
+                        "измерения не подтверждена, учитывается наибольший эффект."
+                    )
+                else:
+                    exclusions.append(
+                        f"«{names.get(code, code)}»: экономия в подсистеме "
+                        f"«{_subsystem_label(scope, subsystem)}» перекрыта решением "
+                        f"«{names.get(best_code, best_code)}» — совместный эффект не обоснован, "
+                        "повторно не учитывается."
+                    )
 
     apply_savings("cpu", cpu)
     apply_savings("gpu", gpu)
@@ -1090,47 +1406,66 @@ def _apply_method_effects(
                 detail=f"Добавляет работу в подсистеме: +{round(value * 100)}% к её стоимости.",
             ))
 
-    for code, value in rt_add:
-        gpu["rt"] = gpu.get("rt", 0.0) + value
-        contributions.append(ContributionItem(
-            label=f"{names.get(code, code)}: трассировка лучей",
-            delta=round(value, 3),
-            detail="Вводит отдельный проход трассировки лучей.",
-        ))
-
     for component, entries in mem_delta.items():
         sizes = memory.get(component)
         if not sizes:
             continue
-        # Та же защита от двойного учёта: экономия одного и того же ресурса
-        # несколькими решениями берётся один раз — по наибольшему эффекту.
-        best_code, best_value = min(entries, key=lambda item: item[1])
-        total = best_value
-        superseded: list[str] = []
-        for code, value in entries:
-            if code == best_code:
-                continue
-            if frozenset((best_code, code)) in complements:
-                total = (1.0 + total) * (1.0 + value) - 1.0
-            elif value < 0:
-                superseded.append(code)
-        total = max(-0.7, min(3.0, total))
+        label = MEMORY_COMPONENT_LABELS.get(component, component)
+        # Дополнительные расходы и экономия учитываются по-разному. То, что
+        # решения **добавляют** к компоненту, складывается: это разные объёмы
+        # (буферы, кэши, копии), и меньший из них не заменяет больший. То, что
+        # решения **экономят**, относится к одному и тому же ресурсу, поэтому
+        # берётся один раз — по наибольшему эффекту.
+        #
+        # Раньше по всем записям компонента брался min(): если два решения
+        # увеличивали компонент, меньший добавочный расход выигрывал у большего
+        # и часть затрат пропадала без объяснения. Изолированная проба
+        # (VSM 12.5 + static caching 10.8 давали 10.8) — доказательство R02.
+        increases = [(code, value) for code, value in entries if value > 0]
+        decreases = [(code, value) for code, value in entries if value < 0]
+
+        if increases:
+            added = min(MEMORY_MAX_INCREASE, sum(value for _, value in increases))
+            factor = 1.0 + added
+            sizes["ram"] *= factor
+            sizes["vram"] *= factor
+            listed = ", ".join(names.get(code, code) for code, _ in increases)
+            contributions.append(ContributionItem(
+                label=f"{listed}: {label}",
+                delta=round(added, 3),
+                detail=(
+                    f"Увеличивает компонент памяти на {round(added * 100)}% "
+                    f"(расходы решений складываются: это разные объёмы)."
+                ),
+            ))
+
+        if not decreases:
+            continue
+        best_code, best_value = min(decreases, key=lambda item: item[1])
+        total = max(-MEMORY_MAX_SAVING, best_value)
         sizes["ram"] *= 1.0 + total
         sizes["vram"] *= 1.0 + total
         contributions.append(ContributionItem(
-            label=f"{names.get(best_code, best_code)}: {MEMORY_COMPONENT_LABELS.get(component, component)}",
+            label=f"{names.get(best_code, best_code)}: {label}",
             delta=round(total, 3),
-            detail=(
-                f"{'Увеличивает' if total >= 0 else 'Уменьшает'} компонент памяти "
-                f"на {abs(round(total * 100))}%."
-            ),
+            detail=f"Уменьшает компонент памяти на {abs(round(total * 100))}%.",
         ))
-        for code in superseded:
-            exclusions.append(
-                f"«{names.get(code, code)}»: экономия компонента "
-                f"«{MEMORY_COMPONENT_LABELS.get(component, component)}» перекрыта решением "
-                f"«{names.get(best_code, best_code)}» и повторно не учитывается."
-            )
+        for code, value in decreases:
+            if code == best_code:
+                continue
+            # Дополняющая связь не даёт численного бонуса: совместная экономия
+            # того же ресурса без измерения не подтверждена.
+            if frozenset((best_code, code)) in complements:
+                exclusions.append(
+                    f"«{names.get(code, code)}» и «{names.get(best_code, best_code)}» "
+                    "дополняют друг друга, но совместная экономия компонента "
+                    f"«{label}» без измерения не подтверждена: учитывается наибольший эффект."
+                )
+            else:
+                exclusions.append(
+                    f"«{names.get(code, code)}»: экономия компонента «{label}» перекрыта "
+                    f"решением «{names.get(best_code, best_code)}» и повторно не учитывается."
+                )
 
     if unmapped:
         listed = ", ".join(f"«{name}»" for name in unmapped[:6])
@@ -1147,8 +1482,69 @@ def _subsystem_label(scope: str, subsystem: str) -> str:
     return GPU_SUBSYSTEM_LABELS.get(subsystem, subsystem)
 
 
-def _memory_components(profile: ProjectProfile, content: float, method_codes: set[str]) -> dict[str, dict[str, float]]:
-    """Состав памяти: RAM и VRAM складываются из поименованных компонентов."""
+# --- Бюджет потоковой загрузки ----------------------------------------------
+#: Состав явно заданного пула подкачки. Пул — это **общий** бюджет потоковых
+#: данных, а не дополнительный расход поверх всех ресурсов сцены: его
+#: резидентная часть уже входит в компоненты текстур и геометрии. Поэтому
+#: сверх них прибавляется только транзитная часть — буферы загрузки,
+#: распаковки и опережающей подкачки. Раньше весь пул прибавлялся в RAM и
+#: половина пула в VRAM поверх уже посчитанных текстур: один и тот же объём
+#: учитывался дважды.
+STREAMING_POOL_RESIDENT_SHARE = 0.75
+STREAMING_POOL_TRANSIENT_SHARE = 1.0 - STREAMING_POOL_RESIDENT_SHARE
+
+#: Доля транзитной части, размещаемая в видеопамяти: часть подкачки уходит
+#: напрямую в GPU-память, остальное проходит через буферы оперативной памяти.
+STREAMING_POOL_TRANSIENT_VRAM_SHARE = 0.30
+
+
+def _streaming_pool_notes(
+    profile: ProjectProfile, components: dict[str, dict[str, float]]
+) -> list[str]:
+    """Состав заданного пула подкачки и проверка пула на противоречие.
+
+    Пул вводится как общий объём потоковых данных, но сверх резидентных
+    компонентов в расчёт идёт только его транзитная часть. Если резидентный
+    набор, следующий из профиля, больше резидентной доли пула, противоречие
+    показывается явно: модель не подставляет меньший объём и не скрывает
+    вытеснение ресурсов.
+    """
+    if profile.streaming_pool_gb is None:
+        return []
+    pool = float(profile.streaming_pool_gb)
+    transient = pool * STREAMING_POOL_TRANSIENT_SHARE
+    resident_budget = pool * STREAMING_POOL_RESIDENT_SHARE
+    resident_needed = (
+        components.get("textures", {}).get("vram", 0.0)
+        + components.get("meshes", {}).get("vram", 0.0)
+    )
+    notes = [
+        f"Бюджет подкачки задан: {pool:g} ГБ. Сверх резидентных компонентов добавлена "
+        f"только транзитная часть — {transient:g} ГБ буферов загрузки, распаковки и "
+        f"опережающей подкачки ({STREAMING_POOL_TRANSIENT_VRAM_SHARE:.0%} из неё — "
+        f"в видеопамяти). Остальные {resident_budget:g} ГБ считаются резидентным "
+        "набором, который уже входит в компоненты текстур и геометрии и повторно "
+        "не учитывается."
+    ]
+    if resident_needed > resident_budget:
+        notes.append(
+            f"Заданный пул меньше резидентного набора, следующего из профиля: "
+            f"{resident_needed:.1f} ГБ против {resident_budget:.1f} ГБ. Расчёт выполнен "
+            "по профилю, а не по пулу: при таком бюджете ресурсы вытесняются чаще, "
+            "и пики подкачки этой оценкой не покрыты."
+        )
+    return notes
+
+
+def _memory_components(
+    profile: ProjectProfile, content: float, method_codes: set[str]
+) -> dict[str, dict[str, float]]:
+    """Состав памяти: RAM и VRAM складываются из поименованных компонентов.
+
+    `content` — объём контента (активная сцена × объём мира). Резидентные
+    ресурсы растут с размером мира, поэтому здесь используется именно он, а не
+    только активная сцена: большой мир держит больше стриминговых данных.
+    """
     res = _resolution_factor(profile.target_resolution)
     quality = QUALITY_FACTOR.get(profile.target_quality, 1.0)
     tex_quality = 1.0 + (quality - 1.0) * 0.8
@@ -1157,31 +1553,56 @@ def _memory_components(profile: ProjectProfile, content: float, method_codes: se
     audio_ram = 0.35 + (_AUDIO_CPU_LOAD.get(profile.audio_complexity, 0.0) if not level_unspecified(profile.audio_complexity) else 0.0)
 
     if profile.streaming_pool_gb is not None:
-        streaming_ram = profile.streaming_pool_gb
-        streaming_vram = profile.streaming_pool_gb * 0.5
+        # Пул задан явно: прибавляется только транзитная часть. Резидентная
+        # доля пула уже учтена в компонентах текстур и геометрии, поэтому
+        # повторно не берётся — иначе один и тот же объём учитывался бы дважды.
+        transient = profile.streaming_pool_gb * STREAMING_POOL_TRANSIENT_SHARE
+        streaming_ram = transient * (1.0 - STREAMING_POOL_TRANSIENT_VRAM_SHARE)
+        streaming_vram = transient * STREAMING_POOL_TRANSIENT_VRAM_SHARE
     else:
         streaming_ram = 0.9 if streaming else 0.25
         streaming_vram = 0.5 if streaming else 0.15
 
+    # Единая память: GPU-ресурсы размещаются в тех же физических страницах,
+    # что и данные CPU. Две величины, которые при раздельной памяти считаются
+    # дважды, здесь учитываются один раз: отдельный резерв видеопамяти
+    # рабочего стола (он часть общего пула, а не второй объём поверх него) и
+    # зеркало GPU-ресурсов в оперативной памяти (второй копии нет).
+    unified = profile.memory_model == "unified"
+
+    # Резерв окружения выделен отдельными компонентами, чтобы потребность игры
+    # и потребность ОС/фона были видны раздельно.
     components = {
-        "system": {"ram": 2.5, "vram": 0.0},
+        "system": {
+            "ram": OS_RAM_RESERVE_GB + (OS_VRAM_RESERVE_GB if unified else 0.0),
+            "vram": 0.0 if unified else OS_VRAM_RESERVE_GB,
+        },
+        "background": {"ram": BACKGROUND_RAM_RESERVE_GB, "vram": 0.0},
         "engine": {"ram": 2.0, "vram": 0.15},
         "scene": {"ram": 1.9 * content, "vram": 0.2 * content},
         "meshes": {"ram": 0.8 * content, "vram": 0.8 * content},
+        # Клипы, позы и базы движений: в оперативной памяти лежит основной
+        # набор, в видеопамяти — только результат расчёта поз для GPU.
+        "animation": {"ram": 0.45 * content, "vram": 0.12 * content},
         "textures": {"ram": 0.55 * content * tex_quality, "vram": 2.2 * content * tex_quality * tex_res},
         "render_targets": {"ram": 0.15 * res, "vram": 1.8 * res},
         "audio": {"ram": audio_ram, "vram": 0.0},
         "streaming": {"ram": streaming_ram, "vram": streaming_vram},
     }
-    # Split-screen дублирует целевые буферы рендера для каждого вьюпорта.
-    if "split_screen_rendering" in profile.functions:
-        views = profile.local_view_count or 2
-        components["render_targets"]["vram"] *= max(1, views)
+    # Локальные виды: каждый занимает свою долю экрана, поэтому целевые буферы
+    # в сумме равны одному полноэкранному набору. Множитель покрывает только
+    # вспомогательные буферы вида, которые не разделяются.
+    views = _local_views(profile)
+    if views > 1:
+        view_factor = 1.0 + (views - 1) * VIEW_AUX_BUFFER_SHARE
+        components["render_targets"]["vram"] *= view_factor
     components["mirror"] = {"ram": 0.0, "vram": 0.0}
-    return _mirror_memory(components)
+    return _mirror_memory(components, unified=unified)
 
 
-def _mirror_memory(components: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
+def _mirror_memory(
+    components: dict[str, dict[str, float]], *, unified: bool = False,
+) -> dict[str, dict[str, float]]:
     """Пересчитать зеркало ресурсов в оперативной памяти.
 
     Доля CPU-копий — экспертное допущение о геометрии и текстурах, а не
@@ -1189,9 +1610,15 @@ def _mirror_memory(components: dict[str, dict[str, float]]) -> dict[str, dict[st
     копирования на GPU. RAM и VRAM не обязаны совпадать по объёму.
     После применения эффектов решений копии пересчитываются по тому же
     допущению, чтобы не сохранять зеркало уже исключённых ресурсов.
+
+    При единой памяти отдельной копии нет: общие физические страницы
+    учитываются один раз. Полное обнуление зеркала было бы скидкой, которой
+    нет измерения, поэтому сохраняется доля данных, нужных CPU независимо от
+    организации памяти.
     """
     components.setdefault("mirror", {"ram": 0.0, "vram": 0.0})
-    components["mirror"]["ram"] = VRAM_MIRROR_SHARE * (
+    share = (1.0 - UNIFIED_SHARED_SHARE) * VRAM_MIRROR_SHARE if unified else VRAM_MIRROR_SHARE
+    components["mirror"]["ram"] = share * (
         components.get("meshes", {}).get("vram", 0.0)
         + components.get("textures", {}).get("vram", 0.0)
     )
@@ -1215,21 +1642,49 @@ def build_model(profile: ProjectProfile, methods: list, relations=()) -> FrameMo
     """
     client_methods, outside_client = rules.split_by_effect_scope(methods)
     method_codes = {m.code for m in client_methods}
-    content = (
-        _largest_impact(profile)
-        * (0.85 + 0.35 * profile.object_count_effective)
-        * (0.85 + 0.35 * profile.npc_count_effective)
-    )
+    # Активная сцена задаёт работу на кадр; объём мира — стриминг, резидентные
+    # ресурсы и состав контента. Это разные величины, а не один множитель.
+    content = _active_scene(profile)
+    world = _world_content(profile, content)
 
     render_fps, display_fps = _render_fps(profile)
     budget_ms = 1000.0 / max(1.0, render_fps)
 
-    cpu = _base_cpu_costs(profile, content)
+    cpu = _base_cpu_costs(profile, content, world)
     gpu = _base_gpu_costs(profile, content)
-    memory = _memory_components(profile, content, method_codes)
+    memory = _memory_components(profile, world, method_codes)
 
     assumptions: list[str] = []
     exclusions: list[str] = [f"«{m.name}»: {rules.non_client_reason(m)}." for m in outside_client]
+
+    # Резерв окружения входит в состав памяти явно и один раз.
+    unified_note = (
+        " При единой памяти видеопамять рабочего стола отнесена к общему пулу, а не "
+        "к отдельному выделенному объёму, и общие страницы GPU-ресурсов не "
+        "учитываются второй копией в оперативной памяти; суммарная потребность "
+        "в физической памяти от этого не уменьшается."
+        if profile.memory_model == "unified"
+        else ""
+    )
+    assumptions.append(
+        f"Учтён резерв окружения: оперативная память ОС и рабочего стола "
+        f"{OS_RAM_RESERVE_GB:g} ГБ, лёгкого фона {BACKGROUND_RAM_RESERVE_GB:g} ГБ, "
+        f"видеопамять рабочего стола {OS_VRAM_RESERVE_GB:g} ГБ.{unified_note} "
+        "Величины — стартовое допущение модели, а не измеренный расход конкретной системы."
+    )
+
+    # --- Бюджет подкачки: состав пула и проверка на противоречие ---
+    assumptions.extend(_streaming_pool_notes(profile, memory))
+
+    # --- Локальные виды: что именно повторяется, а что разделяется ---
+    views = _local_views(profile)
+    if views > 1:
+        assumptions.append(
+            f"Число локальных видов: {views:g}. Подготовка рендера и геометрия "
+            "повторяются для каждого вида; пиксельные стадии не умножаются, потому что "
+            "итоговое разрешение относится ко всему экрану, а каждый вид занимает свою "
+            "долю. Ресурсы сцены разделяются между видами и в память не умножаются."
+        )
 
     # --- Работа по такту симуляции отделена от работы на кадр ---
     physics_tick = profile.physics_tick_hz or DEFAULT_PHYSICS_TICK_HZ
@@ -1250,9 +1705,23 @@ def build_model(profile: ProjectProfile, methods: list, relations=()) -> FrameMo
     if profile.multiplayer and cpu.get("network", 0.0) > 0:
         cpu["network"] = cpu["network"] * (DEFAULT_NETWORK_TICK_HZ / render_fps)
 
-    # --- Апскейлинг: только стадии, зависящие от внутреннего разрешения ---
-    _, upscale_notes = _apply_upscaling(gpu, profile, method_codes)
+    # --- Внутреннее разрешение: поле апскейлера и решения, меняющие его ---
+    method_scale, scale_notes = _method_render_scale(client_methods)
+    _, pixel_factor, upscale_notes = _apply_upscaling(
+        gpu, profile, method_codes, method_scale
+    )
+    assumptions.extend(scale_notes)
     assumptions.extend(upscale_notes)
+
+    # Стоимость трассировки лучей масштабируется тем же внутренним разрешением,
+    # что и остальные пиксельные стадии: число лучей растёт вместе с числом
+    # пикселей. Базовое значение `rt_ms` задано на эталонном разрешении, а
+    # сам проход вводится эффектами решений — уже после базового масштаба.
+    rt_scale = (
+        _resolution_factor(profile.target_resolution)
+        * pixel_factor
+        * _API_FACTORS.get(profile.render_api, _API_FACTORS["auto"])[0]
+    )
 
     # --- Генерация кадров: отдельная стоимость, без скидки на рендер ---
     if profile.frame_generation:
@@ -1267,15 +1736,25 @@ def build_model(profile: ProjectProfile, methods: list, relations=()) -> FrameMo
             f"{generated:g} промежуточных кадров в секунду; она не снижает стоимость "
             "отрисованных кадров."
         )
+    elif "ml_frame_generation" in method_codes:
+        # Противоречие ввода объясняется, а не разрешается молча: без поля
+        # анкеты число генерируемых кадров неизвестно, поэтому стоимость
+        # синтеза не начисляется — вместо второй цифры «на всякий случай».
+        assumptions.append(
+            "Выбрано решение «ML-генерация кадров», но генерация кадров в анкете не "
+            "включена: стоимость синтеза промежуточных кадров не учтена, карточка "
+            "добавляет только буферы генератора. Чтобы модель посчитала синтез и "
+            "отображаемый FPS, включите генерацию кадров и задайте базовый FPS в анкете."
+        )
 
     # --- Эффекты решений с учётом перекрытия ---
     method_contributions, effect_exclusions = _apply_method_effects(
-        cpu, gpu, memory, client_methods, relations
+        cpu, gpu, memory, client_methods, relations, rt_scale=rt_scale
     )
     exclusions.extend(effect_exclusions)
     # Зеркало считается по итоговым размерам геометрии и текстур: иначе
     # экономия решений не доходила бы до оперативной памяти.
-    _mirror_memory(memory)
+    _mirror_memory(memory, unified=profile.memory_model == "unified")
 
     for key in list(cpu):
         cpu[key] = max(0.0, cpu[key])
@@ -1287,7 +1766,9 @@ def build_model(profile: ProjectProfile, methods: list, relations=()) -> FrameMo
     gpu_rt = gpu.get("rt", 0.0)
     gpu_raster = sum(value for key, value in gpu.items() if key != "rt")
 
-    parameter_contributions = _parameter_contributions(profile, content, render_fps, budget_ms)
+    parameter_contributions = _parameter_contributions(
+        profile, content, world, render_fps, budget_ms
+    )
 
     return FrameModel(
         cpu=cpu, gpu=gpu, memory=memory,
@@ -1304,11 +1785,14 @@ def build_model(profile: ProjectProfile, methods: list, relations=()) -> FrameMo
         parameter_contributions=parameter_contributions,
         method_contributions=method_contributions,
         content=content,
+        world_content=world,
+        unified_memory=profile.memory_model == "unified",
     )
 
 
 def _parameter_contributions(
-    profile: ProjectProfile, content: float, render_fps: float, budget_ms: float
+    profile: ProjectProfile, content: float, world: float,
+    render_fps: float, budget_ms: float,
 ) -> list[ContributionItem]:
     """Вклад параметров анкеты: во сколько раз параметр меняет стоимость кадра."""
     items: list[ContributionItem] = []
@@ -1330,9 +1814,17 @@ def _parameter_contributions(
         detail="Бюджет кадра в миллисекундах: 1000 / частота отрисованных кадров.",
     ))
     items.append(ContributionItem(
-        label=f"Масштаб «{profile.scale}», объекты и NPC",
+        label=f"Активная сцена: объекты «{profile.object_count_level}», NPC «{profile.npc_count_level}»",
         delta=round(content - 1.0, 3),
-        detail="Сводный множитель объёма контента относительно нейтрального уровня.",
+        detail="Множитель работы на кадр: одновременно активные объекты и NPC, "
+               "а не всё содержимое проекта.",
+    ))
+    items.append(ContributionItem(
+        label=f"Объём мира «{profile.scale}»",
+        delta=round(world / max(content, 1e-9) - 1.0, 3),
+        detail="Объём мира меняет стриминг, резидентную память и состав контента. "
+               "Он не умножает повторно работу на кадр: при том же числе активных "
+               "сущностей стоимость кадра не растёт от размера мира.",
     ))
     if profile.multiplayer:
         items.append(ContributionItem(
@@ -1355,25 +1847,137 @@ def _parameter_contributions(
     return items
 
 
+# ---------------------------------------------------------------------------
+# Раздельный расчёт по целям сборки (Windows / Linux)
+# ---------------------------------------------------------------------------
+def _target_models(profile: ProjectProfile, methods: list, relations=()):
+    """Модель стоимости кадра для каждой совместимой PC-цели.
+
+    Цели считаются отдельно, потому что у Windows и Linux разные нативные
+    графические пути: одно усреднённое значение скрывало бы разницу и не
+    отвечало бы на вопрос «какой компьютер нужен для этой цели». Общий ориентир
+    затем берётся по наибольшей потребности — он удовлетворяет обе цели, а не
+    является средним между ними.
+    """
+    built: list[tuple[PlatformTarget | None, FrameModel]] = []
+    for target in resolve_targets(profile):
+        if not target.compatible:
+            continue
+        # Цель считается сама по себе: платформа и разрешённый для неё API.
+        single = profile.model_copy(
+            update={"platforms": [target.platform], "render_api": target.render_api}
+        )
+        built.append((target, build_model(single, methods, relations)))
+    if built:
+        return built
+    # Ни у одной цели нет нативного пути. Численный расчёт сохраняется как
+    # справочный, но без привязки к конкретному API: замена API не происходит.
+    return [(None, build_model(profile.model_copy(update={"render_api": "auto"}), methods, relations))]
+
+
+def _target_evaluations(profile: ProjectProfile, methods: list, relations=()):
+    """Индексы по каждой цели, связывающая цель и общая потребность.
+
+    Возвращает `(rows, binding, combined)`:
+      * `rows` — по одной записи на совместимую цель;
+      * `binding` — цель с наибольшей потребностью (она объясняет разбор);
+      * `combined` — наибольшие значения по всем целям: конфигурация,
+        удовлетворяющая им, подходит каждой цели.
+    """
+    rows = []
+    for target, model in _target_models(profile, methods, relations):
+        budget = model.budget_ms
+        st = model.cpu_sequential_ms / budget
+        mt = model.cpu_parallel_ms / budget / PARALLEL_SPEEDUP
+        raster = model.gpu_raster_ms / budget
+        rt = model.gpu_rt_ms / budget
+        ram_gb, vram_gb, _ = _memory_totals(model)
+        rows.append({
+            "target": target,
+            "model": model,
+            "cpu_st_index": st,
+            "cpu_mt_index": mt,
+            "cpu_index": max(st, mt),
+            "gpu_raster_index": raster,
+            "gpu_rt_index": rt,
+            # Растровые и трассировочные проходы выполняются на одном GPU
+            # последовательно: каждой части нельзя отдать весь бюджет кадра.
+            # Раньше брался максимум двух долей, и при растеризации 60% и
+            # трассировке 60% кадр «помещался» в бюджет, хотя занимает 120%.
+            # Известного обоснованного перекрытия нет, поэтому проходы
+            # складываются; отдельная доля перекрытия требует измерения.
+            "gpu_index": raster + rt,
+            "ram_gb": ram_gb,
+            "vram_gb": vram_gb,
+        })
+    binding = max(rows, key=lambda row: max(row["cpu_index"], row["gpu_index"]))
+    combined = {
+        "cpu_st_index": max(row["cpu_st_index"] for row in rows),
+        "cpu_mt_index": max(row["cpu_mt_index"] for row in rows),
+        "gpu_raster_index": max(row["gpu_raster_index"] for row in rows),
+        "gpu_rt_index": max(row["gpu_rt_index"] for row in rows),
+        "ram_gb": max(row["ram_gb"] for row in rows),
+        "vram_gb": max(row["vram_gb"] for row in rows),
+    }
+    combined["cpu_index"] = max(combined["cpu_st_index"], combined["cpu_mt_index"])
+    # Одна конфигурация должна уложиться в бюджет кадра по сумме проходов
+    # каждой цели, а не по более лёгкой из двух частей GPU-кадра.
+    combined["gpu_index"] = combined["gpu_raster_index"] + combined["gpu_rt_index"]
+    return rows, binding, combined
+
+
+def _target_rows_out(profile: ProjectProfile, rows) -> list[PlatformTargetOut]:
+    """Цели с их собственными результатами для вывода в интерфейс."""
+    by_platform = {
+        row["target"].platform: row for row in rows if row["target"] is not None
+    }
+    binding_platform = None
+    if rows:
+        top = max(rows, key=lambda row: max(row["cpu_index"], row["gpu_index"]))
+        binding_platform = top["target"].platform if top["target"] else None
+    out: list[PlatformTargetOut] = []
+    for target in resolve_targets(profile):
+        row = by_platform.get(target.platform)
+        out.append(PlatformTargetOut(
+            platform=target.platform,
+            label=target.label,
+            render_api=target.render_api,
+            api_label=target.api_label,
+            api_source=target.api_source,
+            compatible=target.compatible,
+            engine_check=target.engine_check,
+            notes=list(target.notes),
+            cpu_index=round(row["cpu_index"], 4) if row else None,
+            gpu_index=round(row["gpu_index"], 4) if row else None,
+            ram_gb=row["ram_gb"] if row else None,
+            vram_gb=row["vram_gb"] if row else None,
+            binding=bool(binding_platform and target.platform == binding_platform),
+        ))
+    return out
+
+
 def _load_indices(profile: ProjectProfile, methods: list, relations=()) -> dict:
     """Индексы нагрузки и памяти по единой модели стоимости кадра.
 
     Тонкий адаптер над `build_model`: индексы нужны там, где полная оценка
     оборудования не требуется (сравнение вариантов профиля, проверка области
     применимости). Формулы не дублируются — они читаются из модели.
+
+    Индексы берутся по наибольшей потребности среди целей сборки, поэтому
+    сводка нагрузки и подбор оборудования не противоречат друг другу.
     """
-    model = build_model(profile, methods, relations)
-    budget = model.budget_ms
-    st_index = model.cpu_sequential_ms / budget
-    mt_index = model.cpu_parallel_ms / budget / PARALLEL_SPEEDUP
-    raster_index = model.gpu_raster_ms / budget
-    rt_index = model.gpu_rt_ms / budget
-    ram_gb, vram_gb, _ = _memory_totals(model)
+    _, binding, combined = _target_evaluations(profile, methods, relations)
+    model = binding["model"]
+    st_index = combined["cpu_st_index"]
+    mt_index = combined["cpu_mt_index"]
+    raster_index = combined["gpu_raster_index"]
+    rt_index = combined["gpu_rt_index"]
+    ram_gb, vram_gb = combined["ram_gb"], combined["vram_gb"]
     client_methods = rules.split_by_effect_scope(methods)[0]
     method_codes = {m.code for m in client_methods}
     recommended_storage = _recommended_storage(profile, method_codes)
     return {
-        "gpu_index": max(raster_index, rt_index),
+        "gpu_index": raster_index + rt_index,
         "cpu_index": max(st_index, mt_index),
         "cpu_st_index": st_index,
         "cpu_mt_index": mt_index,
@@ -1388,10 +1992,11 @@ def _load_indices(profile: ProjectProfile, methods: list, relations=()) -> dict:
             feature for m in client_methods for feature in (m.requires_hw_features or [])
         }),
         "recommended_storage": recommended_storage,
-        "estimated_draw_calls": _estimated_draw_calls(profile, model.content, method_codes),
+        "estimated_draw_calls": _estimated_draw_calls(profile, model.world_content, method_codes),
         "modeling_gaps": _modeling_gaps(profile, method_codes, recommended_storage),
         "applicability_limits": _applicability_limits(profile),
         "non_client_methods": _non_client_out(rules.split_by_effect_scope(methods)[1]),
+        "incompatible_targets": incompatible_notes(resolve_targets(profile)),
         "cpu_subsystem_load": dict(model.cpu),
         "gpu_subsystem_load": dict(model.gpu),
         "cpu_subsystem_total": model.cpu_sequential_ms + model.cpu_parallel_ms,
@@ -1413,19 +2018,37 @@ def _subsystem_shares(costs: dict[str, float], labels: dict[str, str], total: fl
 # ---------------------------------------------------------------------------
 # Подбор оборудования
 # ---------------------------------------------------------------------------
+def _gpu_need(index: float) -> float:
+    """Требуемая паспортная мощность GPU с запасом на ОС и фон."""
+    return index / (1.0 - GPU_HEADROOM_SHARE)
+
+
+def _cpu_need(index: float) -> float:
+    """Требуемая паспортная мощность CPU с запасом на ОС и фон."""
+    return index / (1.0 - CPU_HEADROOM_SHARE)
+
+
 def _pick_gpu(
     pool: list[HardwareGPU], *, raster_index: float, rt_index: float,
     required_rt: bool, vram_gb: float,
 ) -> tuple[HardwareGPU | None, bool]:
-    """Выбрать видеокарту, одновременно покрывающую растровую и RT-составляющие."""
+    """Выбрать видеокарту, одновременно покрывающую растровую и RT-составляющие.
+
+    Запас на ОС и фон учитывается здесь, один раз: кандидат сравнивается не по
+    полной паспортной мощности, а по условно доступной игре. Иначе резерв
+    превратился бы либо в фиксированные миллисекунды на каждой подсистеме, либо
+    в невидимую скидку самого метода.
+    """
     if required_rt:
         pool = [g for g in pool if _supports_ray_tracing(g)]
         if not pool:
             return None, True
     pool = [g for g in pool if g.vram_gb >= vram_gb]
+    raster_need = _gpu_need(raster_index)
+    rt_need = _gpu_need(rt_index)
     candidates = [
         g for g in pool
-        if g.raster_score >= raster_index and (rt_index <= 0 or g.rt_score >= rt_index)
+        if g.raster_score >= raster_need and (rt_need <= 0 or g.rt_score >= rt_need)
     ]
     if not candidates:
         return None, False
@@ -1436,10 +2059,16 @@ def _pick_gpu(
 
 
 def _pick_cpu(pool: list[HardwareCPU], *, st_index: float, mt_index: float) -> HardwareCPU | None:
-    """Выбрать процессор, одновременно покрывающий однопоточный и многопоточный индексы."""
+    """Выбрать процессор, одновременно покрывающий однопоточный и многопоточный индексы.
+
+    Запас на ОС и фон применяется так же, как для GPU: один раз, при проверке
+    кандидата, к условно доступной мощности.
+    """
+    st_need = _cpu_need(st_index)
+    mt_need = _cpu_need(mt_index)
     candidates = [
         c for c in pool
-        if c.single_thread_score >= st_index and c.multi_thread_score >= mt_index
+        if c.single_thread_score >= st_need and c.multi_thread_score >= mt_need
     ]
     if not candidates:
         return None
@@ -1469,6 +2098,12 @@ def _is_mobile_cpu(model: str) -> bool:
 def _memory_totals(model: FrameModel) -> tuple[float, float, list[MemoryComposition]]:
     ram = sum(float(size.get("ram", 0.0)) for size in model.memory.values())
     vram = sum(float(size.get("vram", 0.0)) for size in model.memory.values())
+    if model.unified_memory:
+        # Один физический пул: системная память держит и данные CPU, и
+        # GPU-резидентные ресурсы. Повторный счёт общих страниц устранён в
+        # компонентах (нет отдельного резерва видеопамяти и второго зеркала),
+        # поэтому здесь обе части просто складываются.
+        ram = ram + vram
     composition = [
         MemoryComposition(
             label=MEMORY_COMPONENT_LABELS[key],
@@ -1532,9 +2167,18 @@ def _consequences(profile: ProjectProfile, methods: list, model: FrameModel) -> 
     return items
 
 
-def _storage_requirement(profile: ProjectProfile, database_gb: float, recommended: str) -> str:
+def _storage_requirement(
+    profile: ProjectProfile, database_gb: float, recommended: str,
+    parts: list[tuple[str, float]] | None = None,
+) -> str:
     label = _STORAGE_RANK_LABELS.get(recommended, recommended)
-    text = f"Накопитель не ниже {label}; ориентировочный объём установки — {database_gb:.0f} ГБ."
+    text = f"Накопитель не ниже {label}; ориентировочный объём установки — {database_gb:.0f} ГБ"
+    if parts:
+        text += " (" + ", ".join(f"{label_part} {value:.1f}" for label_part, value in parts) + ")"
+    text += (
+        ". В объём установки не входит свободное место под обновления, кэш и "
+        "распаковку и не входит место, занимаемое операционной системой."
+    )
     if profile.size_limit_gb is not None and database_gb > profile.size_limit_gb:
         text += (
             f" Заданный предел размера ({profile.size_limit_gb:g} ГБ) ниже оценочного: "
@@ -1543,14 +2187,47 @@ def _storage_requirement(profile: ProjectProfile, database_gb: float, recommende
     return text
 
 
-def _estimate_install_size(profile: ProjectProfile, model: FrameModel) -> float:
-    """Ориентировочный объём установки: сумма компонентов ресурсов."""
+#: Состав установленного размера. Установка и резидентный набор — разные
+#: величины: на диске лежат упакованные ресурсы со всей пирамидой мипов и всеми
+#: локализациями, а в памяти — только резидентная часть в развёрнутом виде.
+#: Отношения ниже — экспертное допущение о типичной упаковке, а не измерение
+#: конкретного проекта: у разных движков и форматов сжатия они различаются.
+INSTALL_ENGINE_BASE_GB = 8.0        # движок, исполняемый код, кэш шейдеров
+INSTALL_LEVELS_PER_WORLD_GB = 6.0   # уровни, скрипты и метаданные сцен
+INSTALL_TEXTURE_DISK_RATIO = 0.8    # упакованные текстуры против резидентного набора
+INSTALL_MESH_DISK_RATIO = 0.6       # упакованная геометрия против GPU-буферов
+INSTALL_AUDIO_BASE_GB = 0.8         # сжатые аудиобанки
+INSTALL_AUDIO_PER_LOAD_GB = 2.2
+
+
+def _install_size_parts(profile: ProjectProfile, model: FrameModel) -> list[tuple[str, float]]:
+    """Состав установленного размера поименно.
+
+    Прежняя оценка складывала резидентные GPU-ресурсы с произвольными
+    множителями, из-за чего размер установки выглядел производной от объёма
+    памяти. Здесь каждая часть названа: установка состоит из упакованного
+    контента, а не из резидентного набора, и не включает свободное место под
+    обновления, кэш и распаковку.
+    """
+    scale = _world_volume(profile)
     textures = model.memory.get("textures", {}).get("vram", 0.0)
     meshes = model.memory.get("meshes", {}).get("vram", 0.0)
-    audio = model.memory.get("audio", {}).get("ram", 0.0)
-    scale = _largest_impact(profile)
-    base = 12.0 * scale
-    return max(2.0, base + (textures + meshes) * 2.5 + audio * 6.0)
+    audio_load = (
+        0.0 if level_unspecified(profile.audio_complexity)
+        else _AUDIO_CPU_LOAD.get(profile.audio_complexity, 0.0)
+    )
+    return [
+        ("движок, код и кэш шейдеров", INSTALL_ENGINE_BASE_GB),
+        ("уровни, скрипты и метаданные сцен", INSTALL_LEVELS_PER_WORLD_GB * scale),
+        ("текстуры", textures * INSTALL_TEXTURE_DISK_RATIO),
+        ("геометрия", meshes * INSTALL_MESH_DISK_RATIO),
+        ("аудио", INSTALL_AUDIO_BASE_GB + INSTALL_AUDIO_PER_LOAD_GB * audio_load),
+    ]
+
+
+def _estimate_install_size(profile: ProjectProfile, model: FrameModel) -> float:
+    """Ориентировочный объём установки: сумма названных частей контента."""
+    return max(2.0, sum(value for _label, value in _install_size_parts(profile, model)))
 
 
 def _memory_pressure(
@@ -1609,27 +2286,47 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
     """Рассчитать ориентировочную минимальную конфигурацию по единой модели."""
     relations = repositories.conflicts(db)
     methods, basket_notes = rules.assess_selected_methods(methods, profile, relations)
-    model = build_model(profile, methods, relations)
+
+    # Каждая цель сборки считается отдельно: ориентир затем берётся по
+    # наибольшей потребности, чтобы подходящая конфигурация подошла обеим.
+    target_rows, binding, combined = _target_evaluations(profile, methods, relations)
+    target_out = _target_rows_out(profile, target_rows)
+    model = binding["model"]
 
     budget = model.budget_ms
-    st_index = model.cpu_sequential_ms / budget
-    mt_index = model.cpu_parallel_ms / budget / PARALLEL_SPEEDUP
-    raster_index = model.gpu_raster_ms / budget
-    rt_index = model.gpu_rt_ms / budget
+    st_index = combined["cpu_st_index"]
+    mt_index = combined["cpu_mt_index"]
+    raster_index = combined["gpu_raster_index"]
+    rt_index = combined["gpu_rt_index"]
 
-    ram_gb, vram_gb, composition = _memory_totals(model)
+    ram_gb, vram_gb = combined["ram_gb"], combined["vram_gb"]
+    composition = _memory_totals(model)[2]
 
     method_codes = {m.code for m in methods}
+    unified = profile.memory_model == "unified"
     memory_pressure, memory_note = _memory_pressure(
-        vram_gb=vram_gb, ram_gb=ram_gb, budget_ms=budget,
+        # При единой памяти отдельного видеопамятного пула нет: дефицит
+        # измеряется по общему объёму, иначе один и тот же дефицит учитывался
+        # бы дважды — и в системной памяти, и в видеопамяти.
+        vram_gb=0.0 if unified else vram_gb, ram_gb=ram_gb, budget_ms=budget,
         vram_norm_gb=max(1.0, profile.vram_limit_gb or MEMORY_NORM_VRAM_GB),
         ram_norm_gb=max(1.0, profile.ram_limit_gb or MEMORY_NORM_RAM_GB),
         streaming=_streaming_required(profile, method_codes),
     )
     recommended_storage = _recommended_storage(profile, method_codes)
-    estimated_draw_calls = _estimated_draw_calls(profile, model.content, method_codes)
+    estimated_draw_calls = _estimated_draw_calls(profile, model.world_content, method_codes)
     modeling_gaps = _modeling_gaps(profile, method_codes, recommended_storage)
+    # Оговорки совместимых целей: движок и версия требуют проверки, это не
+    # подтверждённый факт, поэтому они идут в ограничения точности.
+    for target in target_out:
+        if not target.compatible:
+            continue
+        for note in target.notes:
+            modeling_gaps.append(f"Цель «{target.label}»: {note}")
     applicability_limits = _applicability_limits(profile)
+    # Версия движка определяет наличие встроенного инструмента, но не меняет
+    # физическую нагрузку: решение остаётся в расчёте с явным пояснением.
+    modeling_gaps.extend(engine_service.method_version_notes(db, profile, methods))
 
     client_methods = rules.split_by_effect_scope(methods)[0]
     required_hw = sorted({
@@ -1639,7 +2336,7 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
         required_hw = sorted(set(required_hw) | {"DLSS"})
     required_rt = any(
         "Hardware Ray Tracing" in (m.requires_hw_features or []) for m in client_methods
-    ) or model.gpu_rt_ms > 0
+    ) or rt_index > 0
 
     picked = _pick_references(
         db, profile, model,
@@ -1649,6 +2346,7 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
         required_rt=required_rt, required_hw=required_hw,
         recommended_storage=recommended_storage,
         estimated_draw_calls=estimated_draw_calls,
+        targets=target_out,
     )
 
     bottleneck, bottleneck_label = _bottleneck(
@@ -1662,8 +2360,31 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
         modeling_gaps=modeling_gaps + basket_notes,
     )
     caveats = picked["caveats"] + basket_notes + confidence_caveats
+    # Узкое место сравнивает доли бюджета кадра условного эталона модели.
+    # Название не должно обещать диагноз реальной машины пользователя.
+    caveats.append(
+        "Узкое место названо по долям бюджета кадра в модели, а не по измерению "
+        "на конкретной машине: это указание, с какой стадии начать "
+        "профилирование, а не диагноз оборудования пользователя."
+    )
     if memory_note:
         caveats.append(memory_note)
+    if unified:
+        caveats.append(
+            "Единая память: общая потребность в системной памяти включает "
+            f"GPU-резидентные ресурсы ({vram_gb:g} ГБ из {ram_gb:g} ГБ). Объём, "
+            "фактически доступный GPU, задаётся системой и этой оценкой не "
+            "определяется; отдельного резерва видеопамяти поверх общей "
+            "потребности нет."
+        )
+    compatible_targets = [t for t in target_out if t.compatible]
+    if len(compatible_targets) > 1:
+        binding_label = next((t.label for t in target_out if t.binding), "")
+        caveats.append(
+            "Цели сборки рассчитаны отдельно: общий ориентир удовлетворяет каждой из них "
+            f"по наибольшей потребности (её определяет «{binding_label}»), а не является "
+            "средним между целями."
+        )
     non_client_methods = _non_client_out(rules.split_by_effect_scope(methods)[1])
     if non_client_methods:
         names = ", ".join(f"«{item.name}»" for item in non_client_methods)
@@ -1675,7 +2396,7 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
     install_gb = _estimate_install_size(profile, model)
 
     return HardwareEstimateOut(
-        required_gpu_index=round(max(raster_index, rt_index), 4),
+        required_gpu_index=round(raster_index + rt_index, 4),
         required_cpu_index=round(max(st_index, mt_index), 4),
         estimated_vram_gb=float(vram_gb),
         estimated_ram_gb=float(ram_gb),
@@ -1696,6 +2417,7 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
         unmet_limits=picked["unmet"],
         applicability_limits=applicability_limits,
         non_client_methods=non_client_methods,
+        targets=target_out,
         cpu_main_thread_cost=round(model.cpu_sequential_ms, 3),
         cpu_parallel_cost=round(model.cpu_parallel_ms, 3),
         cpu_subsystems=_subsystem_shares(model.cpu, CPU_SUBSYSTEM_LABELS, model.cpu_sequential_ms + model.cpu_parallel_ms),
@@ -1709,7 +2431,9 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
         bottleneck_label=bottleneck_label,
         memory_composition=composition,
         consequences=_consequences(profile, methods, model),
-        storage_requirement=_storage_requirement(profile, install_gb, recommended_storage),
+        storage_requirement=_storage_requirement(
+            profile, install_gb, recommended_storage, _install_size_parts(profile, model),
+        ),
     )
 
 
@@ -1718,13 +2442,29 @@ def _pick_references(
     st_index: float, mt_index: float, raster_index: float, rt_index: float,
     vram_gb: float, ram_gb: float, required_rt: bool, required_hw: list[str],
     recommended_storage: str, estimated_draw_calls: int,
+    targets: list[PlatformTargetOut] | None = None,
 ) -> dict:
     """Референсные CPU/GPU по опубликованному каталогу и обязательным требованиям."""
     gpus = sorted(repositories.hardware_gpu(db), key=lambda g: g.raster_score)
     cpus = sorted(repositories.hardware_cpu(db), key=lambda c: c.multi_thread_score)
 
     unmet: list[str] = []
-    caveats: list[str] = []
+    # Цель без нативного пути не получает отметки подходящего оборудования:
+    # несовместимость называется по имени цели и не исправляется заменой API.
+    native_targets = [t for t in (targets or []) if t.compatible]
+    if targets and not native_targets:
+        unmet.extend(incompatible_notes(resolve_targets(profile)))
+        unmet.append(
+            "Ни одна из выбранных целей не имеет нативного графического пути: "
+            "совместимая конфигурация не подбирается. Численный расчёт приведён "
+            "без привязки к конкретному API."
+        )
+    caveats: list[str] = [
+        f"Запас производительности на ОС и фон (CPU {CPU_HEADROOM_SHARE:.0%}, "
+        f"GPU {GPU_HEADROOM_SHARE:.0%}) учтён один раз при проверке кандидата: он "
+        "уменьшает условно доступную мощность, но не меняет вклад выбранных решений "
+        "и не является измеренным расходом системы."
+    ]
     if any(g.vram_gb <= 0 for g in gpus):
         caveats.append(
             "GPU без известного объёма доступной памяти не могут пройти проверку вместимости. "
@@ -1815,6 +2555,19 @@ def _pick_references(
         else:
             caveats.append("В базе нет опубликованных записей о процессорах: оценка не выполнена.")
 
+    # Несовместимая цель не получает подходящего оборудования, но допустимые
+    # цели расчёт сохраняют: блокируется только подбор, а не числа.
+    if targets and not native_targets:
+        caveats.append(
+            "Подбор оборудования для несовместимой цели не выполняется: приведённые "
+            "индексы и состав памяти остаются справочным результатом."
+        )
+        return {
+            "gpus": gpus, "cpus": cpus, "reference_gpu": None,
+            "reference_cpu": None, "alt_gpus": [], "alt_cpus": [],
+            "exceeds": True, "unmet": unmet, "caveats": caveats,
+        }
+
     has_pc, non_pc = _platform_status(profile)
     if non_pc and not has_pc:
         scope_note = _platform_scope_note(non_pc)
@@ -1838,13 +2591,14 @@ def _pick_references(
         "reference_cpu": reference_cpu,
         "alt_gpus": _alternatives([
             g for g in compatible_gpus
-            if g.raster_score >= raster_index and g.vram_gb >= vram_gb
-            and (rt_index <= 0 or g.rt_score >= rt_index)
+            if g.raster_score >= _gpu_need(raster_index) and g.vram_gb >= vram_gb
+            and (rt_index <= 0 or g.rt_score >= _gpu_need(rt_index))
             and (not required_rt or _supports_ray_tracing(g))
         ], reference_gpu),
         "alt_cpus": _alternatives([
             c for c in cpus
-            if c.single_thread_score >= st_index and c.multi_thread_score >= mt_index
+            if c.single_thread_score >= _cpu_need(st_index)
+            and c.multi_thread_score >= _cpu_need(mt_index)
         ], reference_cpu),
         "exceeds": exceeds, "unmet": unmet, "caveats": caveats,
     }
@@ -1926,7 +2680,10 @@ def build_contributions(
     числом, потому что читает один и тот же разбор стоимости кадра.
     """
     checked, basket_notes = rules.assess_selected_methods(methods, profile, relations)
-    model = build_model(profile, checked, relations)
+    # Та же связывающая цель, что и в оценке: объяснение не должно расходиться
+    # с числом из-за другого выбора цели.
+    _, binding, _ = _target_evaluations(profile, checked, relations)
+    model = binding["model"]
     exclusions = list(model.exclusions) + list(basket_notes)
     for method in methods:
         if method.code not in {m.code for m in checked}:

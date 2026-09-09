@@ -186,6 +186,11 @@ class EngineTool(Base):
     description: Mapped[str] = mapped_column(Text, default="")
     tool_type: Mapped[str] = mapped_column(String(40), default="runtime")  # runtime | editor | profiler | build
     docs_url: Mapped[str] = mapped_column(String(600), default="")
+    #: Минимальная версия движка, в которой встроенный инструмент существует.
+    #: Пустое значение означает, что граница не задана: название инструмента
+    #: само по себе не подтверждает его наличие в конкретной версии, поэтому
+    #: отсутствие данных не превращается в подтверждённую доступность.
+    min_version: Mapped[str | None] = mapped_column(String(40), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 

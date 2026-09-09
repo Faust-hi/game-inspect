@@ -300,18 +300,35 @@ export interface Risk {
   advice: string;
 }
 
+/** Разбор сводки по одному ресурсу. */
+export interface LoadResourceDetail {
+  /** Для количественных ресурсов — относительное изменение стоимости кадра. */
+  raw: number;
+  normalized: number;
+  label: string;
+  direction: string;
+  /**
+   * false — ресурс без числовой модели (накопитель, сеть).
+   * Его normalized всегда равен нейтральным 50, а смысл несёт level.
+   */
+  quantitative: boolean;
+  /** Качественный уровень влияния для ресурсов без числовой модели. */
+  level?: string;
+  /** Пояснение: что именно утверждается и чего в оценке нет. */
+  explanation?: string;
+}
+
 export interface LoadProfile {
   notes?: string[];
   cpu: number;
   gpu: number;
   ram: number;
   vram: number;
+  /** Накопитель: без числовой модели, значение всегда нейтральное 50. */
   disk: number;
+  /** Сеть: без числовой модели, значение всегда нейтральное 50. */
   network: number;
-  per_resource: Record<
-    string,
-    { raw: number; normalized: number; label: string; direction: string }
-  >;
+  per_resource: Record<string, LoadResourceDetail>;
 }
 
 export interface BasketConflict {
@@ -335,6 +352,26 @@ export interface MemoryComposition {
   label: string;
   ram_gb: number;
   vram_gb: number;
+}
+
+/** Одна цель сборки: ОС и разрешённый для неё графический API. */
+export interface PlatformTarget {
+  platform: string;
+  label: string;
+  render_api: string;
+  api_label: string;
+  /** explicit — задан пользователем, auto — выбран по ОС. */
+  api_source: string;
+  compatible: boolean;
+  /** confirmed, mismatch или unknown — сверка API с движком. */
+  engine_check: string;
+  notes: string[];
+  cpu_index: number | null;
+  gpu_index: number | null;
+  ram_gb: number | null;
+  vram_gb: number | null;
+  /** Цель с наибольшей потребностью: она объясняет общий ориентир. */
+  binding: boolean;
 }
 
 export interface HardwareEstimate {
@@ -374,6 +411,8 @@ export interface HardwareEstimate {
   memory_composition: MemoryComposition[];
   consequences: string[];
   storage_requirement: string;
+  /** Цели сборки считаются и показываются раздельно. */
+  targets?: PlatformTarget[];
 }
 
 /** Решение из корзины, исключённое из аппаратной оценки с указанием причины. */
@@ -419,9 +458,10 @@ export interface StageGuidance {
   summary: string;
   available_levels: string[];
   available_level_labels: string[];
-  blocked_levels: string[];
-  blocked_level_labels: string[];
-  /** Уровни, у которых закрыта только часть решений. */
+  /** Уровни, внедрение которых целиком требует переработки. */
+  rework_levels: string[];
+  rework_level_labels: string[];
+  /** Уровни, у которых переработку требует только часть решений. */
   restricted_levels: string[];
   restricted_level_labels: string[];
   warnings: StageNote[];
@@ -450,62 +490,6 @@ export interface RecommendationResult {
   meta: Record<string, unknown>;
   /** Отпечаток входа, для которого выполнен расчёт (присваивается backend). */
   input_key: string;
-}
-
-/** Сводка расчёта, сохранённая вместе с версией набора. */
-export interface VersionSummary {
-  algorithm_version?: string | null;
-  catalog_revision?: string | null;
-  /** Ограниченный список лидеров: полный результат сохранять незачем. */
-  recommendations: { code: string; name: string; score: number }[];
-  basket_size: number;
-  hardware: {
-    reference_cpu: string | null;
-    reference_gpu: string | null;
-    estimated_ram_gb: number | null;
-    estimated_vram_gb: number | null;
-    bottleneck_label: string | null;
-    confidence_label: string | null;
-  } | null;
-  conflict_count: number;
-}
-
-/**
- * Сохранённая версия набора решений.
- *
- * Патч или обновление игры меняет набор решений, и прежний набор должен
- * остаться доступным: без него нельзя сказать, что именно изменил патч.
- * Версия хранит не только коды, но и сводку расчёта — иначе сравнение версий
- * свелось бы к списку кодов и не показывало изменение аппаратной оценки.
- */
-export interface ProjectVersion {
-  id: string;
-  /** Порядковый номер, начиная с 1: «версия 3» понятнее идентификатора. */
-  number: number;
-  label: string;
-  note: string;
-  created_at: string;
-  profile: ProjectProfile;
-  basket: string[];
-  /** Отпечаток входа: совпадение с текущим ключом означает «изменений нет». */
-  input_key: string;
-  summary: VersionSummary | null;
-}
-
-/** Разница между сохранённой версией и текущим набором. */
-export interface VersionDiff {
-  added: string[];
-  removed: string[];
-  kept: string[];
-  /** Изменившиеся поля профиля с человекочитаемыми названиями. */
-  profile_changes: { field: string; label: string; from: string; to: string }[];
-  hardware: {
-    ram_delta_gb: number | null;
-    vram_delta_gb: number | null;
-    cpu_changed: boolean;
-    gpu_changed: boolean;
-    bottleneck_changed: boolean;
-  } | null;
 }
 
 export interface ValidationIssue {

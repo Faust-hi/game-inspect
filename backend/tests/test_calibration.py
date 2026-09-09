@@ -344,4 +344,8 @@ def test_technical_profile_parameters_are_explicitly_modeled(client):
     assert any("калибровка не выполнена" in gap for gap in complete["modeling_gaps"])
     assert complete["recommended_storage"] == "nvme"
     assert complete["estimated_draw_calls"] > 0
-    assert complete["required_cpu_index"] != base["required_cpu_index"]
+    # Явно заданные технические параметры меняют результат. Оценка CPU совпадает:
+    # `auto` на Windows разрешается в DirectX 12 — тот же нативный путь, что и в
+    # полном профиле, поэтому расхождение видно по GPU (апскейлинг) и по составу
+    # ограничений точности, а не по CPU.
+    assert complete["required_gpu_index"] != base["required_gpu_index"]

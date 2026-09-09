@@ -267,9 +267,18 @@ def test_load_profile_recalculation(client, profile):
 
 
 def test_basket_conflicts_are_detected(client, profile):
-    """Конфликтующие решения должны выявляться в корзине."""
+    """Связь, требующая внимания, выявляется в корзине.
+
+    Каталог не содержит безусловных запретов: каждая прежняя жёсткая
+    несовместимость оказалась условной (смешанная сцена, конкретная степень
+    сжатия, конкретная реализация) и превращена в риск или альтернативу.
+    Проверка берёт первую связь, которая попадает в конфликты корзины.
+    """
     conflicts = client.get("/api/catalog/conflicts").json()
-    pair = next(item for item in conflicts if item["conflict_type"] == "hard_conflict")
+    pair = next(
+        item for item in conflicts
+        if item["conflict_type"] in ("hard_conflict", "risk", "alternative")
+    )
     response = client.post(
         "/api/recommend",
         json={"profile": profile, "basket": [pair["a_code"], pair["b_code"]]},
@@ -279,11 +288,40 @@ def test_basket_conflicts_are_detected(client, profile):
     assert (pair["a_code"], pair["b_code"]) in codes or (pair["b_code"], pair["a_code"]) in codes
 
 
-def test_unmet_dependency_is_reported(client, profile):
+def test_catalog_declares_no_unjustified_dependencies(client):
+    """Каталог не объявляет обязательных зависимостей без обоснования.
+
+    Единственная прежняя зависимость (`skeletal_2d_deform` →
+    `sprite_atlas_batching`) не обоснована: атлас повышает эффективность
+    батчинга, но скелетная 2D-анимация работает и без него. Зависимость
+    исключает решение из расчёта целиком, поэтому требует более сильного
+    основания, чем «так выгоднее».
+    """
     conflicts = client.get("/api/catalog/conflicts").json()
-    pair = next(item for item in conflicts if item["conflict_type"] == "dependency")
+    assert [item for item in conflicts if item["conflict_type"] == "dependency"] == []
+
+
+def test_unmet_dependency_is_reported(client, profile, monkeypatch):
+    """Незакрытая зависимость попадает в конфликты корзины.
+
+    Механизм проверяется на синтетической записи: в актуальном каталоге
+    обязательных зависимостей нет, но тип связи поддерживается, и молча
+    потерянная зависимость означала бы решение, которое не работает.
+    """
+    from app.models.entities import Conflict
+    from app import repositories
+    from app.services import recommender
+
+    real = repositories.conflicts
+    synthetic = Conflict(
+        a_code="skeletal_2d_deform", b_code="sprite_atlas_batching",
+        conflict_type="dependency", severity=2,
+        description="Проверочная обязательная зависимость.",
+        resolution="Добавить второе решение в набор.",
+    )
+    monkeypatch.setattr(recommender.repositories, "conflicts", lambda db: list(real(db)) + [synthetic])
     data = client.post(
-        "/api/recommend", json={"profile": profile, "basket": [pair["a_code"]]}
+        "/api/recommend", json={"profile": profile, "basket": ["skeletal_2d_deform"]}
     ).json()
     assert any(item["conflict_type"] == "unmet_dependency" for item in data["basket_conflicts"])
 

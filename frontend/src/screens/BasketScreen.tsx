@@ -4,7 +4,6 @@ import { useEnsureResult, useStore } from '../store';
 import { Badge, Callout, Card, Empty, ImpactGrid } from '../components/ui';
 import { ConflictEntry, DependencyEntry, SynergyEntry } from '../components/Compatibility';
 import { MethodCard } from '../components/MethodCard';
-import { VersionHistory } from '../components/VersionHistory';
 import { methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
 import type { Method } from '../types';
 
@@ -15,7 +14,6 @@ export function BasketScreen() {
     basket,
     result,
     catalog,
-    versions,
     toggleBasket,
     clearBasket,
     calculate,
@@ -39,16 +37,11 @@ export function BasketScreen() {
 
   if (selected.length === 0) {
     return (
-      <>
-        <Empty>
-          <div style={{ marginBottom: 10 }}>
-            Корзина пуста. Добавьте решения на шаге «Варианты реализации».
-          </div>
-        </Empty>
-        <Card title="Версии набора" hint="Патчи и обновления игры сохраняются как отдельные версии.">
-          <VersionHistory />
-        </Card>
-      </>
+      <Empty>
+        <div style={{ marginBottom: 10 }}>
+          Корзина пуста. Добавьте решения на шаге «Варианты реализации».
+        </div>
+      </Empty>
     );
   }
 
@@ -153,14 +146,6 @@ export function BasketScreen() {
             В выбранном наборе не обнаружено конфликтов и незакрытых зависимостей.
           </Callout>
         )}
-
-      <Card
-        title="Версии набора"
-        hint="Патч или обновление игры меняет набор решений. Подтверждённая версия остаётся в истории: её можно сравнить с текущей и вернуться к ней."
-        actions={<Badge tone={versions.length > 0 ? 'info' : 'neutral'}>версий: {versions.length}</Badge>}
-      >
-        <VersionHistory />
-      </Card>
 
       {openMethod && <MethodCard method={openMethod} onClose={() => setOpenCode(null)} />}
     </>

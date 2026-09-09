@@ -316,7 +316,13 @@ class Quality(str, Enum):
 
 
 class RenderAPI(str, Enum):
-    """Графический API/RHI, влияющий на стоимость CPU и совместимость рендера."""
+    """Графический API/RHI, влияющий на стоимость CPU и совместимость рендера.
+
+    Metal исключён из перечисления: область количественной оценки — Windows и
+    Linux, для которых Metal не является нативным графическим API. Прежде код
+    Metal доходил до расчёта и мог определять стоимость render thread для
+    PC-конфигурации, которой он не соответствует.
+    """
 
     AUTO = "auto"
     DX9 = "dx9"
@@ -324,7 +330,6 @@ class RenderAPI(str, Enum):
     DX12 = "dx12"
     VULKAN = "vulkan"
     OPENGL = "opengl"
-    METAL = "metal"
 
     @property
     def label(self) -> str:
@@ -335,7 +340,6 @@ class RenderAPI(str, Enum):
             "dx12": "DirectX 12",
             "vulkan": "Vulkan",
             "opengl": "OpenGL",
-            "metal": "Metal",
         }[self.value]
 
 

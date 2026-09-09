@@ -131,21 +131,33 @@ def test_ensure_schema_backs_up_before_upgrading(isolated_database_url):
     assert Path(str(second["backup"])).exists()
 
 
+def _legacy_database_without_version(url: str, revision: str):
+    """База в состоянии `revision` и без таблицы версий.
+
+    Унаследованная база собирается самой цепочкой миграций, а не
+    `create_all` с последующим удалением колонок: при таком построении
+    структура в точности соответствует названной ревизии, и добавление новой
+    миграции не требует править тест.
+    """
+    from alembic import command
+    from app import db_migrate
+
+    command.upgrade(db_migrate._alembic_config(url), revision)
+    engine = create_engine(url, future=True)
+    try:
+        with engine.begin() as connection:
+            connection.execute(text("DROP TABLE alembic_version"))
+    finally:
+        engine.dispose()
+
+
 def test_ensure_schema_upgrades_legacy_db_without_version(isolated_database_url):
     """Наследие до effect_scope: штамп точки application_steps + upgrade."""
     from app import db_migrate
-    from app.database import Base
-    from app.models import entities as _entities  # noqa: F401 — регистрация таблиц в metadata
 
     target: Path = isolated_database_url
     url = f"sqlite:///{target.as_posix()}"
-    engine = create_engine(url, future=True)
-    try:
-        Base.metadata.create_all(bind=engine)
-        with engine.begin() as connection:
-            connection.execute(text("ALTER TABLE methods DROP COLUMN effect_scope"))
-    finally:
-        engine.dispose()
+    _legacy_database_without_version(url, db_migrate.APPLICATION_STEPS_REVISION)
     assert db_migrate._current_revisions(url) is None
 
     report = db_migrate.ensure_schema()
@@ -163,19 +175,10 @@ def test_ensure_schema_upgrades_legacy_db_without_version(isolated_database_url)
 def test_ensure_schema_upgrades_ancient_db_without_either_column(isolated_database_url):
     """Наследие до application_steps: штамп начальной ревизии + полный upgrade."""
     from app import db_migrate
-    from app.database import Base
-    from app.models import entities as _entities  # noqa: F401 — регистрация таблиц в metadata
 
     target: Path = isolated_database_url
     url = f"sqlite:///{target.as_posix()}"
-    engine = create_engine(url, future=True)
-    try:
-        Base.metadata.create_all(bind=engine)
-        with engine.begin() as connection:
-            connection.execute(text("ALTER TABLE methods DROP COLUMN effect_scope"))
-            connection.execute(text("ALTER TABLE methods DROP COLUMN application_steps"))
-    finally:
-        engine.dispose()
+    _legacy_database_without_version(url, db_migrate.INITIAL_REVISION)
 
     report = db_migrate.ensure_schema()
     assert report["migrated"] is True, report

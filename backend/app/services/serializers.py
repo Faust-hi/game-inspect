@@ -25,14 +25,39 @@ def label_of(enum_cls, value: str, default: str = "") -> str:
         return default
 
 
-def link_out(db: Session, link: MethodEngineLink) -> MethodEngineLinkOut:
-    """Связь метода с инструментом движка в публичном представлении."""
+def link_out(db: Session, link: MethodEngineLink, profile=None) -> MethodEngineLinkOut:
+    """Связь метода с инструментом движка в публичном представлении.
+
+    `profile` известен не везде, поэтому доступность считается только когда
+    переданы движок и его версия. Без профиля возвращается `available=None`:
+    это означает «не проверено», а не «доступно».
+    """
     tool: EngineTool | None = db.get(EngineTool, link.tool_id)
     engine: Engine | None = db.get(Engine, tool.engine_id) if tool else None
     try:
         label = RelationType(link.relation_type).label
     except ValueError:
         label = link.relation_type
+
+    engine_code = getattr(profile, "engine", None) if profile is not None else None
+    engine_version = getattr(profile, "engine_version", None) if profile is not None else None
+    available = None
+    availability_note = None
+    if tool is not None:
+        from . import engines as engine_service
+
+        available = engine_service.tool_available_in(tool, engine_code, engine_version)
+        if available is None:
+            availability_note = (
+                "Доступность инструмента в указанной версии не подтверждена: "
+                "граница версии не задана или версия движка не указана."
+            )
+        elif not available:
+            availability_note = (
+                f"В версии {engine_version} встроенного инструмента «{tool.name}» нет "
+                f"(он доступен с {tool.min_version}): решение требует собственной "
+                "реализации, а не настройки встроенной подсистемы."
+            )
     return MethodEngineLinkOut(
         engine_code=engine.code if engine else "",
         engine_name=engine.name if engine else "",
@@ -42,6 +67,9 @@ def link_out(db: Session, link: MethodEngineLink) -> MethodEngineLinkOut:
         relation_label=label,
         note=link.note,
         docs_url=tool.docs_url if tool else "",
+        tool_min_version=getattr(tool, "min_version", None) if tool else None,
+        available=available,
+        availability_note=availability_note,
     )
 
 
@@ -88,7 +116,7 @@ def gpu_out(gpu: HardwareGPU) -> HardwareGPUOut:
 
 
 def method_to_out(
-    db: Session, m: Method, with_links: bool = True,
+    db: Session, m: Method, with_links: bool = True, profile=None,
 ) -> MethodOut:
     # Для административного раздела связи берутся напрямую, для публичного —
     # только опубликованные: черновик связи не должен появляться в карточке.
@@ -121,17 +149,17 @@ def method_to_out(
         verification_tools=m.verification_tools or [],
         application_steps=m.application_steps or [],
         status=m.status, source_title=m.source_title, source_url=m.source_url,
-        engine_links=[link_out(db, link) for link in links],
+        engine_links=[link_out(db, link, profile) for link in links],
     )
 
 
 def method_to_out_public(
-    db: Session, m: Method, with_links: bool = True,
+    db: Session, m: Method, with_links: bool = True, profile=None,
 ) -> MethodOut:
     """Публичное представление: только опубликованные связи с движками."""
     links = repositories.method_links(db, m.id) if with_links else []
     out = method_to_out(db, m, with_links=False)
-    out.engine_links = [link_out(db, link) for link in links]
+    out.engine_links = [link_out(db, link, profile) for link in links]
     return out
 
 

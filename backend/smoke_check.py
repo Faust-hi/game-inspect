@@ -171,7 +171,7 @@ def main() -> int:
         status, guide = call("GET", f"/api/catalog/stage-guidance?stage={stage}")
         ok = status == 200 and guide.get("summary") and guide.get("warnings") and guide.get("suggestions")
         check(ok, f"стадия {stage}: нет сводки, предупреждений или предложений")
-        print(f"  {stage:<16} закрыто уровней {len(guide.get('blocked_levels', []))}, "
+        print(f"  {stage:<16} требуют переработки {len(guide.get('rework_levels', []))}, "
               f"предупреждений {len(guide.get('warnings', []))}, "
               f"предложений {len(guide.get('suggestions', []))}")
     check(
@@ -179,7 +179,9 @@ def main() -> int:
         "неизвестная стадия не сводится к прототипу",
     )
 
-    # Смена стадии меняет расчёт: архитектурные решения не выдаются на релизе.
+    # Смена стадии меняет расчёт: архитектурные решения остаются в выдаче,
+    # но получают пометку о переработке и уступают в порядке внедрения.
+    # Календарный запрет удалял решение из списка, оставляя его в корзине.
     early_profile = dict(BASE_PROFILE)
     early_profile.update(SCENARIOS["3d_open_world"])
     early_profile["stage"] = "concept"
@@ -187,10 +189,10 @@ def main() -> int:
     late_profile["stage"] = "release"
     _, early = call("POST", "/api/recommend", {"profile": early_profile, "basket": []})
     _, late = call("POST", "/api/recommend", {"profile": late_profile, "basket": []})
-    check(early.get("stage_guidance", {}).get("blocked_levels") == [],
-          "на концепте закрытых уровней быть не должно")
-    check(late.get("stage_guidance", {}).get("blocked_levels") == ["architecture"],
-          "на релизе не закрыт архитектурный уровень")
+    check(early.get("stage_guidance", {}).get("rework_levels") == [],
+          "на концепте ни один уровень не требует переработки")
+    check(late.get("stage_guidance", {}).get("rework_levels") == ["architecture"],
+          "на релизе архитектурный уровень не помечен как требующий переработки")
     early_codes = {item["method_code"] for item in early.get("recommendations", [])}
     late_codes = {item["method_code"] for item in late.get("recommendations", [])}
     architecture = set()
@@ -199,10 +201,30 @@ def main() -> int:
         if card.get("level") == "architecture":
             architecture.add(code)
     check(bool(architecture), "в выдаче концепта нет архитектурных решений — проверка стадии пуста")
-    check(not (architecture & late_codes), "архитектурное решение осталось в выдаче релиза")
-    check(early_codes != late_codes, "смена стадии не меняет состав рекомендаций")
+    check(architecture <= late_codes,
+          "архитектурное решение исчезло из выдачи релиза: стадия не должна удалять реализацию")
+    flagged = {item["method_code"] for item in late.get("recommendations", [])
+               if "needs_rework" in item.get("flags", [])}
+    check(bool(flagged & architecture),
+          "архитектурные решения на релизе не помечены как требующие переработки")
+    # Состав выдачи от стадии не зависит: физическая стоимость реализации не
+    # меняется от даты. Меняется пометка и порядок внедрения — этим стадия и
+    # влияет на выбор, а не удалением решения из списка.
+    early_flagged = {item["method_code"] for item in early.get("recommendations", [])
+                     if "needs_rework" in item.get("flags", [])}
+    check(
+        not early_flagged and flagged,
+        "смена стадии не меняет выдачу: пометка о переработке не появилась на релизе",
+    )
+    early_order = [item["method_code"] for item in early.get("recommendations", [])]
+    late_order = [item["method_code"] for item in late.get("recommendations", [])]
+    check(
+        early_order != late_order,
+        "смена стадии не меняет порядок: решения с переработкой идут после прямых",
+    )
     print(f"Смена стадии: концепт {len(early_codes)} решений → релиз {len(late_codes)}, "
-          f"архитектурных исключено {len(architecture & early_codes)}")
+          f"архитектурных в выдаче релиза {len(architecture & late_codes)} "
+          f"из {len(architecture)}, помечено переработкой {len(flagged)}")
 
     # Административный раздел (локально открыт).
     status, overview = call("GET", "/api/admin/overview")

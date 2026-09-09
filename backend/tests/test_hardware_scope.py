@@ -6,14 +6,16 @@
   получает явный отказ вместо PC-карты в поле подходящей рекомендации;
 * сгенерированные кадры не масштабируют симуляцию: при фиксированном базовом
   рендере изменение отображаемого FPS не меняет CPU-индекс;
-* единая память не получает универсальную скидку VRAM — ограничение
-  фиксируется явно.
+* единая память не получает универсальную скидку VRAM: общие физические
+  страницы учитываются один раз, а потребность в системной памяти включает
+  GPU-резидентные ресурсы — ограничение фиксируется явно.
 """
 from __future__ import annotations
 
 import pytest
 
 from app.schemas.catalog import ProjectProfile
+from app.services import hardware
 from app.services.hardware import _load_indices
 
 
@@ -68,12 +70,22 @@ def test_pc_only_is_unchanged(client):
     assert est["reference_cpu"] is not None
 
 
-def test_unified_memory_has_no_vram_discount():
-    """G05: unified не дешевле dedicated при прочих равных + явный gap."""
+def test_unified_memory_merges_shared_pages_without_discount():
+    """G05: единая память не даёт скидки и не считает общие страницы дважды.
+
+    Общий пул физически один: системная память держит и данные CPU, и
+    GPU-резидентные ресурсы, поэтому потребность в ней не может быть меньше
+    раздельного варианта. Повторный счёт устранён в компонентах — отдельного
+    резерва видеопамяти и второго зеркала ресурсов нет.
+    """
     base = {"target_resolution": "1080p", "target_quality": "high"}
     dedicated = _load_indices(ProjectProfile(memory_model="dedicated", **base), [])
     unified = _load_indices(ProjectProfile(memory_model="unified", **base), [])
-    assert unified["vram_gb"] == dedicated["vram_gb"]
+    assert unified["ram_gb"] > dedicated["ram_gb"]
+    # Резерв видеопамяти рабочего стола перенесён в общий пул, а не списан.
+    assert unified["vram_gb"] == pytest.approx(
+        dedicated["vram_gb"] - hardware.OS_VRAM_RESERVE_GB, abs=0.05,
+    )
     assert any("unified" in gap for gap in unified["modeling_gaps"]), unified["modeling_gaps"]
 
 

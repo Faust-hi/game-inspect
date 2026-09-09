@@ -83,12 +83,13 @@ export function RisksScreen() {
       {result.stage_guidance && result.stage_guidance.warnings.length > 0 && (
         <Card
           title={`Ограничения стадии «${result.stage_guidance.stage_label}»`}
-          hint="Предупреждения стадии: они действуют независимо от состава функций и закрывают часть решений."
+          hint="Предупреждения стадии: они действуют независимо от состава функций и меняют стоимость внедрения."
         >
-          {result.stage_guidance.blocked_level_labels.length > 0 && (
-            <Callout tone="danger" title="Уровни решений, закрытые стадией">
-              {result.stage_guidance.blocked_level_labels.join(', ')} — эти решения исключены из
-              расчёта: их внедрение потребовало бы переработки готовых материалов.
+          {result.stage_guidance.rework_level_labels.length > 0 && (
+            <Callout tone="danger" title="Уровни решений, требующие переработки">
+              {result.stage_guidance.rework_level_labels.join(', ')} — эти решения остаются в
+              расчёте и в списке, но их внедрение потребует переработки готовых материалов,
+              поэтому они идут позже остальных.
             </Callout>
           )}
           {result.stage_guidance.warnings.map((note) => (

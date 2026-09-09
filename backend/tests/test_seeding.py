@@ -164,3 +164,22 @@ def test_new_method_is_published_and_attributable(db, code):
     assert method.source_url, f"У метода {code} нет источника"
     parent = db.get(GameFunction, method.function_id) if method.function_id else None
     assert parent is not None, f"У метода {code} нет родительской функции"
+
+
+@pytest.mark.parametrize("code, fragment", [
+    # Ссылка обязана описывать сам механизм: прежний источник карты переменной
+    # частоты затенения рассказывал про временное сглаживание, а источник
+    # подбора движений — про обратную кинематику.
+    ("variable_rate_shading", "VariableRateShading"),
+    ("motion_matching", "motion-matching"),
+    ("neural_texture_compression", "Rtxntc"),
+    ("distance_field_shadows", "distance-field-shadows"),
+])
+def test_method_source_matches_the_mechanism(db, code, fragment):
+    """Источник карточки подобран по механизму, а не по названию."""
+    method = db.scalar(select(Method).where(Method.code == code))
+
+    assert method is not None, f"Метод {code} не попал в базу"
+    assert fragment in method.source_url, (
+        f"Источник «{method.source_url}» не относится к механизму {code}"
+    )

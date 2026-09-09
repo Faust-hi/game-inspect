@@ -5,8 +5,13 @@
 экран выглядел как переключатель без последствий.
 
 Здесь проверяется три вещи: у каждой стадии есть собственные предупреждения и
-предложения; стадия закрывает уровни решений, которые физически нельзя
-внедрить; расчёт действительно исключает закрытые решения.
+предложения; стадия помечает уровни решений, внедрение которых требует
+переработки; расчёт сохраняет такие решения в выдаче, а не удаляет их.
+
+Стадия — стоимость внедрения, а не физическое свойство реализации. Поэтому
+архитектурное решение на релизе обязано остаться в списке с пометкой о
+переработке: иначе оно пропадало бы из рекомендаций, продолжая учитываться
+в корзине и в аппаратной оценке.
 """
 from __future__ import annotations
 
@@ -84,21 +89,21 @@ def test_every_stage_has_its_own_content(client):
 
 
 @pytest.mark.parametrize("stage", LATE_STAGES)
-def test_late_stages_block_architecture(client, stage):
-    """На поздних стадиях архитектурные решения закрыты."""
+def test_late_stages_require_rework_for_architecture(client, stage):
+    """На поздних стадиях архитектурные решения требуют переработки."""
     body = client.get("/api/catalog/stage-guidance", params={"stage": stage}).json()
 
-    assert "architecture" in body["blocked_levels"]
-    assert body["blocked_level_labels"]
+    assert "architecture" in body["rework_levels"]
+    assert body["rework_level_labels"]
     assert "architecture" not in body["available_levels"]
 
 
 @pytest.mark.parametrize("stage", EARLY_STAGES)
 def test_early_stages_keep_every_level_available(client, stage):
-    """На ранних стадиях все уровни решений остаются доступными."""
+    """На ранних стадиях ни один уровень не требует переработки."""
     body = client.get("/api/catalog/stage-guidance", params={"stage": stage}).json()
 
-    assert body["blocked_levels"] == []
+    assert body["rework_levels"] == []
     assert sorted(body["available_levels"]) == sorted(level.value for level in SolutionLevel)
 
 
@@ -111,7 +116,7 @@ def test_release_restricts_production_level():
     body = stage_guidance.guidance("release")
 
     assert "production" in body.restricted_levels
-    assert "production" not in body.blocked_levels
+    assert "production" not in body.rework_levels
 
 
 def test_post_release_reopens_production_level():
@@ -119,17 +124,19 @@ def test_post_release_reopens_production_level():
     body = stage_guidance.guidance("post_release")
 
     assert "production" not in body.restricted_levels
-    assert "production" not in body.blocked_levels
+    assert "production" not in body.rework_levels
 
 
-# --- Исключение закрытых решений из расчёта ---------------------------------
+# --- Переработка вместо календарного запрета --------------------------------
 
 
-def test_blocked_method_is_excluded_from_recommendations(client):
-    """Закрытое стадией решение не попадает в рекомендации.
+def test_rework_method_stays_in_recommendations(client):
+    """Решение, требующее переработки, остаётся в выдаче.
 
-    Раньше такое решение оставалось в списке и только сопровождалось
-    предупреждением, из-за чего смена стадии не меняла выдачу.
+    Стадия — стоимость внедрения, а не физическое свойство реализации:
+    выбранная работающая реализация не исчезает из расчёта от даты. Раньше
+    архитектурный уровень целиком исключался после alpha, при этом продолжал
+    учитываться в корзине и в аппаратной оценке — два экрана расходились.
     """
     early = client.post("/api/recommend", json={
         "profile": {"stage": "concept", "functions": ["graphics_3d"]},
@@ -141,36 +148,57 @@ def test_blocked_method_is_excluded_from_recommendations(client):
     }).json()
 
     assert early["recommendations"] or late["recommendations"]
-    codes = {item["method_code"] for item in late["recommendations"]}
-    blocked = [
+    late_codes = {item["method_code"] for item in late["recommendations"]}
+    rework = [
         item["method_code"] for item in early["recommendations"]
-        if _is_blocked_on_release(client, item["method_code"])
+        if _needs_rework_on_release(client, item["method_code"])
     ]
-    assert blocked, "в выдаче концепта нет архитектурных решений — проверка ничего не проверяет"
-    assert not (set(blocked) & codes), "архитектурное решение осталось в выдаче релиза"
+    assert rework, "в выдаче концепта нет архитектурных решений — проверка ничего не проверяет"
+    missing = set(rework) - late_codes
+    assert not missing, f"архитектурные решения исчезли из выдачи релиза: {sorted(missing)}"
 
 
-def _is_blocked_on_release(client, code: str) -> bool:
-    """Закрыто ли решение стадией «релиз»: уровень и цена из карточки метода."""
+def _needs_rework_on_release(client, code: str) -> bool:
+    """Требует ли решение переработки на релизе: уровень и цена из карточки."""
     card = client.get(f"/api/catalog/methods/{code}")
     if card.status_code != 200:
         return False
     body = card.json()
     method = SimpleNamespace(level=body["level"], late_cost=body["late_cost"])
-    return stage_guidance.is_blocked(method, "release")
+    return stage_guidance.needs_rework(method, "release")
 
 
-def test_excluded_closed_method_reports_stage_as_reason(client):
-    """Исключённое решение объясняет причину: решение закрыто стадией."""
+def test_rework_method_is_flagged_and_explained(client):
+    """Решение с переработкой помечено: причина видна в объяснении."""
     late = client.post("/api/recommend", json={
         "profile": {"stage": "release", "functions": ["graphics_3d"]},
         "basket": [],
     }).json()
 
-    reasons = " ".join(
-        reason for item in late["excluded"] for reason in item["excluded_reasons"]
-    )
-    assert "закрыто стадией" in reasons.lower(), "в причинах исключения нет указания на стадию"
+    flagged = [item for item in late["recommendations"] if "needs_rework" in item["flags"]]
+    assert flagged, "ни одно решение не помечено как требующее переработки"
+    for item in flagged:
+        assert any("переработк" in label for label in item["flag_labels"])
+        text = " ".join(item["reasons"]).lower()
+        assert "переработк" in text, f"у {item['method_code']} нет объяснения переработки"
+
+
+def test_rework_method_is_not_marked_as_not_recommended(client):
+    """Переработка не превращается в «не рекомендуется».
+
+    Стоимость внедрения не означает неприменимость: решение остаётся
+    сопоставимым с остальными, иначе поздняя стадия опять делала бы весь
+    архитектурный уровень невидимым.
+    """
+    late = client.post("/api/recommend", json={
+        "profile": {"stage": "release", "functions": ["graphics_3d"]},
+        "basket": [],
+    }).json()
+
+    flagged = [item for item in late["recommendations"] if "needs_rework" in item["flags"]]
+    assert flagged
+    for item in flagged:
+        assert "not_recommended" not in item["flags"], item["method_code"]
 
 
 def test_stage_guidance_present_in_result(client):
@@ -181,7 +209,7 @@ def test_stage_guidance_present_in_result(client):
     }).json()
 
     assert body["stage_guidance"]["stage"] == "beta"
-    assert body["stage_guidance"]["blocked_levels"] == ["architecture"]
+    assert body["stage_guidance"]["rework_levels"] == ["architecture"]
 
 
 # --- Согласованность таблицы блокировок -------------------------------------
@@ -196,7 +224,7 @@ def test_blocked_pairs_use_known_enum_values():
     levels = {level.value for level in SolutionLevel}
     costs = {cost.value for cost in LateCost}
 
-    for stage, pairs in stage_guidance._BLOCKED_BY_STAGE.items():
+    for stage, pairs in stage_guidance._REWORK_BY_STAGE.items():
         assert stage in ALL_STAGES, f"неизвестная стадия в таблице блокировок: {stage}"
         for level, cost in pairs:
             assert level in levels, f"неизвестный уровень: {level}"
@@ -207,10 +235,10 @@ def test_blocked_levels_are_consistent_with_blocked_pairs():
     """Уровень, закрытый целиком, не должен быть закрыт только частично."""
     for stage in ALL_STAGES:
         body = stage_guidance.guidance(stage)
-        assert not (set(body.blocked_levels) & set(body.restricted_levels)), stage
-        assert set(body.blocked_levels) | set(body.restricted_levels) <= {
+        assert not (set(body.rework_levels) & set(body.restricted_levels)), stage
+        assert set(body.rework_levels) | set(body.restricted_levels) <= {
             level.value for level in SolutionLevel
         }
-        assert set(body.available_levels) | set(body.blocked_levels) == {
+        assert set(body.available_levels) | set(body.rework_levels) == {
             level.value for level in SolutionLevel
         }

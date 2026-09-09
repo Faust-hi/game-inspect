@@ -36,7 +36,21 @@ APPLICATION_STEPS_REVISION = "f225calib01"
 
 #: Голова цепочки. Ставится только после сверки: либо база создана
 #: миграциями, либо её структура уже соответствует голове (см. ниже).
-HEAD_REVISION = "e103004d1fae"
+#: Значение обязано совпадать с головой Alembic: устаревший штамп заставил бы
+#: применить уже существующую колонку поверх той же схемы.
+HEAD_REVISION = "7a1toolvers"
+
+#: Колонки, добавленные миграциями и потому отсутствующие в унаследованной
+#: базе: `(таблица, колонка) → ревизия, после которой колонка обязательна`.
+#: Отсутствие такой колонки — не чужая структура, а признак более старой
+#: схемы: штампуется точка до её появления, остаток применяетсяupgrade head.
+#: Перечень общий для всех таблиц: раньше учитывались только колонки `methods`,
+#: и новая колонка в другой таблице делала унаследованную базу «неизвестной».
+LEGACY_MARKER_COLUMNS: dict[tuple[str, str], str] = {
+    ("methods", "application_steps"): APPLICATION_STEPS_REVISION,
+    ("methods", "effect_scope"): "9547c3d766db",
+    ("engine_tools", "min_version"): HEAD_REVISION,
+}
 
 #: Таблицы исходной схемы. Их наличие отличает базу, созданную приложением до
 #: миграций, от чужого файла: штамповать чужую структуру запрещено.
@@ -106,17 +120,22 @@ def _table_names(database_url: str) -> set[str]:
         engine.dispose()
 
 
-def _method_columns(database_url: str) -> set[str]:
-    """Имена колонок таблицы methods для определения достигнутой ревизии."""
+def _table_columns(database_url: str, table: str) -> set[str]:
+    """Имена колонок указанной таблицы для определения достигнутой ревизии."""
     engine = create_engine(database_url, future=True)
     try:
         with engine.connect() as connection:
             return {
                 row[1] for row in
-                connection.execute(text("PRAGMA table_info(methods)")).all()
+                connection.execute(text(f"PRAGMA table_info({table})")).all()
             }
     finally:
         engine.dispose()
+
+
+def _method_columns(database_url: str) -> set[str]:
+    """Имена колонок таблицы methods для определения достигнутой ревизии."""
+    return _table_columns(database_url, "methods")
 
 
 def _legacy_stamp_revision(database_url: str, tables: set[str]) -> str | None:
@@ -135,16 +154,25 @@ def _legacy_stamp_revision(database_url: str, tables: set[str]) -> str | None:
     expected_tables = set(Base.metadata.tables) | _LEGACY_REMOVED_TABLES
     if not tables.issubset(expected_tables):
         return None
-    columns = _method_columns(database_url)
-    optional = {"application_steps", "effect_scope"} - columns
+    # Колонки-маркеры, которых в унаследованной базе нет. Они исключаются из
+    # сверки: их отсутствие — признак старой ревизии, а не чужой структуры.
+    present_columns = {
+        table: _table_columns(database_url, table) for table in {pair[0] for pair in LEGACY_MARKER_COLUMNS}
+    }
+    missing = {
+        (table, column)
+        for (table, column) in LEGACY_MARKER_COLUMNS
+        if column not in present_columns.get(table, set())
+    }
     # A familiar table name or marker column alone cannot establish provenance.
     engine = create_engine(database_url)
     try:
         inspector = inspect(engine)
         for name, table in Base.metadata.tables.items():
             actual = {column['name']: column for column in inspector.get_columns(name)}
+            skipped = {column for (tbl, column) in missing if tbl == name}
             expected = {column.name: column for column in table.columns
-                        if name != 'methods' or column.name not in optional}
+                        if column.name not in skipped}
             if actual.keys() != expected.keys():
                 return None
             for key, column in expected.items():
@@ -164,9 +192,11 @@ def _legacy_stamp_revision(database_url: str, tables: set[str]) -> str | None:
                 return None
     finally:
         engine.dispose()
-    if "effect_scope" in columns:
+    # Штампуется самая поздняя точка, которой структура ещё соответствует:
+    # остаток цепочки применяется обычным upgrade head.
+    if not missing:
         return HEAD_REVISION
-    if "application_steps" in columns:
+    if ("methods", "application_steps") not in missing:
         return APPLICATION_STEPS_REVISION
     return INITIAL_REVISION
 

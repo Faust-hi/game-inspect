@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useEnsureResult, useStore } from '../store';
 import { Badge, Callout, Card, Empty, Loading } from '../components/ui';
 import { impactsOf, methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
-import type { LoadProfile } from '../types';
+import type { LoadProfile, LoadResourceDetail } from '../types';
 
 const RESOURCES: { key: keyof Omit<LoadProfile, 'per_resource' | 'notes'>; label: string }[] = [
   { key: 'cpu', label: 'CPU' },
@@ -39,6 +39,16 @@ function directionTone(direction: string): 'ok' | 'danger' | 'neutral' {
   if (direction === 'снижает') return 'ok';
   if (direction === 'повышает') return 'danger';
   return 'neutral';
+}
+
+/** Подпись справа от названия ресурса: процент изменения или экспертный балл. */
+function scaleCaption(detail: LoadResourceDetail | undefined): string {
+  if (!detail) return '';
+  if (detail.quantitative === false) {
+    return `экспертный балл ${detail.raw > 0 ? '+' : ''}${detail.raw}`;
+  }
+  const percent = Math.round(detail.raw * 100);
+  return `изменение стоимости кадра ${percent > 0 ? '+' : ''}${percent}%`;
 }
 
 export function LoadProfileScreen() {
@@ -84,6 +94,7 @@ export function LoadProfileScreen() {
           {RESOURCES.map(({ key, label }) => {
             const detail = load.per_resource[key];
             const normalized = load[key];
+            const qualitative = detail?.quantitative === false;
             return (
               <div key={key}>
                 <div
@@ -99,12 +110,21 @@ export function LoadProfileScreen() {
                   {detail && (
                     <Badge tone={directionTone(detail.direction)}>{detail.direction}</Badge>
                   )}
+                  {qualitative && detail?.level && (
+                    <Badge tone={directionTone(detail.direction)}>{detail.level}</Badge>
+                  )}
                   <span className="xsmall faint" style={{ marginLeft: 'auto' }}>
-                    {normalized.toFixed(0)} / 100
-                    {detail ? ` · суммарный балл ${detail.raw > 0 ? '+' : ''}${detail.raw}` : ''}
+                    {qualitative ? '' : `${normalized.toFixed(0)} / 100 · `}
+                    {scaleCaption(detail)}
                   </span>
                 </div>
-                <CenteredBar value={normalized} />
+                {qualitative ? (
+                  <p className="xsmall faint" style={{ margin: 0 }}>
+                    {detail?.explanation}
+                  </p>
+                ) : (
+                  <CenteredBar value={normalized} />
+                )}
               </div>
             );
           })}
@@ -113,15 +133,17 @@ export function LoadProfileScreen() {
         <div className="divider" />
         <p className="xsmall faint">
           Шкала нормирована так, что 50 соответствует отсутствию изменений: отклонение влево означает
-          снижение нагрузки на подсистему, вправо — её рост. Оценка качественная и не заменяет
-          профилирование конкретной сборки.
+          снижение нагрузки на подсистему, вправо — её рост. Шкала есть только у CPU, GPU, RAM и
+          VRAM — для них считается стоимость кадра. Накопитель и сеть показаны качественно
+          (направление и уровень влияния): модель не оценивает объём данных и трафик, поэтому
+          числового требования по ним нет. Оценка не заменяет профилирование конкретной сборки.
         </p>
       </Card>
 
       {selected.length > 0 && (
         <Card
           title="Вклад отдельных решений"
-          hint="Из чего складывается суммарный профиль: отрицательные значения снижают нагрузку, положительные повышают."
+          hint="Из чего складывается суммарный профиль: отрицательные значения снижают нагрузку, положительные повышают. Для накопителя и сети это экспертный балл каталога (от −3 до +3), а не объём данных и не трафик."
         >
           <div style={{ overflowX: 'auto' }}>
             <table className="table">

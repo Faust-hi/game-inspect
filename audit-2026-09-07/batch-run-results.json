@@ -29,18 +29,18 @@
    "gpu_class": 2,
    "reference_cpu": "Core i3-8100",
    "cpu_class": 1,
-   "vram_gb": 4.8,
-   "ram_gb": 8.8,
-   "required_gpu_index": 0.16,
-   "required_cpu_index": 0.1975,
+   "vram_gb": 5.3,
+   "ram_gb": 10.1,
+   "required_gpu_index": 0.1632,
+   "required_cpu_index": 0.1938,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 20 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -282,20 +282,20 @@
   "hardware": {
    "reference_gpu": "Radeon RX 580",
    "gpu_class": 2,
-   "reference_cpu": "Core i3-10100",
+   "reference_cpu": "Core i5-8400",
    "cpu_class": 2,
-   "vram_gb": 5.8,
-   "ram_gb": 9.8,
-   "required_gpu_index": 0.1749,
-   "required_cpu_index": 0.278,
+   "vram_gb": 6.3,
+   "ram_gb": 11.3,
+   "required_gpu_index": 0.1784,
+   "required_cpu_index": 0.2727,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 25 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -545,20 +545,20 @@
   "hardware": {
    "reference_gpu": "Radeon RX 580",
    "gpu_class": 2,
-   "reference_cpu": "Core i5-8400",
+   "reference_cpu": "Core i5-10400F",
    "cpu_class": 2,
-   "vram_gb": 6.6,
-   "ram_gb": 10.9,
-   "required_gpu_index": 0.1812,
-   "required_cpu_index": 0.2984,
+   "vram_gb": 7.1,
+   "ram_gb": 12.4,
+   "required_gpu_index": 0.1848,
+   "required_cpu_index": 0.2925,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 26 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -803,22 +803,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 6500 XT",
+   "reference_gpu": "GeForce RTX 3050",
    "gpu_class": 2,
-   "reference_cpu": "Core i5-10400F",
+   "reference_cpu": "Ryzen 5 1600",
    "cpu_class": 2,
-   "vram_gb": 6.2,
-   "ram_gb": 10.2,
-   "required_gpu_index": 0.2379,
-   "required_cpu_index": 0.3359,
+   "vram_gb": 6.7,
+   "ram_gb": 11.7,
+   "required_gpu_index": 0.2427,
+   "required_cpu_index": 0.3273,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 26 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -1118,20 +1118,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Ryzen 5 3600",
+   "reference_cpu": "Core i5-12400F",
    "cpu_class": 3,
-   "vram_gb": 9.9,
-   "ram_gb": 14.3,
-   "required_gpu_index": 0.2658,
-   "required_cpu_index": 0.4999,
+   "vram_gb": 10.4,
+   "ram_gb": 15.8,
+   "required_gpu_index": 0.2711,
+   "required_cpu_index": 0.4889,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 40 ГБ.",
    "exceeds": false,
-   "confidence": 0.51,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -1383,20 +1383,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3050",
    "gpu_class": 2,
-   "reference_cpu": "Ryzen 5 1600",
-   "cpu_class": 2,
-   "vram_gb": 6.2,
-   "ram_gb": 10.2,
-   "required_gpu_index": 0.2894,
-   "required_cpu_index": 0.3421,
+   "reference_cpu": "Core i7-8700K",
+   "cpu_class": 3,
+   "vram_gb": 6.7,
+   "ram_gb": 11.7,
+   "required_gpu_index": 0.2952,
+   "required_cpu_index": 0.3335,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 26 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -1664,18 +1664,18 @@
    "gpu_class": 3,
    "reference_cpu": "Core i3-10100",
    "cpu_class": 2,
-   "vram_gb": 8.2,
-   "ram_gb": 12.7,
-   "required_gpu_index": 0.1069,
-   "required_cpu_index": 0.1798,
+   "vram_gb": 8.7,
+   "ram_gb": 14.2,
+   "required_gpu_index": 0.109,
+   "required_cpu_index": 0.1757,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 33 ГБ.",
    "exceeds": false,
-   "confidence": 0.47,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -1949,18 +1949,18 @@
    "gpu_class": 3,
    "reference_cpu": "Core i5-11400F",
    "cpu_class": 3,
-   "vram_gb": 10.2,
-   "ram_gb": 15.0,
-   "required_gpu_index": 0.3684,
-   "required_cpu_index": 0.5827,
+   "vram_gb": 10.7,
+   "ram_gb": 16.5,
+   "required_gpu_index": 0.3758,
+   "required_cpu_index": 0.5666,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 40 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -2261,22 +2261,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 6500 XT",
+   "reference_gpu": "GeForce RTX 3050",
    "gpu_class": 2,
    "reference_cpu": "Core i3-10100",
    "cpu_class": 2,
-   "vram_gb": 6.2,
-   "ram_gb": 10.2,
-   "required_gpu_index": 0.2379,
-   "required_cpu_index": 0.2987,
+   "vram_gb": 6.7,
+   "ram_gb": 11.7,
+   "required_gpu_index": 0.2427,
+   "required_cpu_index": 0.2901,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 26 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.49,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -2566,20 +2566,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Core i7-9700K",
+   "reference_cpu": "Core i5-11400F",
    "cpu_class": 3,
-   "vram_gb": 10.2,
-   "ram_gb": 15.0,
-   "required_gpu_index": 0.1677,
-   "required_cpu_index": 0.2914,
+   "vram_gb": 10.7,
+   "ram_gb": 16.5,
+   "required_gpu_index": 0.1711,
+   "required_cpu_index": 0.2833,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 40 ГБ.",
    "exceeds": false,
-   "confidence": 0.47,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -2892,22 +2892,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "GeForce GTX 1060 6GB",
+   "reference_gpu": "GeForce RTX 3050",
    "gpu_class": 2,
    "reference_cpu": "Core i5-10400F",
    "cpu_class": 2,
-   "vram_gb": 5.8,
-   "ram_gb": 9.8,
-   "required_gpu_index": 0.2372,
-   "required_cpu_index": 0.2777,
+   "vram_gb": 6.3,
+   "ram_gb": 11.3,
+   "required_gpu_index": 0.2419,
+   "required_cpu_index": 0.2712,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 25 ГБ.",
    "exceeds": false,
-   "confidence": 0.51,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -3215,22 +3215,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 580",
+   "reference_gpu": "GeForce GTX 1060 6GB",
    "gpu_class": 2,
    "reference_cpu": "Core i3-8100",
    "cpu_class": 1,
-   "vram_gb": 5.1,
-   "ram_gb": 9.1,
-   "required_gpu_index": 0.2154,
-   "required_cpu_index": 0.2401,
+   "vram_gb": 5.6,
+   "ram_gb": 10.4,
+   "required_gpu_index": 0.2197,
+   "required_cpu_index": 0.235,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 21 ГБ.",
    "exceeds": false,
-   "confidence": 0.55,
-   "confidence_label": "средняя",
+   "confidence": 0.49,
+   "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -3493,22 +3493,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "GeForce GTX 1060 6GB",
+   "reference_gpu": "GeForce RTX 3050",
    "gpu_class": 2,
-   "reference_cpu": "Core i3-8100",
-   "cpu_class": 1,
-   "vram_gb": 5.8,
-   "ram_gb": 9.8,
-   "required_gpu_index": 0.2372,
-   "required_cpu_index": 0.2777,
+   "reference_cpu": "Core i3-10100",
+   "cpu_class": 2,
+   "vram_gb": 6.3,
+   "ram_gb": 11.3,
+   "required_gpu_index": 0.2419,
+   "required_cpu_index": 0.2712,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 25 ГБ.",
    "exceeds": false,
-   "confidence": 0.55,
-   "confidence_label": "средняя",
+   "confidence": 0.49,
+   "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -3769,18 +3769,18 @@
    "gpu_class": 2,
    "reference_cpu": "Core i3-10100",
    "cpu_class": 2,
-   "vram_gb": 4.8,
-   "ram_gb": 8.8,
-   "required_gpu_index": 0.16,
-   "required_cpu_index": 0.2293,
+   "vram_gb": 5.3,
+   "ram_gb": 10.1,
+   "required_gpu_index": 0.1632,
+   "required_cpu_index": 0.2255,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 20 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -4032,18 +4032,18 @@
    "gpu_class": 2,
    "reference_cpu": "Core i3-10100",
    "cpu_class": 2,
-   "vram_gb": 6.2,
-   "ram_gb": 10.2,
-   "required_gpu_index": 0.268,
-   "required_cpu_index": 0.3549,
+   "vram_gb": 6.7,
+   "ram_gb": 11.7,
+   "required_gpu_index": 0.2734,
+   "required_cpu_index": 0.3456,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 23 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -4295,22 +4295,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "GeForce RTX 3050",
+   "reference_gpu": "Radeon RX 6600",
    "gpu_class": 2,
-   "reference_cpu": "Core i3-10100",
+   "reference_cpu": "Core i5-8400",
    "cpu_class": 2,
-   "vram_gb": 6.2,
-   "ram_gb": 10.2,
-   "required_gpu_index": 0.3204,
-   "required_cpu_index": 0.3549,
+   "vram_gb": 6.7,
+   "ram_gb": 11.7,
+   "required_gpu_index": 0.3268,
+   "required_cpu_index": 0.3471,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 23 ГБ.",
    "exceeds": false,
-   "confidence": 0.55,
-   "confidence_label": "средняя",
+   "confidence": 0.49,
+   "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -4561,18 +4561,18 @@
    "gpu_class": 2,
    "reference_cpu": "Core i3-10100",
    "cpu_class": 2,
-   "vram_gb": 4.8,
-   "ram_gb": 8.8,
-   "required_gpu_index": 0.16,
-   "required_cpu_index": 0.2293,
+   "vram_gb": 5.3,
+   "ram_gb": 10.1,
+   "required_gpu_index": 0.1632,
+   "required_cpu_index": 0.2255,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 20 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -4824,20 +4824,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3050",
    "gpu_class": 2,
-   "reference_cpu": "Core i5-10400F",
+   "reference_cpu": "Ryzen 5 2600",
    "cpu_class": 2,
-   "vram_gb": 6.7,
-   "ram_gb": 10.8,
-   "required_gpu_index": 0.2869,
-   "required_cpu_index": 0.4094,
+   "vram_gb": 7.2,
+   "ram_gb": 12.3,
+   "required_gpu_index": 0.2926,
+   "required_cpu_index": 0.3989,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 27 ГБ.",
    "exceeds": false,
-   "confidence": 0.51,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -5134,20 +5134,20 @@
   "hardware": {
    "reference_gpu": "Radeon RX 580",
    "gpu_class": 2,
-   "reference_cpu": "Core i5-10400F",
+   "reference_cpu": "Ryzen 5 2600",
    "cpu_class": 2,
-   "vram_gb": 7.3,
-   "ram_gb": 11.4,
-   "required_gpu_index": 0.1633,
-   "required_cpu_index": 0.3386,
+   "vram_gb": 7.8,
+   "ram_gb": 12.9,
+   "required_gpu_index": 0.1665,
+   "required_cpu_index": 0.3298,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 28 ГБ.",
    "exceeds": false,
-   "confidence": 0.51,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -5388,22 +5388,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 580",
+   "reference_gpu": "Radeon RX 6500 XT",
    "gpu_class": 2,
-   "reference_cpu": "Ryzen 5 2600",
-   "cpu_class": 2,
-   "vram_gb": 7.3,
-   "ram_gb": 11.4,
-   "required_gpu_index": 0.2128,
-   "required_cpu_index": 0.4072,
+   "reference_cpu": "Core i7-9700K",
+   "cpu_class": 3,
+   "vram_gb": 7.8,
+   "ram_gb": 12.9,
+   "required_gpu_index": 0.2171,
+   "required_cpu_index": 0.3984,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 28 ГБ.",
    "exceeds": false,
-   "confidence": 0.51,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -5697,20 +5697,20 @@
   "hardware": {
    "reference_gpu": "Radeon RX 580",
    "gpu_class": 2,
-   "reference_cpu": "Core i3-10100",
+   "reference_cpu": "Core i5-8400",
    "cpu_class": 2,
-   "vram_gb": 5.8,
-   "ram_gb": 9.8,
-   "required_gpu_index": 0.1749,
-   "required_cpu_index": 0.2423,
+   "vram_gb": 6.3,
+   "ram_gb": 11.3,
+   "required_gpu_index": 0.1784,
+   "required_cpu_index": 0.236,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 25 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -5987,20 +5987,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Core i5-14400F",
+   "reference_cpu": "Ryzen 7 5800X3D",
    "cpu_class": 3,
-   "vram_gb": 10.2,
-   "ram_gb": 15.0,
-   "required_gpu_index": 0.2711,
-   "required_cpu_index": 0.466,
+   "vram_gb": 10.7,
+   "ram_gb": 16.5,
+   "required_gpu_index": 0.2765,
+   "required_cpu_index": 0.4528,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 40 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -6292,22 +6292,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 580",
+   "reference_gpu": "GeForce GTX 1060 6GB",
    "gpu_class": 2,
    "reference_cpu": "Core i3-10100",
    "cpu_class": 2,
-   "vram_gb": 5.4,
-   "ram_gb": 9.4,
-   "required_gpu_index": 0.2053,
-   "required_cpu_index": 0.271,
+   "vram_gb": 5.9,
+   "ram_gb": 10.8,
+   "required_gpu_index": 0.2094,
+   "required_cpu_index": 0.2653,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 21 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 6
   },
   "recommendations": [
    {
@@ -6569,22 +6569,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 580",
-   "gpu_class": 2,
-   "reference_cpu": "Core i3-10100",
+   "reference_gpu": "GeForce RTX 3060",
+   "gpu_class": 3,
+   "reference_cpu": "Core i5-10400F",
    "cpu_class": 2,
-   "vram_gb": 7.6,
-   "ram_gb": 12.0,
-   "required_gpu_index": 0.1448,
-   "required_cpu_index": 0.2074,
+   "vram_gb": 8.1,
+   "ram_gb": 13.5,
+   "required_gpu_index": 0.1477,
+   "required_cpu_index": 0.2016,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 28 ГБ.",
    "exceeds": false,
-   "confidence": 0.47,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -6863,20 +6863,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Core i3-10100",
+   "reference_cpu": "Core i5-8400",
    "cpu_class": 2,
-   "vram_gb": 10.2,
-   "ram_gb": 15.0,
-   "required_gpu_index": 0.1629,
-   "required_cpu_index": 0.233,
+   "vram_gb": 10.7,
+   "ram_gb": 16.5,
+   "required_gpu_index": 0.1662,
+   "required_cpu_index": 0.2264,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 40 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -7162,20 +7162,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Core i5-8400",
+   "reference_cpu": "Core i5-10400F",
    "cpu_class": 2,
-   "vram_gb": 10.2,
-   "ram_gb": 15.0,
-   "required_gpu_index": 0.122,
-   "required_cpu_index": 0.2075,
+   "vram_gb": 10.7,
+   "ram_gb": 16.5,
+   "required_gpu_index": 0.1244,
+   "required_cpu_index": 0.2009,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 40 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -7444,20 +7444,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Core i3-8100",
-   "cpu_class": 1,
-   "vram_gb": 10.2,
-   "ram_gb": 15.0,
-   "required_gpu_index": 0.1163,
-   "required_cpu_index": 0.2075,
+   "reference_cpu": "Core i3-10100",
+   "cpu_class": 2,
+   "vram_gb": 10.7,
+   "ram_gb": 16.5,
+   "required_gpu_index": 0.1186,
+   "required_cpu_index": 0.2009,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 40 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -7719,20 +7719,20 @@
   "hardware": {
    "reference_gpu": "Radeon RX 580",
    "gpu_class": 2,
-   "reference_cpu": "Core i5-8400",
+   "reference_cpu": "Core i5-10400F",
    "cpu_class": 2,
-   "vram_gb": 6.3,
-   "ram_gb": 10.3,
-   "required_gpu_index": 0.1888,
-   "required_cpu_index": 0.3295,
+   "vram_gb": 6.8,
+   "ram_gb": 11.8,
+   "required_gpu_index": 0.1926,
+   "required_cpu_index": 0.3224,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 26 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -7994,20 +7994,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Core i3-8100",
-   "cpu_class": 1,
-   "vram_gb": 10.2,
-   "ram_gb": 15.0,
-   "required_gpu_index": 0.1163,
-   "required_cpu_index": 0.2075,
+   "reference_cpu": "Core i3-10100",
+   "cpu_class": 2,
+   "vram_gb": 10.7,
+   "ram_gb": 16.5,
+   "required_gpu_index": 0.1186,
+   "required_cpu_index": 0.2009,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 40 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -8263,22 +8263,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 580",
-   "gpu_class": 2,
+   "reference_gpu": "GeForce RTX 3060",
+   "gpu_class": 3,
    "reference_cpu": "Core i3-8100",
    "cpu_class": 1,
-   "vram_gb": 7.6,
-   "ram_gb": 12.0,
-   "required_gpu_index": 0.0816,
-   "required_cpu_index": 0.1487,
+   "vram_gb": 8.1,
+   "ram_gb": 13.5,
+   "required_gpu_index": 0.0833,
+   "required_cpu_index": 0.1443,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 28 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -8506,18 +8506,18 @@
    "gpu_class": 3,
    "reference_cpu": "Core i3-10100",
    "cpu_class": 2,
-   "vram_gb": 8.7,
-   "ram_gb": 13.2,
-   "required_gpu_index": 0.0891,
-   "required_cpu_index": 0.1932,
+   "vram_gb": 9.2,
+   "ram_gb": 14.7,
+   "required_gpu_index": 0.0909,
+   "required_cpu_index": 0.1879,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 37 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -8718,20 +8718,20 @@
   "hardware": {
    "reference_gpu": "Arc A770",
    "gpu_class": 3,
-   "reference_cpu": "Core i7-8700K",
+   "reference_cpu": "Core i5-11400F",
    "cpu_class": 3,
-   "vram_gb": 12.5,
-   "ram_gb": 16.5,
-   "required_gpu_index": 0.3364,
-   "required_cpu_index": 0.4405,
+   "vram_gb": 13.0,
+   "ram_gb": 16.9,
+   "required_gpu_index": 0.3431,
+   "required_cpu_index": 0.4273,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 43 ГБ.",
    "exceeds": false,
-   "confidence": 0.47,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -8965,22 +8965,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 580",
-   "gpu_class": 2,
-   "reference_cpu": "Core i3-10100",
+   "reference_gpu": "GeForce RTX 3060",
+   "gpu_class": 3,
+   "reference_cpu": "Core i5-10400F",
    "cpu_class": 2,
-   "vram_gb": 7.6,
-   "ram_gb": 12.0,
-   "required_gpu_index": 0.1448,
-   "required_cpu_index": 0.2074,
+   "vram_gb": 8.1,
+   "ram_gb": 13.5,
+   "required_gpu_index": 0.1477,
+   "required_cpu_index": 0.2016,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 28 ГБ.",
    "exceeds": false,
-   "confidence": 0.47,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -9259,12 +9259,12 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 4090",
    "gpu_class": 5,
-   "reference_cpu": "Ryzen 5 5600X",
+   "reference_cpu": "Core i7-11700K",
    "cpu_class": 3,
-   "vram_gb": 17.8,
-   "ram_gb": 21.8,
-   "required_gpu_index": 0.9106,
-   "required_cpu_index": 0.5902,
+   "vram_gb": 18.3,
+   "ram_gb": 17.8,
+   "required_gpu_index": 0.9288,
+   "required_cpu_index": 0.5726,
    "bottleneck": "gpu_raster",
    "bottleneck_label": "GPU (растеризация)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 50 ГБ.",
@@ -9272,7 +9272,7 @@
    "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -9524,22 +9524,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 7900 XTX",
+   "reference_gpu": "GeForce RTX 4090",
    "gpu_class": 5,
-   "reference_cpu": "Core i7-10700K",
+   "reference_cpu": "Ryzen 5 5600X",
    "cpu_class": 3,
-   "vram_gb": 17.8,
-   "ram_gb": 21.8,
-   "required_gpu_index": 0.8162,
-   "required_cpu_index": 0.4235,
+   "vram_gb": 18.3,
+   "ram_gb": 17.8,
+   "required_gpu_index": 0.8325,
+   "required_cpu_index": 0.4103,
    "bottleneck": "gpu_raster",
    "bottleneck_label": "GPU (растеризация)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 50 ГБ.",
    "exceeds": false,
-   "confidence": 0.47,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -9812,22 +9812,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 9060 XT",
+   "reference_gpu": "GeForce RTX 5060 Ti",
    "gpu_class": 3,
    "reference_cpu": "Core i3-10100",
    "cpu_class": 2,
-   "vram_gb": 13.9,
-   "ram_gb": 17.9,
-   "required_gpu_index": 0.5254,
-   "required_cpu_index": 0.3045,
+   "vram_gb": 14.4,
+   "ram_gb": 14.5,
+   "required_gpu_index": 0.5359,
+   "required_cpu_index": 0.2957,
    "bottleneck": "gpu_raster",
    "bottleneck_label": "GPU (растеризация)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 38 ГБ.",
    "exceeds": false,
-   "confidence": 0.47,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -10081,22 +10081,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "GeForce RTX 5070",
+   "reference_gpu": "GeForce RTX 5070 Ti",
    "gpu_class": 4,
-   "reference_cpu": "Core i5-8400",
+   "reference_cpu": "Core i5-10400F",
    "cpu_class": 2,
-   "vram_gb": 12.0,
-   "ram_gb": 16.0,
-   "required_gpu_index": 0.749,
-   "required_cpu_index": 0.3177,
+   "vram_gb": 12.5,
+   "ram_gb": 12.6,
+   "required_gpu_index": 0.764,
+   "required_cpu_index": 0.3083,
    "bottleneck": "gpu_raster",
    "bottleneck_label": "GPU (растеризация)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 29 ГБ.",
    "exceeds": false,
-   "confidence": 0.51,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -10366,20 +10366,20 @@
   "hardware": {
    "reference_gpu": "Radeon RX 6500 XT",
    "gpu_class": 2,
-   "reference_cpu": "Ryzen 5 3600",
+   "reference_cpu": "Core i5-12400F",
    "cpu_class": 3,
-   "vram_gb": 7.3,
-   "ram_gb": 11.4,
-   "required_gpu_index": 0.2214,
-   "required_cpu_index": 0.2974,
+   "vram_gb": 7.8,
+   "ram_gb": 12.9,
+   "required_gpu_index": 0.2258,
+   "required_cpu_index": 0.2886,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 28 ГБ.",
    "exceeds": false,
-   "confidence": 0.51,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -10633,20 +10633,20 @@
   "hardware": {
    "reference_gpu": "Radeon RX 580",
    "gpu_class": 2,
-   "reference_cpu": "Core i3-10100",
+   "reference_cpu": "Core i5-10400F",
    "cpu_class": 2,
-   "vram_gb": 7.1,
-   "ram_gb": 11.4,
-   "required_gpu_index": 0.0819,
+   "vram_gb": 7.6,
+   "ram_gb": 12.9,
+   "required_gpu_index": 0.0835,
    "required_cpu_index": 0.1373,
    "bottleneck": "cpu_parallel",
    "bottleneck_label": "CPU (многопоточная работа)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 27 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -10883,22 +10883,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "GeForce RTX 2070 Super",
+   "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Core i7-8700K",
+   "reference_cpu": "Core i5-11400F",
    "cpu_class": 3,
-   "vram_gb": 4.8,
-   "ram_gb": 8.8,
-   "required_gpu_index": 0.4003,
-   "required_cpu_index": 0.5376,
+   "vram_gb": 5.3,
+   "ram_gb": 10.1,
+   "required_gpu_index": 0.4083,
+   "required_cpu_index": 0.5266,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 20 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 6
   },
   "recommendations": [
    {
@@ -11163,22 +11163,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 580",
-   "gpu_class": 2,
-   "reference_cpu": "Core i5-8400",
+   "reference_gpu": "GeForce RTX 3060",
+   "gpu_class": 3,
+   "reference_cpu": "Core i5-10400F",
    "cpu_class": 2,
-   "vram_gb": 7.6,
-   "ram_gb": 12.0,
-   "required_gpu_index": 0.1152,
-   "required_cpu_index": 0.183,
+   "vram_gb": 8.1,
+   "ram_gb": 13.5,
+   "required_gpu_index": 0.1175,
+   "required_cpu_index": 0.1786,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 28 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -11449,18 +11449,18 @@
    "gpu_class": 2,
    "reference_cpu": "Core i3-10100",
    "cpu_class": 2,
-   "vram_gb": 5.8,
-   "ram_gb": 9.8,
-   "required_gpu_index": 0.1137,
-   "required_cpu_index": 0.1355,
+   "vram_gb": 6.3,
+   "ram_gb": 11.2,
+   "required_gpu_index": 0.1159,
+   "required_cpu_index": 0.1324,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 22 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.49,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -11722,20 +11722,20 @@
   "hardware": {
    "reference_gpu": "Radeon RX 580",
    "gpu_class": 2,
-   "reference_cpu": "Core i3-10100",
+   "reference_cpu": "Core i5-8400",
    "cpu_class": 2,
-   "vram_gb": 7.3,
-   "ram_gb": 11.4,
-   "required_gpu_index": 0.1019,
-   "required_cpu_index": 0.1693,
+   "vram_gb": 7.8,
+   "ram_gb": 12.9,
+   "required_gpu_index": 0.104,
+   "required_cpu_index": 0.1649,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 28 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.49,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -11999,22 +11999,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 6600",
-   "gpu_class": 2,
-   "reference_cpu": "Core i5-10400F",
+   "reference_gpu": "GeForce RTX 3060",
+   "gpu_class": 3,
+   "reference_cpu": "Ryzen 5 1600",
    "cpu_class": 2,
-   "vram_gb": 7.6,
-   "ram_gb": 12.0,
-   "required_gpu_index": 0.2604,
-   "required_cpu_index": 0.3112,
+   "vram_gb": 8.1,
+   "ram_gb": 13.5,
+   "required_gpu_index": 0.2656,
+   "required_cpu_index": 0.3024,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 28 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -12278,20 +12278,20 @@
   "hardware": {
    "reference_gpu": "Radeon RX 580",
    "gpu_class": 2,
-   "reference_cpu": "Core i5-10400F",
+   "reference_cpu": "Ryzen 5 2600",
    "cpu_class": 2,
-   "vram_gb": 6.1,
-   "ram_gb": 11.2,
-   "required_gpu_index": 0.1055,
+   "vram_gb": 6.6,
+   "ram_gb": 12.7,
+   "required_gpu_index": 0.1076,
    "required_cpu_index": 0.1855,
    "bottleneck": "cpu_parallel",
    "bottleneck_label": "CPU (многопоточная работа)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 27 ГБ.",
    "exceeds": false,
-   "confidence": 0.51,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -12579,20 +12579,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Ryzen 5 3600",
+   "reference_cpu": "Ryzen 5 5600X",
    "cpu_class": 3,
-   "vram_gb": 8.6,
-   "ram_gb": 12.9,
-   "required_gpu_index": 0.3697,
-   "required_cpu_index": 0.3673,
+   "vram_gb": 9.1,
+   "ram_gb": 14.4,
+   "required_gpu_index": 0.3771,
+   "required_cpu_index": 0.3564,
    "bottleneck": "gpu_raster",
    "bottleneck_label": "GPU (растеризация)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 34 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -12867,20 +12867,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Ryzen 5 3600",
+   "reference_cpu": "Ryzen 5 5600X",
    "cpu_class": 3,
-   "vram_gb": 8.6,
-   "ram_gb": 12.9,
-   "required_gpu_index": 0.2836,
-   "required_cpu_index": 0.3673,
+   "vram_gb": 9.1,
+   "ram_gb": 14.4,
+   "required_gpu_index": 0.2892,
+   "required_cpu_index": 0.3564,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 34 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -13151,20 +13151,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Ryzen 5 3600",
+   "reference_cpu": "Core i5-12400F",
    "cpu_class": 3,
-   "vram_gb": 9.9,
-   "ram_gb": 14.3,
-   "required_gpu_index": 0.3405,
-   "required_cpu_index": 0.466,
+   "vram_gb": 10.4,
+   "ram_gb": 15.8,
+   "required_gpu_index": 0.3473,
+   "required_cpu_index": 0.4528,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 40 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -13444,20 +13444,20 @@
   "hardware": {
    "reference_gpu": "Radeon RX 580",
    "gpu_class": 2,
-   "reference_cpu": "Core i5-10400F",
-   "cpu_class": 2,
-   "vram_gb": 7.3,
-   "ram_gb": 11.4,
-   "required_gpu_index": 0.2039,
-   "required_cpu_index": 0.3386,
+   "reference_cpu": "Core i7-8700K",
+   "cpu_class": 3,
+   "vram_gb": 7.8,
+   "ram_gb": 12.9,
+   "required_gpu_index": 0.208,
+   "required_cpu_index": 0.3298,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 28 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -13731,18 +13731,18 @@
    "gpu_class": 2,
    "reference_cpu": "Core i3-10100",
    "cpu_class": 2,
-   "vram_gb": 6.7,
-   "ram_gb": 10.8,
-   "required_gpu_index": 0.2604,
-   "required_cpu_index": 0.294,
+   "vram_gb": 7.2,
+   "ram_gb": 12.3,
+   "required_gpu_index": 0.2656,
+   "required_cpu_index": 0.2875,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 27 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -14018,18 +14018,18 @@
    "gpu_class": 2,
    "reference_cpu": "Core i3-8100",
    "cpu_class": 1,
-   "vram_gb": 6.7,
-   "ram_gb": 10.8,
-   "required_gpu_index": 0.1302,
-   "required_cpu_index": 0.16,
+   "vram_gb": 7.2,
+   "ram_gb": 12.3,
+   "required_gpu_index": 0.1328,
+   "required_cpu_index": 0.1568,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 27 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -14295,22 +14295,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 580",
-   "gpu_class": 2,
+   "reference_gpu": "GeForce RTX 3060",
+   "gpu_class": 3,
    "reference_cpu": "Core i3-8100",
    "cpu_class": 1,
-   "vram_gb": 7.6,
-   "ram_gb": 12.0,
-   "required_gpu_index": 0.1019,
-   "required_cpu_index": 0.1693,
+   "vram_gb": 8.1,
+   "ram_gb": 13.5,
+   "required_gpu_index": 0.104,
+   "required_cpu_index": 0.1649,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 28 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -14575,20 +14575,20 @@
   "hardware": {
    "reference_gpu": null,
    "gpu_class": 5,
-   "reference_cpu": "Core i5-8400",
+   "reference_cpu": "Core i5-10400F",
    "cpu_class": 2,
-   "vram_gb": 13.6,
-   "ram_gb": 17.6,
-   "required_gpu_index": 2.0646,
-   "required_cpu_index": 0.3617,
+   "vram_gb": 14.1,
+   "ram_gb": 13.9,
+   "required_gpu_index": 2.1059,
+   "required_cpu_index": 0.352,
    "bottleneck": "gpu_rt",
    "bottleneck_label": "GPU (трассировка лучей)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 35 ГБ.",
    "exceeds": true,
-   "confidence": 0.36,
+   "confidence": 0.3,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 6
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -14892,22 +14892,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "GeForce RTX 4080",
+   "reference_gpu": "GeForce RTX 5080",
    "gpu_class": 5,
-   "reference_cpu": "Core i9-13900K",
+   "reference_cpu": null,
    "cpu_class": 5,
-   "vram_gb": 10.2,
-   "ram_gb": 15.0,
-   "required_gpu_index": 0.8556,
-   "required_cpu_index": 0.9659,
+   "vram_gb": 10.7,
+   "ram_gb": 16.5,
+   "required_gpu_index": 0.8727,
+   "required_cpu_index": 0.9395,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 40 ГБ.",
-   "exceeds": false,
-   "confidence": 0.49,
+   "exceeds": true,
+   "confidence": 0.3,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -15150,18 +15150,18 @@
    "gpu_class": 2,
    "reference_cpu": "Core i3-8100",
    "cpu_class": 1,
-   "vram_gb": 5.1,
-   "ram_gb": 9.1,
-   "required_gpu_index": 0.1389,
-   "required_cpu_index": 0.2761,
+   "vram_gb": 5.6,
+   "ram_gb": 10.4,
+   "required_gpu_index": 0.1417,
+   "required_cpu_index": 0.2711,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 21 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.49,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 6
   },
   "recommendations": [
    {
@@ -15366,22 +15366,22 @@
    ]
   },
   "hardware": {
-   "reference_gpu": "Radeon RX 9070",
+   "reference_gpu": "GeForce RTX 5070",
    "gpu_class": 4,
    "reference_cpu": null,
    "cpu_class": 5,
-   "vram_gb": 5.8,
-   "ram_gb": 9.8,
-   "required_gpu_index": 0.6613,
-   "required_cpu_index": 1.1833,
+   "vram_gb": 6.3,
+   "ram_gb": 11.3,
+   "required_gpu_index": 0.6745,
+   "required_cpu_index": 1.1579,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 25 ГБ.",
    "exceeds": true,
-   "confidence": 0.38,
+   "confidence": 0.32,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 8
   },
   "recommendations": [
    {
@@ -15590,18 +15590,18 @@
    "gpu_class": 2,
    "reference_cpu": "Core i3-8100",
    "cpu_class": 1,
-   "vram_gb": 4.8,
-   "ram_gb": 8.8,
-   "required_gpu_index": 0.1786,
-   "required_cpu_index": 0.2293,
+   "vram_gb": 5.3,
+   "ram_gb": 10.1,
+   "required_gpu_index": 0.1822,
+   "required_cpu_index": 0.2255,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже SATA SSD; ориентировочный объём установки — 20 ГБ.",
    "exceeds": false,
-   "confidence": 0.53,
+   "confidence": 0.47,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 4
+   "caveats_count": 7
   },
   "recommendations": [
    {
@@ -15815,20 +15815,20 @@
   "hardware": {
    "reference_gpu": "GeForce RTX 3060",
    "gpu_class": 3,
-   "reference_cpu": "Core i7-10700K",
+   "reference_cpu": "Ryzen 5 5600X",
    "cpu_class": 3,
-   "vram_gb": 10.2,
-   "ram_gb": 15.0,
-   "required_gpu_index": 0.2822,
-   "required_cpu_index": 0.5339,
+   "vram_gb": 10.7,
+   "ram_gb": 16.5,
+   "required_gpu_index": 0.2878,
+   "required_cpu_index": 0.5229,
    "bottleneck": "cpu_main_thread",
    "bottleneck_label": "CPU (главный поток)",
    "storage": "Накопитель не ниже NVMe SSD; ориентировочный объём установки — 40 ГБ.",
    "exceeds": false,
-   "confidence": 0.49,
+   "confidence": 0.45,
    "confidence_label": "низкая",
    "unmet_limits": [],
-   "caveats_count": 5
+   "caveats_count": 8
   },
   "recommendations": [
    {
