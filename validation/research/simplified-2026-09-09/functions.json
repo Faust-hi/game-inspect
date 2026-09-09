@@ -1,0 +1,565 @@
+[
+  {
+    "code": "advanced_npc_ai",
+    "name": "Поведенческий ИИ NPC",
+    "cpu_targets": {
+      "ai": 0.1,
+      "parallel_sim": 0.05
+    },
+    "gpu_targets": {},
+    "methods": [
+      "behaviour_tree_update_budget",
+      "npc_perception_budget"
+    ]
+  },
+  {
+    "code": "ai_pathfinding",
+    "name": "ИИ и поиск пути",
+    "cpu_targets": {
+      "ai": 0.12,
+      "parallel_sim": 0.06
+    },
+    "gpu_targets": {},
+    "methods": [
+      "flow_field_pathing",
+      "navmesh_tiling_streaming",
+      "rvo_local_avoidance",
+      "time_sliced_pathfinding"
+    ]
+  },
+  {
+    "code": "art_pipeline",
+    "name": "Арт-пайплайн",
+    "cpu_targets": {},
+    "gpu_targets": {},
+    "methods": [
+      "art_direction_stylization",
+      "normal_bake_retopology_pipeline"
+    ]
+  },
+  {
+    "code": "audio_system",
+    "name": "Аудиосистема",
+    "cpu_targets": {
+      "audio": 0.04,
+      "main_thread": 0.01
+    },
+    "gpu_targets": {},
+    "methods": [
+      "audio_occlusion_propagation",
+      "audio_streaming_compression"
+    ]
+  },
+  {
+    "code": "baked_lighting",
+    "name": "Запечённое освещение",
+    "cpu_targets": {
+      "main_thread": 0.04
+    },
+    "gpu_targets": {
+      "lighting_shadows": 0.02
+    },
+    "methods": [
+      "gpu_lightmap_baking",
+      "lightmap_2d_baking",
+      "lightmap_atlas_baking",
+      "lightmap_compression_streaming"
+    ]
+  },
+  {
+    "code": "build_delivery",
+    "name": "Сборка и доставка контента",
+    "cpu_targets": {},
+    "gpu_targets": {},
+    "methods": [
+      "build_size_startup_budgets",
+      "differential_patch_pipeline"
+    ]
+  },
+  {
+    "code": "character_animation",
+    "name": "Анимация персонажей",
+    "cpu_targets": {
+      "animation": 0.07,
+      "parallel_sim": 0.03
+    },
+    "gpu_targets": {},
+    "methods": [
+      "animation_compression",
+      "animation_lod_budget",
+      "gpu_skinning_compute",
+      "motion_matching",
+      "skeletal_2d_deform",
+      "sprite_atlas_batching",
+      "sprite_sheet_compression"
+    ]
+  },
+  {
+    "code": "crowd_simulation",
+    "name": "Толпы NPC",
+    "cpu_targets": {
+      "ai": 0.14,
+      "parallel_sim": 0.08
+    },
+    "gpu_targets": {
+      "geometry": 0.05,
+      "shading": 0.05
+    },
+    "methods": [
+      "agent_update_budget",
+      "crowd_2d_instancing",
+      "crowd_instancing_impostors",
+      "ecs_data_oriented_crowd"
+    ]
+  },
+  {
+    "code": "destruction_simulation",
+    "name": "Разрушения и геометрические кэши",
+    "cpu_targets": {
+      "physics": 0.1,
+      "parallel_sim": 0.06
+    },
+    "gpu_targets": {
+      "geometry": 0.07,
+      "transparency": 0.05
+    },
+    "methods": [
+      "destruction_geometry_cache"
+    ]
+  },
+  {
+    "code": "dynamic_global_illumination",
+    "name": "Динамическое глобальное освещение",
+    "cpu_targets": {
+      "compute": 0.04,
+      "main_thread": 0.02
+    },
+    "gpu_targets": {
+      "lighting_shadows": 0.34,
+      "compute": 0.14
+    },
+    "methods": [
+      "hardware_raytraced_gi",
+      "irradiance_volume_probes",
+      "screen_space_gi",
+      "sdf_global_illumination",
+      "temporal_radiance_cache",
+      "voxel_cone_tracing"
+    ]
+  },
+  {
+    "code": "dynamic_lighting",
+    "name": "Множественные динамические источники света",
+    "cpu_targets": {
+      "render_prep": 0.06,
+      "main_thread": 0.03
+    },
+    "gpu_targets": {
+      "lighting_shadows": 0.16,
+      "shading": 0.05
+    },
+    "methods": [
+      "dynamic_light_priority_budget",
+      "light_range_attenuation_lod"
+    ]
+  },
+  {
+    "code": "dynamic_shadows",
+    "name": "Динамические тени",
+    "cpu_targets": {
+      "render_prep": 0.04,
+      "main_thread": 0.02
+    },
+    "gpu_targets": {
+      "lighting_shadows": 0.1,
+      "raster": 0.04
+    },
+    "methods": [
+      "cascaded_shadow_maps",
+      "distance_field_shadows",
+      "screen_space_contact_shadows",
+      "shadow_caster_2d_limits",
+      "static_shadow_caching",
+      "virtual_shadow_maps"
+    ]
+  },
+  {
+    "code": "gameplay_ability_system",
+    "name": "Геймплейные способности и модификаторы",
+    "cpu_targets": {
+      "main_thread": 0.05,
+      "parallel_sim": 0.04
+    },
+    "gpu_targets": {
+      "compute": 0.02
+    },
+    "methods": [
+      "ability_visual_effect_budget",
+      "data_driven_ability_system"
+    ]
+  },
+  {
+    "code": "geometry_pipeline",
+    "name": "Конвейер геометрии",
+    "cpu_targets": {
+      "render_prep": 0.05,
+      "main_thread": 0.02
+    },
+    "gpu_targets": {
+      "geometry": 0.03,
+      "raster": 0.02
+    },
+    "methods": [
+      "mesh_index_optimization"
+    ]
+  },
+  {
+    "code": "large_scale_terrain",
+    "name": "Крупномасштабный ландшафт",
+    "cpu_targets": {
+      "streaming": 0.05,
+      "main_thread": 0.03
+    },
+    "gpu_targets": {
+      "geometry": 0.05,
+      "shading": 0.05
+    },
+    "methods": [
+      "heightmap_compression",
+      "neural_texture_compression",
+      "terrain_clipmap",
+      "virtual_geometry_clusters",
+      "virtual_texturing"
+    ]
+  },
+  {
+    "code": "mesh_shaders",
+    "name": "Меш-шейдеры и генерация геометрии на GPU",
+    "cpu_targets": {
+      "render_prep": 0.02,
+      "main_thread": 0.01
+    },
+    "gpu_targets": {
+      "geometry": 0.12,
+      "raster": 0.05
+    },
+    "methods": [
+      "gpu_meshlet_culling_budget",
+      "meshlet_pipeline_adoption"
+    ]
+  },
+  {
+    "code": "multiplayer_netcode",
+    "name": "Сетевой код мультиплеера",
+    "cpu_targets": {
+      "network": 0.1,
+      "main_thread": 0.06
+    },
+    "gpu_targets": {},
+    "methods": [
+      "client_prediction_reconciliation",
+      "delta_compression_state",
+      "deterministic_lockstep",
+      "headless_dedicated_server",
+      "network_relevancy_priority",
+      "tickrate_budgeting"
+    ]
+  },
+  {
+    "code": "open_world_streaming",
+    "name": "Потоковая загрузка открытого мира",
+    "cpu_targets": {
+      "streaming": 0.1,
+      "main_thread": 0.06
+    },
+    "gpu_targets": {
+      "shading": 0.03,
+      "geometry": 0.02
+    },
+    "methods": [
+      "async_loading_pipeline",
+      "baked_occlusion_culling",
+      "gpu_compute_culling",
+      "hierarchical_lod",
+      "tilemap_chunk_streaming",
+      "world_origin_shifting",
+      "world_partition_streaming"
+    ]
+  },
+  {
+    "code": "particle_systems",
+    "name": "Системы частиц",
+    "cpu_targets": {
+      "parallel_sim": 0.04,
+      "main_thread": 0.02
+    },
+    "gpu_targets": {
+      "transparency": 0.06,
+      "shading": 0.02
+    },
+    "methods": [
+      "flipbook_particles",
+      "gpu_particle_simulation",
+      "particle_pooling",
+      "sprite_particle_atlas"
+    ]
+  },
+  {
+    "code": "path_tracing",
+    "name": "Трассировка пути",
+    "cpu_targets": {
+      "compute": 0.04,
+      "main_thread": 0.02
+    },
+    "gpu_targets": {
+      "rt": 1.15
+    },
+    "methods": [
+      "full_path_tracing_pipeline",
+      "path_tracing_sample_denoiser_budget"
+    ]
+  },
+  {
+    "code": "physics_simulation",
+    "name": "Физическая симуляция",
+    "cpu_targets": {
+      "physics": 0.12,
+      "parallel_sim": 0.06
+    },
+    "gpu_targets": {},
+    "methods": [
+      "broadphase_spatial_partitioning",
+      "collision_layer_matrix",
+      "fixed_timestep_physics",
+      "multithreaded_physics_jobs",
+      "physics_lod_sleeping"
+    ]
+  },
+  {
+    "code": "post_processing",
+    "name": "Постобработка изображения",
+    "cpu_targets": {
+      "post_processing": 0.02,
+      "main_thread": 0.01
+    },
+    "gpu_targets": {
+      "post_processing": 0.08
+    },
+    "methods": [
+      "deferred_forward_plus_choice",
+      "depth_prepass_early_z",
+      "dynamic_resolution_scaling",
+      "post_effect_selective",
+      "screenspace_light_shafts",
+      "temporal_upscaling",
+      "variable_rate_shading"
+    ]
+  },
+  {
+    "code": "procedural_terrain",
+    "name": "Процедурная генерация ландшафта и мира",
+    "cpu_targets": {
+      "streaming": 0.06,
+      "parallel_sim": 0.05,
+      "main_thread": 0.04
+    },
+    "gpu_targets": {
+      "geometry": 0.04,
+      "shading": 0.02
+    },
+    "methods": [
+      "chunked_procedural_terrain",
+      "terrain_generation_streaming_budget"
+    ]
+  },
+  {
+    "code": "procedural_vegetation",
+    "name": "Растительность и объекты окружения",
+    "cpu_targets": {
+      "parallel_sim": 0.07,
+      "main_thread": 0.03
+    },
+    "gpu_targets": {
+      "geometry": 0.06,
+      "shading": 0.04
+    },
+    "methods": [
+      "gpu_instancing_vegetation",
+      "gpu_procedural_placement",
+      "impostors_billboards",
+      "tilemap_layer_culling",
+      "vegetation_atlas_lod"
+    ]
+  },
+  {
+    "code": "project_architecture",
+    "name": "Архитектура проекта",
+    "cpu_targets": {
+      "main_thread": 0.02
+    },
+    "gpu_targets": {},
+    "methods": [
+      "composition_bootstrap_architecture"
+    ]
+  },
+  {
+    "code": "ray_traced_effects",
+    "name": "Трассировочные эффекты (тени, отражения, AO)",
+    "cpu_targets": {
+      "compute": 0.02,
+      "main_thread": 0.01
+    },
+    "gpu_targets": {
+      "rt": 0.7
+    },
+    "methods": [
+      "rt_effect_resolution_budget",
+      "selective_ray_traced_effects"
+    ]
+  },
+  {
+    "code": "render_scalability",
+    "name": "Масштабирование качества",
+    "cpu_targets": {
+      "main_thread": 0.03
+    },
+    "gpu_targets": {
+      "post_processing": 0.04
+    },
+    "methods": [
+      "quality_tier_scalability"
+    ]
+  },
+  {
+    "code": "rendering_architecture",
+    "name": "Архитектура рендера",
+    "cpu_targets": {
+      "render_prep": 0.07,
+      "main_thread": 0.03
+    },
+    "gpu_targets": {
+      "raster": 0.05,
+      "geometry": 0.05
+    },
+    "methods": [
+      "bindless_uber_shaders",
+      "hiz_software_occlusion",
+      "pso_precaching_warmup",
+      "srp_batcher_discipline",
+      "tiled_clustered_light_culling"
+    ]
+  },
+  {
+    "code": "runtime_memory",
+    "name": "Память и сборка мусора",
+    "cpu_targets": {
+      "main_thread": 0.08
+    },
+    "gpu_targets": {},
+    "methods": [
+      "managed_gc_alloc_budget"
+    ]
+  },
+  {
+    "code": "save_system",
+    "name": "Система сохранений",
+    "cpu_targets": {
+      "streaming": 0.04,
+      "main_thread": 0.01
+    },
+    "gpu_targets": null,
+    "methods": [
+      "async_incremental_saves",
+      "snapshot_slot_saves"
+    ]
+  },
+  {
+    "code": "split_screen_rendering",
+    "name": "Split-screen рендеринг",
+    "cpu_targets": {
+      "render_prep": 0.08,
+      "main_thread": 0.04
+    },
+    "gpu_targets": {
+      "raster": 0.15,
+      "geometry": 0.05
+    },
+    "methods": [
+      "splitscreen_render_budget"
+    ]
+  },
+  {
+    "code": "storage_streaming",
+    "name": "Потоковая работа с накопителем",
+    "cpu_targets": {
+      "streaming": 0.07,
+      "main_thread": 0.03
+    },
+    "gpu_targets": {
+      "shading": 0.02
+    },
+    "methods": []
+  },
+  {
+    "code": "upscaling_frame_generation",
+    "name": "Масштабирование и генерация кадров",
+    "cpu_targets": {
+      "post_processing": 0.01,
+      "main_thread": 0.01
+    },
+    "gpu_targets": {
+      "post_processing": 0.04
+    },
+    "methods": [
+      "ml_frame_generation"
+    ]
+  },
+  {
+    "code": "vehicle_simulation",
+    "name": "Транспорт и физика движения",
+    "cpu_targets": {
+      "physics": 0.1,
+      "parallel_sim": 0.05
+    },
+    "gpu_targets": {
+      "geometry": 0.02
+    },
+    "methods": [
+      "raycast_vehicle_physics",
+      "vehicle_simulation_lod"
+    ]
+  },
+  {
+    "code": "volumetric_effects",
+    "name": "Объёмные эффекты (туман, облака, дымка)",
+    "cpu_targets": {
+      "compute": 0.02,
+      "main_thread": 0.01
+    },
+    "gpu_targets": {
+      "compute": 0.1,
+      "transparency": 0.06
+    },
+    "methods": [
+      "froxel_volumetric_fog",
+      "volumetric_half_resolution"
+    ]
+  },
+  {
+    "code": "water_simulation",
+    "name": "Водные поверхности",
+    "cpu_targets": {
+      "physics": 0.02,
+      "parallel_sim": 0.01
+    },
+    "gpu_targets": {
+      "shading": 0.06,
+      "transparency": 0.04
+    },
+    "methods": [
+      "gerstner_fft_water",
+      "planar_reflection_budget",
+      "screen_space_water_simple"
+    ]
+  }
+]

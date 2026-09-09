@@ -1,0 +1,21 @@
+{
+  "fields": 41,
+  "field_probe_cases": 171,
+  "field_probe_errors": 0,
+  "methods": 111,
+  "method_probes_executed": 111,
+  "effect_mappings_missing": [],
+  "effect_mappings_empty": [
+    "differential_patch_pipeline",
+    "fixed_timestep_physics",
+    "gpu_lightmap_baking",
+    "headless_dedicated_server",
+    "quality_tier_scalability"
+  ],
+  "relations": 20,
+  "relation_order_failures": [],
+  "batch_rows": 980,
+  "batch_exact_match_rows": 19,
+  "batch_unique_codes": 973,
+  "batch_unique_missing": 958
+}

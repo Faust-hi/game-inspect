@@ -47,8 +47,8 @@
    целевые буферы, стриминг, аудио, зеркало ресурсов в оперативной памяти).
    Одна и та же экономия не проходит дважды через профиль, функцию и выбранный
    метод: метод меняет конкретный компонент. Ресурсы, загруженные в
-   видеопамять, как правило присутствуют и в оперативной памяти — поэтому
-   системная память не может оказаться меньше видеопамяти.
+   видеопамять, могут иметь CPU-копии или временные буферы загрузки. Их объём
+   учитывается отдельно и не задаёт универсального неравенства RAM ≥ VRAM.
 
 8. **Перекрытие эффектов.**
    Если несколько решений уменьшают одну и ту же подсистему, по умолчанию
@@ -582,11 +582,6 @@ MEMORY_DEFICIT_STALL_MS = 6.0
 #: памяти: исходник потоковой загрузки и CPU-копии геометрии и текстур.
 VRAM_MIRROR_SHARE = 0.25
 
-#: Минимальный запас оперативной памяти сверх видеопамяти (ГБ): операционная
-#: система и движок занимают память независимо от рабочего набора ресурсов.
-RAM_OVER_VRAM_RESERVE_GB = 4.0
-
-
 def _supports_ray_tracing(gpu: HardwareGPU) -> bool:
     """Проверяет наличие аппаратной трассировки лучей по признакам каталога."""
     features = [str(f).lower() for f in (gpu.hw_features or [])]
@@ -720,6 +715,10 @@ def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_
         "Численные коэффициенты являются экспертными гипотезами, независимая калибровка не выполнена.",
         "Стоимость подсистем складывается как сумма работ; внутриподсстемные эффекты решений не измерялись.",
         "Степень распараллеливания задана коэффициентом, а не профилем конкретного движка.",
+        "Постоянные расходы памяти ОС и движка не измерены для выбранного проекта; "
+        "оценка может завышать требования лёгких игр.",
+        "Объём буферов рендера и доля CPU-копий ресурсов заданы экспертно; "
+        "резидентная и пиковая память отдельно не измерены.",
     ]
     streaming = _streaming_required(profile, method_codes)
     if profile.render_api == "auto":
@@ -1185,12 +1184,11 @@ def _memory_components(profile: ProjectProfile, content: float, method_codes: se
 def _mirror_memory(components: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
     """Пересчитать зеркало ресурсов в оперативной памяти.
 
-    Ресурсы, загруженные в видеопамять, одновременно хранятся и в оперативной
-    памяти: это исходник потоковой подгрузки и CPU-копии. Без этого члена
-    оценка RAM отрывается от оценки VRAM и даёт случай «видеопамять больше
-    оперативной», невозможный на реальной конфигурации. Пересчёт выполняется и
-    после применения эффектов решений: уменьшение геометрии и текстур должно
-    уменьшать и их зеркало.
+    Доля CPU-копий — экспертное допущение о геометрии и текстурах, а не
+    требование API. Буферы загрузки могут переиспользоваться после завершения
+    копирования на GPU. RAM и VRAM не обязаны совпадать по объёму.
+    После применения эффектов решений копии пересчитываются по тому же
+    допущению, чтобы не сохранять зеркало уже исключённых ресурсов.
     """
     components.setdefault("mirror", {"ram": 0.0, "vram": 0.0})
     components["mirror"]["ram"] = VRAM_MIRROR_SHARE * (
@@ -1374,10 +1372,6 @@ def _load_indices(profile: ProjectProfile, methods: list, relations=()) -> dict:
     client_methods = rules.split_by_effect_scope(methods)[0]
     method_codes = {m.code for m in client_methods}
     recommended_storage = _recommended_storage(profile, method_codes)
-    # Тот же нижний предел, что и в оценке оборудования: индексы нагрузки не
-    # должны расходиться с подбором конфигурации.
-    vram_gb = max(1.5, round(vram_gb, 1))
-    ram_gb = max(4.0, round(ram_gb, 1), round(vram_gb + RAM_OVER_VRAM_RESERVE_GB, 1))
     return {
         "gpu_index": max(raster_index, rt_index),
         "cpu_index": max(st_index, mt_index),
@@ -1484,24 +1478,10 @@ def _memory_totals(model: FrameModel) -> tuple[float, float, list[MemoryComposit
         for key in _MEMORY_ORDER
         if key in model.memory
     ]
-    return ram, vram, composition
-
-
-def _with_system_reserve(
-    composition: list[MemoryComposition], reserve_gb: float,
-) -> list[MemoryComposition]:
-    """Добавить резерв системной памяти в состав, чтобы сумма сошлась с итогом."""
-    if reserve_gb <= 0:
-        return composition
-    label = MEMORY_COMPONENT_LABELS["system"]
-    return [
-        MemoryComposition(
-            label=item.label,
-            ram_gb=round(item.ram_gb + reserve_gb, 2),
-            vram_gb=item.vram_gb,
-        ) if item.label == label else item
-        for item in composition
-    ]
+    # Единственный путь суммирования для профиля нагрузки и подбора железа.
+    # ОС и движок уже включены в компоненты; дополнительного резерва поверх
+    # VRAM здесь нет. Округление не превращает оценку в аппаратный номинал.
+    return round(ram, 1), round(vram, 1), composition
 
 
 def _consequences(profile: ProjectProfile, methods: list, model: FrameModel) -> list[str]:
@@ -1637,16 +1617,7 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
     raster_index = model.gpu_raster_ms / budget
     rt_index = model.gpu_rt_ms / budget
 
-    raw_ram_gb, vram_gb, composition = _memory_totals(model)
-    vram_gb = max(1.5, round(vram_gb, 1))
-    # Ресурсы видеопамяти присутствуют и в оперативной памяти, поэтому системная
-    # память не может быть меньше видеопамяти: иначе оценка описывала бы
-    # конфигурацию, на которой игра не запустится.
-    raw_ram = max(4.0, round(raw_ram_gb, 1))
-    ram_gb = max(raw_ram, round(vram_gb + RAM_OVER_VRAM_RESERVE_GB, 1))
-    # Состав памяти показывается пользователю, поэтому его сумма обязана
-    # совпадать с итоговой оценкой: резерв добавляется в системный компонент.
-    composition = _with_system_reserve(composition, round(ram_gb - raw_ram, 1))
+    ram_gb, vram_gb, composition = _memory_totals(model)
 
     method_codes = {m.code for m in methods}
     memory_pressure, memory_note = _memory_pressure(
@@ -1754,6 +1725,12 @@ def _pick_references(
 
     unmet: list[str] = []
     caveats: list[str] = []
+    if any(g.vram_gb <= 0 for g in gpus):
+        caveats.append(
+            "GPU без известного объёма доступной памяти не могут пройти проверку вместимости. "
+            "Для встроенной графики нужен бюджет общей памяти конкретной системы; "
+            "найденная дискретная карта не доказывает, что встроенной графики недостаточно."
+        )
     if profile.vram_limit_gb is not None and vram_gb > profile.vram_limit_gb:
         unmet.append(
             f"Требуется {vram_gb:.1f} ГБ видеопамяти при заданном пределе "

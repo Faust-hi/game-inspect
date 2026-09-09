@@ -1,0 +1,22 @@
+{
+  "tables": {
+    "conflicts": 20,
+    "engines": 7,
+    "game_functions": 36,
+    "hardware_cpu": 51,
+    "hardware_gpu": 79,
+    "publication_log": 0,
+    "validation_issues": 0,
+    "engine_tools": 70,
+    "methods": 111,
+    "method_engine_links": 473
+  },
+  "pairs": 6105,
+  "pairs_with_edges": 20,
+  "pairs_shared_targets": 1649,
+  "profile_fields": 41,
+  "symbols": 772,
+  "constants": 176,
+  "external_rows": 980,
+  "profiles": 58
+}

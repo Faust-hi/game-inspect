@@ -1,0 +1,52 @@
+{
+  "kind": "deterministic_isolated_module_probe_not_browser_E2E",
+  "source": "frontend/src/versions.ts",
+  "source_sha256": "8e37b2fddcb89bcec77a03023ca3961f577e518beb6cbfa97fa29f49ffa59871",
+  "typescript": "5.9.3",
+  "incomplete_record": {
+    "input": {
+      "id": "incomplete",
+      "number": 1,
+      "basket": [],
+      "profile": {}
+    },
+    "accepted": true,
+    "loaded": [
+      {
+        "id": "incomplete",
+        "number": 1,
+        "basket": [],
+        "profile": {}
+      }
+    ]
+  },
+  "summary": {
+    "input_keys": [
+      "snapshot_id",
+      "catalog_revision",
+      "profile",
+      "meta",
+      "recommendations",
+      "basket_conflicts",
+      "hardware",
+      "risks",
+      "contributions",
+      "selected_methods"
+    ],
+    "output": {
+      "algorithm_version": "synthetic-version",
+      "catalog_revision": "synthetic-catalog",
+      "recommendations": [],
+      "basket_size": 0,
+      "hardware": null,
+      "conflict_count": 0
+    },
+    "absent_keys": [
+      "snapshot_id",
+      "profile",
+      "risks",
+      "contributions",
+      "selected_methods"
+    ]
+  }
+}

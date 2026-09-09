@@ -288,12 +288,8 @@ def test_bottleneck_distinguishes_contrasting_projects(db):
     assert found["дефицит видеопамяти"] == "memory"
 
 
-def test_ram_estimate_is_never_below_vram(db):
-    """Ресурсы видеопамяти присутствуют и в оперативной памяти.
-
-    Оценка «видеопамять больше оперативной» описывает конфигурацию, на которой
-    игра не запустится: такого быть не должно ни при каком профиле.
-    """
+def test_memory_totals_match_components_in_both_calculation_paths(db):
+    """Итог равен составу; резерв ОС не начисляется повторно поверх VRAM."""
     for profile in (
         ProjectProfile(),
         ProjectProfile(scale="very_large", object_count_level="high",
@@ -302,7 +298,38 @@ def test_ram_estimate_is_never_below_vram(db):
         ProjectProfile(scale="small", target_resolution="720p", target_quality="low"),
     ):
         result = estimate_hardware(db, profile, [])
-        assert result.estimated_ram_gb >= result.estimated_vram_gb + hardware.RAM_OVER_VRAM_RESERVE_GB, profile.scale
+        model = hardware.build_model(profile, [])
+        indices = _load_indices(profile, [])
+        expected_ram = round(sum(size["ram"] for size in model.memory.values()), 1)
+        expected_vram = round(sum(size["vram"] for size in model.memory.values()), 1)
+        assert result.estimated_ram_gb == indices["ram_gb"] == expected_ram
+        assert result.estimated_vram_gb == indices["vram_gb"] == expected_vram
+
+
+@pytest.mark.parametrize("ram,vram", [(5.0, 12.0), (2.0, 0.5)])
+def test_independent_memory_working_sets_have_no_extra_floor(db, monkeypatch, ram, vram):
+    """Заданный состав ресурсов не подменяется общим нижним пределом.
+
+    Синтетический состав проверяет арифметику, а не требования конкретной игры.
+    """
+    profile = ProjectProfile()
+    model = hardware.build_model(profile, [])
+    for sizes in model.memory.values():
+        sizes.update(ram=0.0, vram=0.0)
+    model.memory["system"]["ram"] = ram
+    model.memory["render_targets"]["vram"] = vram
+    monkeypatch.setattr(hardware, "build_model", lambda *args, **kwargs: model)
+
+    result = estimate_hardware(db, profile, [])
+    assert result.estimated_ram_gb == ram
+    assert result.estimated_vram_gb == vram
+    assert _load_indices(profile, [])["ram_gb"] == ram
+    assert _load_indices(profile, [])["vram_gb"] == vram
+
+
+def test_unknown_gpu_memory_has_an_explicit_catalog_limitation(db):
+    result = estimate_hardware(db, ProjectProfile(), [])
+    assert any("бюджет общей памяти" in note for note in result.caveats)
 
 
 def test_memory_composition_sums_match_estimates(db):

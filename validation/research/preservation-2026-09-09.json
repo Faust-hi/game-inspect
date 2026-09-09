@@ -1,0 +1,19 @@
+{
+  "timestamp_utc": "2026-09-09T04:05:41.441483+00:00",
+  "protected_files_checked": 175,
+  "protected_files_changed": [],
+  "head": "5d93a3ca54ad3f5045f1664fc5ce8fd81ba4b236",
+  "git_status": " M backend/app/services/hardware.py\n M backend/app/services/recommender.py\n M backend/tests/test_hardware_semantics.py\n?? docs/mvp-memory-review-2026-09-08.md\n?? docs/research/\n?? validation/diagnose_memory.py\n?? validation/memory-after.json\n?? validation/memory-before.json\n?? validation/research/\n",
+  "research_checks": {
+    "individual_semantic_reviews": 92,
+    "numeric_eligible": 0,
+    "engine_links_indexed": 473,
+    "potential_version_checks": 2162,
+    "referenced_artifacts_exist": true,
+    "footnote_references_resolve": true
+  },
+  "live_database_opened": false,
+  "application_tests_run": false,
+  "application_fixes_made": false,
+  "full_plan_complete": false
+}

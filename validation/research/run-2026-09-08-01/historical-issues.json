@@ -1,0 +1,950 @@
+[
+  {
+    "path": "docs/registry.md",
+    "line": 7,
+    "historical_text": "- `audit-2026-09-07/REPORT.md` — независимый аудит, идентификаторы **D01–D43** (дефекты)",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 8,
+    "historical_text": "  и **G01–G09** (пробелы).",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 10,
+    "historical_text": "  идентификаторы **N01–N08** (новые уточнения).",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 28,
+    "historical_text": "## 1. Дефекты D01–D43",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 32,
+    "historical_text": "| D01 | дефект | Воспроизведено: `tests/test_tolerance_70.py` проверяет `abs(est_class-official_class)<=1` | Критическое: зелёные тесты не доказывают цель ±70% | Ввести метрику `|P_est/P_ref-1|`; старые тесты сохранить как регрессию **классов** и переименовать | G01, Этап 7 | Отчёт до/после с раздельными ошибками CPU/GPU | открыто (частично 2026-09-08: протокол переписан на ошибку CPU/GPU ±70% без обязательной доли, файл переименован в `test_class_regression.py` с честным docstring; внешний отчёт до/после не предъявлен) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 33,
+    "historical_text": "| D02 | компромисс | Подтверждено: разброс внутри GPU класса 1 — 9.0× | Класс не задаёт процентный допуск | Классы — поясняющая подпись рядом с численным диапазоном, не метрика точности | Этап 4 | В ответе есть числовой диапазон, класс не используется как допуск | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 34,
+    "historical_text": "| D03 | дефект | Воспроизведено: `hardware.py:266-271`, множители на весь индекс | Критическое: эффект подсистемы применяется ко всему CPU/GPU | Расчёт по подсистемам с бюджетами и правилами перекрытия | Этап 4 | Тест: ускорение подсистемы ≤ её доли в бюджете | **исправлено** (2026-09-08: подсистемная модель в `hardware.py` — CPU 11 подсистем, GPU 8 подсистем, память 7 подсистем; `FEATURE_CPU/GPU_SUBSYSTEM_LOAD` заменяют глобальные множители; методы влияют только на свои подсистемы; нет двойного учёта экономии; калибровка `GPU=0.155/CPU=0.20`; 368 тестов passed; G04/G05 частично — CPU за базой при FG, unified без скидки) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 35,
+    "historical_text": "| D04 | данные | Подтверждено: `headless_dedicated_server` имеет `impact_gpu=-2` | Серверная экономия уменьшает GPU клиента | Ввести область действия `client`/`server`/`development`; серверные эффекты не меняют клиент | Этап 2 | Тест: server-метод не меняет client GPU | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 36,
+    "historical_text": "| D05 | дефект | Воспроизведено: `rules.py:104`, `hardware.py:113,388` | Обязательные возможности не гарантируются у референса | Единая проверка всех `requires_hw_features`; неподтверждённая поддержка = «неизвестно» | Этап 4 | Тест: DX12-требование фильтрует GPU при `api=auto` | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 37,
+    "historical_text": "| D06 | дефект | Воспроизведено: `platforms=['macos']` → RTX 2060 | Референс выдаётся для неподдерживаемой платформы | Аппаратный прогноз только для Windows/Linux PC; для остальных — явный отказ | — | Тест: macOS не возвращает PC-референс без оговорки | **исправлено** (2026-09-08: `_platform_status`, не-PC-only → `reference_*=None`, `alt_*=[]`, `exceeds=True`, `unmet/applicability/caveats` с явной оговоркой; mixed сохраняет PC-ориентир с предупреждением; 3 теста в `test_hardware_scope.py` + `hardwareScope.test.tsx`; алгоритм `2.3.0`) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 38,
+    "historical_text": "| D07 | дефект | Воспроизведено: `KeyError` → HTTP 500 | Расчёт падает на допустимом значении | `unknown` остаётся неизвестным: нормальный ответ + оговорка | — | Тест: все enum-значения аудио дают 200; `tests/test_input_contract.py` | исправлено |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 39,
+    "historical_text": "| D08 | дефект | Воспроизведено: `_effective_count`, `value<=0` → fallback | Нарушение монотонности: 0 NPC даёт нагрузку выше, чем 1 NPC | Различать `0` и «не указано» | — | Тест: 0 < 1 < 10 монотонно; 0 дешевле «не указано» | исправлено |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 40,
+    "historical_text": "| D09 | дефект | Воспроизведено: 10 000 и 10 000 000 NPC дают одинаковый индекс | Насыщение шкалы выдаётся за одинаковую нагрузку | Явные границы применимости и сообщение о выходе за них | — | Тест: выход за область даёт `applicability_limits` в ответе | исправлено |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 41,
+    "historical_text": "| D10 | дефект | Воспроизведено: `hardware.py:487`, confidence 0.85 − фиксированные штрафы | Числа читаются как вероятность попадания | Переименовать в качественную полноту исходных данных; не называть вероятностью | G01 | В ответе нет процента «вероятности точности» | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 42,
+    "historical_text": "| D11 | дефект (док.) | Подтверждено: в `estimate_hardware` передаётся только количество аналогов | README обещает сверку, которой нет | Убрать ложное утверждение из README; сходство не корректирует индексы | — | README соответствует коду | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 43,
+    "historical_text": "| D12 | дефект | Воспроизведено: `rules.py:178-185`, любой `conflict` удаляет оба метода | Предупреждение меняет прогноз как полный отказ | Разделить типы связей: запрет / риск / альтернатива / зависимость / дополнение | Этап 3 | Тест: условный риск не исключает оба метода | **исправлено** (2026-09-08: `ConflictType` расширен на 7 типов — `hard_conflict`/`risk`/`alternative`/`dependency`/`complement`/`overlap`/`unknown`; `rules.py` и `recommender.py` обрабатывают каждый тип отдельно; миграция `9547c3d766db` перенесла старые `conflict`→`hard_conflict`, `synergy`→`complement`; 12 новых тестов в `test_db_migrate.py` + обновлены существующие; 368 passed) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 44,
+    "historical_text": "| D13 | данные | Подтверждено источником Epic: SSGI — непрямое освещение, не отражения | Ложный факт → исключение обоих эффектов | Пересмотреть запись и тип отношения | D12 | Запись соответствует документации Epic | **исправлено** (2026-09-08: запись `ssgi` исправлена в миграции `9547c3d766db`; конфликт теней `cascaded_shadow_maps`/`distance_field_shadows` переведён из `synergy`→`complement` в `methods_data.py` и миграции; `correct_shadow_relation` обновлён под новые типы) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 45,
+    "historical_text": "| D14 | данные | Подтверждено: Sound Attenuation, ChaosCaching, Scalability существуют | Ложный минус движка → выбор более дорогой реализации | Исправить соответствия инструментам Unreal | Этап 2 | Карточки ссылаются на существующие возможности | **исправлено** (2026-09-08: в миграции `9547c3d766db` зафиксировано, что эти инструменты существуют; ложные отрицания удалены; если записей с ложными утверждениями нет — проверка `validate_knowledge_base` не выдаёт ошибку) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 46,
+    "historical_text": "| D15 | дефект | Воспроизведено: `gpu_lightmap_baking` с `performance_gain=0.1` показывается как эффект игры | Смешение ускорения разработки и игры | Разделить области эффекта; не усреднять `performance_gain` разных подсистем | Этап 2 | В плане нет усреднённого процента без базы | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 47,
+    "historical_text": "| D16 | дефект | Воспроизведено: POST с существующим кодом и без source_url → 200 | Главный контракт «публичное = с источником» нарушается | Повторная проверка публикационных инвариантов при содержательном изменении | Этап 2 | Тест: правка без источника переводит в проверку | **исправлено** (коммит `146c6d7`; 3 теста в `test_publication.py`; 409 при нарушении, содержательная правка → `reviewed` с записью в журнал) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 48,
+    "historical_text": "| D17 | дефект | Воспроизведено: `project_import_endpoint` строит полный профиль | Потеря пользовательских ответов анкеты | Импорт как patch только извлечённых полей; показывать diff до применения | — | Тест: patch содержит только извлечённые поля; пустой импорт не сбрасывает анкету | исправлено |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 49,
+    "historical_text": "| D18 | дефект | Воспроизведено: `PlanScreen.tsx` теряет `exceeds_catalog`, `unmet_limits`, `modeling_gaps` | Неподходящий ориентир выглядит рекомендацией | Единый статус применимости во всех представлениях | Этап 5 | Тест: статус одинаков в API, плане, экспорте | в работе (частично 2026-09-08: `applicability_limits` добавлен в `types.ts` и `HardwareScreen.tsx` с тестом `hardwareScope.test.tsx`; `PlanScreen`/экспорт не тронуты) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 50,
+    "historical_text": "| D19 | дефект | Воспроизведено: `_unity_pairs` отбрасывает строки с отступом | Реальный Unity-файл не читается | Парсер поддерживаемой структуры + фикстура реального файла | — | Тест на реальном ProjectSettings.asset с отступами | исправлено |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 51,
+    "historical_text": "| D20 | дефект | Воспроизведено: `config_version=5` до первой секции | Реальный project.godot отвергается | Поддержка заголовка; тест реального формата | — | Тест на реальном project.godot с config_version=5 | исправлено |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 52,
+    "historical_text": "| D21 | дефект | Воспроизведено: 768→720p, 900→1080p, 1600→1440p | Подмена точного разрешения меняет GPU-индекс | Сохранять точный поддерживаемый режим, иначе сообщать об аппроксимации | — | Тест: 768/900/1200/1600 сохраняются точно; округление помечено | исправлено |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 53,
+    "historical_text": "| D22 | дефект | Воспроизведено: пресет из строк корзины без published-проверки | Исключённый метод попадает в активные настройки | Пресеты только из проверенного набора выбранного движка и версии | Этап 5 | Тест: draft-метод не попадает в пресет | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 54,
+    "historical_text": "| D23 | данные | Подтверждено документацией: `sg.ViewDistanceQuality`, `rendering/environment/ssao/quality` | Неверные ключи пресетов | Проверить ключи и смысл по документации движков | D22 | Тест на ключи по документации | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 55,
+    "historical_text": "| D24 | дефект | Воспроизведено: 422 без title, 500 с title; аудит 2026-09-08: связь на отсутствующие методы сохранялась с 200 | Импорт конфликтов не работает; висячие ссылки искажают правила | Отдельный составной ключ `a_code/b_code/conflict_type` + проверка ссылок против каталога до записи; файл с неизвестным концом отклоняется целиком (422) | D25 | Тест создания/обновления по составному ключу + `test_conflict_with_missing_methods_is_rejected`, `test_conflict_with_one_missing_end_is_rejected`, `test_conflict_self_reference_is_rejected` | исправлено |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 56,
+    "historical_text": "| D25 | дефект | Воспроизведено: JSON-колонки не распознаются как списки; аудит 2026-09-08: `pros=[{\"bad\":\"structure\"}]` сохранялся как `\"{'bad': 'structure'}\"` с 200 | CSV-массивы остаются строками; мусор в массивах выглядит корректной записью | Типизированные схемы каждой сущности; строгий `as_str_list` (только строки, иначе 422); проверка до записи | D24 | Тест: «a;b» из CSV становится списком + `test_dict_inside_list_is_rejected_before_writing`, `test_int_inside_list_is_rejected_before_writing`, `test_bad_list_value_is_reported_before_writing`; прогон 350 passed, 2 skipped | исправлено |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 57,
+    "historical_text": "| D26 | пробел | Подтверждено: status-endpoint только для методов; `engine` зашит `Literal` из `EngineCode` | Расширение каталога «без кода» не работает в заявленном объёме | Довести жизненный цикл: функции, методы, движки, инструменты, связи, примеры, оборудование; движки принимать из каталога | Этап 2 | Тест публикации каждой сущности | **исправлено** (коммиты `5111bca`, `8155657`; реестр политик `publication.ENTITY_POLICIES`, общие маршруты `GET /admin/entities/{entity}` и `PATCH /admin/entities/{entity}/{id}/status`, 21 тест в `test_entity_lifecycle.py` и 15 в `test_engine_catalog.py`; прежний маршрут методов по коду и все 7 прежних кодов движков сохранены) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 58,
+    "historical_text": "| D27 | данные | Подтверждено: 13 опубликованных игр с неизвестными кодами | Теряются примеры, искажается расстояние | Миграция кодов/алиасов + проверка внешних ссылок в seed | Этап 2 | `validate_knowledge_base` находит проблему | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 59,
+    "historical_text": "| D28 | дефект | Воспроизведено: `gower.py:89`, unknown → 0.55 | Неизвестность выдаётся за средний уровень | Отдельный признак неизвестности; пропуск из сравнения | — | Тест: два unknown не повышают сходство | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 60,
+    "historical_text": "| D29 | данные | Подтверждено: HeroEngine shipped только 3 из 20 | Прототипы влияют на численную уверенность | Машинный фильтр пригодности примера для аппаратной оценки | Этап 2 | Тест: не-shipped пример исключён из подтверждения | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 61,
+    "historical_text": "| D30 | пробел | Воспроизведено: `DATASET_VERSION` — константа | Старый результат невозможно восстановить | Ревизия/хеш публичного среза + полный снимок результата | Этап 5 | Тест: снимок содержит аппаратную оценку, scores, причины, версии | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 62,
+    "historical_text": "| D31 | дефект | Воспроизведено: AdminScreen не инвалидирует глобальный catalog | Несколько версий истины в одном приложении | Общая инвалидация после мутаций каталога | Этап 5 | Тест: правка каталога сбрасывает результат | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 63,
+    "historical_text": "| D32 | дефект | Воспроизведено: `LoadProfileScreen` суммирует всю корзину | Полосы и «Суммарно» относятся к разным наборам | Серверный перечень учтённых/исключённых методов с причинами | Этап 5 | Тест: таблица использует серверный набор | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 64,
+    "historical_text": "| D33 | дефект | Воспроизведено: `method.engine_links[0]` вместо `profile.engine` | Сравнение показывает аналог не того движка | Использовать выбранный движок и подходящую версию | — | Тест: Godot-проект видит Godot-аналог | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 65,
+    "historical_text": "| D34 | дефект | Воспроизведено: `recommender.py:559`, `recommended` + `late_blocked` | Противоречивые статусы у одной рекомендации | Запрет/невозможность приоритетнее пометки «рекомендуется» | Этап 3 | Тест: исключённый метод не получает `recommended` | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 66,
+    "historical_text": "| D35 | дефект | Воспроизведено: `request_id=null` в теле ошибки | Пользователь видит «Ошибка 422» без причины | Единый формат: код, сообщение, details, непустой `request_id` = заголовку и журналу | — | Тест: во всех ветвях `request_id` непустой и равен заголовку | исправлено |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 67,
+    "historical_text": "| D36 | дефект | Воспроизведено: голос за метод вне корзины принят с 200 | Повторные клики создают видимость подтверждения | Привязка голоса к снимку и включённому методу; повтор обновляет прежний | Этап 5 | Тест: повторный голос не создаёт новое наблюдение | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 68,
+    "historical_text": "| D37 | дефект | Воспроизведено: `main.py:33` — `create_all`, Alembic не вызывается | Старая БД не получает новые колонки | Alembic — единственный механизм; проверяемая резервная копия перед обновлением | Этап 6 | Тест upgrade старой схемы | **исправлено** (2026-09-08: `app/db_migrate.py` — `ensure_schema()` с бэкапом `<имя>.bak-*.db`, штамп по маркерам колонок без слепого `stamp head`, отказ на чужой структуре; `_bootstrap` без `create_all`, при отказе — неготовность без заполнения; 5 тестов миграций в `test_db_migrate.py`; `alembic check` чисто) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 69,
+    "historical_text": "| D38 | компромисс | Подтверждено статически: `check_same_thread` безусловно, psycopg2 нет | Обещание не выполняется | Убрать обещание PostgreSQL; понятная ошибка на неподдерживаемом URL | Этап 6 | Тест: не-sqlite URL даёт внятную ошибку | **исправлено** (2026-09-08: README — только SQLite; `UnsupportedDatabaseError` с объяснением, `database.py` без sqlite-флага для чужих схем, health `unavailable`; тесты отказа в `test_db_migrate.py`) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 70,
+    "historical_text": "| D39 | дефект | Подтверждено: start.bat по `>=`, CI по lock; 2443 файла node_modules в Git | CI не доказывает состав окружения пользователя | Согласовать по lock-файлам; убрать зависимости из Git | Этап 6 | Воспроизводимая чистая установка | в работе (частично 2026-09-08: `start.bat` ставит backend по `requirements.lock`, frontend — `npm ci` при наличии lock, stale `node_modules` больше не считается доказательством; снятие tracked `node_modules`/`dist` с индекса deferred — сейчас это замусорило бы staged-diff) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 71,
+    "historical_text": "| D40 | дефект (док.) | Подтверждено: отсутствуют обещанные файлы, счётчики не соответствуют | Документация вводит в заблуждение | Переписать README по фактическому поведению | Этап 6 | README сверен с прогоном | **исправлено** (2026-09-08: убраны PostgreSQL и слепой `stamp head`, честные бэкап/неготовность, версии `2.3.0`, `test_class_regression.py`, счётчики 368/27, область платформ; полная перепись README deferred за ненадобностью) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 72,
+    "historical_text": "| D41 | пробел | Подтверждено: загрузчик формата `gamedev-dss-project` отсутствует | Экспорт не открывается обратно | Файловый импорт проекта с проверкой схемы | Этап 5 | Тест round-trip экспорт→импорт | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 73,
+    "historical_text": "| D42 | данные | Подтверждено: `splitscreen_render_budget` требует `multiplayer_netcode` | Ложная зависимость исключает решение | Убрать ложную зависимость; отдельный вход `local_view_count` | Этап 4 | Тест: split-screen без netcode применим | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 74,
+    "historical_text": "| D43.1 | дефект | Подтверждено: BasketScreen не вызывает пересчёт | Совместимость исчезает до ручного пересчёта | Включить пересчёт корзины | Этап 5 | Тест пересчёта после изменения корзины | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 75,
+    "historical_text": "| D43.2 | дефект | Подтверждено: HardwareScreen объясняет любой `exceeds_catalog` нагрузкой | Неверная причина → неверный совет | Разделять причины: нагрузка / API / RT / VRAM | Этап 5 | Тест: причина соответствует вычислению | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 76,
+    "historical_text": "| D43.3 | дефект | Подтверждено: `localStorage.setItem` не защищён | Повреждённый профиль роняет UI | Защита записи и проверка формы при чтении | Этап 5 | Тест на повреждённую структуру | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 77,
+    "historical_text": "| D43.4 | пробел | Подтверждено: health проверяет наличие метода, не целостность среза | Частично пустая база выглядит ready | Разделить работоспособность процесса и готовность БД/каталога | Этап 6 | Тест: неполный срез даёт `degraded` | **исправлено** (2026-09-08: health отдаёт `ready`/`schema_error`/`catalog`; `ready` требует опубликованных методов + CPU + GPU, иначе `degraded`; отказ схемы — 503 `unavailable`; тесты в `test_db_migrate.py`) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 78,
+    "historical_text": "| D43.5 | дефект | Подтверждено: start.bat ждёт 10 с, Vite без strictPort | Можно открыть чужой сервис | Проверка готовности и владельца порта; строгий выбор порта | Этап 6 | Ручная проверка запуска | **исправлено** (2026-09-08: `vite.config.ts` — `strictPort: true`; `backend/wait_for_services.py` проверяет маркеры владельца обоих портов до 90 с, браузер открывается только своим сервисам; `start.bat` больше не спит 10 с вслепую) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 79,
+    "historical_text": "| D43.6 | дефект | Подтверждено: `_upsert` безусловно перезаписывал все поля существующей записи | Молча перезаписывает ручные правки | Показывать различия; отдельное явное восстановление демоданных | Этап 2 | Тест: повторный seed не затирает правку молча | **исправлено** (коммит `ec3de6d`; `seed_all(overwrite=...)` по умолчанию сохраняет записи и перечисляет расхождения в `preserved`, `POST /admin/seed {\"restore_demo\": true}` заменяет их явно; 6 тестов в `test_seeding.py`) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 81,
+    "historical_text": "## 2. Пробелы G01–G09",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 85,
+    "historical_text": "| G01 | пробел | Подтверждено: нет набора с режимами, сценой, источником | Невозможно измерить ошибку | Внешний набор 60/20/20 с протоколом, зафиксированным **до** настройки | Этап 7 | Файлы вне runtime, разделение и источники | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 86,
+    "historical_text": "| G02 | пробел | Подтверждено: CPU по `multi_thread_score`, GPU по `raster_score` даже для RT | Не разделены ST/MT и raster/RT | Раздельные сценарные шкалы CPU ST/MT и GPU raster/RT | Этап 4 | Тест: RT-профиль использует rt-шкалу | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 87,
+    "historical_text": "| G03 | пробел | Подтверждено: функция — флажок без интенсивности | Две игры с одной анкетой дают одну нагрузку | Необязательные параметры по подсистемам; карта использования каждого поля | Этап 4 | Карта полей: фильтрация/нагрузка/ранжирование/объяснение | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 88,
+    "historical_text": "| G04 | пробел | Подтверждено: CPU масштабируется общим FPS-множителем (N04: 0.32661→0.43472 при target 60→144) | Смешиваются render FPS, sim tick, physics tick | Разделить base render FPS, displayed FPS, sim tick, physics tick, сетевые частоты | Этап 4 | Тест: displayed FPS не масштабирует симуляцию | в работе (частично 2026-09-08: `_cpu_fps_factor` — CPU следует за базовым рендером при FG; target 60→120 при base 60 не меняет CPU/GPU; полное разделение тиков deferred за D03) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 89,
+    "historical_text": "| G05 | пробел | Подтверждено: RAM/VRAM из коротких формул, unified −10% | Нет resident-набора, пиков, конкуренции | Resident-набор, пики загрузки, буферы; ёмкость/полосу/размер сборки не смешивать | Этап 4 | Тест: unified без данных даёт ограничение, не скидку | в работе (частично 2026-09-08: скидка `*0.9` удалена, `unified==dedicated`, добавлен `_UNIFIED_MEMORY_GAP`; полная модель resident-набора deferred) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 90,
+    "historical_text": "| G06 | пробел | Подтверждено: 92 из 95 методов без `requires_conditions` | Эффект заявлен без области применимости | Структурированные условия; статусы доказательств | Этап 2 | Каждый метод имеет паспорт с условиями | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 91,
+    "historical_text": "| G07 | пробел | Подтверждено: URL для записи, не для утверждения | Наличие ссылки не подтверждает число | Отдельный статус доказательств: измерение / заявление / документировано / гипотеза / опровергнуто | Этап 2 | Тест: неподтверждённый эффект помечен | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 92,
+    "historical_text": "| G08 | пробел | Подтверждено: 20 связей на 95 методов | Отсутствие запрета читается как безопасность | Статус непроверенной комбинации; проверка циклов, дублей, противоречий | Этап 3 | Тест: неизвестная пара = «не проверено» | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 93,
+    "historical_text": "| G09 | пробел | Подтверждено: нет E2E, round-trip, реальных файлов движков | Объясняет сосуществование зелёных тестов с D07/D17/D19/D20 | Сквозной Playwright + реальные файлы + matrix входов | Этап 4 | CI содержит сценарии, способные опровергнуть | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 95,
+    "historical_text": "## 3. Уточнения N01–N08",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 99,
+    "historical_text": "| N01 | данные | Подтверждено: legacy PC/PS4/Mobile, Track 1 значения enum, Track 2 смешан | Прямого влияния на Gower нет (поля `platforms` нет в признаках) | Нормализовать таксономию платформ примеров | D27 | Единая таксономия в seed | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 100,
+    "historical_text": "| N02 | дефект | Подтверждено: `seed_examples`/`seed_hardware`/`seed_method_links` прерывали обработку строки без записи в отчёт | Формальный успех не означает полный импорт | Отчёт о пропущенных файлах/строках; сделать пропуски видимыми | Этап 2 | Тест: пропуск даёт запись в отчёте | **исправлено** (коммит `ec3de6d`; `SeedOutcome.skip` с причиной для файлов, строк без источника, строк без модели и ненайденных методов/инструментов; 4 теста в `test_seeding.py`; отчёт и интерфейс показывают пропуски) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 101,
+    "historical_text": "| N03 | дефект | Подтверждено: `catalog.py:603` не сортирует множество `functions` | Семантически равные запросы дают разные ключи | Канонизация множеств и эквивалентных значений (4k/2160p) | Этап 5 | Тест: перестановка functions даёт тот же ключ | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 102,
+    "historical_text": "| N04 | пробел | Подтверждено числом, см. G04 | CPU при FG привязан к displayed target | Разделить render CPU и независимые тики | G04 | см. G04 | в работе (см. G04: `_cpu_fps_factor`, тест `test_displayed_fps_does_not_scale_cpu_with_fixed_base`) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 103,
+    "historical_text": "| N05 | пробел | Подтверждено: `application_steps`, `used_in_projects` не показаны | Объяснение неполное | Показывать шаги применения и примеры в карточке | Этап 5 | Поля видны в UI | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 104,
+    "historical_text": "| N06 | компромисс | Подтверждено: `recommender.py:412-423`, confidence входит и в risk | Скрытый повторный учёт одного основания | Разделить составляющие либо документированно обосновать | Этап 3 | Документированный совокупный вес | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 105,
+    "historical_text": "| N07 | пробел | Подтверждено: `gower.py:22-57` объединяет разные custom-движки | Укрупнённая группа в похожести | Различать собственные движки, не объединять только по названию | Этап 4 | Тест: разные custom не считаются близкими | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 106,
+    "historical_text": "| N08 | дефект | Подтверждено: `repositories.py:64` фильтрует только статус связи | Концы Conflict на недоступные методы | Контролировать публикацию концов связи; обязательная зависимость даёт видимую проблему | Этап 3 | Тест: отсутствующая зависимость видна | открыто |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 165,
+    "historical_text": "| 3 | Граф связей и ранжирование | **завершён 2026-09-08** (D12/D13/D14 закрыты: 7 типов связей, миграция `9547c3d766db`, 368 passed) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 166,
+    "historical_text": "| 4 | Модель нагрузки с ограниченной областью применимости | **завершён 2026-09-08** (D03/D06 закрыты; G04/N04 — CPU за базой при FG; G05 — unified без скидки; подсистемная модель D03: CPU 11/GPU 8/MEM 7 подсистем, без двойного учёта экономии, калибровка пройдена) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "docs/registry.md",
+    "line": 168,
+    "historical_text": "| 6 | Установка, миграции, безопасность, очистка | в работе (2026-09-08: D37/D38/D40/D43.4/D43.5 закрыты, D39 частично по lock-установке; остались снятие tracked-зависимостей с индекса, чистая установка Windows/Linux, аудит уязвимостей) |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 55,
+    "historical_text": "### D01 · P1 · Проверяется другая метрика точности",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 63,
+    "historical_text": "### D02 · P1 · Аппаратные классы не задают фиксированный процентный допуск",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 75,
+    "historical_text": "### D03 · P1 · Эффект подсистемы применяется ко всему CPU/GPU",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 83,
+    "historical_text": "### D04 · P1 · Экономия headless-сервера уменьшает требования к графике клиента",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 91,
+    "historical_text": "### D05 · P1 · Часть объявленных обязательных возможностей фактически не проверяется",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 99,
+    "historical_text": "### D06 · P1 · Платформа macOS не ограничивает подбор оборудования",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 107,
+    "historical_text": "### D07 · P1 · Допустимое `audio_complexity='unknown'` роняет расчёт",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 115,
+    "historical_text": "### D08 · P1 · Ноль объектов/NPC превращается в ненулевую нагрузку",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 123,
+    "historical_text": "### D09 · P1 · Диапазон принимаемых чисел значительно шире различаемого моделью",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 131,
+    "historical_text": "### D10 · P1 · Уверенность выражена процентом, но не калибрована как вероятность",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 139,
+    "historical_text": "### D11 · P1 · Похожие игры заявлены как основание аппаратной оценки, но их требования не участвуют",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 145,
+    "historical_text": "### D12 · P1 · Условные ограничения каталога превращаются в безусловное исключение обоих эффектов",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 153,
+    "historical_text": "### D13 · P1 · В конфликте planar reflections и SSGI перепутаны разные эффекты",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 159,
+    "historical_text": "Этот неверный факт превращается в исключение обоих эффектов по D12. Необходимо пересмотреть и запись, и тип отношения.",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 161,
+    "historical_text": "### D14 · P1 · Каталог ошибочно отрицает существующие возможности Unreal",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 171,
+    "historical_text": "### D15 · P1 · Модель плюсов/минусов смешивает производительность игры и процесса разработки",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 179,
+    "historical_text": "### D16 · P1 · Опубликованный метод можно изменить так, что он останется без источника",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 187,
+    "historical_text": "### D17 · P1 · Частичный импорт анкеты перезаписывает остальные ответы умолчаниями",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 195,
+    "historical_text": "### D18 · P1 · Итоговый план/PDF теряет существенные предупреждения аппаратного расчёта",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 203,
+    "historical_text": "### D19 · P2 · Unity ProjectSettings.asset разбирается с неверной структурой отступов",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 211,
+    "historical_text": "### D20 · P2 · Обычный project.godot отвергается INI-парсером",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 219,
+    "historical_text": "### D21 · P2 · Импорт разрешения систематически подменяет доступные точные значения",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 227,
+    "historical_text": "### D22 · P2 · Пресеты не согласованы с проверкой применимости корзины",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 235,
+    "historical_text": "### D23 · P2 · В пресетах есть неверные ключи и смысловые подстановки",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 246,
+    "historical_text": "### D24 · P2 · Импорт конфликтов заявлен и показан в UI, но не работает",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 254,
+    "historical_text": "### D25 · P2 · CSV-массивы не преобразуются в списки",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 262,
+    "historical_text": "### D26 · P2 · Обещанный жизненный цикл расширения работает только для методов",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 270,
+    "historical_text": "### D27 · P2 · Неизвестные коды опубликованных игровых примеров проходят проверку целостности",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 278,
+    "historical_text": "### D28 · P2 · Неизвестность в поиске аналогов выдаётся за средний уровень",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 286,
+    "historical_text": "### D29 · P2 · В численную уверенность попадают прототипы и отменённые игры",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 294,
+    "historical_text": "### D30 · P2 · Версии и сохранённый снимок не обеспечивают воспроизводимость",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 302,
+    "historical_text": "### D31 · P2 · Правки админки оставляют пользовательский каталог и расчёт устаревшими",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 310,
+    "historical_text": "### D32 · P2 · Таблица вклада и итоговый план учитывают методы, исключённые расчётным ядром",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 318,
+    "historical_text": "### D33 · P2 · В сравнении показывается аналог не выбранного движка",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 326,
+    "historical_text": "### D34 · P2 · Статусы рекомендации могут противоречить друг другу",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 334,
+    "historical_text": "### D35 · P2 · Ошибки API теряют понятное описание и идентификатор",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 342,
+    "historical_text": "### D36 · P2 · Голоса не привязаны к сохранённому контексту",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 350,
+    "historical_text": "### D37 · P2 · Заявленный миграционный запуск фактически использует create_all",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 358,
+    "historical_text": "### D38 · P2 · PostgreSQL не поддерживается описанной заменой DATABASE_URL",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 366,
+    "historical_text": "### D39 · P2 · Установка и CI используют разные правила зависимостей",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 374,
+    "historical_text": "### D40 · P2 · Документация обещает проверки и материалы, которых нет в текущем дереве",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 382,
+    "historical_text": "- Слова о требованиях похожих игр и миграционном старте опровергнуты D11/D37.",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 386,
+    "historical_text": "### D41 · P2 · Путь экспорт JSON → восстановление из файла отсутствует",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 392,
+    "historical_text": "### D42 · P2 · Локальный split-screen необоснованно требует netcode",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 400,
+    "historical_text": "### D43 · P3 · Мелкие, но реальные эксплуатационные расхождения",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 413,
+    "historical_text": "### G01 · Нет независимой численной калибровки и контрольной выборки",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 419,
+    "historical_text": "### G02 · Нет игровой модели CPU и RT-производительности",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 425,
+    "historical_text": "### G03 · Нет интенсивности большинства функций",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 429,
+    "historical_text": "### G04 · Не разделены постоянная стоимость, стоимость кадра и тика",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 433,
+    "historical_text": "### G05 · Нет модели контента и общего бюджета unified memory",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 437,
+    "historical_text": "### G06 · Плюсы/минусы недостаточно привязаны к условиям проекта",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 441,
+    "historical_text": "### G07 · Источник хранится для записи, а не для проверяемого утверждения",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 445,
+    "historical_text": "### G08 · Нет автоматического знания полноты графа совместимости",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 449,
+    "historical_text": "### G09 · Неполное тестирование реальных пользовательских форматов и восстановлений",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 451,
+    "historical_text": "Нет браузерного E2E, round-trip своего JSON, реальных файлов движков и импорта пресетов в редактор, upgrade старой БД и matrix-тестов всей области допустимых входов. Это объясняет, почему 262 успешных теста сосуществуют с D07/D17/D19/D20. Добавлять число тестов ради числа не нужно; нужны сценарии, способные опровергнуть смысловые предположения.",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 478,
+    "historical_text": "**Для объяснения проектных компромиссов проект ближе к цели**, поскольку есть уровни решений, стадии, pros/cons, способы проверки и связи с инструментами. Но фактические ошибки D12–D15 важнее украшения интерфейса: уверенно объяснённый неверный минус движка хуже честного отсутствия ответа.",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 483,
+    "historical_text": "2. **Устранить ошибки, искажающие ввод и смысл.** D07–D09, D17, D19–D21; роли client/server и условность конфликтов D03–D06/D12. Сохранить регрессионные тесты и добавить контрпримеры из probes.",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 484,
+    "historical_text": "3. **Проверить знания, влияющие на выбор.** D13–D16, D27, D42: факты, коды, происхождение утверждений, полнота условий. Не заменять отсутствие знания вымышленными процентами.",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/REPORT.md",
+    "line": 485,
+    "historical_text": "4. **Согласовать результат на всех экранах и при сохранении.** D18, D30–D36; один набор учтённых методов и один статус применимости.",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 3,
+    "historical_text": "Здесь сохранены только проверенные общие выводы моего аудита и хотя бы одного внешнего отчёта. «Подтверждено» относится к формулировке в этой таблице, а не ко всем числам и рекомендациям внешнего автора. Полные разногласия, 55 пунктов отчёта B, новые дополнения N01–N08 и доказательства — в `COMPARISON.md` и `comparison_evidence.json`. Первоначальный аудит — `../REPORT.md`.",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 9,
+    "historical_text": "| Тесты ±1 класс не проверяют относительную ошибку производительности | D01 | A §1; B A8/A11 | Цель пользователя — примерно 70% допуска, не 30% ошибки и не доля угаданных моделей. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 10,
+    "historical_text": "| Классы оборудования имеют слишком широкие/несоразмерные диапазоны для процентной метрики | D02 | A §1/3; B B42 | Индексы каталога не тождественны игровому FPS. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 11,
+    "historical_text": "| Эффекты методов грубо свёрнуты в общую нагрузку | D03/D15 | A §2/4; B A6/B10 | Не установлен универсальный правильный cap или коэффициент. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 12,
+    "historical_text": "| Эвристическая confidence не является измеренной вероятностью точности | D10 | A §3; B B14/B43 | Нужна калибровка, смены минимального числа недостаточно. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 13,
+    "historical_text": "| Количество аналогов используется сильнее, чем подтверждённое качество сходства; hardware-данные аналогов не определяют итоговую оценку | D10/D11 | A §3; B B14 частично | Нет эмпирически обоснованного порога similarity. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 14,
+    "historical_text": "| audio_complexity=unknown проходит схему и ломает расчёт | D07 | A §6; B B2 | Воспроизводится API/функцией; не приписывается любому варианту UI «не указан». |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 15,
+    "historical_text": "| В итоговом плане/PDF неполно сохранены ограничения и предупреждения аппаратной оценки | D18 | A §5/7; B B12/B44 частично | Выход за каталог должен оставаться явным при экспорте. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 16,
+    "historical_text": "| Пресеты зависят от статических кодов и обходят правила действующей базы | D22/D23 | B B19 | Пресеты требуют собственной проверки применимости и ключей. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 17,
+    "historical_text": "| Часть опубликованных примеров имеет неизвестные коды методов/функций | D27 | A §3; B A9 | Не весь Track 1: его 120 исходных записей не имеют неизвестных методов. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 18,
+    "historical_text": "| Unknown в Gower подменяется средним; часть поддержанных разрешений не участвует в похожести | D28 | A §3; B B27 | 4k/2160p поддерживаются; проблема относится к другим значениям. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 19,
+    "historical_text": "| Прототипы/отменённые проекты смешаны с релизными примерами без достаточного машинного разделения пригодности | D29 | A §3 | Публикация описательного примера не делает его аппаратным benchmark. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 20,
+    "historical_text": "| Сохранение проекта не обеспечивает воспроизведение полного прежнего результата | D30 | B B17 | Коды методов и название версии не равны полному versioned snapshot. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 21,
+    "historical_text": "| Отзыв можно связать с методом вне корзины | D36 | B B18 | Автоматическая перенастройка алгоритма отзывами не установлена. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 22,
+    "historical_text": "| README расходится с реализованным учётом network_topology и некоторыми обещаниями проверки | D40 | A §4; B C частично | Топология уже даёт CPU-поправки; утверждение о полном отсутствии неверно. |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 28,
+    "historical_text": "| Независимая количественная проверка ошибки CPU/GPU на оговорённой области профилей | G01 | A §1/7; B A8/A11 |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 29,
+    "historical_text": "| Игровая модель ST/MT для CPU и отдельной RT-производительности | G02 | A §2/3; B A1/B13 в уточнённом виде |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 30,
+    "historical_text": "| Интенсивность функций, качество/сложность контента и режимы апскейлинга | G03 | A §2/7; B A6/B44 |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 31,
+    "historical_text": "| Разделение стоимости render frame, физики, simulation/network tick, FG | G04/N04 | A §2/4; B A4 |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 32,
+    "historical_text": "| Детальная модель resident/peak памяти, текстур и RT | G05 | A §2/7; B A7 |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 33,
+    "historical_text": "| Условия применимости плюсов/минусов и влияние отдельных решений по контексту | G06 | A §5/7; B B44 |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 34,
+    "historical_text": "| Источник и проверка каждого существенного утверждения, а не только непустой URL | G07 | A §3/5 |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 35,
+    "historical_text": "| Полнота графа зависимостей и объяснение непокрытых функций | G08 | A §4/7; B B38 |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 36,
+    "historical_text": "| Сквозные UI-проверки, реальные файлы импорта и smoke в CI | G09 | A §6/7; B A8/B22/B23/B33 |",
+    "status": "historical_claim_not_current_verification"
+  },
+  {
+    "path": "audit-2026-09-07/comparison/CONFIRMED.md",
+    "line": 40,
+    "historical_text": "Подтверждённые новые детали сохранены отдельно, чтобы не выдавать их за прежнее совпадение: **N01** смешанная таксономия платформ seed; **N02** молчаливый пропуск ошибочных примеров seed; **N03** порядок функций меняет fingerprint; **N04** CPU при FG зависит от displayed target; **N05** шаги применения/примеры не показаны в карточке; **N06** связанный вес confidence/risk; **N07** укрупнённая группа custom; **N08** запрос опубликованных конфликтов не проверяет публикацию концов. N04/N05/N07 — пробелы, N06 — компромисс модели, N08 — статический риск целостности; не все восемь являются доказанными пользовательскими багами.",
+    "status": "historical_claim_not_current_verification"
+  }
+]
