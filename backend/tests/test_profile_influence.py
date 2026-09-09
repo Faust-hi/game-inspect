@@ -270,8 +270,8 @@ def test_priority_changes_ranking(client, db):
     # A controlled tradeoff inside one function, not incomparable ranks of different functions.
     for index, method in enumerate(methods[:4]):
         method.status = "published"
-        method.function_id = None
-        method.function = None
+        method.function = methods[0].function
+        method.function_id = methods[0].function_id
         method.requires_features = []
         method.requires_hw_features = []
         method.applicable_formats = []
@@ -317,9 +317,10 @@ def test_functions_filter_recommendations(client):
     data = recommend(client, functions=["water_simulation"])
     assert data["recommendations"]
     codes = {item["function_code"] for item in data["recommendations"]}
-    # None — общие методы без функции (вкладка «Общие методы»); остальное строго
-    # отфильтровано выбранными функциями.
-    assert codes - {None} == {"water_simulation"}
+    from app.seed.methods_data import FUNCTION_ASSIGNMENTS
+    assert "water_simulation" in codes
+    assert codes <= {"water_simulation", *FUNCTION_ASSIGNMENTS.values()}
+    assert None not in codes  # Сквозные методы тоже имеют собственную техническую функцию.
 
 
 # ---------------------------------------------------------------------------

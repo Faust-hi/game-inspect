@@ -1,0 +1,3028 @@
+{
+  "portal_rendering": [
+    {
+      "id": "партия-01:28",
+      "code": "runtime_stencil_portal_rendering",
+      "profile_id": "партия-01:12",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:78",
+      "code": "paintmap_gel_rendering",
+      "profile_id": "партия-01:62",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:80",
+      "code": "laser_dynamic_reflection",
+      "profile_id": "партия-01:62",
+      "catalog_method": null
+    }
+  ],
+  "physics_simulation": [
+    {
+      "id": "партия-01:29",
+      "code": "portal_momentum_conservation",
+      "profile_id": "партия-01:12",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:32",
+      "code": "fixed_timestep_physics",
+      "profile_id": "партия-01:12",
+      "catalog_method": "fixed_timestep_physics"
+    },
+    {
+      "id": "партия-01:81",
+      "code": "excursion_funnel_force_field",
+      "profile_id": "партия-01:62",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:131",
+      "code": "physics_gun_constraints",
+      "profile_id": "партия-01:114",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:133",
+      "code": "physics_lod_sleeping",
+      "profile_id": "партия-01:114",
+      "catalog_method": "physics_lod_sleeping"
+    },
+    {
+      "id": "партия-01:185",
+      "code": "fixed_timestep_physics_60fps",
+      "profile_id": "партия-01:169",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:291",
+      "code": "dynamic_fire_propagation",
+      "profile_id": "партия-01:275",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:343",
+      "code": "havok_physics_layer",
+      "profile_id": "партия-01:325",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:348",
+      "code": "havok_ragdoll_quality",
+      "profile_id": "партия-01:325",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:398",
+      "code": "havok_physics_integration",
+      "profile_id": "партия-01:378",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:454",
+      "code": "physx_particle_simulation",
+      "profile_id": "партия-01:435",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:24",
+      "code": "havok_physics_wrapper",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:26",
+      "code": "fixed_timestep_physics_60hz",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:27",
+      "code": "sleep_wake_states",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:28",
+      "code": "superman_gravity_gun_fix",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:91",
+      "code": "gravity_gun_first_weapon",
+      "profile_id": "партия-02:75",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:142",
+      "code": "physics_puzzle_bridge",
+      "profile_id": "партия-02:122",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:186",
+      "code": "source_engine_ragdoll_physics",
+      "profile_id": "партия-02:171",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:188",
+      "code": "enhanced_physics_world",
+      "profile_id": "партия-02:171",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:312",
+      "code": "environmental_hazard_simulation",
+      "profile_id": "партия-02:291",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:88",
+      "code": "mtx_frame_rate_bug",
+      "profile_id": "партия-03:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:81",
+      "code": "hitbox_combat_system",
+      "profile_id": "партия-04:66",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:141",
+      "code": "hitbox_combat_refined",
+      "profile_id": "партия-04:124",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:24",
+      "code": "euphoria_naturalmotion",
+      "profile_id": "партия-06:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:39",
+      "code": "physx_optional",
+      "profile_id": "партия-06:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:92",
+      "code": "euphobia_ragdoll_physics",
+      "profile_id": "партия-06:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:151",
+      "code": "unprecedented_detail_simulation",
+      "profile_id": "партия-06:136",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:171",
+      "code": "realistic_combat_physics",
+      "profile_id": "партия-10:156",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:188",
+      "code": "real_archery_bow_physics",
+      "profile_id": "партия-10:156",
+      "catalog_method": null
+    }
+  ],
+  "audio_system": [
+    {
+      "id": "партия-01:30",
+      "code": "audio_propagation_through_portals",
+      "profile_id": "партия-01:12",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:83",
+      "code": "audio_convolution_reverb",
+      "profile_id": "партия-01:62",
+      "catalog_method": "audio_convolution_reverb"
+    },
+    {
+      "id": "партия-01:187",
+      "code": "audio_occlusion_reverb",
+      "profile_id": "партия-01:169",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:245",
+      "code": "voice_acting_native_languages",
+      "profile_id": "партия-01:219",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:293",
+      "code": "audio_occlusion_multilevel",
+      "profile_id": "партия-01:275",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:294",
+      "code": "audio_flux_field_recording",
+      "profile_id": "партия-01:275",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:38",
+      "code": "full_voice_acting_3_party",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:108",
+      "code": "fully_voiced_protagonist_first_time",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:36",
+      "code": "custom_music_station_pc",
+      "profile_id": "партия-06:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:91",
+      "code": "dynamic_music_radio",
+      "profile_id": "партия-06:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:188",
+      "code": "dynamic_music_aggression",
+      "profile_id": "партия-08:153",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:110",
+      "code": "voice_overs_native_language",
+      "profile_id": "партия-09:80",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:34",
+      "code": "rain_masks_footsteps",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    }
+  ],
+  "open_world_streaming": [
+    {
+      "id": "партия-01:31",
+      "code": "baked_occlusion_culling",
+      "profile_id": "партия-01:12",
+      "catalog_method": "baked_occlusion_culling"
+    },
+    {
+      "id": "партия-01:345",
+      "code": "baked_occlusion_culling",
+      "profile_id": "партия-01:325",
+      "catalog_method": "baked_occlusion_culling"
+    },
+    {
+      "id": "партия-01:346",
+      "code": "hierarchical_lod",
+      "profile_id": "партия-01:325",
+      "catalog_method": "hierarchical_lod"
+    },
+    {
+      "id": "партия-01:396",
+      "code": "hierarchical_lod_horizon",
+      "profile_id": "партия-01:378",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:503",
+      "code": "async_loading_pipeline",
+      "profile_id": "партия-01:487",
+      "catalog_method": "async_loading_pipeline"
+    },
+    {
+      "id": "партия-01:504",
+      "code": "hierarchical_lod_open_zones",
+      "profile_id": "партия-01:487",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:137",
+      "code": "open_world_sections",
+      "profile_id": "партия-02:122",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:26",
+      "code": "interconnected_world_no_warping",
+      "profile_id": "партия-03:10",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:140",
+      "code": "larger_zones_fewer_count",
+      "profile_id": "партия-03:122",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:239",
+      "code": "open_world_torrent_navigation",
+      "profile_id": "партия-03:224",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:245",
+      "code": "large_open_world_chunk_loading",
+      "profile_id": "партия-03:224",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:249",
+      "code": "open_world_boss_design",
+      "profile_id": "партия-03:224",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:250",
+      "code": "first_fromsoftware_open_world",
+      "profile_id": "партия-03:224",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:25",
+      "code": "paris_1_to_1_scale",
+      "profile_id": "партия-04:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:240",
+      "code": "1000_planets_landable",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:256",
+      "code": "broken_space_travel_loading_screens",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:257",
+      "code": "no_real_seamless_space",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:28",
+      "code": "id_tech_6_streaming_textures",
+      "profile_id": "партия-07:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:156",
+      "code": "streaming_from_optical_media",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:159",
+      "code": "open_world_fps_driving",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:160",
+      "code": "open_world_light_wasteland",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:179",
+      "code": "texture_streaming_world_gen",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:173",
+      "code": "seven_wonders_open_levels",
+      "profile_id": "партия-08:153",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:45",
+      "code": "rich_presence_landscape",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:237",
+      "code": "map_clustering_design",
+      "profile_id": "партия-09:213",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:36",
+      "code": "open_areas_with_aurora_train",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:113",
+      "code": "prague_hub_open_world",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:23",
+      "code": "redengine4_streaming_nightcity",
+      "profile_id": "партия-11:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:31",
+      "code": "hdd_to_ssd_mandatory",
+      "profile_id": "партия-11:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:131",
+      "code": "rewrite_chunk_render_1_8_1_15",
+      "profile_id": "партия-11:115",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:234",
+      "code": "view_distance_cpu_linear",
+      "profile_id": "партия-11:218",
+      "catalog_method": null
+    }
+  ],
+  "post_processing": [
+    {
+      "id": "партия-01:33",
+      "code": "depth_prepass_early_z",
+      "profile_id": "партия-01:12",
+      "catalog_method": "depth_prepass_early_z"
+    },
+    {
+      "id": "партия-01:82",
+      "code": "deferred_forward_plus_choice",
+      "profile_id": "партия-01:62",
+      "catalog_method": "deferred_forward_plus_choice"
+    },
+    {
+      "id": "партия-01:452",
+      "code": "detective_vision_postprocess",
+      "profile_id": "партия-01:435",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:457",
+      "code": "post_effect_selective",
+      "profile_id": "партия-01:435",
+      "catalog_method": "post_effect_selective"
+    },
+    {
+      "id": "партия-02:189",
+      "code": "cubemap_reflections",
+      "profile_id": "партия-02:171",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:250",
+      "code": "dynamic_color_correction",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:251",
+      "code": "film_grain_vignetting",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:145",
+      "code": "color_grading_per_area",
+      "profile_id": "партия-03:122",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:112",
+      "code": "temporal_anti_aliasing",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:114",
+      "code": "screen_space_reflections",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:117",
+      "code": "motion_blur",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:118",
+      "code": "filmic_tone_mapping",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:254",
+      "code": "hdr_pc_late",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:42",
+      "code": "hdr_bloom_2d_array",
+      "profile_id": "партия-07:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:31",
+      "code": "motion_blur_object_motion",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:32",
+      "code": "depth_of_field_bokeh",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:38",
+      "code": "hbao_horizon_based_ao",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:178",
+      "code": "hdr_display_support",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:121",
+      "code": "aofx_bokeh_dof",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    }
+  ],
+  "particle_systems": [
+    {
+      "id": "партия-01:79",
+      "code": "gpu_particle_simulation",
+      "profile_id": "партия-01:62",
+      "catalog_method": "gpu_particle_simulation"
+    },
+    {
+      "id": "партия-01:84",
+      "code": "particle_pooling",
+      "profile_id": "партия-01:62",
+      "catalog_method": "particle_pooling"
+    },
+    {
+      "id": "партия-01:134",
+      "code": "particle_pooling",
+      "profile_id": "партия-01:114",
+      "catalog_method": "particle_pooling"
+    },
+    {
+      "id": "партия-07:31",
+      "code": "gpu_particles_hell_skull",
+      "profile_id": "партия-07:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:185",
+      "code": "volumetric_smoke_dynamic",
+      "profile_id": "партия-11:167",
+      "catalog_method": null
+    }
+  ],
+  "baked_lighting": [
+    {
+      "id": "партия-01:85",
+      "code": "lightmap_atlas_baking",
+      "profile_id": "партия-01:62",
+      "catalog_method": "lightmap_atlas_baking"
+    },
+    {
+      "id": "партия-01:349",
+      "code": "precomputed_static_lighting_vrad",
+      "profile_id": "партия-01:325",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:178",
+      "code": "normal_map_baked_ambient",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    }
+  ],
+  "project_architecture": [
+    {
+      "id": "партия-01:130",
+      "code": "lua_scripting_extension",
+      "profile_id": "партия-01:114",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:138",
+      "code": "wiremod_visual_programming",
+      "profile_id": "партия-01:114",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:243",
+      "code": "community_moddable_dll",
+      "profile_id": "партия-01:219",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:194",
+      "code": "source_engine_2006_transition",
+      "profile_id": "партия-02:171",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:195",
+      "code": "source_engine_2013_mp_transition",
+      "profile_id": "партия-02:171",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:261",
+      "code": "l4d_authoring_tools_2009",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:382",
+      "code": "source_engine_2_transition",
+      "profile_id": "партия-02:359",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:384",
+      "code": "panorama_ui_replacement",
+      "profile_id": "партия-02:359",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:199",
+      "code": "mod_support_easy_mode",
+      "profile_id": "партия-03:173",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:43",
+      "code": "modding_creation_kit",
+      "profile_id": "партия-05:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:187",
+      "code": "mod_support_season_7_2024",
+      "profile_id": "партия-05:153",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:237",
+      "code": "creation_engine_2_first_game",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:251",
+      "code": "mod_support_creation_kit",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:98",
+      "code": "gta_online_separate_client",
+      "profile_id": "партия-06:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:179",
+      "code": "rd_online_separate_client",
+      "profile_id": "партия-06:136",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:240",
+      "code": "apex_engine_grove_street",
+      "profile_id": "партия-06:213",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:26",
+      "code": "procedural_megawad_snapmap",
+      "profile_id": "партия-07:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:172",
+      "code": "id_studio_modding_tools_2013",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:225",
+      "code": "saber3d_engine_hybrid",
+      "profile_id": "партия-07:206",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:227",
+      "code": "modding_support_none",
+      "profile_id": "партия-07:206",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:236",
+      "code": "hybrid_idtech_saber_engine",
+      "profile_id": "партия-07:206",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:239",
+      "code": "wulf_glass_engine_2017",
+      "profile_id": "партия-07:206",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:37",
+      "code": "sandbox_level_editor",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:242",
+      "code": "improved_engine_2024",
+      "profile_id": "партия-08:217",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:233",
+      "code": "battlefield_portal_modding",
+      "profile_id": "партия-09:213",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:247",
+      "code": "no_mod_tools",
+      "profile_id": "партия-09:213",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:23",
+      "code": "physicalized_hud_no_minimap",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:49",
+      "code": "steam_workshop_mod_support",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:104",
+      "code": "physicalized_ui_minimal_hud",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:201",
+      "code": "modding_tools_october_2019",
+      "profile_id": "партия-10:156",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:273",
+      "code": "no_hud_physicalized",
+      "profile_id": "партия-10:237",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:78",
+      "code": "ow_engine_2_rebuild",
+      "profile_id": "партия-11:63",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:85",
+      "code": "kernel_anticheat_in_engine",
+      "profile_id": "партия-11:63",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:134",
+      "code": "java_17_21_migration",
+      "profile_id": "партия-11:115",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:187",
+      "code": "panorama_ui_replace_scaleform",
+      "profile_id": "партия-11:167",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:237",
+      "code": "eden_3d_editor_1_56",
+      "profile_id": "партия-11:218",
+      "catalog_method": null
+    }
+  ],
+  "rendering_architecture": [
+    {
+      "id": "партия-01:132",
+      "code": "single_thread_main_loop",
+      "profile_id": "партия-01:114",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:186",
+      "code": "material_bullet_penetration",
+      "profile_id": "партия-01:169",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:241",
+      "code": "deferred_cpu_threading",
+      "profile_id": "партия-01:219",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:296",
+      "code": "material_bullet_penetration",
+      "profile_id": "партия-01:275",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:341",
+      "code": "redengine_blinn_phong_rendering",
+      "profile_id": "партия-01:325",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:394",
+      "code": "fp16_hdr_rendering",
+      "profile_id": "партия-01:378",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:397",
+      "code": "baked_occlusion_culling_vis",
+      "profile_id": "партия-01:378",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:403",
+      "code": "specular_mapping_materials",
+      "profile_id": "партия-01:378",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:505",
+      "code": "multithreaded_jobs",
+      "profile_id": "партия-01:487",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:512",
+      "code": "aabb_quadtree_culling",
+      "profile_id": "партия-01:487",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:25",
+      "code": "substance_material_system",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:37",
+      "code": "HDR_FP16_phong_fresnel",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:94",
+      "code": "phong_fresnel_spec_alys",
+      "profile_id": "партия-02:75",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:190",
+      "code": "3d_skyboxes",
+      "profile_id": "партия-02:171",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:191",
+      "code": "bump_normal_specular_maps",
+      "profile_id": "партия-02:171",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:244",
+      "code": "multicore_rendering",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:314",
+      "code": "damage_zone_textures",
+      "profile_id": "партия-02:291",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:89",
+      "code": "dx11_renderer_sotfs",
+      "profile_id": "партия-03:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:37",
+      "code": "noshader_optimization",
+      "profile_id": "партия-04:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:116",
+      "code": "wet_surfaces_material",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:93",
+      "code": "bullet_software_rendering",
+      "profile_id": "партия-06:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:95",
+      "code": "directx_11_renderer",
+      "profile_id": "партия-06:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:27",
+      "code": "id_tech_6_new_geometry_pipeline",
+      "profile_id": "партия-07:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:29",
+      "code": "async_compute_vulkan",
+      "profile_id": "партия-07:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:38",
+      "code": "vulkan_api_post_launch_patch",
+      "profile_id": "партия-07:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:101",
+      "code": "id_tech_7_extended_vulkan_support",
+      "profile_id": "партия-07:74",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:155",
+      "code": "procedural_textures_partially",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:171",
+      "code": "level_geometry_corrupt_glass",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:177",
+      "code": "craters_pipeline_shaders",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:45",
+      "code": "dx9_dx10_dual_mode",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:48",
+      "code": "dx9_very_high_cheat",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:113",
+      "code": "directx_11_high_res_textures",
+      "profile_id": "партия-08:88",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:179",
+      "code": "dx11_pc_required",
+      "profile_id": "партия-08:153",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:31",
+      "code": "amd_mantle_partnership",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:40",
+      "code": "deferred_renderer_modular",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:48",
+      "code": "amd_mantle_api_debut_2013",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:50",
+      "code": "hd_texture_pool",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:177",
+      "code": "physical_based_rendering",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:180",
+      "code": "shaders_dx12_async_compute",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:311",
+      "code": "cel_shading_pbr",
+      "profile_id": "партия-09:276",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:45",
+      "code": "minimal_subsurface_rendering",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:118",
+      "code": "pbr_physically_based_rendering",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:119",
+      "code": "directx_12_pc",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:122",
+      "code": "entity_system_glacier_2",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:189",
+      "code": "historical_real_materials",
+      "profile_id": "партия-10:156",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:252",
+      "code": "mesh_shaders_first_game",
+      "profile_id": "партия-10:237",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:267",
+      "code": "meshlet_cluster_renderer",
+      "profile_id": "партия-10:237",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:269",
+      "code": "gtx_10_series_poor_optimization",
+      "profile_id": "партия-10:237",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:270",
+      "code": "gtx_10_optimization_patch_2024",
+      "profile_id": "партия-10:237",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:27",
+      "code": "smt_ryzen_fix_2_0",
+      "profile_id": "партия-11:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:28",
+      "code": "hybrid_cpu_p_governor_2_11",
+      "profile_id": "партия-11:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:82",
+      "code": "ecs_determinism",
+      "profile_id": "партия-11:63",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:84",
+      "code": "dynamic_texture_scaling",
+      "profile_id": "партия-11:63",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:132",
+      "code": "sodium_lithium_modern_fix",
+      "profile_id": "партия-11:115",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:133",
+      "code": "bedrock_renderdragon_rewrite",
+      "profile_id": "партия-11:115",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:233",
+      "code": "rv4_single_thread_bottleneck",
+      "profile_id": "партия-11:218",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:238",
+      "code": "multithread_overhaul_2_20",
+      "profile_id": "партия-11:218",
+      "catalog_method": null
+    }
+  ],
+  "multiplayer_netcode": [
+    {
+      "id": "партия-01:135",
+      "code": "headless_dedicated_server",
+      "profile_id": "партия-01:114",
+      "catalog_method": "headless_dedicated_server"
+    },
+    {
+      "id": "партия-01:136",
+      "code": "tick_hook_timer_replacement",
+      "profile_id": "партия-01:114",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:190",
+      "code": "multiplayer_progression_unlock",
+      "profile_id": "партия-01:169",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:191",
+      "code": "killstreak_server_logic",
+      "profile_id": "партия-01:169",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:297",
+      "code": "cooperative_zombies_spawning",
+      "profile_id": "партия-01:275",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:506",
+      "code": "server_authoritative_state",
+      "profile_id": "партия-01:487",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:507",
+      "code": "headless_dedicated_server",
+      "profile_id": "партия-01:487",
+      "catalog_method": "headless_dedicated_server"
+    },
+    {
+      "id": "партия-01:511",
+      "code": "cross_platform_play",
+      "profile_id": "партия-01:487",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:513",
+      "code": "instance_partitioning",
+      "profile_id": "партия-01:487",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:516",
+      "code": "active_time_event_fate",
+      "profile_id": "партия-01:487",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:138",
+      "code": "advanced_vehicle_chase",
+      "profile_id": "партия-02:122",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:193",
+      "code": "max_64_players",
+      "profile_id": "партия-02:171",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:257",
+      "code": "up_to_4_player_coop",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:258",
+      "code": "versus_8_player",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:318",
+      "code": "scavenge_mode_4v4",
+      "profile_id": "партия-02:291",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:321",
+      "code": "mac_cross_play_2010",
+      "profile_id": "партия-02:291",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:376",
+      "code": "glicko_rating_competitive",
+      "profile_id": "партия-02:359",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:378",
+      "code": "prime_matchmaking_2016",
+      "profile_id": "партия-02:359",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:383",
+      "code": "sub_tick_input_cs2",
+      "profile_id": "партия-02:359",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:28",
+      "code": "humanity_online_state",
+      "profile_id": "партия-03:10",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:30",
+      "code": "bloodstain_player_messages",
+      "profile_id": "партия-03:10",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:31",
+      "code": "invasion_asymmetric_multiplayer",
+      "profile_id": "партия-03:10",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:90",
+      "code": "six_player_multiplayer_sotfs",
+      "profile_id": "партия-03:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:144",
+      "code": "integrated_multiplayer_scaling",
+      "profile_id": "партия-03:122",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:197",
+      "code": "no_online_multiplayer",
+      "profile_id": "партия-03:173",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:253",
+      "code": "asynchronous_multiplayer",
+      "profile_id": "партия-03:224",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:302",
+      "code": "ranked_matchmaking_added",
+      "profile_id": "партия-03:282",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:30",
+      "code": "coop_mission_4p",
+      "profile_id": "партия-04:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:268",
+      "code": "faction_war_meta_game",
+      "profile_id": "партия-04:251",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:272",
+      "code": "dedicated_servers_pvp",
+      "profile_id": "партия-04:251",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:273",
+      "code": "faction_war_persistent_meta",
+      "profile_id": "партия-04:251",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:274",
+      "code": "for_honor_dedicated_servers",
+      "profile_id": "партия-04:251",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:168",
+      "code": "creation_engine_multiplayer",
+      "profile_id": "партия-05:153",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:169",
+      "code": "quake_netcode_retrofit",
+      "profile_id": "партия-05:153",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:172",
+      "code": "dedicated_servers_always_on",
+      "profile_id": "партия-05:153",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:37",
+      "code": "multiplayer_32_players",
+      "profile_id": "партия-06:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:35",
+      "code": "multiplayer_loadout_2_weapons",
+      "profile_id": "партия-07:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:91",
+      "code": "battlemode_asymmetric_1v2",
+      "profile_id": "партия-07:74",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:163",
+      "code": "multiplayer_road_rage_coop",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:164",
+      "code": "mac_os_x_no_multiplayer",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:166",
+      "code": "wingstick_boomerang",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:174",
+      "code": "competitive_multiplayer_skirmish",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:238",
+      "code": "server_tickrate_optimized",
+      "profile_id": "партия-07:206",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:49",
+      "code": "multiplayer_2014_terminated",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:50",
+      "code": "console_2011_no_multiplayer_no_dlc",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:112",
+      "code": "steamworks_pc_multiplayer",
+      "profile_id": "партия-08:88",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:117",
+      "code": "multiplayer_hacked_beta_leak",
+      "profile_id": "партия-08:88",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:118",
+      "code": "multiplayer_servers_killed_2014",
+      "profile_id": "партия-08:88",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:247",
+      "code": "multi_hunter_2v12",
+      "profile_id": "партия-08:217",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:252",
+      "code": "no_crossplay_ps4_xbox",
+      "profile_id": "партия-08:217",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:25",
+      "code": "networked_water_simulation",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:27",
+      "code": "64_player_multiplayer",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:35",
+      "code": "networked_water_full_wave_simulation",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:47",
+      "code": "25_hz_tickrate",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:97",
+      "code": "operations_multi_map_mode",
+      "profile_id": "партия-09:80",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:101",
+      "code": "horses_in_multiplayer",
+      "profile_id": "партия-09:80",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:171",
+      "code": "combined_arms_coop",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:184",
+      "code": "firestorm_64_players_br",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:228",
+      "code": "128_player_multiplayer_pc_nextgen",
+      "profile_id": "партия-09:213",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:235",
+      "code": "cross_play_first_battlefield",
+      "profile_id": "партия-09:213",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:307",
+      "code": "heroes_vs_villains_4v4",
+      "profile_id": "партия-09:276",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:308",
+      "code": "extraction_2v2",
+      "profile_id": "партия-09:276",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:79",
+      "code": "netcode_rebuilt_30pct_latency",
+      "profile_id": "партия-11:63",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:80",
+      "code": "format_6v6_to_5v5",
+      "profile_id": "партия-11:63",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:81",
+      "code": "favor_the_shooter",
+      "profile_id": "партия-11:63",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:83",
+      "code": "tick_63hz_comp_120hz",
+      "profile_id": "партия-11:63",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:182",
+      "code": "tick_64mm_128faceit_split",
+      "profile_id": "партия-11:167",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:183",
+      "code": "lag_compensation_rewind",
+      "profile_id": "партия-11:167",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:184",
+      "code": "subtick_cs2_replaces_tick",
+      "profile_id": "партия-11:167",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:240",
+      "code": "dedicated_server_linux",
+      "profile_id": "партия-11:218",
+      "catalog_method": null
+    }
+  ],
+  "ai_pathfinding": [
+    {
+      "id": "партия-01:137",
+      "code": "find_in_sphere_hot_path_avoid",
+      "profile_id": "партия-01:114",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:235",
+      "code": "hex_grid_pathfinding",
+      "profile_id": "партия-01:219",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:242",
+      "code": "time_sliced_pathfinding",
+      "profile_id": "партия-01:219",
+      "catalog_method": "time_sliced_pathfinding"
+    },
+    {
+      "id": "партия-02:31",
+      "code": "navmesh_ai_pathfinding",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:255",
+      "code": "common_infected_navigation_constraint",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:39",
+      "code": "havok_animation_pathfinding",
+      "profile_id": "партия-05:9",
+      "catalog_method": null
+    }
+  ],
+  "dynamic_lighting": [
+    {
+      "id": "партия-01:188",
+      "code": "dynamic_lighting_plus_dof",
+      "profile_id": "партия-01:169",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:35",
+      "code": "hdr_lighting_lost_coast_demo",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:93",
+      "code": "hdr_lighting_story_moments",
+      "profile_id": "партия-02:75",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:192",
+      "code": "hdr_lighting_2005_update",
+      "profile_id": "партия-02:171",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:247",
+      "code": "dynamic_lighting_per_area",
+      "profile_id": "партия-03:224",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:229",
+      "code": "lighting_environment_improvements",
+      "profile_id": "партия-06:213",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:30",
+      "code": "hdr_pbr_lighting",
+      "profile_id": "партия-07:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:161",
+      "code": "procedural_lighting_ambient_occlusion",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:39",
+      "code": "deferred_shading_lighting",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:180",
+      "code": "per_voxel_lighting_hbao_etc",
+      "profile_id": "партия-08:153",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:124",
+      "code": "prague_realistic_lighting",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    }
+  ],
+  "character_animation": [
+    {
+      "id": "партия-01:189",
+      "code": "animation_lod_budget",
+      "profile_id": "партия-01:169",
+      "catalog_method": "animation_lod_budget"
+    },
+    {
+      "id": "партия-01:347",
+      "code": "animation_lod_budget",
+      "profile_id": "партия-01:325",
+      "catalog_method": "animation_lod_budget"
+    },
+    {
+      "id": "партия-02:29",
+      "code": "hl2_faceposer_facs",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:30",
+      "code": "procedural_facial_animation_via_chris",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:95",
+      "code": "procedural_facial_animation_v2",
+      "profile_id": "партия-02:75",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:141",
+      "code": "improved_alyx_animations",
+      "profile_id": "партия-02:122",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:246",
+      "code": "leaning_curved_paths",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:253",
+      "code": "mocap_death_animations",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:87",
+      "code": "engwe_sensua_animations",
+      "profile_id": "партия-04:66",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:277",
+      "code": "external_animations_5000",
+      "profile_id": "партия-04:251",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:26",
+      "code": "havok_behavior_toolset",
+      "profile_id": "партия-05:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:36",
+      "code": "dialogue_facial_animation_FACS",
+      "profile_id": "партия-05:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:158",
+      "code": "id_tech_5_animation_mega_file",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:176",
+      "code": "performance_capture_prophet",
+      "profile_id": "партия-08:153",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:41",
+      "code": "4d_dissolve_transitions",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:174",
+      "code": "animation_procedural_motion",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    }
+  ],
+  "large_scale_terrain": [
+    {
+      "id": "партия-01:236",
+      "code": "hardware_tessellation_terrain",
+      "profile_id": "партия-01:219",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:154",
+      "code": "megatexture_virtual_texturing",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:33",
+      "code": "parallax_occlusion_mapping",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:34",
+      "code": "megatextures_like_id_tech5",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:35",
+      "code": "tesselation_hardware_direct3d11",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:38",
+      "code": "hardware_tessellation_pc",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:106",
+      "code": "tessellation_dx11_pc",
+      "profile_id": "партия-08:88",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:122",
+      "code": "tesselation_abuse_criticism",
+      "profile_id": "партия-08:88",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:32",
+      "code": "tessellation_overhaul",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:37",
+      "code": "parallax_occlusion_mapping_frostbite",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:39",
+      "code": "tesselated_displacement_maps",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:43",
+      "code": "surface_tessellation_displacement",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:125",
+      "code": "advanced_tessellation",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    }
+  ],
+  "ray_traced_effects": [
+    {
+      "id": "партия-01:237",
+      "code": "gpu_raytraced_shadows",
+      "profile_id": "партия-01:219",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:251",
+      "code": "ray_tracing_dlss_sottr",
+      "profile_id": "партия-03:224",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:102",
+      "code": "ray_tracing_consoles",
+      "profile_id": "партия-07:74",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:238",
+      "code": "ray_tracing_2024",
+      "profile_id": "партия-08:217",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:161",
+      "code": "real_time_ray_tracing_reflections",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:168",
+      "code": "ray_tracing_dxr",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:175",
+      "code": "dxr_ray_traced_reflections_dx12",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:179",
+      "code": "no_ray_tracing_consoles",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:312",
+      "code": "ray_tracing_post_launch",
+      "profile_id": "партия-09:276",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:47",
+      "code": "ray_tracing_xbox_series_x",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:253",
+      "code": "ray_traced_global_illumination",
+      "profile_id": "партия-10:237",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:255",
+      "code": "dlss_3_5_ray_reconstruction",
+      "profile_id": "партия-10:237",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:26",
+      "code": "dlss3_fg_ray_reconstruction",
+      "profile_id": "партия-11:8",
+      "catalog_method": null
+    }
+  ],
+  "advanced_npc_ai": [
+    {
+      "id": "партия-01:239",
+      "code": "ai_four_layer_hierarchy",
+      "profile_id": "партия-01:219",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:240",
+      "code": "ai_flavor_personality_matrix",
+      "profile_id": "партия-01:219",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:298",
+      "code": "leveled_reactive_ai_director_lite",
+      "profile_id": "партия-01:275",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:399",
+      "code": "radiant_ai_schedule_graph",
+      "profile_id": "партия-01:378",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:400",
+      "code": "full_voice_acting_npc",
+      "profile_id": "партия-01:378",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:453",
+      "code": "garry_point_stealth_anchor",
+      "profile_id": "партия-01:435",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:514",
+      "code": "duty_support_npc_party",
+      "profile_id": "партия-01:487",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:33",
+      "code": "dispatchable_strider_combat",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:34",
+      "code": "provokable_ai",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:90",
+      "code": "alyx_ai_companion",
+      "profile_id": "партия-02:75",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:92",
+      "code": "enemy_tactics_ai_upgrade",
+      "profile_id": "партия-02:75",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:98",
+      "code": "script_driven_companion_cover",
+      "profile_id": "партия-02:75",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:241",
+      "code": "ai_director",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:243",
+      "code": "music_director_client_side",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:252",
+      "code": "infected_path_follower_ai",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:306",
+      "code": "ai_director_2_0",
+      "profile_id": "партия-02:291",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:307",
+      "code": "director_encourages_longer_paths",
+      "profile_id": "партия-02:291",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:92",
+      "code": "hex_grid_ai_navigation",
+      "profile_id": "партия-03:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:242",
+      "code": "spirit_summon_ash",
+      "profile_id": "партия-03:224",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:83",
+      "code": "eagle_senu_companion",
+      "profile_id": "партия-04:66",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:88",
+      "code": "dynamic_schedule_npcs",
+      "profile_id": "партия-04:66",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:144",
+      "code": "mercenary_nemesis_system",
+      "profile_id": "партия-04:124",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:150",
+      "code": "eagle_ikaros_companion",
+      "profile_id": "партия-04:124",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:201",
+      "code": "settlement_building_management",
+      "profile_id": "партия-04:186",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:207",
+      "code": "jomsviking_shared_npc",
+      "profile_id": "партия-04:186",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:24",
+      "code": "radiant_ai_updated",
+      "profile_id": "партия-05:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:33",
+      "code": "procedural_side_quests",
+      "profile_id": "партия-05:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:34",
+      "code": "dragon_encounter_random",
+      "profile_id": "партия-05:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:106",
+      "code": "settlement_building_anywhere",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:170",
+      "code": "no_human_npcs_initially",
+      "profile_id": "партия-05:153",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:181",
+      "code": "later_npc_humans_wastelanders",
+      "profile_id": "партия-05:153",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:258",
+      "code": "procedurally_generated_loadouts",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:153",
+      "code": "camp_moving_hq",
+      "profile_id": "партия-06:136",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:163",
+      "code": "ecology_realistic",
+      "profile_id": "партия-06:136",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:174",
+      "code": "stranger_random_encounters",
+      "profile_id": "партия-06:136",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:98",
+      "code": "ai_chess_piece_targeting",
+      "profile_id": "партия-07:74",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:108",
+      "code": "ai_chess_advisor",
+      "profile_id": "партия-07:74",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:27",
+      "code": "binoculars_with_electronic_tagging",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:245",
+      "code": "ambient_zombie_spawn",
+      "profile_id": "партия-08:217",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:31",
+      "code": "human_npc_karma_system",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:33",
+      "code": "day_night_affects_npc_behavior",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:111",
+      "code": "social_engagement_detector_aug",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:112",
+      "code": "npc_dynamic_ai",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:123",
+      "code": "ai_subsystem_dedicated",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:180",
+      "code": "npc_daily_routine_full",
+      "profile_id": "партия-10:156",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:181",
+      "code": "npc_responses_player_actions",
+      "profile_id": "партия-10:156",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:185",
+      "code": "horse_ai_independent",
+      "profile_id": "партия-10:156",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:29",
+      "code": "police_system_rework_2_0",
+      "profile_id": "партия-11:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:135",
+      "code": "simulation_distance_split",
+      "profile_id": "партия-11:115",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:136",
+      "code": "village_pillage_raid_lag",
+      "profile_id": "партия-11:115",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:239",
+      "code": "ai_lag_spike_dominant",
+      "profile_id": "партия-11:218",
+      "catalog_method": null
+    }
+  ],
+  "procedural_terrain": [
+    {
+      "id": "партия-01:244",
+      "code": "procedural_resource_generation",
+      "profile_id": "партия-01:219",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:395",
+      "code": "procedural_terrain_erosion",
+      "profile_id": "партия-01:378",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:82",
+      "code": "procedural_world_generation",
+      "profile_id": "партия-04:66",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:238",
+      "code": "procedural_planet_generation",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    }
+  ],
+  "destruction_simulation": [
+    {
+      "id": "партия-01:292",
+      "code": "dismemberment_physics",
+      "profile_id": "партия-01:275",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-01:295",
+      "code": "extended_destruction",
+      "profile_id": "партия-01:275",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:96",
+      "code": "dynamic_city17_destruction",
+      "profile_id": "партия-02:75",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:115",
+      "code": "dynamic_dismemberment",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:89",
+      "code": "destructible_demon_systems",
+      "profile_id": "партия-07:74",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:96",
+      "code": "destructible_demon_armor_strip",
+      "profile_id": "партия-07:74",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:97",
+      "code": "destructible_demon_critical_state",
+      "profile_id": "партия-07:74",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:104",
+      "code": "destructible_demo_macro_destructible",
+      "profile_id": "партия-07:74",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:106",
+      "code": "destructible_decrement_demon_health",
+      "profile_id": "партия-07:74",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:170",
+      "code": "destruction_box_car_smg",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:111",
+      "code": "lego_manhattan_destructible",
+      "profile_id": "партия-08:88",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:24",
+      "code": "levolution_dynamic_destruction",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:34",
+      "code": "destruction_2",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:46",
+      "code": "cloud_destruction_debris",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:95",
+      "code": "ww1_destruction_expanded",
+      "profile_id": "партия-09:80",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:167",
+      "code": "fortification_system",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:182",
+      "code": "wave_destruction_advanced",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    }
+  ],
+  "upscaling_frame_generation": [
+    {
+      "id": "партия-01:342",
+      "code": "ubersampling_supersampling_4x",
+      "profile_id": "партия-01:325",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:259",
+      "code": "locked_dlss_controversy",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:104",
+      "code": "nvidia_dlss_added_2025",
+      "profile_id": "партия-06:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:162",
+      "code": "dlss_deep_learning_super_sampling",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:46",
+      "code": "global_illumination_dlss",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    }
+  ],
+  "procedural_vegetation": [
+    {
+      "id": "партия-01:402",
+      "code": "tree_billboard_to_polygon",
+      "profile_id": "партия-01:378",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:34",
+      "code": "procedural_paris_buildings",
+      "profile_id": "партия-04:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:31",
+      "code": "wind_weighted_trees_branches",
+      "profile_id": "партия-05:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:28",
+      "code": "procedural_vegetation",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    }
+  ],
+  "cloth_simulation": [
+    {
+      "id": "партия-01:458",
+      "code": "cape_animation_700_states",
+      "profile_id": "партия-01:435",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:245",
+      "code": "physics_based_hair_clothing",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:173",
+      "code": "clothing_wear_dirt_blood",
+      "profile_id": "партия-10:156",
+      "catalog_method": null
+    }
+  ],
+  "build_delivery": [
+    {
+      "id": "партия-01:508",
+      "code": "differential_patch_pipeline",
+      "profile_id": "партия-01:487",
+      "catalog_method": "differential_patch_pipeline"
+    },
+    {
+      "id": "партия-02:39",
+      "code": "steam_preload_distribution",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:255",
+      "code": "directstorage_support",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:186",
+      "code": "vpk_packed_assets",
+      "profile_id": "партия-11:167",
+      "catalog_method": null
+    }
+  ],
+  "dynamic_global_illumination": [
+    {
+      "id": "партия-01:510",
+      "code": "gpu_driven_lighting_cache",
+      "profile_id": "партия-01:487",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:181",
+      "code": "voxel_gi_approximation",
+      "profile_id": "партия-09:146",
+      "catalog_method": null
+    }
+  ],
+  "runtime_memory": [
+    {
+      "id": "партия-02:36",
+      "code": "64bit_native_port_2005",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:196",
+      "code": "64bit_migration_2025",
+      "profile_id": "партия-02:171",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:84",
+      "code": "soul_memory_matchmaking",
+      "profile_id": "партия-03:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:242",
+      "code": "ship_power_allocation",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-07:34",
+      "code": "pentagram_powerups",
+      "profile_id": "партия-07:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:40",
+      "code": "1gb_texture_data_85k_shaders",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:115",
+      "code": "4gb_gddr3_pc_recommended",
+      "profile_id": "партия-08:88",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:130",
+      "code": "java_gc_stutter_early",
+      "profile_id": "партия-11:115",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:236",
+      "code": "x64_1_68_memory_unbottleneck",
+      "profile_id": "партия-11:218",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:241",
+      "code": "32bit_deprecation_2_20",
+      "profile_id": "партия-11:218",
+      "catalog_method": null
+    }
+  ],
+  "runtime_security": [
+    {
+      "id": "партия-02:40",
+      "code": "steam_required_drm",
+      "profile_id": "партия-02:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:377",
+      "code": "valve_anti_cheat",
+      "profile_id": "партия-02:359",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:379",
+      "code": "trust_factor_2017",
+      "profile_id": "партия-02:359",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:234",
+      "code": "rockstar_launcher_required",
+      "profile_id": "партия-06:213",
+      "catalog_method": null
+    }
+  ],
+  "dynamic_shadows": [
+    {
+      "id": "партия-02:247",
+      "code": "self_shadowing_normal_map",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-02:248",
+      "code": "advanced_shadow_rendering",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:30",
+      "code": "soft_shadows_pcss",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:235",
+      "code": "shadows_gpu_vs_cpu_split",
+      "profile_id": "партия-11:218",
+      "catalog_method": null
+    }
+  ],
+  "volumetric_effects": [
+    {
+      "id": "партия-02:249",
+      "code": "wet_surfaces_fog",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:33",
+      "code": "day_night_cycle_paris",
+      "profile_id": "партия-04:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:35",
+      "code": "weather_time_anomalies",
+      "profile_id": "партия-04:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:215",
+      "code": "day_night_doesnt_affect_mission",
+      "profile_id": "партия-04:186",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:29",
+      "code": "snow_ash_weather_volumetric",
+      "profile_id": "партия-05:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:30",
+      "code": "dynamic_lighting_snowfall",
+      "profile_id": "партия-05:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:111",
+      "code": "volumetric_lighting_nvidia",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:113",
+      "code": "height_fog_dynamic",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:152",
+      "code": "dynamic_weather_day_night",
+      "profile_id": "партия-06:136",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:164",
+      "code": "ambient_weather_lighting",
+      "profile_id": "партия-06:136",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:29",
+      "code": "volumetric_lighting_volumetric_fog",
+      "profile_id": "партия-08:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:33",
+      "code": "dynamic_weather_volumetric",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:42",
+      "code": "volumetrics_indoor_outdoor",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:102",
+      "code": "dynamic_weather_dust_storm",
+      "profile_id": "партия-09:80",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:230",
+      "code": "extreme_weather_tornado_sandstorm",
+      "profile_id": "партия-09:213",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:241",
+      "code": "weather_affects_gameplay",
+      "profile_id": "партия-09:213",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:32",
+      "code": "weather_time_dynamic_weather",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:44",
+      "code": "realistic_dynamic_weather_storms",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:117",
+      "code": "city_xploration_day_night",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:200",
+      "code": "night_cycle_full",
+      "profile_id": "партия-10:156",
+      "catalog_method": null
+    }
+  ],
+  "geometry_pipeline": [
+    {
+      "id": "партия-02:254",
+      "code": "infected_variation_24000",
+      "profile_id": "партия-02:226",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:102",
+      "code": "layered_armor_system",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    }
+  ],
+  "water_simulation": [
+    {
+      "id": "партия-02:313",
+      "code": "houdini_water_flow_maps",
+      "profile_id": "партия-02:291",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:93",
+      "code": "underwater_exploration_first_time",
+      "profile_id": "партия-04:66",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:32",
+      "code": "water_surface_flow",
+      "profile_id": "партия-05:9",
+      "catalog_method": null
+    }
+  ],
+  "hair_rendering": [
+    {
+      "id": "партия-02:317",
+      "code": "scanner_crosshair_customization",
+      "profile_id": "партия-02:291",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:32",
+      "code": "hair_works_fur",
+      "profile_id": "партия-04:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:161",
+      "code": "hair_growth_realistic",
+      "profile_id": "партия-06:136",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:120",
+      "code": "tressfx_hair_amd",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:126",
+      "code": "amd_purehair_tressfx_3_0",
+      "profile_id": "партия-10:86",
+      "catalog_method": null
+    }
+  ],
+  "save_system": [
+    {
+      "id": "партия-03:27",
+      "code": "bonfire_checkpoint_system",
+      "profile_id": "партия-03:10",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-03:240",
+      "code": "sites_of_grace_checkpoints",
+      "profile_id": "партия-03:224",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:194",
+      "code": "save_only_at_beds_or_saves",
+      "profile_id": "партия-10:156",
+      "catalog_method": null
+    }
+  ],
+  "crowd_simulation": [
+    {
+      "id": "партия-04:24",
+      "code": "crowd_30000_npc",
+      "profile_id": "партия-04:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-04:28",
+      "code": "crowd_activities_interaction",
+      "profile_id": "партия-04:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:109",
+      "code": "npc_settlement_simulation",
+      "profile_id": "партия-05:85",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:88",
+      "code": "dense_ecosystem_wildlife",
+      "profile_id": "партия-06:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:24",
+      "code": "crowd_traffic_density_system",
+      "profile_id": "партия-11:8",
+      "catalog_method": null
+    }
+  ],
+  "render_scalability": [
+    {
+      "id": "партия-04:279",
+      "code": "4k_60fps_next_gen_update",
+      "profile_id": "партия-04:251",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-05:253",
+      "code": "fov_slider_added_late",
+      "profile_id": "партия-05:222",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:230",
+      "code": "high_resolution_textures",
+      "profile_id": "партия-06:213",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:232",
+      "code": "4k_60_fps_current_gen",
+      "profile_id": "партия-06:213",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:114",
+      "code": "high_resolution_texture_pack",
+      "profile_id": "партия-08:88",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:241",
+      "code": "4k_ps5_xsx_support",
+      "profile_id": "партия-08:217",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:36",
+      "code": "full_hd_rendering_pc",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-09:44",
+      "code": "dynamic_resolution_optional",
+      "profile_id": "партия-09:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:275",
+      "code": "ps5_xsx_4k_native",
+      "profile_id": "партия-10:237",
+      "catalog_method": null
+    }
+  ],
+  "vehicle_simulation": [
+    {
+      "id": "партия-06:25",
+      "code": "realistic_car_physics",
+      "profile_id": "партия-06:9",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:94",
+      "code": "flight_simulation_models",
+      "profile_id": "партия-06:69",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-06:172",
+      "code": "dynamic_horse_realtime",
+      "profile_id": "партия-06:136",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:30",
+      "code": "vehicle_combat_rework",
+      "profile_id": "партия-11:8",
+      "catalog_method": null
+    }
+  ],
+  "art_pipeline": [
+    {
+      "id": "партия-06:32",
+      "code": "100000_photos_new_york",
+      "profile_id": "партия-06:9",
+      "catalog_method": null
+    }
+  ],
+  "split_screen_rendering": [
+    {
+      "id": "партия-07:157",
+      "code": "60hz_optional_oculus_rift_dev_kit",
+      "profile_id": "партия-07:139",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:107",
+      "code": "hrtf_audio_oculus_2",
+      "profile_id": "партия-08:88",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-08:108",
+      "code": "stereo_3d_support",
+      "profile_id": "партия-08:88",
+      "catalog_method": null
+    }
+  ],
+  "path_tracing": [
+    {
+      "id": "партия-10:54",
+      "code": "fully_ray_traced_enhanced_2021",
+      "profile_id": "партия-10:8",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:254",
+      "code": "path_tracing_optional",
+      "profile_id": "партия-10:237",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-10:268",
+      "code": "path_tracing_consoles_excluded",
+      "profile_id": "партия-10:237",
+      "catalog_method": null
+    },
+    {
+      "id": "партия-11:25",
+      "code": "rt_overdrive_path_tracing",
+      "profile_id": "партия-11:8",
+      "catalog_method": null
+    }
+  ]
+}

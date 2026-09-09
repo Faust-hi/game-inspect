@@ -376,6 +376,10 @@ GAME_FUNCTIONS: list[dict] = [
 ]
 
 
+from .technical_extensions import functions as technical_functions
+GAME_FUNCTIONS.extend(technical_functions())
+
+
 def with_sources() -> list[dict]:
     """Добавить поля источника, не изменяя исходный каталог функций."""
     out = []

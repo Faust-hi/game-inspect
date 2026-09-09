@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import type { Method, Recommendation } from '../types';
 import { MethodCard } from './MethodCard';
+import { TransitionDetails } from './ImplementationTransition';
 import { Badge, Bar, Callout, Flag } from './ui';
 
 interface Props {
@@ -88,11 +89,13 @@ export function RecommendationList({
                   </div>
                   <div style={{ minWidth: 160, flex: 1 }}>
                     <div className="xsmall faint">
-                      Трудозатраты {item.implementation_cost} / 5 · сложность {item.complexity} / 5
+                      Исходные трудозатраты {item.implementation_cost} / 5 · сложность метода {item.complexity} / 5
                     </div>
                     <Bar value={item.implementation_cost * 20} tone="danger" />
                   </div>
                 </div>
+
+                {item.transition && <TransitionDetails item={item.transition} />}
 
                 <div className="small muted" style={{ marginTop: 8 }}>
                   {engineName}:{' '}

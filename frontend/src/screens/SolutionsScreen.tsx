@@ -34,9 +34,9 @@ export function SolutionsScreen({ onCompare }: { onCompare: (codes: string[]) =>
   }, [recommendations]);
 
   const tabs = useMemo(() => {
-    const ordered = profile.functions
-      .filter((code) => byFunction.has(code))
-      .map((code) => ({ key: code, label: functionName(code), count: byFunction.get(code)?.length }));
+    const codes = [...new Set([...profile.functions, ...byFunction.keys()])].filter(code => code !== '__general__');
+    const ordered = codes.filter(code => byFunction.has(code))
+      .map((code) => ({ key: code, label: byFunction.get(code)?.[0]?.function_name ?? functionName(code), count: byFunction.get(code)?.length }));
     if (byFunction.has('__general__')) {
       ordered.push({
         key: '__general__',

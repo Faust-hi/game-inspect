@@ -1,4 +1,18 @@
 /** Типы данных, отражающие контракты backend-приложения. */
+export interface ImplementationBaseline { profile: ProjectProfile; basket: string[] }
+export interface ImplementationTransition {
+  method_code: string;
+  status: string;
+  scope: string;
+  cost_min: number;
+  cost_max: number;
+  complexity_min: number;
+  complexity_max: number;
+  replaces: string[];
+  affected_methods: string[];
+  reasons: string[];
+  evidence: string;
+}
 
 export interface EnumOption {
   value: string;
@@ -262,6 +276,7 @@ export interface SuggestedMethod {
 }
 
 export interface Recommendation {
+  transition?: ImplementationTransition | null;
   method_code: string;
   method_name: string;
   function_code: string | null;
@@ -469,6 +484,8 @@ export interface StageGuidance {
 }
 
 export interface RecommendationResult {
+  baseline?: ImplementationBaseline | null;
+  transitions?: ImplementationTransition[];
   snapshot_id?: string | null;
   catalog_revision?: string | null;
   selected_methods?: Method[];

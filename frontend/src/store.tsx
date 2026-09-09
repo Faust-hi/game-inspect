@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { api } from './api';
 import type {
+  ImplementationBaseline,
   Conflict,
   Engine,
   Enums,
@@ -83,12 +84,12 @@ function stableStringify(value: unknown): string {
  * Порядок кодов в корзине на расчёт не влияет, поэтому корзина сортируется —
  * иначе перестановка решений выглядела бы как изменение данных.
  */
-export function inputKeyOf(profile: ProjectProfile, basket: string[]): string {
+export function inputKeyOf(profile: ProjectProfile, basket: string[], baseline?: ImplementationBaseline | null): string {
   return stableStringify({ profile: { ...profile,
     functions: [...new Set(profile.functions)].sort(),
     platforms: [...new Set(profile.platforms)].sort(),
     target_resolution: profile.target_resolution === '4k' ? '2160p' : profile.target_resolution,
-  }, basket: [...new Set(basket)].sort() });
+  }, basket: [...new Set(basket)].sort(), ...(baseline ? { baseline: inputKeyOf(baseline.profile, baseline.basket) } : {}) });
 }
 
 function isAbortError(error: unknown): boolean {
@@ -111,6 +112,8 @@ interface CatalogState {
 }
 
 interface ProjectStore {
+  baseline: ImplementationBaseline | null;
+  saveBaseline: () => void;
   profile: ProjectProfile;
   basket: string[];
   result: RecommendationResult | null;
@@ -136,9 +139,9 @@ interface ProjectStore {
 
 const StoreContext = createContext<ProjectStore | null>(null);
 
-function loadPersisted(): { profile: ProjectProfile; basket: string[] } | null {
+function loadPersisted(value?: string, allowBaseline = true): { profile: ProjectProfile; basket: string[]; baseline: ImplementationBaseline | null } | null {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
+    const raw = value ?? sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object' || !('profile' in parsed) || !('basket' in parsed)) return null;
@@ -157,7 +160,14 @@ function loadPersisted(): { profile: ProjectProfile; basket: string[] } | null {
       if (!valid) return null;
       Object.assign(restored, { [key]: value });
     }
+    let baseline: ImplementationBaseline | null = null;
+    if (allowBaseline && 'baseline' in parsed && parsed.baseline != null) {
+      const saved = loadPersisted(JSON.stringify(parsed.baseline), false);
+      if (!saved) return null;
+      baseline = { profile: saved.profile, basket: saved.basket };
+    }
     return {
+      baseline,
       profile: restored,
       basket: [...new Set(parsed.basket)],
     };
@@ -167,7 +177,8 @@ function loadPersisted(): { profile: ProjectProfile; basket: string[] } | null {
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const persisted = useMemo(loadPersisted, []);
+  const persisted = useMemo(() => loadPersisted(), []);
+  const [baseline, setBaseline] = useState<ImplementationBaseline | null>(persisted?.baseline ?? null);
   const [profile, setProfile] = useState<ProjectProfile>(persisted?.profile ?? DEFAULT_PROFILE);
   const [basket, setBasketState] = useState<string[]>(persisted?.basket ?? []);
   const [result, setResult] = useState<RecommendationResult | null>(null);
@@ -188,7 +199,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   /** Выполняющийся запрос расчёта. Предыдущий отменяется при новом запуске. */
   const inFlight = useRef<AbortController | null>(null);
 
-  const inputKey = useMemo(() => inputKeyOf(profile, basket), [profile, basket]);
+  const inputKey = useMemo(() => inputKeyOf(profile, basket, baseline), [profile, basket, baseline]);
 
   /**
    * Сбрасывает результат и отменяет выполняющийся запрос.
@@ -233,12 +244,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ profile, basket }));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ profile, basket, baseline }));
       setStorageError(null);
     } catch {
       setStorageError('Автосохранение в браузере недоступно.');
     }
-  }, [profile, basket]);
+  }, [profile, basket, baseline]);
 
   // Снятие результата при размонтировании: запрос не должен доживать до
   // обновления состояния уже отсутствующего компонента.
@@ -256,6 +267,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     discardResult();
     setProfile(DEFAULT_PROFILE);
     setBasketState([]);
+    setBaseline(null);
   }, [discardResult]);
 
   const setBasket = useCallback(
@@ -284,9 +296,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       discardResult();
       setProfile({ ...DEFAULT_PROFILE, ...nextProfile });
       setBasketState(nextBasket);
+      setBaseline(snapshot?.baseline ?? null);
       if (snapshot) {
         setResult(snapshot);
-        setResultKey(inputKeyOf({ ...DEFAULT_PROFILE, ...nextProfile }, nextBasket));
+        setResultKey(inputKeyOf({ ...DEFAULT_PROFILE, ...nextProfile }, nextBasket, snapshot.baseline));
       }
     },
     [discardResult],
@@ -303,11 +316,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     // его в эффекте нельзя — эффекты вложенных экранов выполняются раньше
     // эффектов провайдера и получили бы ещё не обновлённое значение, из-за чего
     // автоматический пересчёт после правки анкеты отбрасывался бы как устаревший.
-    const requestedKey = inputKeyOf(profile, basket);
+    const requestedKey = inputKeyOf(profile, basket, baseline);
     setCalculating(true);
     setCalculateError(null);
     try {
-      const next = await api.recommend(profile, basket, controller.signal);
+      const next = await api.recommend(profile, basket, controller.signal, baseline);
       // Гонка: пока выполнялся запрос, входные данные могли измениться, и тогда
       // `discardResult` обнулил `inFlight`. Медленный ответ на прежние данные
       // не должен перезаписывать актуальный результат.
@@ -321,12 +334,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setCalculateError(errorMessage(error));
       setCalculating(false);
     }
-  }, [profile, basket]);
+  }, [profile, basket, baseline]);
+
+  const saveBaseline = useCallback(() => {
+    discardResult();
+    setBaseline({ profile: structuredClone(profile), basket: [...new Set(basket)] });
+  }, [profile, basket, discardResult]);
 
   const resultStale = result !== null && resultKey !== null && resultKey !== inputKey;
 
   const value: ProjectStore = useMemo(
     () => ({
+      baseline,
+      saveBaseline,
       profile,
       basket,
       result,
@@ -347,6 +367,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       loadProject,
     }),
     [
+      baseline,
+      saveBaseline,
       profile,
       basket,
       result,

@@ -542,6 +542,12 @@ SOURCES: dict[str, dict[str, str]] = {
 }
 
 
+from .technical_extensions import SOURCES as TECHNICAL_SOURCES
+SOURCES.update({key: dict(title=title, url=url, date='2026-09-09') for key, (title, url) in TECHNICAL_SOURCES.items()})
+from .reviewed_methods import SOURCES as REVIEWED_SOURCES
+SOURCES.update({key: dict(title=title, url=url, date=date) for key, (title, url, date) in REVIEWED_SOURCES.items()})
+
+
 def src(key: str | None) -> dict[str, str]:
     """Вернуть словарь источника по ключу (или пустой источник)."""
     if not key or key not in SOURCES:

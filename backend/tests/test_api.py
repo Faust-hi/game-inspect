@@ -125,10 +125,10 @@ def test_recommendations_are_reproducible(client, profile):
 def test_recommendations_respect_selected_functions(client, profile):
     data = client.post("/api/recommend", json={"profile": profile, "basket": []}).json()
     allowed = set(profile["functions"])
+    from app.seed.methods_data import FUNCTION_ASSIGNMENTS
+    allowed.update(FUNCTION_ASSIGNMENTS.values())
     for item in data["recommendations"]:
-        # None — общие методы без функции: они видны во вкладке «Общие методы»,
-        # а релевантность им задают requires_features и правила, а не фильтр.
-        assert item["function_code"] is None or item["function_code"] in allowed
+        assert item["function_code"] in allowed
 
 
 def test_general_methods_are_visible(client, profile):

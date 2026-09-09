@@ -1,5 +1,6 @@
 /** Клиент HTTP-интерфейса backend-приложения. */
 import type {
+  ImplementationBaseline,
   AdminOverview,
   Conflict,
   Engine,
@@ -122,10 +123,10 @@ export const api = {
   stageGuidance: (stage: string) =>
     request<StageGuidance>(`/catalog/stage-guidance?stage=${encodeURIComponent(stage)}`),
 
-  recommend: (profile: ProjectProfile, basket: string[], signal?: AbortSignal) =>
+  recommend: (profile: ProjectProfile, basket: string[], signal?: AbortSignal, baseline?: ImplementationBaseline | null) =>
     request<RecommendationResult>('/recommend', {
       method: 'POST',
-      body: JSON.stringify({ profile, basket }),
+      body: JSON.stringify({ profile, basket, ...(baseline ? { baseline } : {}) }),
       signal,
     }),
 

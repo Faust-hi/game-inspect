@@ -35,7 +35,7 @@ from ..schemas.catalog import (
 )
 from ..seed.methods_data import FUNCTION_ASSIGNMENTS
 from . import engines as engine_service
-from . import hardware, rules, sensitivity, serializers, stage_guidance
+from . import hardware, rules, sensitivity, serializers, stage_guidance, transitions
 from .serializers import label_of as _label
 from .serializers import link_out
 from .topsis import Criterion, criterion_matrix_rows, equivalence_group, topsis, EQUIVALENCE_TOLERANCE
@@ -44,7 +44,7 @@ from .topsis import Criterion, criterion_matrix_rows, equivalence_group, topsis,
 #: отбора: по ней можно понять, какой версией получен сохранённый результат.
 #: 2.3.0 — область прогноза только Windows/Linux ПК, CPU следует за базовым
 #: рендером при генерации кадров, unified-память без универсальной скидки.
-ALGORITHM_VERSION = "2.4.1"
+ALGORITHM_VERSION = "2.5.1"
 
 #: Версия набора данных. Меняется при обновлении базы знаний, влияющем на
 #: ранжирование (пересчёт индексов оборудования, пересмотр оценок эффекта).
@@ -83,7 +83,7 @@ FLAG_LABELS = {
     "tied_leader": "равнозначно с лидером",
     "implement_now": "желательно внедрить сейчас",
     "late_difficult": "позднее внедрение затруднено",
-    "needs_rework": "требует переработки на этой стадии",
+    "needs_rework": "проверить объём переработки",
     "needs_prototyping": "требует прототипирования",
     "may_reduce_quality": "может снизить качество",
     "may_change_concept": "может изменить концепцию",
@@ -109,8 +109,8 @@ def _function_name(functions: dict, method: Method) -> str | None:
 
 def _recommendation_function(method: Method) -> tuple[str | None, str | None]:
     """Вернуть область показа метода, сохраняя общий список оптимизаций."""
-    if method.code in CROSS_CUTTING_METHODS or method.function is None:
-        return None, None
+    if method.function is None:
+        return method.code, method.name
     return method.function.code, method.function.name
 
 
@@ -172,12 +172,13 @@ def detect_risks(
 
     # Поздняя стадия без архитектурных решений.
     if stage_order >= DevStage.ALPHA.order and profile.world_type in ("open_world", "procedural"):
-        if "world_partition_streaming" not in basket_codes:
+        if not any(methods_by_code[c].function and methods_by_code[c].function.code == "open_world_streaming"
+                   for c in basket_codes if c in methods_by_code):
             add(
                 "late_streaming", "Отсутствует решение по стримингу открытого мира",
                 "high",
                 "Проект с открытым миром находится на поздней стадии, но потоковая загрузка мира "
-                "не заложена. Внедрение на этой стадии требует переработки уровней и ассетов.",
+                "не указана в корзине. Это не доказывает её отсутствие в проекте; проверить существующую реализацию и возможный объём переделок.",
                 "Оценить возможность частичного внедрения плиточной загрузки или зафиксировать "
                 "ограничение размера мира.",
             )
@@ -187,13 +188,14 @@ def detect_risks(
         arch_missing = [
             m.code for m in methods_by_code.values()
             if m.code not in basket_codes and m.level == "architecture" and m.late_cost == "critical"
+            and m.function and m.function.code in profile.functions and rules.evaluate(m, profile).applicable
         ]
         if arch_missing:
             add(
-                "architecture_locked", "Архитектурные решения уже заблокированы стадией",
+                "architecture_locked", "Проверить стоимость архитектурных изменений",
                 "high",
                 f"На текущей стадии внедрение {len(arch_missing)} архитектурных решений имеет "
-                "критическую стоимость. Часть из них уже недоступна без переработки проекта.",
+                "высокий экспертный риск позднего внедрения. Стадия не доказывает необходимость полной переработки.",
                 "Сосредоточиться на решениях уровня настроек, алгоритмов и производственного процесса.",
             )
 
@@ -349,7 +351,7 @@ def detect_risks(
 # ---------------------------------------------------------------------------
 # 3-8. Подбор, фильтрация и ранжирование
 # ---------------------------------------------------------------------------
-def build_recommendations(db: Session, profile, basket_codes: list[str]) -> RecommendationResult:
+def build_recommendations(db: Session, profile, basket_codes: list[str], baseline=None) -> RecommendationResult:
     # Freeze the catalogue cards used by every view, including printed reports.
     from .catalog_revision import published_revision
 
@@ -358,7 +360,7 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
         "functions": sorted(set(profile.functions)),
         "platforms": sorted(set(profile.platforms)),
     })
-    result = _build_recommendations(db, profile, basket_codes)
+    result = _build_recommendations(db, profile, basket_codes, baseline)
     selected = repositories.methods_by_codes(db, basket_codes)
     accounted, _ = rules.assess_selected_methods(selected, profile, repositories.conflicts(db))
     result.selected_methods = [
@@ -368,11 +370,22 @@ def build_recommendations(db: Session, profile, basket_codes: list[str]) -> Reco
     result.snapshot_id = uuid.uuid4().hex
     result.catalog_revision = published_revision(db)
     result.meta["dataset_version"] = result.catalog_revision
-    result.input_key = input_fingerprint(profile, basket_codes, ALGORITHM_VERSION, result.catalog_revision)
+    result.baseline = baseline
+    relations = repositories.conflicts(db)
+    methods = {m.code: m for m in repositories.methods(db)}
+    result.transitions = [transitions.assess(m, profile, baseline, methods, relations, basket_codes) for m in selected]
+    result.transitions.extend(transitions.removed(baseline, basket_codes, relations))
+    if baseline:
+        unknown = sorted(set(baseline.basket) - set(methods))
+        if unknown:
+            result.risks.append(RiskOut(code="unknown_baseline", title="Неполная реализованная основа", severity="high",
+                                       description="В каталоге отсутствуют: " + ", ".join(unknown),
+                                       advice="Уточнить исходную реализацию; стоимость перехода неполна."))
+    result.input_key = input_fingerprint(profile, basket_codes, ALGORITHM_VERSION, result.catalog_revision, baseline)
     return result
 
 
-def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> RecommendationResult:
+def _build_recommendations(db: Session, profile, basket_codes: list[str], baseline=None) -> RecommendationResult:
     conflicts = conflict_map(db)
     engines = repositories.engines(db)
 
@@ -383,6 +396,8 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
     all_methods = repositories.methods(db)
     methods_by_code = {m.code: m for m in all_methods}
     basket_methods = repositories.methods_by_codes(db, basket_codes)
+    relations = repositories.conflicts(db)
+    transition_map = {m.code: transitions.assess(m, profile, baseline, methods_by_code, relations, basket_codes) for m in all_methods}
 
     calculated_at = timeutil.utcnow_iso()
 
@@ -401,7 +416,12 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
     evaluated: list[tuple[Method, rules.Applicability]] = []
     excluded: list[RecommendationOut] = []
     for method in candidates:
-        applicability = rules.evaluate(method, profile)
+        retained = transition_map[method.code].status == "retained"
+        applicability = rules.evaluate(method, profile.model_copy(update={"complexity_tolerance": None}) if retained else profile)
+        if retained:
+            applicability.late_penalty = 0
+            applicability.stage_pressure = 0
+            applicability.conditions = [c for c in applicability.conditions if not c.startswith("Текущая стадия")]
         if not applicability.applicable:
             excluded.append(_build_excluded(method, functions, applicability))
             continue
@@ -417,7 +437,7 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
         # и в аппаратной оценке. Календарный запрет удалял решение из выдачи,
         # оставляя его в расчёте, из-за чего список и корзина расходились.
         # Вместо запрета решение помечается как требующее переработки.
-        if stage_guidance.needs_rework(method, profile.stage):
+        if not retained and stage_guidance.needs_rework(method, profile.stage):
             applicability.conditions.append(stage_guidance.rework_note(method, profile.stage))
         evaluated.append((method, applicability))
 
@@ -463,11 +483,25 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
     ]
 
     matrix: list[list[float]] = []
+    # Technical demand contributes to resource fit, independently within each
+    # function. An unrelated function must not reshuffle this comparison.
+    function_workloads = {}
     for method, applicability in evaluated:
-        resource = rules.resource_fit(method, profile)
-        risk_value = (method.complexity - 1) / 4.0
+        key, _ = _recommendation_function(method)
+        if key not in function_workloads:
+            scoped_profile = profile.model_copy(update={"functions": [key] if method.function else []})
+            model = hardware.build_model(scoped_profile, [], None)
+            cpu_work, gpu_work = sum(model.cpu.values()), sum(model.gpu.values())
+            function_workloads[key] = {
+                "cpu": cpu_work / (cpu_work + model.budget_ms),
+                "gpu": gpu_work / (gpu_work + model.budget_ms),
+            }
+        workload = function_workloads[key] if rules.effect_scope_of(method) == EffectScope.CLIENT else None
+        resource = rules.resource_fit(method, profile, workload)
+        transition = transition_map[method.code]
+        risk_value = (transition.complexity_min + transition.complexity_max) / 10 if baseline else (method.complexity - 1) / 4.0
         late_penalty = applicability.late_penalty
-        if stage_guidance.needs_rework(method, profile.stage):
+        if transition.status != "retained" and stage_guidance.needs_rework(method, profile.stage):
             # Переработка удорожает внедрение, но не запрещает его: решение
             # остаётся в списке и просто уступает в порядке внедрения.
             late_penalty *= stage_guidance.REWORK_PENALTY_MULTIPLIER
@@ -475,7 +509,7 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
             float(method.performance_gain),
             (method.quality_impact + 2) / 4.0,
             1.0 + method.concept_impact / 2.0,
-            float(method.implementation_cost),
+            (transition.cost_min + transition.cost_max) / 2,
             late_penalty,
             risk_value,
             resource,
@@ -516,6 +550,7 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str]) -> Rec
                 tied_with_leader=tied[index],
                 score_gap=leader_score - ranking.scores[index],
                 tied_count=tied_count,
+                transition=transition_map[method.code],
             ))
 
     tail = _tail(
@@ -648,7 +683,7 @@ def _recommendation_flags(
     rank_flags: list[str] = []
     if comparable:
         share = rank / max(1, total)
-        if share <= 1 / 3:
+        if rank == 1 or share <= 1 / 3:
             rank_flags.append("recommended")
         elif share <= 2 / 3:
             rank_flags.append("conditional")
@@ -713,10 +748,10 @@ def _recommendation_reasons(
         f"{_label(DevStage, method.recommended_stage)}."
     )
     if applicability.stage_pressure == 0:
-        reasons.append("Текущая стадия проекта не позднее рекомендованной: стоимость внедрения минимальна.")
+        reasons.append("Текущая стадия проекта не позднее рекомендованной: календарная надбавка не начислена; фактические трудозатраты зависят от реализации.")
     else:
         reasons.append(
-            f"Текущая стадия проекта позже рекомендованной: стоимость позднего внедрения — "
+            f"Текущая стадия проекта позже рекомендованной: экспертная оценка риска позднего внедрения — "
             f"{_label(LateCost, method.late_cost)}."
         )
     reasons.append(f"Способ расчёта: {_label(CalcMode, method.calc_mode)}.")
@@ -731,10 +766,10 @@ def _recommendation_reasons(
     where = "" if (scope is None or scope.affects_client) else f" ({scope.label})"
     positives = _impact_text(method)
     if positives:
-        reasons.append("Снижает нагрузку на" + where + ": " + ", ".join(positives) + ".")
+        reasons.append("Ожидаемое направление эффекта при выполнении условий — снижение нагрузки на" + where + ": " + ", ".join(positives) + ". Величина требует измерения.")
     negatives = _impact_text(method, positive=False)
     if negatives:
-        reasons.append("Увеличивает нагрузку на" + where + ": " + ", ".join(negatives) + ".")
+        reasons.append("Возможные дополнительные расходы" + where + ": " + ", ".join(negatives) + ".")
     if method.quality_impact:
         reasons.append(
             f"Влияние на качество: {method.quality_impact:+d} ({'улучшает' if method.quality_impact > 0 else 'снижает'})."
@@ -770,6 +805,7 @@ def _build_recommendation(
     tied_with_leader: bool = False,
     score_gap: float = 0.0,
     tied_count: int = 1,
+    transition=None,
 ) -> RecommendationOut:
     # Метод сюда попадает применимым, а стадия влияет на стоимость внедрения,
     # поэтому «не рекомендуется» здесь не выводится из календаря: позднее
@@ -781,6 +817,8 @@ def _build_recommendation(
         and applicability.stage_pressure >= 1.0
         and stage_order > method_stage
     )
+    if transition and transition.status == "retained":
+        needs_rework = False
     flags = _recommendation_flags(
         method, applicability, rank, total, comparable=comparable,
         stage_order=stage_order, method_stage=method_stage, needs_rework=needs_rework,
@@ -794,6 +832,11 @@ def _build_recommendation(
         tied_count=tied_count,
     )
     support, alternatives = _engine_support(db, method, profile.engine, profile)
+    if transition:
+        reasons.extend(transition.reasons)
+        if transition.status == "retained":
+            reasons = [r for r in reasons if not r.startswith("Текущая стадия проекта")]
+            flags = [f for f in flags if f not in {"implement_now", "late_difficult", "needs_rework"}]
     function_code, function_name = _recommendation_function(method)
 
     return RecommendationOut(
@@ -828,6 +871,7 @@ def _build_recommendation(
         effect_scope_label=_label(EffectScope, method.effect_scope) or "не распознана",
         equivalent_to_leader=tied_with_leader,
         score_gap=round(score_gap, 4),
+        transition=transition,
     )
 
 

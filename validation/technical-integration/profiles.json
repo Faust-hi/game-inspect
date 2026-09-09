@@ -1,0 +1,4557 @@
+[
+  {
+    "id": "партия-01:12",
+    "title": "1. Portal (2007, Valve) — AppID 400",
+    "file": "партия-01.md",
+    "line": 12,
+    "sha256": "2442203fe95afa87e615a9771f32203a2776f9dce37bed175d1b93423cdd4a39",
+    "technical_functions": [
+      "portal_rendering",
+      "physics_simulation",
+      "audio_system",
+      "open_world_streaming",
+      "post_processing"
+    ],
+    "metadata": [
+      {
+        "line": 14,
+        "text": "- **Engine:** Source (Orange Box)"
+      },
+      {
+        "line": 15,
+        "text": "- **Format:** 3D | **World:** linear | **Scale:** small"
+      },
+      {
+        "line": 16,
+        "text": "- **Platforms:** pc_windows (отдельный Steam с 2008), macOS, Linux, Shield, Switch, RTX-ремастер 2022"
+      },
+      {
+        "line": 17,
+        "text": "- **Targets:** 1080p / 60 fps"
+      },
+      {
+        "line": 18,
+        "text": "- **Object/NPC level:** low / low | **Multiplayer:** false"
+      },
+      {
+        "line": 19,
+        "text": "- **API:** DX8.1 (минимум), DX9 (рекомендованный), OpenGL (macOS/Linux); RTX-ремастер 2022 — DX12 Ultimate с path tracing через DXR/Vulkan, **минимум RTX 3060 (работает и на RTX 2060)**, эксклюзив DLSS 3 Frame Generation только на RTX 40xx"
+      },
+      {
+        "line": 37,
+        "text": "- **Min HW:** 1.7 GHz CPU, 512 MB RAM, GPU с поддержкой SSE (DX8.1 совместимая)"
+      },
+      {
+        "line": 38,
+        "text": "- **Rec HW:** Pentium 4 3.0 GHz, 1 GB RAM, DX9 GPU"
+      },
+      {
+        "line": 39,
+        "text": "- **Frame budget:** 16.6 мс (60 fps), stencil + portal = основная статья fillrate"
+      },
+      {
+        "line": 40,
+        "text": "- **Streaming/IO:** практически нет (уровни загружаются целиком, маленькие камеры)"
+      },
+      {
+        "line": 41,
+        "text": "- **Engine limits:** **r_portaldepth = 2 (жёсткий лимит рекурсии порталов)** — каждый следующий уровень вложенности требует отдельного внеэкранного прохода рендеринга геометрии в stencil-буфер → лавинообразный рост draw calls. Лимиты BSP (Source): MAX_MAP_ENTITIES = 2048, MAX_MAP_PLANES = 65536, visclusters (жёсткий лимит)"
+      },
+      {
+        "line": 42,
+        "text": "- **API Strategy:** в Linux/Steam Deck-сборках нативная трансляция DXVK (DX9 → Vulkan) снижает CPU-overhead и улучшает совместимость с Proton"
+      },
+      {
+        "line": 43,
+        "text": "- **Mod support:** Source SDK включён (Portal: The Flash Version, Portal: Prelude, Aperture Tag)"
+      },
+      {
+        "line": 44,
+        "text": "- **Antipiracy:** нет на момент релиза, добавлен Steamworks позднее"
+      },
+      {
+        "line": 47,
+        "text": "- **Выгода:** бесшовные порталы, импульс сохраняется без отдельного кэша анимаций, звук идёт через портал."
+      },
+      {
+        "line": 48,
+        "text": "- **Цена:** stencil-буфер ограничивает рекурсию и конфликтует с водой; короткие камеры — единственный способ держать сложность в бюджете."
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-01:62",
+    "title": "2. Portal 2 (2011, Valve) — AppID 620",
+    "file": "партия-01.md",
+    "line": 62,
+    "sha256": "2442203fe95afa87e615a9771f32203a2776f9dce37bed175d1b93423cdd4a39",
+    "technical_functions": [
+      "portal_rendering",
+      "particle_systems",
+      "physics_simulation",
+      "post_processing",
+      "audio_system",
+      "baked_lighting"
+    ],
+    "metadata": [
+      {
+        "line": 64,
+        "text": "- **Engine:** Source (Left 4 Dead branch, основан на Source 2007 / Orange Box)"
+      },
+      {
+        "line": 65,
+        "text": "- **Format:** 3D | **World:** linear | **Scale:** medium"
+      },
+      {
+        "line": 66,
+        "text": "- **Platforms:** pc_windows, macOS (параллельный релиз), PS3, Linux beta 2014"
+      },
+      {
+        "line": 67,
+        "text": "- **Targets:** 1080p / 60 fps"
+      },
+      {
+        "line": 68,
+        "text": "- **Object/NPC level:** medium / low | **Multiplayer:** true (2 кооп)"
+      },
+      {
+        "line": 69,
+        "text": "- **API:** DX9, OpenGL (macOS/Linux), Source L4D branch без DX11. Source 2007/Orange Box ввёл многопоточность (physics, animation, scene traversal), не Portal 2 отдельная ветка — это та же L4D branch."
+      },
+      {
+        "line": 89,
+        "text": "- **Min HW:** Core 2 Duo 2.0 GHz, 2 GB RAM, DX9 GPU 256 MB"
+      },
+      {
+        "line": 90,
+        "text": "- **Rec HW:** Quad-core CPU, 4 GB RAM, GPU 512 MB"
+      },
+      {
+        "line": 91,
+        "text": "- **Frame budget:** 16.6 мс; гели и лазеры добавляют ~1-2 мс в больших сценах"
+      },
+      {
+        "line": 92,
+        "text": "- **Streaming/IO:** нет полноценного стриминга (модульные камеры через VBSP)"
+      },
+      {
+        "line": 93,
+        "text": "- **Engine limits:** Source MP однопоточный для скриптовых сцен; лимит одновременных видимых gel-объектов в одной камере"
+      },
+      {
+        "line": 94,
+        "text": "- **Mod support:** Steam Workshop (Peer Review maps), PeTI (Paint the Intelligence) — встроенный редактор карт с paint-системой; официальный SDK"
+      },
+      {
+        "line": 95,
+        "text": "- **Antipiracy:** Steamworks (с релиза 04.2011, **нативный Steamworks с PC+PS3, без GameSpy**; GameSpy закрыт 31.05.2014, никогда не использовался Portal 2). Online-кроссплатформенный кооператив уже в день релиза"
+      },
+      {
+        "line": 98,
+        "text": "- **Выгода:** гели как SDF = одна структура данных для физики и рендера; кооп-режим с разделенным физическим миром."
+      },
+      {
+        "line": 99,
+        "text": "- **Цена:** двойная lightmap-память; однопоточный submit нагружает CPU в больших стычках."
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-01:114",
+    "title": "3. Garry's Mod (2006, Facepunch Studios) — AppID 4000",
+    "file": "партия-01.md",
+    "line": 114,
+    "sha256": "2442203fe95afa87e615a9771f32203a2776f9dce37bed175d1b93423cdd4a39",
+    "technical_functions": [
+      "project_architecture",
+      "physics_simulation",
+      "rendering_architecture",
+      "particle_systems",
+      "multiplayer_netcode",
+      "ai_pathfinding"
+    ],
+    "metadata": [
+      {
+        "line": 116,
+        "text": "- **Engine:** Source (через SDK)"
+      },
+      {
+        "line": 117,
+        "text": "- **Format:** 3D | **World:** sandbox | **Scale:** medium"
+      },
+      {
+        "line": 118,
+        "text": "- **Platforms:** pc_windows (с 2006), macOS (2010), Linux (2013)"
+      },
+      {
+        "line": 119,
+        "text": "- **Targets:** 1080p / 60 fps (настраивается аддонами)"
+      },
+      {
+        "line": 120,
+        "text": "- **Object/NPC level:** high / low | **Multiplayer:** true (до 32 игроков)"
+      },
+      {
+        "line": 121,
+        "text": "- **API:** DX9 (Source SDK), OpenGL (macOS/Linux)"
+      },
+      {
+        "line": 142,
+        "text": "- **Min HW:** 2 GHz, 1 GB RAM, GPU с поддержкой SSE2"
+      },
+      {
+        "line": 143,
+        "text": "- **Rec HW:** Quad-core CPU, 4 GB RAM, выделенный GPU"
+      },
+      {
+        "line": 144,
+        "text": "- **Frame budget:** зависит от аддонов; без Wiremod = близко к Source baseline"
+      },
+      {
+        "line": 145,
+        "text": "- **Streaming/IO:** минимальный; уровни Source-игр стримятся через Source VBSP"
+      },
+      {
+        "line": 146,
+        "text": "- **Engine limits:** single-thread главный цикл; лимиты sbox_max; cap констрейнтов Wiremod"
+      },
+      {
+        "line": 147,
+        "text": "- **Mod support:** Workshop (с v13), Lua API для аддонов, модели и ассеты загружаются динамически"
+      },
+      {
+        "line": 148,
+        "text": "- **Antipiracy:** Steamworks + Workshop-интеграция"
+      },
+      {
+        "line": 151,
+        "text": "- **Выгода:** мгновенное создание игр и режимов без C++ (TTT, Prop Hunt, DarkRP, Wiremod); UGC-платформа 15+ лет."
+      },
+      {
+        "line": 152,
+        "text": "- **Цена:** однопоточный главный цикл; 64-bit и Lua-профайлеры закрыли главные затыки хостинга только спустя годы."
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-01:169",
+    "title": "4. Call of Duty 4: Modern Warfare (2007, Infinity Ward) — AppID 7940",
+    "file": "партия-01.md",
+    "line": 169,
+    "sha256": "2442203fe95afa87e615a9771f32203a2776f9dce37bed175d1b93423cdd4a39",
+    "technical_functions": [
+      "physics_simulation",
+      "rendering_architecture",
+      "audio_system",
+      "dynamic_lighting",
+      "character_animation",
+      "multiplayer_netcode"
+    ],
+    "metadata": [
+      {
+        "line": 171,
+        "text": "- **Engine:** IW Engine 3.0 (собственный Infinity Ward; не публикуется как SDK)"
+      },
+      {
+        "line": 172,
+        "text": "- **Format:** 3D | **World:** linear + multiplayer (арена) | **Scale:** medium"
+      },
+      {
+        "line": 173,
+        "text": "- **Platforms:** pc_windows (DX9), macOS (Aspyr, 2008), Wii (Treyarch, Reflex Edition, 2009)"
+      },
+      {
+        "line": 174,
+        "text": "- **Targets:** 1080p / 60 fps (жёсткий таргет)"
+      },
+      {
+        "line": 175,
+        "text": "- **Object/NPC level:** medium / medium | **Multiplayer:** true (мультиплеер — главный контент)"
+      },
+      {
+        "line": 176,
+        "text": "- **API:** DX9; на Wii — собственный Treyarch-порт IW Engine"
+      },
+      {
+        "line": 196,
+        "text": "- **Min HW:** Pentium 4 2.4 GHz / Athlon 64 2800+, 512 MB RAM, GeForce 6600 / Radeon X1600"
+      },
+      {
+        "line": 197,
+        "text": "- **Rec HW:** Core 2 Duo, 1 GB RAM, GeForce 7900 / Radeon X1900"
+      },
+      {
+        "line": 198,
+        "text": "- **Frame budget:** 16.6 мс; рендер + AI + сеть на одном ядре (многопоточность ограничена)"
+      },
+      {
+        "line": 199,
+        "text": "- **Streaming/IO:** нет открытого мира; уровни загружаются целиком (1–2 сек)"
+      },
+      {
+        "line": 200,
+        "text": "- **Engine limits:** IW 3.0 не имеет полноценного многопоточного сабмита; ПК-версия изначально страдала на многоядерных CPU"
+      },
+      {
+        "line": 201,
+        "text": "- **Mod support:** нет официального SDK (в отличие от Source); моддинг через внешние инструменты"
+      },
+      {
+        "line": 202,
+        "text": "- **Antipiracy:** защита через активацию по ключу; позднее Steamworks + Call of Duty 4 Modern Warfare использует Steam Cloud"
+      },
+      {
+        "line": 205,
+        "text": "- **Выгода:** 60 fps как стабильная планка, динамическое пробитие материалов даёт тактическую глубину."
+      },
+      {
+        "line": 206,
+        "text": "- **Цена:** движок привязан к консольным ограничениям 2007 года; однопоточный sound."
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-01:219",
+    "title": "5. Sid Meier's Civilization V (2010, Firaxis Games) — AppID 8930",
+    "file": "партия-01.md",
+    "line": 219,
+    "sha256": "2442203fe95afa87e615a9771f32203a2776f9dce37bed175d1b93423cdd4a39",
+    "technical_functions": [
+      "ai_pathfinding",
+      "large_scale_terrain",
+      "ray_traced_effects",
+      "advanced_npc_ai",
+      "rendering_architecture",
+      "project_architecture",
+      "procedural_terrain",
+      "audio_system"
+    ],
+    "metadata": [
+      {
+        "line": 221,
+        "text": "- **Engine:** LORE (Low Overhead Rendering Engine, собственный Firaxis)"
+      },
+      {
+        "line": 222,
+        "text": "- **Format:** 3D | **World:** hub (карта мира) | **Scale:** very_large"
+      },
+      {
+        "line": 223,
+        "text": "- **Platforms:** pc_windows (DX9/DX11), macOS (OpenGL, 2010), Linux/SteamOS (2014)"
+      },
+      {
+        "line": 224,
+        "text": "- **Targets:** 1080p / 60 fps (зависит от размера карты)"
+      },
+      {
+        "line": 225,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** true (до 6)"
+      },
+      {
+        "line": 226,
+        "text": "- **API:** DX11 нативно с ремаппингом на DX9; OpenGL на Mac/Linux"
+      },
+      {
+        "line": 249,
+        "text": "- **Min HW:** Core 2 Duo 1.8 GHz / Athlon X2 2.0 GHz, 2 GB RAM, DX9 GPU 256 MB"
+      },
+      {
+        "line": 250,
+        "text": "- **Rec HW:** Quad-core 2.4 GHz, 4 GB RAM, DX11 GPU 1 GB"
+      },
+      {
+        "line": 251,
+        "text": "- **Frame budget:** 16.6 мс; AI на поздних ходах занимает больше всего"
+      },
+      {
+        "line": 252,
+        "text": "- **Streaming/IO:** нет полноценного стриминга (цельная карта мира); поворот камеры может требовать recompute ландшафта"
+      },
+      {
+        "line": 253,
+        "text": "- **Engine limits:** LORE оптимизирован под CPU-нагрузку AI; DX11-путь обязателен для tessellation"
+      },
+      {
+        "line": 254,
+        "text": "- **Mod support:** открытый DLL (Fall Patch 2012) — прецедент для AAA; комьюнити Vox Populi, CPP; Steam Workshop для модов"
+      },
+      {
+        "line": 255,
+        "text": "- **Antipiracy:** Steamworks + DRM 2K Games (некоторые регионы)"
+      },
+      {
+        "line": 258,
+        "text": "- **Выгода:** гекс-сетка устранила 8-направленные «шахматные» искажения; открытый DLL позволил комьюнити переписать AI."
+      },
+      {
+        "line": 259,
+        "text": "- **Цена:** 1UPT обнулил стековые доктрины поздней игры; AI часто рандомен в выборе стратегий."
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-01:275",
+    "title": "6. Call of Duty: World at War (2008, Treyarch) — AppID 10090",
+    "file": "партия-01.md",
+    "line": 275,
+    "sha256": "2442203fe95afa87e615a9771f32203a2776f9dce37bed175d1b93423cdd4a39",
+    "technical_functions": [
+      "physics_simulation",
+      "destruction_simulation",
+      "audio_system",
+      "rendering_architecture",
+      "multiplayer_netcode",
+      "advanced_npc_ai"
+    ],
+    "metadata": [
+      {
+        "line": 277,
+        "text": "- **Engine:** IW Engine 3.0 (модифицированный от CoD4)"
+      },
+      {
+        "line": 278,
+        "text": "- **Format:** 3D | **World:** linear + arena (multiplayer) | **Scale:** medium"
+      },
+      {
+        "line": 279,
+        "text": "- **Platforms:** pc_windows (DX9), Wii (Exakt Entertainment), PS3, Xbox 360"
+      },
+      {
+        "line": 280,
+        "text": "- **Targets:** 1080p / 60 fps"
+      },
+      {
+        "line": 281,
+        "text": "- **Object/NPC level:** medium / medium | **Multiplayer:** true"
+      },
+      {
+        "line": 282,
+        "text": "- **API:** DX9"
+      },
+      {
+        "line": 302,
+        "text": "- **Min HW:** Pentium 4 3.0 GHz / Athlon 64 3200+, 512 MB RAM, GeForce 6600 / Radeon X1600"
+      },
+      {
+        "line": 303,
+        "text": "- **Rec HW:** Core 2 Duo, 1 GB RAM, GeForce 8600 / Radeon X1900"
+      },
+      {
+        "line": 304,
+        "text": "- **Frame budget:** 16.6 мс; огонь и gore добавляют ~1-2 мс в сценах"
+      },
+      {
+        "line": 305,
+        "text": "- **Streaming/IO:** нет открытого мира; уровни загружаются целиком"
+      },
+      {
+        "line": 306,
+        "text": "- **Engine limits:** IW 3.0 однопоточный; Wii-версия — портирование на ARM через Exakt"
+      },
+      {
+        "line": 307,
+        "text": "- **Mod support:** стандартный CoD SDK (те же инструменты, что в CoD4) — упростило переход моддеров"
+      },
+      {
+        "line": 308,
+        "text": "- **Antipiracy:** Steamworks + ключ активации"
+      },
+      {
+        "line": 311,
+        "text": "- **Выгода:** объёмный огонь и реалистичный gore; точный пространственный звук через Occlusion/Flux."
+      },
+      {
+        "line": 312,
+        "text": "- **Цена:** визуально отставал от Modern Warfare того же года (унаследованный движок)."
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-01:325",
+    "title": "7. The Witcher 2: Assassins of Kings Enhanced Edition (2011/2012, CD PROJEKT RED) — AppID 20920",
+    "file": "партия-01.md",
+    "line": 325,
+    "sha256": "2442203fe95afa87e615a9771f32203a2776f9dce37bed175d1b93423cdd4a39",
+    "technical_functions": [
+      "rendering_architecture",
+      "upscaling_frame_generation",
+      "physics_simulation",
+      "open_world_streaming",
+      "character_animation",
+      "baked_lighting"
+    ],
+    "metadata": [
+      {
+        "line": 327,
+        "text": "- **Engine:** REDengine (первая полностью собственная CDPR; ранее Witcher 1 — Aurora Engine)"
+      },
+      {
+        "line": 328,
+        "text": "- **Format:** 3D | **World:** open_world (не seamless, но открытые пространства) | **Scale:** large"
+      },
+      {
+        "line": 329,
+        "text": "- **Platforms:** pc_windows (DX9), Xbox 360 (WB Interactive, 2012), macOS (2012), Linux (2014)"
+      },
+      {
+        "line": 330,
+        "text": "- **Targets:** 1080p / 30 fps"
+      },
+      {
+        "line": 331,
+        "text": "- **Object/NPC level:** high / medium | **Multiplayer:** false"
+      },
+      {
+        "line": 332,
+        "text": "- **API:** DX9; macOS — OpenGL; Xbox 360 — Xbox DirectX 9"
+      },
+      {
+        "line": 353,
+        "text": "- **Min HW:** Core 2 Duo 2.2 GHz / Athlon 64 X2 2.4 GHz, 1 GB RAM (XP) / 2 GB (Vista/7), GeForce 8800 / Radeon HD 3850"
+      },
+      {
+        "line": 354,
+        "text": "- **Rec HW:** Core 2 Quad / Phenom X4, 4 GB RAM, GeForce 260 / Radeon HD 4850"
+      },
+      {
+        "line": 355,
+        "text": "- **Frame budget:** 33.3 мс (30 fps цель); Havok-физика — основная статья CPU. **Ubersampling = 4x SSAA**: в 2011 резал fps вдвое даже на топ-картах (GTX 580 / Radeon HD 6970)"
+      },
+      {
+        "line": 356,
+        "text": "- **Streaming/IO:** главы загружаются целиком; внутри главы — стриминг зон"
+      },
+      {
+        "line": 357,
+        "text": "- **Engine limits:** Xbox 360-версия страдала от фрагментированной памяти (статтеры в Лок-Муинне)"
+      },
+      {
+        "line": 358,
+        "text": "- **Mod support:** нет официального SDK; Enhanced Edition добавила арена-режим"
+      },
+      {
+        "line": 359,
+        "text": "- **Antipiracy:** SecuROM на релизе (лимит 5 одновременных активаций) — скандал; GOG-версия DRM-free; позже SecuROM удалён"
+      },
+      {
+        "line": 362,
+        "text": "- **Выгода:** нелинейный нарратив с реальными последствиями (16 states of the world); собственная технология."
+      },
+      {
+        "line": 363,
+        "text": "- **Цена:** Xbox 360-порт с фрагментированной памятью; SecuROM как коммерческий скандал."
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-01:378",
+    "title": "8. The Elder Scrolls IV: Oblivion GOTY (2006/2007, Bethesda Game Studios) — AppID 22330",
+    "file": "партия-01.md",
+    "line": 378,
+    "sha256": "2442203fe95afa87e615a9771f32203a2776f9dce37bed175d1b93423cdd4a39",
+    "technical_functions": [
+      "rendering_architecture",
+      "procedural_terrain",
+      "open_world_streaming",
+      "physics_simulation",
+      "advanced_npc_ai",
+      "procedural_vegetation"
+    ],
+    "metadata": [
+      {
+        "line": 380,
+        "text": "- **Engine:** Gamebryo (NetImmerse/Gamebryo от Emergent Game Technologies)"
+      },
+      {
+        "line": 381,
+        "text": "- **Format:** 3D | **World:** open_world | **Scale:** very_large (16 кв. миль / 41 км²)"
+      },
+      {
+        "line": 382,
+        "text": "- **Platforms:** pc_windows (DX9), Xbox 360 (2006), PS3 (4J Studios, 2007), Switch 2 (Remastered, 2026)"
+      },
+      {
+        "line": 383,
+        "text": "- **Targets:** 1080p / 60 fps (Remastered), 30 fps (оригинал)"
+      },
+      {
+        "line": 384,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** false"
+      },
+      {
+        "line": 385,
+        "text": "- **API:** DX9 (оригинал); Remastered 2025 — Unreal Engine 5 для графики + Gamebryo для core/physics/combat (гибридная архитектура Virtuos+Bethesda)"
+      },
+      {
+        "line": 408,
+        "text": "- **Min HW:** Pentium 4 2.0 GHz / Athlon XP 2000+, 512 MB RAM, DX9 GPU 64 MB"
+      },
+      {
+        "line": 409,
+        "text": "- **Rec HW:** Pentium 4 3.0 GHz / Athlon 64 3000+, 1 GB RAM, GeForce 6600 / Radeon X1300"
+      },
+      {
+        "line": 410,
+        "text": "- **Frame budget:** 33.3 мс (30 fps цель); HDR + LOD — основные статьи GPU; Radiant AI — CPU"
+      },
+      {
+        "line": 411,
+        "text": "- **Streaming/IO:** квадратные ячейки; стриминг мира при перемещении; loading screens при входе в интерьеры"
+      },
+      {
+        "line": 412,
+        "text": "- **Engine limits:** NPC-население сознательно ограничено (Bethesda: «большое число NPC роняет FPS»)"
+      },
+      {
+        "line": 413,
+        "text": "- **Mod support:** официальный Construction Set; Bethesda мод-сообщество (масштабнейшее в индустрии на тот момент)"
+      },
+      {
+        "line": 414,
+        "text": "- **Antipiracy:** ключ активации; Bethesda-учёт; позже Steamworks"
+      },
+      {
+        "line": 417,
+        "text": "- **Выгода:** HDR + дальняя LOD + процедурный ландшафт = эталон 2006 года; Radiant AI даёт живые NPC-расписания."
+      },
+      {
+        "line": 418,
+        "text": "- **Цена:** Level-scaling ломает баланс; полная озвучка ограничила диалоги; horse_armor как micro-DLC вызвал скандал."
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-01:435",
+    "title": "9. Batman: Arkham Asylum GOTY (2009/2010, Rocksteady Studios) — AppID 35140",
+    "file": "партия-01.md",
+    "line": 435,
+    "sha256": "2442203fe95afa87e615a9771f32203a2776f9dce37bed175d1b93423cdd4a39",
+    "technical_functions": [
+      "post_processing",
+      "advanced_npc_ai",
+      "physics_simulation",
+      "cloth_simulation"
+    ],
+    "metadata": [
+      {
+        "line": 437,
+        "text": "- **Engine:** Unreal Engine 3"
+      },
+      {
+        "line": 438,
+        "text": "- **Format:** 3D | **World:** hub (остров Аркхэм) | **Scale:** medium"
+      },
+      {
+        "line": 439,
+        "text": "- **Platforms:** pc_windows (DX9), PS3, Xbox 360, macOS (Feral, 2011), PS4/Xbox One (UE4-ремастер 2016), Switch (2023)"
+      },
+      {
+        "line": 440,
+        "text": "- **Targets:** 1080p / 60 fps"
+      },
+      {
+        "line": 441,
+        "text": "- **Object/NPC level:** medium / medium | **Multiplayer:** false (challenge maps только)"
+      },
+      {
+        "line": 442,
+        "text": "- **API:** DX9; UE3; ремастер 2016 — UE4 с PBR"
+      },
+      {
+        "line": 462,
+        "text": "- **Min HW:** Core 2 Duo 2.4 GHz / Athlon X2 2.8 GHz, 1 GB RAM (XP) / 2 GB (Vista/7), GeForce 7900 / Radeon X1900"
+      },
+      {
+        "line": 463,
+        "text": "- **Rec HW:** Core 2 Quad, 3 GB RAM, GeForce 8800 / Radeon HD 3870"
+      },
+      {
+        "line": 464,
+        "text": "- **Frame budget:** 16.6 мс; PhysX-частицы добавляют ~1-2 мс"
+      },
+      {
+        "line": 465,
+        "text": "- **Streaming/IO:** hub-уровень, загружается по зонам; минимум loading screens"
+      },
+      {
+        "line": 466,
+        "text": "- **Engine limits:** UE3 без DX11; PhysX-зависимость разделяет аудиторию"
+      },
+      {
+        "line": 467,
+        "text": "- **Mod support:** нет официального SDK"
+      },
+      {
+        "line": 468,
+        "text": "- **Antipiracy:** контроверсная защита — отключение glide-способности в копиях (вызвала медиа-скандал)"
+      },
+      {
+        "line": 471,
+        "text": "- **Выгода:** Freeflow combat + Detective Vision + garry-point stealth = золотой стандарт action-adventure."
+      },
+      {
+        "line": 472,
+        "text": "- **Цена:** PhysX-зависимость разделила ПК-аудиторию по GPU; boss-файты — главная критика; контроверсная анти-пиратка."
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-01:487",
+    "title": "10. Final Fantasy XIV Online (2013, Square Enix, A Realm Reborn) — AppID 39210",
+    "file": "партия-01.md",
+    "line": 487,
+    "sha256": "2442203fe95afa87e615a9771f32203a2776f9dce37bed175d1b93423cdd4a39",
+    "technical_functions": [
+      "open_world_streaming",
+      "rendering_architecture",
+      "multiplayer_netcode",
+      "build_delivery",
+      "dynamic_global_illumination",
+      "advanced_npc_ai"
+    ],
+    "metadata": [
+      {
+        "line": 489,
+        "text": "- **Engine:** Собственный (полностью новая кодовая база «Version 2.0», секрет с 2011)"
+      },
+      {
+        "line": 490,
+        "text": "- **Format:** 3D | **World:** open_world (зонный) | **Scale:** very_large"
+      },
+      {
+        "line": 491,
+        "text": "- **Platforms:** pc_windows, PS3 (2013), PS4 (2014), macOS (2015, OpenGL), PS5 (2021), Xbox Series X/S (2024), Switch 2 (2026), Steam (2014)"
+      },
+      {
+        "line": 492,
+        "text": "- **Targets:** 1080p / 30 fps (Dawntrail — до 60 на патчах)"
+      },
+      {
+        "line": 493,
+        "text": "- **Object/NPC level:** high / high (хабы с десятками игроков) | **Multiplayer:** true (MMO)"
+      },
+      {
+        "line": 494,
+        "text": "- **API:** DX11 (Win), OpenGL (Mac), Vulkan/Metal (PS5), DX12 (Xbox)"
+      },
+      {
+        "line": 520,
+        "text": "- **Min HW (Dawntrail):** Core i5-8400 / Ryzen 5 2600, 16 GB RAM, GTX 970 4 GB / RX 480 4 GB"
+      },
+      {
+        "line": 521,
+        "text": "- **Rec HW:** Core i7-9700 / Ryzen 7 3700X, 16 GB RAM, RTX 2060 / RX 5600 XT"
+      },
+      {
+        "line": 522,
+        "text": "- **Frame budget:** 33.3 мс (30 fps); в переполненных хабах — риск просадок"
+      },
+      {
+        "line": 523,
+        "text": "- **Streaming/IO:** zone-based — переходы между зонами с короткими loading screens (раньше были длиннее); внутри зоны — стриминг ландшафта"
+      },
+      {
+        "line": 524,
+        "text": "- **Engine limits:** macOS — портирование с DirectX на OpenGL вызвало проблемы на старте; Switch 2 — отдельная подписка (не разделяется с другими платформами)"
+      },
+      {
+        "line": 525,
+        "text": "- **Mod support:** официально нет; внутриигровые аддоны (мебель, glamour) — серверная валидация"
+      },
+      {
+        "line": 526,
+        "text": "- **Antipiracy:** Square Enix Account + подписка; серверная валидация"
+      },
+      {
+        "line": 529,
+        "text": "- **Выгода:** эталон спасения MMORPG через полную переделку; Yoshida принял ~400 фундаментальных дизайн-решений на старте."
+      },
+      {
+        "line": 530,
+        "text": "- **Цена:** macOS-порт провалился с первой попытки (спешка с Heavensward + ошибка переноса DirectX → OpenGL); cross-platform subscription на Switch 2 не разделяется с другими платформами."
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-02:8",
+    "title": "1. Half-Life 2 (2004, Valve) — AppID 220",
+    "file": "партия-02.md",
+    "line": 8,
+    "sha256": "82ab47f2ea881fd6ac0e671b82eeeea5a694f5bedee9a573f559bf1fa7ba46f9",
+    "technical_functions": [
+      "physics_simulation",
+      "rendering_architecture",
+      "character_animation",
+      "ai_pathfinding",
+      "advanced_npc_ai",
+      "dynamic_lighting",
+      "runtime_memory",
+      "audio_system",
+      "build_delivery",
+      "runtime_security"
+    ],
+    "metadata": [
+      {
+        "line": 10,
+        "text": "- **Engine:** Source (debut release, 2004)"
+      },
+      {
+        "line": 11,
+        "text": "- **Format:** 3D | **World:** linear | **Scale:** medium"
+      },
+      {
+        "line": 12,
+        "text": "- **Platforms:** pc_windows (16.11.2004), Xbox (15.11.2005), Xbox 360 (Orange Box, 10.10.2007), PS3 (Orange Box, 11.12.2007 EA port), Mac OS X (26.05.2010), Linux (09.05.2013), Nvidia Shield (12.05.2014)"
+      },
+      {
+        "line": 13,
+        "text": "- **Targets:** 1080p / 60 fps"
+      },
+      {
+        "line": 14,
+        "text": "- **Object/NPC level:** medium / low | **Multiplayer:** DM only (HL2: Deathmatch 220, отдельный релиз декабрь 2004)"
+      },
+      {
+        "line": 15,
+        "text": "- **API:** DX9 (базовый Source engine)"
+      },
+      {
+        "line": 44,
+        "text": "- **Min HW:** Pentium 4 2.0 GHz / Athlon XP 2000+, 512 MB RAM, DX9 GPU 64 MB"
+      },
+      {
+        "line": 45,
+        "text": "- **Rec HW:** Pentium 4 3.0 GHz / Athlon 64 3000+, 1 GB RAM, GeForce 6600 / Radeon X1300"
+      },
+      {
+        "line": 46,
+        "text": "- **Frame budget:** 33.3 мс (60 fps цель)"
+      },
+      {
+        "line": 47,
+        "text": "- **Streaming/IO:** loading screens между главами; внутри глав — BSP-потоковая подгрузка секторов"
+      },
+      {
+        "line": 48,
+        "text": "- **Engine limits:** **BSP компилятор VBSP — жёсткие лимиты**: MAX_MAP_ENTITIES = 2048 (активные динамические сущности), MAX_MAP_PLANES = 65536 (плоскости мира), visclusters (жёсткий лимит видимых кластеров, препятствует масштабированию локаций). BSP — статическая геометрия; physics sleep state экономит CPU"
+      },
+      {
+        "line": 49,
+        "text": "- **Mod support:** Source SDK официальный; Minerva, Black Mesa, SMOD, Garry's Mod"
+      },
+      {
+        "line": 50,
+        "text": "- **Antipiracy:** Steam-активация (2004 — революционно и скандально); pre-load DRM"
+      },
+      {
+        "line": 53,
+        "text": "- **Выгода:** Havok + VPhysics — физика как геймплей (gravity gun); Substance System — материалы = поведение; FACS — реалистичная мимика"
+      },
+      {
+        "line": 54,
+        "text": "- **Цена:** Superman fix массы gravity gun — ручной тюнинг; полная озвучка — огромный размер; BSP — нельзя деформировать мир; required Steam — потеря offline"
+      },
+      {
+        "line": 57,
+        "text": "- **Декабрь 2004:** релиз HL2: Deathmatch (отдельный standalone)"
+      },
+      {
+        "line": 58,
+        "text": "- **2005:** HL2: Lost Coast (бесплатный HDR-demo)"
+      },
+      {
+        "line": 59,
+        "text": "- **Декабрь 2005:** первый нативный 64-bit Source для XP x64 (HL2 + Lost Coast)"
+      },
+      {
+        "line": 60,
+        "text": "- **Июнь 2006:** Episode One (Source 2006, новая морфологическая анимация лица)"
+      },
+      {
+        "line": 61,
+        "text": "- **Октябрь 2007:** Episode Two (Source 2007, HDR + Phong)"
+      },
+      {
+        "line": 62,
+        "text": "- **The Orange Box (10.10.2007):** Episode One + Two + Portal + TF2"
+      },
+      {
+        "line": 63,
+        "text": "- **26.05.2010:** Mac OS X (Universal binary)"
+      },
+      {
+        "line": 64,
+        "text": "- **09.05.2013:** Linux (SteamPipe + native)"
+      },
+      {
+        "line": 65,
+        "text": "- **Январь 2022:** Steam Deck-оптимизированный UI"
+      },
+      {
+        "line": 66,
+        "text": "- **Ноябрь 2024 (20-летие):** Episode One+2 встроены в HL2; Steam Workshop; restored cut content; developer commentary; HL2 временно бесплатен"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-02:75",
+    "title": "2. Half-Life 2: Episode One (2006, Valve) — AppID 380",
+    "file": "партия-02.md",
+    "line": 75,
+    "sha256": "82ab47f2ea881fd6ac0e671b82eeeea5a694f5bedee9a573f559bf1fa7ba46f9",
+    "technical_functions": [
+      "advanced_npc_ai",
+      "physics_simulation",
+      "dynamic_lighting",
+      "rendering_architecture",
+      "character_animation",
+      "destruction_simulation"
+    ],
+    "metadata": [
+      {
+        "line": 77,
+        "text": "- **Engine:** Source 2006"
+      },
+      {
+        "line": 78,
+        "text": "- **Format:** 3D | **World:** linear | **Scale:** small (короткий эпизод 4-6 часов)"
+      },
+      {
+        "line": 79,
+        "text": "- **Platforms:** Windows (01.06.2006), Xbox 360 (Orange Box 10.10.2007), PS3 (Orange Box 14.12.2007), Mac (26.05.2010), Linux (26.06.2013), Shield (15.12.2014)"
+      },
+      {
+        "line": 80,
+        "text": "- **Targets:** 1080p / 60 fps"
+      },
+      {
+        "line": 81,
+        "text": "- **Object/NPC level:** medium / low | **Multiplayer:** false"
+      },
+      {
+        "line": 101,
+        "text": "- **Min HW:** аналогично HL2"
+      },
+      {
+        "line": 102,
+        "text": "- **Rec HW:** аналогично HL2 + 256 MB VRAM для HDR"
+      },
+      {
+        "line": 103,
+        "text": "- **Frame budget:** 16.6 мс (60 fps); HDR добавляет ~1-2 мс"
+      },
+      {
+        "line": 104,
+        "text": "- **Engine limits:** short campaign (~4-6 часов) — лимиты те же что Source 2006"
+      },
+      {
+        "line": 105,
+        "text": "- **Antipiracy:** Steam-активация"
+      },
+      {
+        "line": 108,
+        "text": "- **Выгода:** Alyx как живой компаньон (не scripted follower); gravity gun с самого начала для лучшей pacing"
+      },
+      {
+        "line": 109,
+        "text": "- **Цена:** HDR banding; компактный движок перенял ограничения Source 2006"
+      },
+      {
+        "line": 112,
+        "text": "- **Январь 2022:** Steam Deck UI"
+      },
+      {
+        "line": 113,
+        "text": "- **Ноябрь 2024:** Episode One+2 встроены в HL2"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-02:122",
+    "title": "3. Half-Life 2: Episode Two (2007, Valve) — AppID 420",
+    "file": "партия-02.md",
+    "line": 122,
+    "sha256": "82ab47f2ea881fd6ac0e671b82eeeea5a694f5bedee9a573f559bf1fa7ba46f9",
+    "technical_functions": [
+      "open_world_streaming",
+      "multiplayer_netcode",
+      "character_animation",
+      "physics_simulation"
+    ],
+    "metadata": [
+      {
+        "line": 124,
+        "text": "- **Engine:** Source 2007 (Orange Box)"
+      },
+      {
+        "line": 125,
+        "text": "- **Format:** 3D | **World:** linear + открытые зоны | **Scale:** medium"
+      },
+      {
+        "line": 126,
+        "text": "- **Platforms:** Windows (10.10.2007), Xbox 360 (10.10.2007), PS3 (14.12.2007, EA), Mac (26.05.2010), Linux (10.05.2013), Shield (15.12.2014)"
+      },
+      {
+        "line": 127,
+        "text": "- **Targets:** 1080p / 60 fps"
+      },
+      {
+        "line": 128,
+        "text": "- **Object/NPC level:** medium / low | **Multiplayer:** false"
+      },
+      {
+        "line": 149,
+        "text": "- **Min HW:** аналогично HL2 + 256 MB VRAM"
+      },
+      {
+        "line": 150,
+        "text": "- **Rec HW:** аналогично HL2"
+      },
+      {
+        "line": 151,
+        "text": "- **Frame budget:** 16.6 мс; Vehicle-секции ~1-2 мс"
+      },
+      {
+        "line": 152,
+        "text": "- **Engine limits:** Source 2007, расширенные vehicle-сценарии"
+      },
+      {
+        "line": 153,
+        "text": "- **Antipiracy:** Steam + Orange Box DRM"
+      },
+      {
+        "line": 156,
+        "text": "- **Выгода:** открытые зоны, более разнообразный геймплей (vehicle, новый враг Hunter)"
+      },
+      {
+        "line": 157,
+        "text": "- **Цена:** Hunter AI тяжёлый; Eli death без закрытия арки — сюжетный cliffhanger (Episode Three отменён)"
+      },
+      {
+        "line": 164,
+        "text": "- **Дополнительно:** В 2020 году Rocket Lab запустил настоящую версию Gnome Chompski в космос (Gabe Newell и Wētā Workshop, миссия \"Return To Sender\", ноябрь 2020)"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-02:171",
+    "title": "4. Counter-Strike: Source (2004, Valve + Turtle Rock) — AppID 240",
+    "file": "партия-02.md",
+    "line": 171,
+    "sha256": "82ab47f2ea881fd6ac0e671b82eeeea5a694f5bedee9a573f559bf1fa7ba46f9",
+    "technical_functions": [
+      "physics_simulation",
+      "post_processing",
+      "rendering_architecture",
+      "dynamic_lighting",
+      "multiplayer_netcode",
+      "project_architecture",
+      "runtime_memory"
+    ],
+    "metadata": [
+      {
+        "line": 173,
+        "text": "- **Engine:** Source (debut Source Engine release — вышел ДО HL2)"
+      },
+      {
+        "line": 174,
+        "text": "- **Format:** 3D | **World:** linear (арены) | **Scale:** small"
+      },
+      {
+        "line": 175,
+        "text": "- **Platforms:** Windows (07.10.2004), Mac (23.06.2010), Linux (02.2013)"
+      },
+      {
+        "line": 176,
+        "text": "- **Targets:** 1080p / 60 fps (CS:S в основном 100 fps на форумах того времени)"
+      },
+      {
+        "line": 177,
+        "text": "- **Object/NPC level:** low / low | **Multiplayer:** true (до 64 игроков, увеличено с 32 в оригинале)"
+      },
+      {
+        "line": 199,
+        "text": "- **Min HW:** Pentium 4 2.0 GHz / Athlon XP, 512 MB RAM, GeForce 6600 / Radeon X1300"
+      },
+      {
+        "line": 200,
+        "text": "- **Rec HW:** Core 2 Duo, 1 GB RAM, GeForce 8800 / Radeon HD 3870"
+      },
+      {
+        "line": 201,
+        "text": "- **Frame budget:** 16.6 мс"
+      },
+      {
+        "line": 202,
+        "text": "- **Streaming/IO:** цельные карты, загрузка 1-3 секунды"
+      },
+      {
+        "line": 203,
+        "text": "- **Engine limits:** **кризис сетевого тикрейта 2010**: перевод движка с фиксированных 100 Hz на унифицированные 66 Hz (ветка Orange Box) **сломал соревновательную физику распрыжки (bunny hop)** и вызвал раскол киберспортивного сообщества на сборки v34 и Steam-версию. **18.02.2025** — патч добавил аргумент `-vulkan` для рендерера Vulkan (DXVK-стиль), дополнительно к x64-миграции и объединению кодовой базы с TF2 Source 2013 MP."
+      },
+      {
+        "line": 204,
+        "text": "- **Mod support:** Source SDK"
+      },
+      {
+        "line": 205,
+        "text": "- **Antipiracy:** Steamworks + встроенный anti-cheat (VAC)"
+      },
+      {
+        "line": 208,
+        "text": "- **Выгода:** ragdoll-physics, 64 игрока, HDR, Source-engine современные эффекты"
+      },
+      {
+        "line": 209,
+        "text": "- **Цена:** утеряна прецизионная recoil-система CS 1.6 (больше рандома), bunny hopping ограничен"
+      },
+      {
+        "line": 216,
+        "text": "- **23.06.2010:** переход на Orange Box engine (Source 2006/2007 hybrid) — тикрейт заблокирован на 66"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-02:226",
+    "title": "5. Left 4 Dead (2008, Valve South) — AppID 500",
+    "file": "партия-02.md",
+    "line": 226,
+    "sha256": "82ab47f2ea881fd6ac0e671b82eeeea5a694f5bedee9a573f559bf1fa7ba46f9",
+    "technical_functions": [
+      "advanced_npc_ai",
+      "rendering_architecture",
+      "cloth_simulation",
+      "character_animation",
+      "dynamic_shadows",
+      "volumetric_effects",
+      "post_processing",
+      "geometry_pipeline",
+      "ai_pathfinding",
+      "multiplayer_netcode",
+      "project_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 228,
+        "text": "- **Engine:** Source 2008 (мультиядерный рендер)"
+      },
+      {
+        "line": 229,
+        "text": "- **Format:** 3D | **World:** linear (кампании) | **Scale:** small (короткие уровни)"
+      },
+      {
+        "line": 230,
+        "text": "- **Platforms:** Windows + Xbox 360 (18.11.2008 NA, 21.11.2008 EU), Mac (27.10.2010)"
+      },
+      {
+        "line": 231,
+        "text": "- **Targets:** 1080p / 60 fps"
+      },
+      {
+        "line": 232,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** true (до 4 кооп + до 8 versus)"
+      },
+      {
+        "line": 264,
+        "text": "- **Min HW:** Pentium 4 3.0 GHz / Athlon 64 3000+, 1 GB RAM, DX9 GPU 128 MB"
+      },
+      {
+        "line": 265,
+        "text": "- **Rec HW:** Core 2 Duo 2.4 GHz, 2 GB RAM, GeForce 7600 / Radeon X1600"
+      },
+      {
+        "line": 266,
+        "text": "- **Frame budget:** 16.6 мс; AI Director + crowd (50+ Infected) — узкое место CPU"
+      },
+      {
+        "line": 267,
+        "text": "- **Streaming/IO:** инстанс-кампании по safehouse-секциям, нет open-world"
+      },
+      {
+        "line": 268,
+        "text": "- **Engine limits:** **mat_queue_mode 2** (многопоточный диспетчер рендеринга) — стабилизация потребовала полного выноса анимаций толпы заражённых в фоновые потоки TaskGraph/Thread Pool. Source 2008 мультиядерный — лимиты памяти Xbox 360 (Infected модели 24000 вариаций ради экономии)"
+      },
+      {
+        "line": 269,
+        "text": "- **Mod support:** Steam Workshop (2013), Source SDK с SketchUp-импортом"
+      },
+      {
+        "line": 270,
+        "text": "- **Antipiracy:** Steamworks + VAC"
+      },
+      {
+        "line": 273,
+        "text": "- **Выгода:** AI Director — каждая игра уникальна; реализм раненых через рандом-текстуры; широкое UGC-сообщество"
+      },
+      {
+        "line": 274,
+        "text": "- **Цена:** AI overhead на CPU; path-follower heavy; мало сюжетной плотности; Xbox 360 memory caps"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-02:291",
+    "title": "6. Left 4 Dead 2 (2009, Valve South) — AppID 550",
+    "file": "партия-02.md",
+    "line": 291,
+    "sha256": "82ab47f2ea881fd6ac0e671b82eeeea5a694f5bedee9a573f559bf1fa7ba46f9",
+    "technical_functions": [
+      "advanced_npc_ai",
+      "physics_simulation",
+      "water_simulation",
+      "rendering_architecture",
+      "hair_rendering",
+      "multiplayer_netcode"
+    ],
+    "metadata": [
+      {
+        "line": 293,
+        "text": "- **Engine:** Source (мультиядерный, с улучшениями относительно L4D1)"
+      },
+      {
+        "line": 294,
+        "text": "- **Format:** 3D | **World:** linear | **Scale:** small (5 кампаний)"
+      },
+      {
+        "line": 295,
+        "text": "- **Platforms:** Windows + Xbox 360 (17.11.2009 NA, 20.11.2009 EU), Mac (05.10.2010), Linux (02.07.2013), SteamOS"
+      },
+      {
+        "line": 296,
+        "text": "- **Targets:** 1080p / 60 fps"
+      },
+      {
+        "line": 297,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** true (до 4 кооп + до 8 versus)"
+      },
+      {
+        "line": 324,
+        "text": "- **Min HW:** аналогично L4D1, но + DirectX 10 для Windows Vista"
+      },
+      {
+        "line": 325,
+        "text": "- **Rec HW:** Core 2 Duo, 2 GB RAM, GeForce 8600 / Radeon HD 3870"
+      },
+      {
+        "line": 326,
+        "text": "- **Frame budget:** 16.6 мс; Director 2.0 + 8 special infected + Uncommon — CPU-heavy"
+      },
+      {
+        "line": 327,
+        "text": "- **Streaming/IO:** как в L4D1, но мультикампании с большей географией (Savannah → New Orleans)"
+      },
+      {
+        "line": 328,
+        "text": "- **Engine limits:** Xbox 360 memory — модельная оптимизация через texture variation"
+      },
+      {
+        "line": 329,
+        "text": "- **Mod support:** Steam Workshop (2013), Expanded Mutation System, VScript"
+      },
+      {
+        "line": 330,
+        "text": "- **Antipiracy:** Steamworks + VAC"
+      },
+      {
+        "line": 333,
+        "text": "- **Выгода:** AI Director 2.0 с layout-изменениями; 8 special infected разнообразят тактику; melee + flashlight добавляют тактическую глубину"
+      },
+      {
+        "line": 334,
+        "text": "- **Цена:** Xbox 360 memory cap заставляет оптимизировать модели (texture variation); больше AI overhead; $25M маркетинговая кампания"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-02:359",
+    "title": "7. Counter-Strike: Global Offensive (2012, Valve + Hidden Path) — AppID 730",
+    "file": "партия-02.md",
+    "line": 359,
+    "sha256": "82ab47f2ea881fd6ac0e671b82eeeea5a694f5bedee9a573f559bf1fa7ba46f9",
+    "technical_functions": [
+      "multiplayer_netcode",
+      "runtime_security",
+      "project_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 361,
+        "text": "- **Engine:** Source (позже Source 2 как CS2)"
+      },
+      {
+        "line": 362,
+        "text": "- **Format:** 3D | **World:** linear (арены) | **Scale:** small"
+      },
+      {
+        "line": 363,
+        "text": "- **Platforms:** Windows/Mac/PS3/Xbox 360 (21.08.2012), Linux (23.09.2014)"
+      },
+      {
+        "line": 364,
+        "text": "- **Targets:** 1080p / 60+ fps (CS:GO имеет 128 tick на матчмейкинге)"
+      },
+      {
+        "line": 365,
+        "text": "- **Object/NPC level:** low / low | **Multiplayer:** true (5-на-5)"
+      },
+      {
+        "line": 396,
+        "text": "- **Min HW:** Core 2 Duo E6600 / Athlon 64 X2 5600+, 2 GB RAM, GeForce 8600 / Radeon HD 3650"
+      },
+      {
+        "line": 397,
+        "text": "- **Rec HW:** Quad-core, 4 GB RAM, GeForce 9800 / Radeon HD 4870"
+      },
+      {
+        "line": 398,
+        "text": "- **Frame budget:** 16.6 мс; минимальный рендер, сетевой код важнее"
+      },
+      {
+        "line": 399,
+        "text": "- **Streaming/IO:** цельные карты, загрузка мгновенная"
+      },
+      {
+        "line": 400,
+        "text": "- **Engine limits:** Source + расширения для матчмейкинга; CS2 переход на Source 2 в 2023"
+      },
+      {
+        "line": 401,
+        "text": "- **Mod support:** официальный нет; community-mods через Steam Workshop (карты, скины)"
+      },
+      {
+        "line": 402,
+        "text": "- **Streaming/IO:** переход с открытых файловых систем на упакованные контейнеры VPK с предвычисленным кэшированием строковых таблиц и шейдеров (снижает лаги подгрузки ассетов во время раунда)"
+      },
+      {
+        "line": 403,
+        "text": "- **Antipiracy:** VAC + Trust Factor + Prime Matchmaking"
+      },
+      {
+        "line": 406,
+        "text": "- **Выгода:** 128-tick мэтчмейкинг (за счёт FACEIT/premier), Trust Factor снижает читеров, Workshop-экономика стимулирует UGC"
+      },
+      {
+        "line": 407,
+        "text": "- **Цена:** высокое потребление памяти для скинов; source code leak 2020; конкурентная мета меняется каждые несколько месяцев (патчи баланса оружия)"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-03:10",
+    "title": "1. Dark Souls: Remastered (2011/2018, FromSoftware + QLOC/Virtuos) — AppID 570940",
+    "file": "партия-03.md",
+    "line": 10,
+    "sha256": "5d01161241fc22baf357d42a4afc4c60308dd1dde8d8f0e33687f8116324e86d",
+    "technical_functions": [
+      "open_world_streaming",
+      "save_system",
+      "multiplayer_netcode"
+    ],
+    "metadata": [
+      {
+        "line": 12,
+        "text": "- **Engine:** FromSoftware in-house (без публичного названия)"
+      },
+      {
+        "line": 13,
+        "text": "- **Format:** 3D | **World:** linear (interconnected) | **Scale:** medium"
+      },
+      {
+        "line": 14,
+        "text": "- **Platforms:** PS3 (22.09.2011 JP / 04.10.2011 NA), Xbox 360 (04.10.2011 NA), Windows (Prepare to Die 24.08.2012 NA/EU), PS4/Xbox One Remastered (24.05.2018 JP / 25.05.2018 WW), Switch Remastered (19.10.2018)"
+      },
+      {
+        "line": 15,
+        "text": "- **Targets:** 1080p / 60 fps (PS4/Win/Xbox One); 30 fps (Switch); 30 fps (PS3/360/DS1 оригинал на ПК)"
+      },
+      {
+        "line": 16,
+        "text": "- **Object/NPC level:** medium / high | **Multiplayer:** true (до 6 игроков в Remastered, до 4 в оригинале)"
+      },
+      {
+        "line": 17,
+        "text": "- **API:** DX9 (оригинал 2012); DX11 (Remastered 2018)"
+      },
+      {
+        "line": 39,
+        "text": "- **Min HW (оригинал 2012):** Core 2 Duo E6600 / Athlon 64 X2 5600+, 2 GB RAM, GeForce 8600 / Radeon HD 3850"
+      },
+      {
+        "line": 40,
+        "text": "- **Rec HW:** Quad-core, 4 GB RAM, GeForce 9800 / Radeon HD 4870"
+      },
+      {
+        "line": 41,
+        "text": "- **Frame budget:** 33.3 мс (оригинал 30 fps); 16.6 мс (Remastered 60 fps)"
+      },
+      {
+        "line": 42,
+        "text": "- **Streaming/IO:** цельный мир Lordran, разбит на чанки для загрузки; loading screens только между областями"
+      },
+      {
+        "line": 43,
+        "text": "- **Engine limits:** **Havok Physics: дефект детерминизма симуляции при отвязке от 30 fps через DSFix** — удвоение тиков приводило к сокращению дистанции прыжка и проваливанию персонажа сквозь текстуры при спуске по вертикальным лестницам. QLOC выполнил полную переработку физических констант в Remastered (2018). Оригинал DSFix — фиксированное render resolution 1024x720; ПК-порт 2012 года был плохо оптимизирован."
+      },
+      {
+        "line": 44,
+        "text": "- **Display:** **программная блокировка соотношения сторон 21:9** (чёрные полосы) и **кап 60 fps** — ради паритета в сетевых вторжениях"
+      },
+      {
+        "line": 45,
+        "text": "- **Mod support:** DSFix (unofficial), community-моды для PTDE; Remastered имеет встроенный 60 fps"
+      },
+      {
+        "line": 46,
+        "text": "- **Antipiracy:** Games for Windows — Live (PTDE 2012, устарел); Steamworks (после миграции декабрь 2014)"
+      },
+      {
+        "line": 49,
+        "text": "- **Выгода:** костёр как save+story+atmosphere; interconnected world создаёт метрики исследования; bloodstains/community messages — асинхронная социализация"
+      },
+      {
+        "line": 50,
+        "text": "- **Цена:** PTDE 2012 имел фиксированный render resolution (нужен DSFix); ограничение на 4 игроков в кооп; PvP-инвазии могут разрушить опыт SP"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-03:69",
+    "title": "2. Dark Souls II: Scholar of the First Sin (2014/2015, FromSoftware) — AppID 335300 (SotFS) / 236430 (оригинал)",
+    "file": "партия-03.md",
+    "line": 69,
+    "sha256": "5d01161241fc22baf357d42a4afc4c60308dd1dde8d8f0e33687f8116324e86d",
+    "technical_functions": [
+      "runtime_memory",
+      "physics_simulation",
+      "rendering_architecture",
+      "multiplayer_netcode",
+      "advanced_npc_ai"
+    ],
+    "metadata": [
+      {
+        "line": 71,
+        "text": "- **Engine:** FromSoftware in-house (новая версия для DS2, директор Tomohiro Shibuya, не Миядзаки)"
+      },
+      {
+        "line": 72,
+        "text": "- **Format:** 3D | **World:** linear (interconnected hub) | **Scale:** medium-large"
+      },
+      {
+        "line": 73,
+        "text": "- **Platforms:** PS3 (11.03.2014), Xbox 360, Windows (24.04.2014), PS4/Xbox One (SotFS, 07.04.2015 NA)"
+      },
+      {
+        "line": 74,
+        "text": "- **Targets:** 1080p / 60 fps (SotFS); 30 fps (PS3/360)"
+      },
+      {
+        "line": 75,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** true (до 6 в SotFS)"
+      },
+      {
+        "line": 97,
+        "text": "- **Min HW:** Core 2 Duo E6600 / Athlon 64 X2 5600+, 2 GB RAM, GeForce 8600 / Radeon HD 3850 (оригинал)"
+      },
+      {
+        "line": 98,
+        "text": "- **Rec HW (SotFS):** Core i3-2100 / Phenom X4 940, 4 GB RAM, GeForce GTX 750 / Radeon HD 6870"
+      },
+      {
+        "line": 99,
+        "text": "- **Frame budget:** 16.6 мс (SotFS 60 fps)"
+      },
+      {
+        "line": 100,
+        "text": "- **Streaming/IO:** большие зоны Drangleic с большим количеством врагов; требовательнее к памяти чем DS1"
+      },
+      {
+        "line": 101,
+        "text": "- **Engine limits:** DS1 PTDE-style проблемы исправлены; Save data не совместима между оригиналом и SotFS"
+      },
+      {
+        "line": 102,
+        "text": "- **Mod support:** PtDE mod-сообщество (но не уровень DS1)"
+      },
+      {
+        "line": 103,
+        "text": "- **Antipiracy:** Steamworks"
+      },
+      {
+        "line": 106,
+        "text": "- **Выгода:** Soul Memory более справедливый matchmaking; NG+ создаёт долгосрочный контент"
+      },
+      {
+        "line": 107,
+        "text": "- **Цена:** frame-rate-dependent durability баг (известный >года); директор не Миядзаки; потеря сохранений при upgrade; баланс boss-файтов хуже DS1"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-03:122",
+    "title": "3. Dark Souls III: The Fire Fades (2016, FromSoftware) — AppID 374320",
+    "file": "партия-03.md",
+    "line": 122,
+    "sha256": "5d01161241fc22baf357d42a4afc4c60308dd1dde8d8f0e33687f8116324e86d",
+    "technical_functions": [
+      "open_world_streaming",
+      "multiplayer_netcode",
+      "post_processing"
+    ],
+    "metadata": [
+      {
+        "line": 124,
+        "text": "- **Engine:** FromSoftware in-house (следующая итерация после Bloodborne)"
+      },
+      {
+        "line": 125,
+        "text": "- **Format:** 3D | **World:** linear (interconnected zones) | **Scale:** medium"
+      },
+      {
+        "line": 126,
+        "text": "- **Platforms:** PS4 (24.03.2016 JP / 12.04.2016 WW), Xbox One (12.04.2016), Windows (12.04.2016)"
+      },
+      {
+        "line": 127,
+        "text": "- **Targets:** 1080p / 60 fps (PS4 Pro до 4K)"
+      },
+      {
+        "line": 128,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** true (до 6 в Fire Fades)"
+      },
+      {
+        "line": 149,
+        "text": "- **Min HW:** Core i3-2100 / AMD A-8 3800, 4 GB RAM, GeForce GTX 750 / Radeon HD 7850"
+      },
+      {
+        "line": 150,
+        "text": "- **Rec HW:** Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 970 / Radeon R9 280X"
+      },
+      {
+        "line": 151,
+        "text": "- **Frame budget:** 16.6 мс (60 fps); 8.3 мс (PS4 Pro boost)"
+      },
+      {
+        "line": 152,
+        "text": "- **Streaming/IO:** связанные зоны через shortcuts (больше чем DS1); bonfire-сеть"
+      },
+      {
+        "line": 153,
+        "text": "- **Engine limits:** PS4 Pro 4K checkerboard. **Программная блокировка 21:9** (чёрные полосы) и **кап 60 fps** — ради паритета в сетевых вторжениях."
+      },
+      {
+        "line": 154,
+        "text": "- **Mod support:** ограниченный (Steam Workshop не интегрирован)"
+      },
+      {
+        "line": 155,
+        "text": "- **Antipiracy:** **исключительно Steamworks (Denuvo никогда не использовался, опровергнуто по импорту библиотек SteamDB)**, при взломе стандартной заменой Steam API"
+      },
+      {
+        "line": 158,
+        "text": "- **Выгода:** интеграция уроков Bloodborne (агрессивные боссы); меньше зон = выше качество; weapon skills добавляют тактическую глубину"
+      },
+      {
+        "line": 159,
+        "text": "- **Цена:** DS-ветераны жаловались на «слишком быстрый» темп; меньше interconnected design чем DS1"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-03:173",
+    "title": "4. Sekiro: Shadows Die Twice (2019, FromSoftware + Activision) — AppID 814380",
+    "file": "партия-03.md",
+    "line": 173,
+    "sha256": "5d01161241fc22baf357d42a4afc4c60308dd1dde8d8f0e33687f8116324e86d",
+    "technical_functions": [
+      "multiplayer_netcode",
+      "project_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 175,
+        "text": "- **Engine:** FromSoftware in-house (Sekiro Engine, преемник Bloodborne)"
+      },
+      {
+        "line": 176,
+        "text": "- **Format:** 3D | **World:** linear (отдельные зоны, не open-world) | **Scale:** medium"
+      },
+      {
+        "line": 177,
+        "text": "- **Platforms:** PS4 (22.03.2019), Windows, Xbox One (22.03.2019), Stadia (28.10.2020)"
+      },
+      {
+        "line": 178,
+        "text": "- **Targets:** 1080p / 60 fps (PS4 Pro 4K checkerboard)"
+      },
+      {
+        "line": 179,
+        "text": "- **Object/NPC level:** medium / low | **Multiplayer:** false (полностью single-player)"
+      },
+      {
+        "line": 203,
+        "text": "- **Min HW:** Core i3-2100 / AMD FX-4100, 4 GB RAM, GeForce GTX 750 Ti / Radeon HD 7950"
+      },
+      {
+        "line": 204,
+        "text": "- **Rec HW:** Core i5-2500K / AMD FX-6300, 8 GB RAM, GeForce GTX 1060 / Radeon RX 480"
+      },
+      {
+        "line": 205,
+        "text": "- **Frame budget:** 16.6 мс (60 fps); 8.3 мс (PS4 Pro)"
+      },
+      {
+        "line": 206,
+        "text": "- **Streaming/IO:** отдельные большие зоны; loading screens между"
+      },
+      {
+        "line": 207,
+        "text": "- **Engine limits:** однопользовательский движок (нет multiplayer overhead)"
+      },
+      {
+        "line": 208,
+        "text": "- **Mod support:** неофициальные моды (easy-mode через замедление)"
+      },
+      {
+        "line": 209,
+        "text": "- **Antipiracy:** **исключительно Steamworks (Denuvo отсутствовал; исполняемый файл был взломан в день релиза простой заменой Steam API)**"
+      },
+      {
+        "line": 212,
+        "text": "- **Выгода:** posture-система фокусирует навык вместо статов; grappling hook даёт вертикальность; resurrection — уникальная механика"
+      },
+      {
+        "line": 213,
+        "text": "- **Цена:** сложнее DS (нет статов для компенсации); нет multiplayer replayability; парирование требует идеального тайминга"
+      },
+      {
+        "line": 217,
+        "text": "- **Дополнительно:** в апреле 2023 году модификации изменили скорость персонажа — FromSoftware не одобрила, но официальных easy mode не добавила"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-03:224",
+    "title": "5. Elden Ring (2022, FromSoftware + Bandai Namco) — AppID 1245620",
+    "file": "партия-03.md",
+    "line": 224,
+    "sha256": "5d01161241fc22baf357d42a4afc4c60308dd1dde8d8f0e33687f8116324e86d",
+    "technical_functions": [
+      "open_world_streaming",
+      "save_system",
+      "advanced_npc_ai",
+      "dynamic_lighting",
+      "ray_traced_effects",
+      "multiplayer_netcode"
+    ],
+    "metadata": [
+      {
+        "line": 226,
+        "text": "- **Engine:** FromSoftware in-house (новая версия, возможно на основе Sekiro Engine)"
+      },
+      {
+        "line": 227,
+        "text": "- **Format:** 3D | **World:** open_world (Lands Between, 6 основных зон + скрытые dungeons) | **Scale:** very_large"
+      },
+      {
+        "line": 228,
+        "text": "- **Platforms:** PS4/PS5/Windows/Xbox One/Xbox Series X|S (25.02.2022), Switch 2 Tarnished Edition (28.08.2026)"
+      },
+      {
+        "line": 229,
+        "text": "- **Targets:** 1080p / 60 fps (PS4/Xbox One — 30 fps); 4K / 60 fps (PS5/Xbox Series X); Switch 2 — 30 fps"
+      },
+      {
+        "line": 230,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** true (до 4 игроков в кооп)"
+      },
+      {
+        "line": 256,
+        "text": "- **Min HW:** Core i5-8400 / Ryzen 3 3300X, 12 GB RAM, GeForce GTX 1060 3GB / Radeon RX 580 4GB"
+      },
+      {
+        "line": 257,
+        "text": "- **Rec HW:** Core i7-8700K / Ryzen 5 3600X, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+      },
+      {
+        "line": 258,
+        "text": "- **Frame budget:** 16.6 мс; на PS4 — 33.3 мс (30 fps cap)"
+      },
+      {
+        "line": 259,
+        "text": "- **Streaming/IO:** open world chunk loading, **патчи исправили performance** через ~6 месяцев"
+      },
+      {
+        "line": 260,
+        "text": "- **Engine limits:** PS4 RAM сильно ограничен → страдает текстурное качество; Switch 2 — 30 fps. **Программная блокировка 21:9** (чёрные полосы) и **кап 60 fps** — ради паритета в сетевых вторжениях."
+      },
+      {
+        "line": 261,
+        "text": "- **Anticheat:** **Easy Anti-Cheat (EAC)** — единственный сторонний модуль на уровне ядра; на релизе **запрещал фоновую компиляцию шейдеров на DX12**, провоцируя shader compilation stutter (исправлено патчами)."
+      },
+      {
+        "line": 262,
+        "text": "- **Mod support:** ограниченный; нет Steam Workshop; моды только неофициальные"
+      },
+      {
+        "line": 263,
+        "text": "- **Antipiracy:** **исключительно Steamworks + EAC (Denuvo никогда не интегрировался, опровергнуто по импорту библиотек SteamDB)**"
+      },
+      {
+        "line": 266,
+        "text": "- **Выгода:** открытый мир с свободой исследования; вертикальность Torrent; stealth из Sekiro; spirit summon расширяет кооп; GRRM даёт глубину lore"
+      },
+      {
+        "line": 267,
+        "text": "- **Цена:** performance issues на ПК и PS4 на релизе (frame rate просадки); много контента проходит мимо (стриминг без прохождения); boss-design иногда повторяющийся"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-03:282",
+    "title": "6. Armored Core VI: Fires of Rubicon (2023, FromSoftware) — AppID 1888160",
+    "file": "партия-03.md",
+    "line": 282,
+    "sha256": "5d01161241fc22baf357d42a4afc4c60308dd1dde8d8f0e33687f8116324e86d",
+    "technical_functions": [
+      "multiplayer_netcode"
+    ],
+    "metadata": [
+      {
+        "line": 284,
+        "text": "- **Engine:** FromSoftware in-house (новая итерация после 10-летнего перерыва AC)"
+      },
+      {
+        "line": 285,
+        "text": "- **Format:** 3D | **World:** linear (missions) | **Scale:** small (отдельные арены)"
+      },
+      {
+        "line": 286,
+        "text": "- **Platforms:** PS4/PS5/Windows/Xbox One/Xbox Series X|S (25.08.2023)"
+      },
+      {
+        "line": 287,
+        "text": "- **Targets:** 1080p / 60 fps; 4K на PS5/Xbox Series X"
+      },
+      {
+        "line": 288,
+        "text": "- **Object/NPC level:** low / high (мехи) | **Multiplayer:** true (1v1, 3v3 ranked)"
+      },
+      {
+        "line": 310,
+        "text": "- **Min HW:** Core i7-4790 / Ryzen 5 2600, 12 GB RAM, GeForce GTX 1650 / Radeon RX 590"
+      },
+      {
+        "line": 311,
+        "text": "- **Rec HW:** Core i7-7700 / Ryzen 7 2700X, 12 GB RAM, GeForce GTX 1060 / Radeon RX 580"
+      },
+      {
+        "line": 312,
+        "text": "- **Frame budget:** 16.6 мс (60 fps); **8.3 мс — нативная поддержка 120 fps на ПК впервые в истории FromSoftware, без рассинхронизации физического шага симуляции** (DF подтвердил: «120 fps с правильным p-step»)"
+      },
+      {
+        "line": 313,
+        "text": "- **Streaming/IO:** короткие миссии, загружаются между ними"
+      },
+      {
+        "line": 314,
+        "text": "- **Engine limits:** лимит числа мехов на арене; нагрузка на CPU от мех-ИИ"
+      },
+      {
+        "line": 315,
+        "text": "- **Mod support:** ограниченный (нет Workshop)"
+      },
+      {
+        "line": 316,
+        "text": "- **Antipiracy:** Steamworks + EAC"
+      },
+      {
+        "line": 319,
+        "text": "- **Выгода:** глубокая кастомизация мехов без штрафной системы; PvP ranked mode (добавлен позднее); short missions подходят для часовых сессий"
+      },
+      {
+        "line": 320,
+        "text": "- **Цена:** малая \"souls-like\" составляющая (не Soulsborne); короткие миссии могут ощущаться фрагментарно; высокий skill ceiling для PvP"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-04:9",
+    "title": "1. Assassin's Creed Unity (2014, Ubisoft Montreal) — AppID 289650",
+    "file": "партия-04.md",
+    "line": 9,
+    "sha256": "9d8808eb4bdd1c45b5bfb6b8ff662b4dcf052d962f197f21c0984cd2c712b2d7",
+    "technical_functions": [
+      "crowd_simulation",
+      "open_world_streaming",
+      "multiplayer_netcode",
+      "hair_rendering",
+      "volumetric_effects",
+      "procedural_vegetation",
+      "rendering_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 11,
+        "text": "- **Engine:** AnvilNext 2.0 (новая версия для PS4/Xbox One/PC)"
+      },
+      {
+        "line": 12,
+        "text": "- **Format:** 3D | **World:** open_world (Paris 1:1, 7 districts) | **Scale:** medium"
+      },
+      {
+        "line": 13,
+        "text": "- **Platforms:** PS4 (11.11.2014 NA, 14.11.2014 UK), Xbox One, Windows (release day)"
+      },
+      {
+        "line": 14,
+        "text": "- **Targets:** 1080p / 30 fps (на старте); позже патч до 60 fps на PS5/Xbox Series"
+      },
+      {
+        "line": 15,
+        "text": "- **Object/NPC level:** very_high (30,000 NPC на экране) / high | **Multiplayer:** true (до 4 игроков)"
+      },
+      {
+        "line": 40,
+        "text": "- **Min HW (PC):** Core i5-2500K / AMD FX-6350, 6 GB RAM, GeForce GTX 660 / Radeon R9 270X"
+      },
+      {
+        "line": 41,
+        "text": "- **Rec HW:** Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 780 / Radeon R9 290X"
+      },
+      {
+        "line": 42,
+        "text": "- **Frame budget:** 33.3 мс (30 fps) из-за crowd 30,000 NPC"
+      },
+      {
+        "line": 43,
+        "text": "- **Streaming/IO:** большие зоны Paris 1:1, сложный streaming между districts"
+      },
+      {
+        "line": 44,
+        "text": "- **Engine limits:** **архитектурная первопричина: симуляция 30 000 NPC + детализированная архитектура Парижа генерировала свыше 50 000 draw calls на кадр**. Конвейер DirectX 11 с его монопотоком отрисовки парализовал ядра CPU. PS4/Xbox One CPU лимит → crowd AI дорогой; game-breaking баги на релизе"
+      },
+      {
+        "line": 45,
+        "text": "- **Кодовая база:** 15.5M строк C++ + 5M строк C# (CppCon доклад архитектора Ubisoft Николя Флёри: hybrid monolith, рендер/skel-blend/pathfinding/ИИ в unmanaged C++, gameplay/tools/редакторы в C#)"
+      },
+      {
+        "line": 46,
+        "text": "- **Mod support:** нет официального SDK"
+      },
+      {
+        "line": 47,
+        "text": "- **Antipiracy:** Uplay/Ubisoft Connect (требуется online активация)"
+      },
+      {
+        "line": 50,
+        "text": "- **Выгода:** самый детализированный Paris на релизе; революционная crowd AI; Black Box missions"
+      },
+      {
+        "line": 51,
+        "text": "- **Цена:** печально известный багнутый релиз (frame drops, NPC popping, face glitch); Ubisoft извинилась; Dead Kings DLC бесплатно"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-04:66",
+    "title": "2. Assassin's Creed Origins (2017, Ubisoft Montreal) — AppID 575560",
+    "file": "партия-04.md",
+    "line": 66,
+    "sha256": "9d8808eb4bdd1c45b5bfb6b8ff662b4dcf052d962f197f21c0984cd2c712b2d7",
+    "technical_functions": [
+      "physics_simulation",
+      "procedural_terrain",
+      "advanced_npc_ai",
+      "character_animation",
+      "water_simulation"
+    ],
+    "metadata": [
+      {
+        "line": 68,
+        "text": "- **Engine:** AnvilNext 2.0 (после Unity, переработан с фокусом на RPG)"
+      },
+      {
+        "line": 69,
+        "text": "- **Format:** 3D | **World:** open_world (Египет, Птолемеевский период) | **Scale:** very_large"
+      },
+      {
+        "line": 70,
+        "text": "- **Platforms:** PS4 (27.10.2017), Xbox One, Windows"
+      },
+      {
+        "line": 71,
+        "text": "- **Targets:** 1080p / 30 fps (PS4); 4K / 30 fps (PS4 Pro)"
+      },
+      {
+        "line": 72,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** false (полностью SP)"
+      },
+      {
+        "line": 98,
+        "text": "- **Min HW (ПК):** Core i5-2400s / AMD FX-6350, 6 GB RAM, GeForce GTX 660 / Radeon R9 270X"
+      },
+      {
+        "line": 99,
+        "text": "- **Rec HW:** Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 760 / Radeon R9 280X"
+      },
+      {
+        "line": 100,
+        "text": "- **Frame budget:** 33.3 мс (30 fps) — больше не на 60 fps как Unity"
+      },
+      {
+        "line": 101,
+        "text": "- **Streaming/IO:** open world streaming; loading screens только между зонами"
+      },
+      {
+        "line": 102,
+        "text": "- **Engine limits:** **Denuvo + VMProtect (двухслойный обфускатор)**: поверх Denuvo Anti-Tamper наложен VMProtect, создающий непрерывную нагрузку на расшифровку инструкций в цикле — 100% утилизация 4-ядерных Intel Core i5; PS4 RAM ограничивает streaming"
+      },
+      {
+        "line": 103,
+        "text": "- **Mod support:** нет официального SDK"
+      },
+      {
+        "line": 104,
+        "text": "- **Antipiracy:** Uplay/Ubisoft Connect + Denuvo + VMProtect (двухслойная цепочка, Origin-уровень нагрузки на CPU)"
+      },
+      {
+        "line": 107,
+        "text": "- **Выгода:** переход к RPG-формату; египетские консультанты для аутентичности; combat overhaul; Discovery Tour (обучающий режим)"
+      },
+      {
+        "line": 108,
+        "text": "- **Цена:** переход к RPG потерял stealth-фокус оригинала; grind-элементы из MMO; продажа XP-бустеров"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-04:124",
+    "title": "3. Assassin's Creed Odyssey (2018, Ubisoft Quebec) — AppID 812140",
+    "file": "партия-04.md",
+    "line": 124,
+    "sha256": "9d8808eb4bdd1c45b5bfb6b8ff662b4dcf052d962f197f21c0984cd2c712b2d7",
+    "technical_functions": [
+      "physics_simulation",
+      "advanced_npc_ai"
+    ],
+    "metadata": [
+      {
+        "line": 126,
+        "text": "- **Engine:** AnvilNext 2.0 (усовершенствован после Origins)"
+      },
+      {
+        "line": 127,
+        "text": "- **Format:** 3D | **World:** open_world (Древняя Греция, Пелопоннесская война) | **Scale:** very_large"
+      },
+      {
+        "line": 128,
+        "text": "- **Platforms:** PS4 (05.10.2018), Windows, Xbox One, Switch (cloud, только JP)"
+      },
+      {
+        "line": 129,
+        "text": "- **Targets:** 1080p / 30 fps; 4K на PS4 Pro"
+      },
+      {
+        "line": 130,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** false"
+      },
+      {
+        "line": 157,
+        "text": "- **Min HW (ПК):** Core i5-2400s / AMD FX-6350, 8 GB RAM, GeForce GTX 660 / Radeon R9 270X"
+      },
+      {
+        "line": 158,
+        "text": "- **Rec HW:** Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 760 / Radeon R9 280X"
+      },
+      {
+        "line": 159,
+        "text": "- **Frame budget:** 33.3 мс (30 fps)"
+      },
+      {
+        "line": 160,
+        "text": "- **Streaming/IO:** open world + морские путешествия между островами"
+      },
+      {
+        "line": 161,
+        "text": "- **Engine limits:** масштабнее Origins → больше нагрузки на streaming"
+      },
+      {
+        "line": 162,
+        "text": "- **Mod support:** нет SDK; только Story Creator Mode (UGC через встроенный UI)"
+      },
+      {
+        "line": 163,
+        "text": "- **Antipiracy:** Uplay"
+      },
+      {
+        "line": 166,
+        "text": "- **Выгода:** первый AC с choice system; naval combat; mercenary nemesis; Kassandra (каноническая) как лучший персонаж серии"
+      },
+      {
+        "line": 167,
+        "text": "- **Цена:** спорные дизайн-решения (микротранзакции XP-бустеров, level-scaling которая заставляет гриндить); отход от стелс-фокуса ещё дальше; левел-гейт (нужно поднимать уровень для основной кампании)"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-04:186",
+    "title": "4. Assassin's Creed Valhalla (2020, Ubisoft Montreal) — AppID 2208920",
+    "file": "партия-04.md",
+    "line": 186,
+    "sha256": "9d8808eb4bdd1c45b5bfb6b8ff662b4dcf052d962f197f21c0984cd2c712b2d7",
+    "technical_functions": [
+      "advanced_npc_ai",
+      "volumetric_effects"
+    ],
+    "metadata": [
+      {
+        "line": 188,
+        "text": "- **Engine:** AnvilNext 2.0 (новая итерация после Odyssey)"
+      },
+      {
+        "line": 189,
+        "text": "- **Format:** 3D | **World:** open_world (Англия + Норвегия) | **Scale:** very_large"
+      },
+      {
+        "line": 190,
+        "text": "- **Platforms:** PS4 (10.11.2020), Windows, Xbox One, Xbox Series X/S, Stadia; PS5 (12.11.2020 NA, 19.11.2020 WW)"
+      },
+      {
+        "line": 191,
+        "text": "- **Targets:** 1080p / 30 fps (PS4); 4K / 30-60 fps (next-gen)"
+      },
+      {
+        "line": 192,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** false (но есть shared Jomsviking)"
+      },
+      {
+        "line": 220,
+        "text": "- **Min HW (ПК):** Core i5-4460 / AMD Ryzen 3 1200, 8 GB RAM, GeForce GTX 960 / Radeon R9 380 (4 GB)"
+      },
+      {
+        "line": 221,
+        "text": "- **Rec HW:** Core i7-4790 / AMD Ryzen 5 1600, 8 GB RAM, GeForce GTX 1060 / Radeon RX 570"
+      },
+      {
+        "line": 222,
+        "text": "- **Frame budget:** 33.3 мс (30 fps); с 60 fps патчем на next-gen"
+      },
+      {
+        "line": 223,
+        "text": "- **Streaming/IO:** большие зоны Англии и Норвегии; длинные loading screens"
+      },
+      {
+        "line": 224,
+        "text": "- **Engine limits:** RTX включён в next-gen; в PC-версии — опционально. **API: DirectX 12 only** — бэкенд DirectX 11 **полностью исключён** на ПК (AnvilNext 2.0), требует аппаратной поддержки низкоуровневых дескрипторов ресурсов."
+      },
+      {
+        "line": 225,
+        "text": "- **Mod support:** нет SDK"
+      },
+      {
+        "line": 226,
+        "text": "- **Antipiracy:** Uplay/Ubisoft Connect + Denuvo"
+      },
+      {
+        "line": 229,
+        "text": "- **Выгода:** возврат к stealth (Eagle Vision → Odin Sight); меньше MMO-элементов чем Odyssey; интересные мини-игры (Flyting, Orlog); Norse мифология"
+      },
+      {
+        "line": 230,
+        "text": "- **Цена:** 200+ часов контента (огромный объём); \"тысяча мелких вещей\" но без особой глубины; спорный отказ от стелс-фокуса в ряде миссий; микротранзакции вызвали скандал (Reddit 2021)"
+      },
+      {
+        "line": 244,
+        "text": "- **Грэмми 2023:** Stephanie Economou выиграла Best Score Soundtrack for Dawn of Ragnarök (первый Grammy за видеоигру)"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-04:251",
+    "title": "5. For Honor (2017, Ubisoft Montreal) — AppID 304390",
+    "file": "партия-04.md",
+    "line": 251,
+    "sha256": "9d8808eb4bdd1c45b5bfb6b8ff662b4dcf052d962f197f21c0984cd2c712b2d7",
+    "technical_functions": [
+      "multiplayer_netcode",
+      "character_animation",
+      "render_scalability"
+    ],
+    "metadata": [
+      {
+        "line": 253,
+        "text": "- **Engine:** AnvilNext 2.0 (новая итерация, не AnvilPират)"
+      },
+      {
+        "line": 254,
+        "text": "- **Format:** 3D | **World:** linear (арены) | **Scale:** small-medium"
+      },
+      {
+        "line": 255,
+        "text": "- **Platforms:** PS4 (14.02.2017), Windows, Xbox One, Stadia"
+      },
+      {
+        "line": 256,
+        "text": "- **Targets:** 1080p / 60 fps (PS4); 4K / 60 fps (next-gen)"
+      },
+      {
+        "line": 257,
+        "text": "- **Object/NPC level:** low / high (только персонажи) | **Multiplayer:** true (PVP focus, 4v4 / 1v1 / 2v2)"
+      },
+      {
+        "line": 282,
+        "text": "- **Min HW (ПК):** Core i3-4150 / AMD FX-4350, 4 GB RAM, GeForce GTX 650 / Radeon R7 260X (2 GB)"
+      },
+      {
+        "line": 283,
+        "text": "- **Rec HW:** Core i5-7500 / AMD Ryzen 5 1400, 8 GB RAM, GeForce GTX 1050 Ti / Radeon RX 570 (4 GB)"
+      },
+      {
+        "line": 284,
+        "text": "- **Frame budget:** 16.6 мс (60 fps) — единственный AC-тайтл в списке на 60 fps"
+      },
+      {
+        "line": 285,
+        "text": "- **Streaming/IO:** нет open-world, только арены + меню"
+      },
+      {
+        "line": 286,
+        "text": "- **Engine limits:** server side, peer-to-peer в 2017 → dedicated в 2018-2019"
+      },
+      {
+        "line": 287,
+        "text": "- **Mod support:** нет SDK"
+      },
+      {
+        "line": 288,
+        "text": "- **Antipiracy:** Uplay"
+      },
+      {
+        "line": 291,
+        "text": "- **Выгода:** глубокая melee combat с Art of Battle; 39 уникальных Hero; 7 лет поддержки (7 сезонов); PvP-фокус; crossplay позднее"
+      },
+      {
+        "line": 292,
+        "text": "- **Цена:** netcode проблемы на старте; P2P отменили → dedicated servers (server cost); 4 фракции неравны по популяции"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-05:9",
+    "title": "1. The Elder Scrolls V: Skyrim Special Edition (2011/2016, Bethesda Game Studios) — AppID 489830 (SE)",
+    "file": "партия-05.md",
+    "line": 9,
+    "sha256": "7f03b0850884f9a0474b17a54bfa484b119b417eb8d982433fcbd97b00d77f16",
+    "technical_functions": [
+      "advanced_npc_ai",
+      "character_animation",
+      "volumetric_effects",
+      "procedural_vegetation",
+      "water_simulation",
+      "ai_pathfinding",
+      "project_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 11,
+        "text": "- **Engine:** Creation Engine (форк Fallout 3 Gamebryo)"
+      },
+      {
+        "line": 12,
+        "text": "- **Format:** 3D | **World:** open_world (Skyrim 9 holds, 37 кв. миль по словам Howard) | **Scale:** very_large"
+      },
+      {
+        "line": 13,
+        "text": "- **Platforms:** PS3 (11.11.2011), Windows, Xbox 360 (оригинал); PS4/Xbox One (28.10.2016 SE); Switch (17.11.2017); PS5/Xbox Series X|S (11.11.2021, через Anniversary); Switch 2 (09.12.2025)"
+      },
+      {
+        "line": 14,
+        "text": "- **Targets:** 1080p / 30 fps; SE — 4K на PS4 Pro/Xbox One X"
+      },
+      {
+        "line": 15,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** false (Skyrim Together Reborn — мод)"
+      },
+      {
+        "line": 46,
+        "text": "- **Min HW (оригинал 2011):** Core 2 Duo / Athlon X2 2.0 GHz, 2 GB RAM, GeForce 8800 / Radeon X1900 (512 MB)"
+      },
+      {
+        "line": 47,
+        "text": "- **Rec HW (оригинал):** Core i5 / Phenom II, 4 GB RAM, GeForce GTX 260 / Radeon 4890"
+      },
+      {
+        "line": 48,
+        "text": "- **Min HW (SE 2016):** Core i5-750 / AMD Phenom X4, 8 GB RAM, GeForce GTX 470 / Radeon HD 7870 (2 GB)"
+      },
+      {
+        "line": 49,
+        "text": "- **Rec HW (SE):** Core i5-2400 / AMD FX-8320, 8 GB RAM, GeForce GTX 770 / Radeon R9 280X (4 GB)"
+      },
+      {
+        "line": 50,
+        "text": "- **Frame budget:** 33.3 мс (30 fps) на консолях; SE — 4K. **Havok timer жёстко привязан к 60 fps**: при частотах свыше 60 Гц физика теряла устойчивость (предметы в интерьерах приобретали сверхвысокие скорости, нанося урон игроку — типичная проблема Creation Engine без фиксированного delta-time)"
+      },
+      {
+        "line": 51,
+        "text": "- **Streaming/IO:** World partition — cell-based loading"
+      },
+      {
+        "line": 52,
+        "text": "- **Engine limits:** **критический лимит памяти в оригинальной версии 2011 года: 3.1 ГБ виртуального адресного пространства (32-bit)**, приводил к крушению движка при установке тяжёлых пакетов текстур до выхода Special Edition. PS3 RAM — 256 MB split (знаменитые save size лимиты)"
+      },
+      {
+        "line": 53,
+        "text": "- **Mod support:** ОТЛИЧНОЕ (Creation Kit + Workshop + Nexus Mods)"
+      },
+      {
+        "line": 54,
+        "text": "- **Antipiracy:** Steamworks"
+      },
+      {
+        "line": 57,
+        "text": "- **Выгода:** Radiant AI + Radiant Quests дают бесконечный контент; модинг = вечная жизнь игры; open world с реальной физикой ветра/воды"
+      },
+      {
+        "line": 58,
+        "text": "- **Цена:** PS3 RAM constraints → save > 6MB = CTD; баги на релизе (физика, меши); печально известные save size лимиты"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-05:85",
+    "title": "2. Fallout 4 (2015, Bethesda Game Studios + id Software) — AppID 377160",
+    "file": "партия-05.md",
+    "line": 85,
+    "sha256": "7f03b0850884f9a0474b17a54bfa484b119b417eb8d982433fcbd97b00d77f16",
+    "technical_functions": [
+      "geometry_pipeline",
+      "advanced_npc_ai",
+      "audio_system",
+      "crowd_simulation",
+      "volumetric_effects",
+      "post_processing",
+      "destruction_simulation",
+      "rendering_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 87,
+        "text": "- **Engine:** Creation Engine (эволюция после Skyrim, id Software помогла с оружейной механикой)"
+      },
+      {
+        "line": 88,
+        "text": "- **Format:** 3D | **World:** open_world (Commonwealth, Бостон, 4 кв. мили) | **Scale:** medium"
+      },
+      {
+        "line": 89,
+        "text": "- **Platforms:** PS4 (10.11.2015), Windows, Xbox One; PS5/Xbox Series (25.04.2024); Switch 2 (24.02.2026)"
+      },
+      {
+        "line": 90,
+        "text": "- **Targets:** 1080p / 30 fps (PS4); 4K / 30-60 fps (next-gen)"
+      },
+      {
+        "line": 91,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** false"
+      },
+      {
+        "line": 122,
+        "text": "- **Min HW:** Core i5-2300 / AMD FX-6300, 8 GB RAM, GeForce GTX 550 Ti / Radeon HD 7770 (2 GB)"
+      },
+      {
+        "line": 123,
+        "text": "- **Rec HW:** Core i7-4790 / AMD FX-9590, 8 GB RAM, GeForce GTX 780 / Radeon R9 290X (3 GB)"
+      },
+      {
+        "line": 124,
+        "text": "- **Frame budget:** 33.3 мс (30 fps)"
+      },
+      {
+        "line": 125,
+        "text": "- **Streaming/IO:** cell-based world partition; load screens между cells. **Precombines + Previs**: статическая видимость (precomputed visibility) + precombines (предкомбинированные меши статичной геометрии интерьеров) — попытки моддеров отключить precombines для изменения интерьеров **приводили к полному отказу окклюзии и падению fps в Бостоне до 15 fps**"
+      },
+      {
+        "line": 126,
+        "text": "- **Engine limits:** 32-bit (Windows XP поддержка удалена)"
+      },
+      {
+        "line": 127,
+        "text": "- **Mod support:** ОТЛИЧНОЕ (Creation Kit)"
+      },
+      {
+        "line": 128,
+        "text": "- **Antipiracy:** Steamworks"
+      },
+      {
+        "line": 131,
+        "text": "- **Выгода:** лучшая оружейная механика в серии (id Software help); глубокий crafting; первый озвученный протагонист; лучший моддинг"
+      },
+      {
+        "line": 132,
+        "text": "- **Цена:** упрощённый RPG (по сравнению с New Vegas); dialog wheel вместо camera-zoom; упрощённый character build"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-05:153",
+    "title": "3. Fallout 76 (2018, Bethesda Game Studios + BattleCry Studios) — AppID 1151340",
+    "file": "партия-05.md",
+    "line": 153,
+    "sha256": "7f03b0850884f9a0474b17a54bfa484b119b417eb8d982433fcbd97b00d77f16",
+    "technical_functions": [
+      "multiplayer_netcode",
+      "advanced_npc_ai",
+      "project_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 155,
+        "text": "- **Engine:** Creation Engine (модифицированный для multiplayer)"
+      },
+      {
+        "line": 156,
+        "text": "- **Format:** 3D | **World:** open_world (Appalachia, West Virginia) | **Scale:** very_large"
+      },
+      {
+        "line": 157,
+        "text": "- **Platforms:** PS4 (14.11.2018), Windows, Xbox One"
+      },
+      {
+        "line": 158,
+        "text": "- **Targets:** 1080p / 30 fps; Xbox Series X|S 4K"
+      },
+      {
+        "line": 159,
+        "text": "- **Object/NPC level:** medium (NPC добавлены в Wastelanders 2020) | **Multiplayer:** true (полностью online)"
+      },
+      {
+        "line": 190,
+        "text": "- **Min HW:** Core i5-6600k / AMD FX-8370, 8 GB RAM, GeForce GTX 660 / Radeon RX 460"
+      },
+      {
+        "line": 191,
+        "text": "- **Rec HW:** Core i7-4790 / AMD Ryzen 5 1500X, 8 GB RAM, GeForce GTX 1060 / Radeon RX 580"
+      },
+      {
+        "line": 192,
+        "text": "- **Frame budget:** 33.3 мс (30 fps)"
+      },
+      {
+        "line": 193,
+        "text": "- **Streaming/IO:** мультиплеерный world streaming — огромный серверный overhead"
+      },
+      {
+        "line": 194,
+        "text": "- **Engine limits:** Creation Engine (с 2002 года кода Morrowind) — крайне устаревший; баги на релизе катастрофические"
+      },
+      {
+        "line": 195,
+        "text": "- **Mod support:** ограниченный (нет Workshop; моды только для частных серверов)"
+      },
+      {
+        "line": 196,
+        "text": "- **Antipiracy:** Bethesda.net (отдельный launcher; требовался online)"
+      },
+      {
+        "line": 199,
+        "text": "- **Выгода:** уникальный multiplayer-survival опыт; постоянный контент через 7+ лет; Wastelanders 2020 спас игру; Fallout TV series 2024 дал +миллион игроков"
+      },
+      {
+        "line": 200,
+        "text": "- **Цена:** провальный релиз (один из худших Metacritic); нет human NPCs; canvas bag скандал; утечка данных; нет offline-режима; Fallout 1st скандал"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-05:222",
+    "title": "4. Starfield (2023, Bethesda Game Studios) — AppID 1716740",
+    "file": "партия-05.md",
+    "line": 222,
+    "sha256": "7f03b0850884f9a0474b17a54bfa484b119b417eb8d982433fcbd97b00d77f16",
+    "technical_functions": [
+      "project_architecture",
+      "procedural_terrain",
+      "open_world_streaming",
+      "runtime_memory",
+      "render_scalability",
+      "post_processing",
+      "build_delivery",
+      "advanced_npc_ai",
+      "upscaling_frame_generation"
+    ],
+    "metadata": [
+      {
+        "line": 224,
+        "text": "- **Engine:** Creation Engine 2 (новая версия, первая игра на ней)"
+      },
+      {
+        "line": 225,
+        "text": "- **Format:** 3D | **World:** open_world (1000+ планет через procedural generation) | **Scale:** unique (межзвёздное пространство)"
+      },
+      {
+        "line": 226,
+        "text": "- **Platforms:** Windows + Xbox Series X|S (06.09.2023); PS5 (07.04.2026)"
+      },
+      {
+        "line": 227,
+        "text": "- **Targets:** 4K / 30 fps (Xbox Series X), 1440p / 60 fps (после патча); PC зависит от GPU"
+      },
+      {
+        "line": 228,
+        "text": "- **Object/NPC level:** high / high (на планетах) | **Multiplayer:** false (полностью SP)"
+      },
+      {
+        "line": 268,
+        "text": "- **Min HW (PC):** Core i7-6800K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 Ti / Radeon RX 5700 (8 GB), 125 GB SSD"
+      },
+      {
+        "line": 269,
+        "text": "- **Rec HW:** Core i5-12400 / Ryzen 5 5600X, 16 GB RAM, GeForce RTX 2080 / Radeon RX 6800 XT, SSD обязателен"
+      },
+      {
+        "line": 270,
+        "text": "- **Frame budget:** 33.3 мс (30 fps); Xbox Series X 60 fps после апдейта"
+      },
+      {
+        "line": 271,
+        "text": "- **Streaming/IO:** procgen планеты загружаются при подлёте; большие loading screens между системами. **Аппаратное требование: SSD-накопитель со скоростью чтения от 500 МБ/с обязателен** — отказ от HDD продиктован архитектурой потокового разжатия блоков локаций без фонового дублирования геометрии. **DirectStorage-подобный** пайплайн чтения с NVMe."
+      },
+      {
+        "line": 272,
+        "text": "- **Engine limits:** Creation Engine 2 (новая) всё ещё на старом коде Morrowind (2002); 32-bit (до 2024 патча)"
+      },
+      {
+        "line": 273,
+        "text": "- **Mod support:** Creation Kit (вышел в 2024) + Creations"
+      },
+      {
+        "line": 274,
+        "text": "- **Antipiracy:** Steamworks + Microsoft Store"
+      },
+      {
+        "line": 277,
+        "text": "- **Выгода:** 1000+ планет через procgen (уникально); модульный корабль-строитель; id Software помощь; FSR 2 на старте"
+      },
+      {
+        "line": 278,
+        "text": "- **Цена:** loading screens между планетами (огромный скандал); AMD-exclusive на старте (DLSS добавлен позже); procgen = пустые планеты; нет глобальной карты; почти все NPC в городах — procgen с мало диалогов; на Steam \"Mostly Negative\"; Bethesda defensive responses на критику"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-06:9",
+    "title": "1. Grand Theft Auto IV (2008, Rockstar North) — AppID 12210",
+    "file": "партия-06.md",
+    "line": 9,
+    "sha256": "b136075b15d1e84adfdebfdd643706b147106971d7352e397cf4d4e0415a7445",
+    "technical_functions": [
+      "physics_simulation",
+      "vehicle_simulation",
+      "art_pipeline",
+      "audio_system",
+      "multiplayer_netcode"
+    ],
+    "metadata": [
+      {
+        "line": 11,
+        "text": "- **Engine:** RAGE (Rockstar Advanced Game Engine, версия 1.0)"
+      },
+      {
+        "line": 12,
+        "text": "- **Format:** 3D | **World:** open_world (Liberty City, 4 боро + Alderney) | **Scale:** medium"
+      },
+      {
+        "line": 13,
+        "text": "- **Platforms:** PS3 (29.04.2008), Xbox 360 (29.04.2008), Windows (02.12.2008 NA, 03.12.2008 EU)"
+      },
+      {
+        "line": 14,
+        "text": "- **Targets:** 720p (PS3) / 1080p (PC) / 30 fps"
+      },
+      {
+        "line": 15,
+        "text": "- **Object/NPC level:** high / high | **Multiplayer:** true (до 32 игроков)"
+      },
+      {
+        "line": 42,
+        "text": "- **Min HW (PC, 2008):** Core 2 Duo 1.8 GHz, 1.5 GB RAM, GeForce 7900 / Radeon X1900 (256 MB)"
+      },
+      {
+        "line": 43,
+        "text": "- **Rec HW:** Core 2 Quad 2.4 GHz, 2.5 GB RAM, GeForce 8600 / Radeon HD 3870"
+      },
+      {
+        "line": 44,
+        "text": "- **Frame budget:** 33.3 мс (30 fps)"
+      },
+      {
+        "line": 45,
+        "text": "- **Streaming/IO:** cell-based world (boroughs)"
+      },
+      {
+        "line": 46,
+        "text": "- **Engine limits:** **баг переполнения целочисленного счётчика VRAM на видеокартах с объёмом более 2 ГБ**: 32-битный движок RAGE считал видеопамять отрицательной или нулевой и **сбрасывал разрешение до 800×600**, требовались внешние параметры запуска `-nomemrestrict -norestrictions`. PS3 256 MB RAM — текстуры подгружались"
+      },
+      {
+        "line": 47,
+        "text": "- **Mod support:** нет SDK"
+      },
+      {
+        "line": 48,
+        "text": "- **Antipiracy:** SecuROM + Games for Windows Live (оба deprecated)"
+      },
+      {
+        "line": 51,
+        "text": "- **Выгода:** переход к реализму; Euphoria; Liberty City 1:1 с NYC; культовый storytelling"
+      },
+      {
+        "line": 52,
+        "text": "- **Цена:** управление автомобилем критиковалось; неудобный GFWL; PC-порт был не оптимизирован"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-06:69",
+    "title": "2. Grand Theft Auto V (2013/2022, Rockstar North) — AppID 271590",
+    "file": "партия-06.md",
+    "line": 69,
+    "sha256": "b136075b15d1e84adfdebfdd643706b147106971d7352e397cf4d4e0415a7445",
+    "technical_functions": [
+      "crowd_simulation",
+      "audio_system",
+      "physics_simulation",
+      "rendering_architecture",
+      "vehicle_simulation",
+      "project_architecture",
+      "upscaling_frame_generation"
+    ],
+    "metadata": [
+      {
+        "line": 71,
+        "text": "- **Engine:** RAGE 1.0 (overhauled) + Euphoria (NaturalMotion) + Bullet"
+      },
+      {
+        "line": 72,
+        "text": "- **Format:** 3D | **World:** open_world (Los Santos + Blaine County, San Andreas) | **Scale:** very_large"
+      },
+      {
+        "line": 73,
+        "text": "- **Platforms:** PS3 (17.09.2013), Xbox 360 (17.09.2013), PS4/Xbox One (18.11.2014), Windows (14.04.2015), PS5/Xbox Series X|S (15.03.2022, Expanded & Enhanced)"
+      },
+      {
+        "line": 74,
+        "text": "- **Targets:** 1080p / 30 fps; PS4/Xbox One — 1080p / 30 fps; PC — 4K / 60 fps; PS5 — 4K / 60 fps"
+      },
+      {
+        "line": 75,
+        "text": "- **Object/NPC level:** very_high / very_high | **Multiplayer:** true (GTA Online — 30 игроков)"
+      },
+      {
+        "line": 108,
+        "text": "- **Min HW (PC, 2013):** Core 2 Quad Q6600 / AMD Phenom 9850, 4 GB RAM, GeForce 9800 GT / Radeon HD 4870 (1 GB)"
+      },
+      {
+        "line": 109,
+        "text": "- **Rec HW (PC, 2013):** Core i5-3470 / AMD FX-8350, 8 GB RAM, GeForce GTX 660 / Radeon HD 7870 (2 GB)"
+      },
+      {
+        "line": 110,
+        "text": "- **Min HW (4K, PC):** Core i7-4770 / Ryzen 5 1500X, 16 GB RAM, GeForce GTX 1060 / Radeon RX 580 (8 GB)"
+      },
+      {
+        "line": 111,
+        "text": "- **Rec HW (4K 60):** Core i7-8700K / Ryzen 7 2700X, 16 GB RAM, GeForce RTX 2080 / Radeon VII"
+      },
+      {
+        "line": 112,
+        "text": "- **Frame budget:** 16.6 мс (60 fps на PC/PS5); 33.3 мс на PS3/360. **Физический лимит движка: при превышении 160–180 fps** в игре ломалась физика деформации транспорта и поведение скриптов в кат-сценах — требовалось программное ограничение кадровой частоты."
+      },
+      {
+        "line": 113,
+        "text": "- **Streaming/IO:** огромный streaming мир; load screen на миссиях"
+      },
+      {
+        "line": 114,
+        "text": "- **Engine limits:** GTA V 2013 на 512 MB PS3 RAM — лимиты везде"
+      },
+      {
+        "line": 115,
+        "text": "- **Mod support:** FiveM (community, неофициальный)"
+      },
+      {
+        "line": 116,
+        "text": "- **Antipiracy:** Social Club (требуется online)"
+      },
+      {
+        "line": 119,
+        "text": "- **Выгода:** три протагониста (инновация); GTA Online (11+ лет контента); переиздания для всех поколений; рекордные продажи"
+      },
+      {
+        "line": 120,
+        "text": "- **Цена:** ПК-версия задержана на 1.5 года; отложенный DLC-план отменён; много спорного контента (пытка, изображения проституции, исключение контента на PS5/Series из-за критики)"
+      },
+      {
+        "line": 129,
+        "text": "- **Дополнительно:** 11+ лет еженедельных обновлений GTA Online"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-06:136",
+    "title": "3. Red Dead Redemption 2 (2018/2019, Rockstar Games) — AppID 1174180",
+    "file": "партия-06.md",
+    "line": 136,
+    "sha256": "b136075b15d1e84adfdebfdd643706b147106971d7352e397cf4d4e0415a7445",
+    "technical_functions": [
+      "physics_simulation",
+      "volumetric_effects",
+      "advanced_npc_ai",
+      "hair_rendering",
+      "vehicle_simulation",
+      "project_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 138,
+        "text": "- **Engine:** RAGE 1.0 (новые улучшения для open world) + Euphoria + Bullet"
+      },
+      {
+        "line": 139,
+        "text": "- **Format:** 3D | **World:** open_world (5 вымышленных штатов США, 1899) | **Scale:** very_large"
+      },
+      {
+        "line": 140,
+        "text": "- **Platforms:** PS4 (26.10.2018), Xbox One (26.10.2018), Windows (05.11.2019), Stadia (19.11.2019)"
+      },
+      {
+        "line": 141,
+        "text": "- **Targets:** 1080p / 30 fps (PS4); 4K / 60 fps (PC max)"
+      },
+      {
+        "line": 142,
+        "text": "- **Object/NPC level:** extreme / extreme (лошади, лагеря, динамическая экосистема) | **Multiplayer:** true (RDO, до 32)"
+      },
+      {
+        "line": 184,
+        "text": "- **Min HW (PC, 2019):** Core i5-2500K / AMD FX-6300, 8 GB RAM, GeForce GTX 770 / Radeon R9 280 (2 GB)"
+      },
+      {
+        "line": 185,
+        "text": "- **Rec HW:** Core i7-4770 / AMD Ryzen 5 1500X, 12 GB RAM, GeForce GTX 1060 / Radeon RX 480 (6 GB)"
+      },
+      {
+        "line": 186,
+        "text": "- **Rec HW (4K):** Core i7-7700K / Ryzen 7 1800X, 16 GB RAM, GeForce RTX 2080 / Radeon VII"
+      },
+      {
+        "line": 187,
+        "text": "- **Frame budget:** 33.3 мс (30 fps) — 1.5 года после PS4/Xbox One; 16.6 мс на мощном PC"
+      },
+      {
+        "line": 188,
+        "text": "- **Streaming/IO:** огромный мир с динамической экосистемой; load screen при входе в здания"
+      },
+      {
+        "line": 189,
+        "text": "- **Engine limits:** PS4 RAM (8 GB GDDR5) — основной ограничитель; 1.5 года оптимизации после консольного релиза"
+      },
+      {
+        "line": 190,
+        "text": "- **API/RHI:** **двойная архитектура RHI на ПК — Vulkan (по умолчанию, лучшая многопоточная масштабируемость) + DirectX 12 как резервный путь для стабильности на картах с незрелыми драйверами**"
+      },
+      {
+        "line": 191,
+        "text": "- **Mod support:** нет SDK; только Red Dead Redemption 2 Trainer"
+      },
+      {
+        "line": 192,
+        "text": "- **Antipiracy:** Rockstar Social Club (обязателен)"
+      },
+      {
+        "line": 195,
+        "text": "- **Выгода:** непревзойдённая детализация экосистемы; Dead Eye отлично работает; лучший open world Rockstar; лучшая режиссура"
+      },
+      {
+        "line": 196,
+        "text": "- **Цена:** PC-версия через 1.5 года; отменены одиночные DLC (взломаны через Lapsus$); 100-часовые недели вызвали скандал; Trusted Reviews заплатила £1M штрафа за утечку"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-06:213",
+    "title": "4. Grand Theft Auto: The Trilogy – Definitive Edition (2021, Grove Street Games) — AppID 1745430",
+    "file": "партия-06.md",
+    "line": 213,
+    "sha256": "b136075b15d1e84adfdebfdd643706b147106971d7352e397cf4d4e0415a7445",
+    "technical_functions": [
+      "dynamic_lighting",
+      "render_scalability",
+      "runtime_security",
+      "project_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 215,
+        "text": "- **Engine:** **Unreal Engine 4** (не RAGE! ремастер на UE4)"
+      },
+      {
+        "line": 216,
+        "text": "- **Format:** 3D | **World:** open_world (3 игры: GTA III, Vice City, San Andreas) | **Scale:** large"
+      },
+      {
+        "line": 217,
+        "text": "- **Platforms:** PS4, PS5, Xbox One, Xbox Series X|S, Switch, PC (11.11.2021)"
+      },
+      {
+        "line": 218,
+        "text": "- **Targets:** 4K / 60 fps (current gen); 1080p / 30 fps (PS4/Xbox One)"
+      },
+      {
+        "line": 219,
+        "text": "- **Object/NPC level:** medium / medium | **Multiplayer:** false"
+      },
+      {
+        "line": 243,
+        "text": "- **Min HW (PC):** Core i5-6600K / AMD FX-8150, 8 GB RAM, GeForce GTX 760 / Radeon R9 270 (2 GB)"
+      },
+      {
+        "line": 244,
+        "text": "- **Rec HW:** Core i7-4790 / AMD Ryzen 5 1500X, 16 GB RAM, GeForce GTX 1070 / Radeon RX 580"
+      },
+      {
+        "line": 245,
+        "text": "- **Frame budget:** 16.6 мс (60 fps на current gen)"
+      },
+      {
+        "line": 246,
+        "text": "- **Streaming/IO:** три отдельные игры в одном лаунчере"
+      },
+      {
+        "line": 247,
+        "text": "- **Engine limits:** UE4 vs RAGE — разные API пути; нет обратной совместимости"
+      },
+      {
+        "line": 248,
+        "text": "- **Mod support:** нет"
+      },
+      {
+        "line": 249,
+        "text": "- **Antipiracy:** Rockstar Launcher"
+      },
+      {
+        "line": 252,
+        "text": "- **Выгода:** три классических GTA в одном пакете; современные эффекты; 4K 60 fps на current gen"
+      },
+      {
+        "line": 253,
+        "text": "- **Цена:** UE4 ремастер (не RAGE) привёл к потере оригинальной атмосферы; баги на старте (Rain Effect, \"жёлто-туманный\" Палето-Форест); удалены лицензированные треки; 8000 негативных Steam-обзоров на старте; \"Metaverse\" маркетинг высмеян"
+      },
+      {
+        "line": 308,
+        "text": "- **RAGE — это монолит**, итерации медленные"
+      },
+      {
+        "line": 313,
+        "text": "- **GTA Trilogy DE** — пример провального аутсорса (Grove Street Games, не Rockstar)"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-07:9",
+    "title": "1. DOOM (2016, id Software) — AppID 379720",
+    "file": "партия-07.md",
+    "line": 9,
+    "sha256": "c9426c09cdde8789f183f750554b6d701f1bb8cc13302e2890a6f9c737af710d",
+    "technical_functions": [
+      "project_architecture",
+      "rendering_architecture",
+      "open_world_streaming",
+      "dynamic_lighting",
+      "particle_systems",
+      "runtime_memory",
+      "multiplayer_netcode",
+      "post_processing"
+    ],
+    "metadata": [
+      {
+        "line": 11,
+        "text": "- **Engine:** id Tech 6 (новая версия, разработана Tiago Sousa)"
+      },
+      {
+        "line": 12,
+        "text": "- **Format:** 3D | **World:** linear (13 уровней) | **Scale:** small"
+      },
+      {
+        "line": 13,
+        "text": "- **Platforms:** PS4 (13.05.2016), Windows (13.05.2016), Xbox One (13.05.2016), Switch (10.11.2017, port от Panic Button), Stadia (19.08.2020)"
+      },
+      {
+        "line": 14,
+        "text": "- **Targets:** 1080p / 60 fps (PS4); 4K на PC"
+      },
+      {
+        "line": 15,
+        "text": "- **Object/NPC level:** high / high (демоны) | **Multiplayer:** true (до 12 игроков)"
+      },
+      {
+        "line": 48,
+        "text": "- **Min HW (PC, 2016):** Core i5-2400 / FX-8320, 8 GB RAM, GeForce GTX 670 2GB / Radeon HD 7870"
+      },
+      {
+        "line": 49,
+        "text": "- **Rec HW:** Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 970 / Radeon R9 290"
+      },
+      {
+        "line": 50,
+        "text": "- **Rec HW (4K 60):** Core i7-6700K / Ryzen 7 1700, 16 GB RAM, GeForce GTX 1080 / Radeon RX Vega 56"
+      },
+      {
+        "line": 51,
+        "text": "- **Frame budget:** 16.6 мс (60 fps на current gen); 33.3 мс на Switch"
+      },
+      {
+        "line": 52,
+        "text": "- **Streaming/IO:** MegaTexture-стриминг"
+      },
+      {
+        "line": 53,
+        "text": "- **Engine limits:** PS3/Xbox 360 — не поддерживается; Switch — пониженные текстуры"
+      },
+      {
+        "line": 54,
+        "text": "- **Mod support:** НЕТ официального SDK (SnapMap вместо моддинга)"
+      },
+      {
+        "line": 55,
+        "text": "- **Antipiracy:** Bethesda.net"
+      },
+      {
+        "line": 58,
+        "text": "- **Выгода:** идеальный FPS с push-forward combat; SnapMap для UGC; Vulkan патч значительно улучшил AMD"
+      },
+      {
+        "line": 59,
+        "text": "- **Цена:** SnapMap НЕ заменяет полноценный моддинг; сетевой код на старте был плохой (BattleCry дорабатывал); BFG недооценён в дизайне"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-07:74",
+    "title": "2. DOOM Eternal (2020, id Software) — AppID 782330",
+    "file": "партия-07.md",
+    "line": 74,
+    "sha256": "c9426c09cdde8789f183f750554b6d701f1bb8cc13302e2890a6f9c737af710d",
+    "technical_functions": [
+      "destruction_simulation",
+      "multiplayer_netcode",
+      "advanced_npc_ai",
+      "rendering_architecture",
+      "ray_traced_effects"
+    ],
+    "metadata": [
+      {
+        "line": 76,
+        "text": "- **Engine:** id Tech 7 (продолжение id Tech 6)"
+      },
+      {
+        "line": 77,
+        "text": "- **Format:** 3D | **World:** linear (13 миссий) | **Scale:** medium"
+      },
+      {
+        "line": 78,
+        "text": "- **Platforms:** PS4 (20.03.2020), Windows (20.03.2020), Xbox One (20.03.2020), Stadia (20.03.2020), Switch (08.10.2020 digital / июль 2022 physical via Limited Run), PS5/Xbox Series (29.06.2021)"
+      },
+      {
+        "line": 79,
+        "text": "- **Targets:** 1080p / 60 fps; PS5/XSX 4K / 60 fps с ray-tracing"
+      },
+      {
+        "line": 80,
+        "text": "- **Object/NPC level:** very_high / very_high (больше врагов) | **Multiplayer:** true (Battlemode, 1v2)"
+      },
+      {
+        "line": 111,
+        "text": "- **Min HW (PC, 2020):** Core i5-2500K / AMD FX-8320, 8 GB RAM, GeForce GTX 1050 Ti 4GB / Radeon RX 470 4GB"
+      },
+      {
+        "line": 112,
+        "text": "- **Rec HW:** Core i7-6700K / AMD Ryzen 5 1600, 16 GB RAM, GeForce GTX 1060 6GB / Radeon RX 580 8GB"
+      },
+      {
+        "line": 113,
+        "text": "- **Rec HW (4K 60):** Core i9-9900K / Ryzen 7 3700X, 16 GB RAM, GeForce RTX 3070 / Radeon RX 6800"
+      },
+      {
+        "line": 114,
+        "text": "- **Frame budget:** 16.6 мс (60 fps на modern GPU); 33.3 мс на Switch"
+      },
+      {
+        "line": 115,
+        "text": "- **Streaming/IO:** отказ от MegaTexture в пользу традиционных текстурных массивов высокого разрешения"
+      },
+      {
+        "line": 116,
+        "text": "- **Engine limits:** Switch — пониженные текстуры, 30 fps; PS5/XSX — RT"
+      },
+      {
+        "line": 117,
+        "text": "- **API/RHI:** **id Tech 7 стал первым движком id Software, полностью ликвидировавшим поддержку OpenGL. Проект функционирует исключительно через интерфейс Vulkan API**"
+      },
+      {
+        "line": 118,
+        "text": "- **Mod support:** Официально поддержанные моды через **idStudio: релиз на QuakeCon 8 августа 2024**, расширенная интеграция и выход из превью — август 2025 (а не 2025 как «слух»)"
+      },
+      {
+        "line": 119,
+        "text": "- **Antipiracy:** **Denuvo Anti-Cheat на уровне ядра** добавлен в PC-версии в мае 2020 (Update 1), вызвал массовый бойкот, **удалён через несколько дней в хотфиксе 1.1**"
+      },
+      {
+        "line": 122,
+        "text": "- **Выгода:** ещё более агрессивный combat; Destructible Demon; Battlemode уникален; моды 2025"
+      },
+      {
+        "line": 123,
+        "text": "- **Цена:** platforming-секции раздражали игроков; Denuvo anti-cheat патч привёл к review-bombing; спорный Mick Gordon"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-07:139",
+    "title": "3. Rage (2011, id Software) — AppID 9200",
+    "file": "партия-07.md",
+    "line": 139,
+    "sha256": "c9426c09cdde8789f183f750554b6d701f1bb8cc13302e2890a6f9c737af710d",
+    "technical_functions": [
+      "large_scale_terrain",
+      "rendering_architecture",
+      "open_world_streaming",
+      "split_screen_rendering",
+      "character_animation",
+      "dynamic_lighting",
+      "multiplayer_netcode",
+      "destruction_simulation",
+      "project_architecture",
+      "baked_lighting"
+    ],
+    "metadata": [
+      {
+        "line": 141,
+        "text": "- **Engine:** id Tech 5 (последняя игра под руководством John Carmack до ухода в Oculus)"
+      },
+      {
+        "line": 142,
+        "text": "- **Format:** 3D | **World:** open_world (post-apocalyptic wasteland) | **Scale:** medium"
+      },
+      {
+        "line": 143,
+        "text": "- **Platforms:** PS3 (04.10.2011), Windows (04.10.2011), Xbox 360 (04.10.2011), OS X (02.02.2012, без multiplayer)"
+      },
+      {
+        "line": 144,
+        "text": "- **Targets:** 720p (PS3) / 1080p (PC) / 30 fps"
+      },
+      {
+        "line": 145,
+        "text": "- **Object/NPC level:** medium / high (мутанты) | **Multiplayer:** true (2 режима)"
+      },
+      {
+        "line": 182,
+        "text": "- **Min HW (PC, 2011):** Core 2 Duo 2.4 GHz / Athlon X2 2.4 GHz, 2 GB RAM, GeForce 8800 GTS 512 MB / Radeon HD 3850"
+      },
+      {
+        "line": 183,
+        "text": "- **Rec HW:** Core 2 Quad 2.66 GHz / Phenom X4 9850, 4 GB RAM, GeForce GTX 260 / Radeon HD 4870"
+      },
+      {
+        "line": 184,
+        "text": "- **Frame budget:** 33.3 мс (30 fps)"
+      },
+      {
+        "line": 185,
+        "text": "- **Streaming/IO:** **3 DVD (Win/360), 1 Blu-ray (PS3)** — мир сгенерирован как **MegaTexture** (виртуальное текстурное полотно). **Аппаратное декодирование: `vt_maxPPF` (Pages Per Frame)** — лимит страниц виртуальной текстуры, трансформируемых за один кадр. Невозможность GPU и CPU того времени уложиться в этот лимит приводила к резкому запаздыванию вывода мип-уровней при разворотах камеры (знаменитый texture pop-in). Стартовый кризис: ошибки парсинга буферов в драйверах AMD Catalyst потребовали экстренного выпуска панели расширенных графических настроек."
+      },
+      {
+        "line": 186,
+        "text": "- **Engine limits:** PS3 256 MB RAM — лимиты текстур"
+      },
+      {
+        "line": 187,
+        "text": "- **Mod support:** id Studio (2013) — после релиза"
+      },
+      {
+        "line": 188,
+        "text": "- **Antipiracy:** Games for Windows Live (deprecated)"
+      },
+      {
+        "line": 191,
+        "text": "- **Выгода:** инновационная MegaTexture технология; open-world для 2011 года; PC-версия — лучшая"
+      },
+      {
+        "line": 192,
+        "text": "- **Цена:** катастрофический ПК-релиз (AMD драйверы — главные баги); Carmack ушёл до релиза (последняя игра под его контролем); OS X без multiplayer; Linux отменён"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-07:206",
+    "title": "4. Quake Champions (2017/2022, id Software + Saber Interactive) — AppID 611500",
+    "file": "партия-07.md",
+    "line": 206,
+    "sha256": "c9426c09cdde8789f183f750554b6d701f1bb8cc13302e2890a6f9c737af710d",
+    "technical_functions": [
+      "project_architecture",
+      "multiplayer_netcode"
+    ],
+    "metadata": [
+      {
+        "line": 208,
+        "text": "- **Engine:** Гибрид id Tech + Saber3D Engine (НЕ id Tech 6)"
+      },
+      {
+        "line": 209,
+        "text": "- **Format:** 3D | **World:** linear (арены) | **Scale:** small"
+      },
+      {
+        "line": 210,
+        "text": "- **Platforms:** Windows only (08.08.2018 Free-to-Play, 18.08.2022 Full release)"
+      },
+      {
+        "line": 211,
+        "text": "- **Targets:** 1080p / 144 fps (competitive); 4K"
+      },
+      {
+        "line": 212,
+        "text": "- **Object/NPC level:** low / low | **Multiplayer:** true (только multiplayer, никакого single-player)"
+      },
+      {
+        "line": 242,
+        "text": "- **Min HW (PC, 2017):** Core i3-4130 / FX-4100, 8 GB RAM, GeForce GT 730 / Radeon R7 250"
+      },
+      {
+        "line": 243,
+        "text": "- **Rec HW:** Core i5-6600K / Ryzen 5 1600, 8 GB RAM, GeForce GTX 660 / Radeon RX 460"
+      },
+      {
+        "line": 244,
+        "text": "- **Rec HW (144 Hz):** Core i7-7700K / Ryzen 7 1700, 16 GB RAM, GeForce GTX 1060 6GB / Radeon RX 580 8GB"
+      },
+      {
+        "line": 245,
+        "text": "- **Frame budget:** 6.9 мс (144 fps для competitive)"
+      },
+      {
+        "line": 246,
+        "text": "- **Streaming/IO:** нет open world, только арены"
+      },
+      {
+        "line": 247,
+        "text": "- **Engine limits:** гибрид движков — сложнее поддерживать"
+      },
+      {
+        "line": 248,
+        "text": "- **Mod support:** НЕТ (главная критика)"
+      },
+      {
+        "line": 249,
+        "text": "- **Antipiracy:** Bethesda.net"
+      },
+      {
+        "line": 252,
+        "text": "- **Выгода:** гибрид id-игры + Saber; hero-shooter от id; F2P с 2018"
+      },
+      {
+        "line": 253,
+        "text": "- **Цена:** нет консолей; нет моддинга (огромная критика Quake-комьюнити); отказ от id Tech 6 в пользу гибрида"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-08:9",
+    "title": "1. Crysis (2007, Crytek) — AppID 17300",
+    "file": "партия-08.md",
+    "line": 9,
+    "sha256": "d55f991077764ee22b4214aae5ef849a18940fac926e6ad1b8a72a886cb7d3d9",
+    "technical_functions": [
+      "advanced_npc_ai",
+      "procedural_vegetation",
+      "volumetric_effects",
+      "dynamic_shadows",
+      "post_processing",
+      "large_scale_terrain",
+      "project_architecture",
+      "dynamic_lighting",
+      "runtime_memory",
+      "rendering_architecture",
+      "multiplayer_netcode"
+    ],
+    "metadata": [
+      {
+        "line": 11,
+        "text": "- **Engine:** CryEngine 2 (PC) / CryEngine 3 (PS3/Xbox 360/Remastered)"
+      },
+      {
+        "line": 12,
+        "text": "- **Format:** 3D | **World:** open_world (tropical island Lingshan) | **Scale:** medium"
+      },
+      {
+        "line": 13,
+        "text": "- **Platforms:** Windows (13.11.2007 NA, 16.11.2007 EU), Xbox 360 + PS3 (04.10.2011, download-only без multiplayer, без Warhead, без \"Ascension\" миссии), Remastered (18.09.2020 Win/PS4/XB1, 23.07.2020 Switch)"
+      },
+      {
+        "line": 14,
+        "text": "- **Targets:** 720p (консоли оригинал) / 1080p-4K (Remastered); 30 fps (оригинал)"
+      },
+      {
+        "line": 15,
+        "text": "- **Object/NPC level:** high / high (корейцы + инопланетяне) | **Multiplayer:** true (до 32 игроков) — мультиплеер закрыт в 2014"
+      },
+      {
+        "line": 61,
+        "text": "- **Min HW (PC, 2007):** Core 2 Duo 2.4 GHz / Athlon X2 2.6 GHz, 2 GB RAM, GeForce 8800 GTS 512 MB / Radeon HD 3850"
+      },
+      {
+        "line": 62,
+        "text": "- **Rec HW (Very High DX10):** Core 2 Quad Q6600 / Phenom X4 9850, 4 GB RAM, GeForce 9800 GT / Radeon HD 4870"
+      },
+      {
+        "line": 63,
+        "text": "- **Rec HW (Remastered, 2020):** Core i5-7600 / Ryzen 5 1600, 8 GB RAM, GeForce GTX 1070 / Radeon RX 580 (8 GB)"
+      },
+      {
+        "line": 64,
+        "text": "- **Rec HW (Remastered RT):** Core i9-9900K / Ryzen 7 3700X, 16 GB RAM, GeForce RTX 3080 / Radeon RX 6800 XT"
+      },
+      {
+        "line": 65,
+        "text": "- **Frame budget:** 33.3 мс (оригинал, 30 fps); 16.6 мс (Remastered, 60 fps)"
+      },
+      {
+        "line": 66,
+        "text": "- **Streaming/IO:** open world tropical island"
+      },
+      {
+        "line": 67,
+        "text": "- **Engine limits:** **фундаментальный архитектурный просчёт Crytek: CryEngine 2 создавался в расчёте на развитие тактовой частоты одноядерных CPU вплоть до 6–8 ГГц. Когда индустрия пошла по пути многоядерности, однопоточный главный цикл рендеринга и физики стал неустранимым аппаратным узким местом.** PS3 RAM 256 MB — серьёзный лимит; Switch 30 fps"
+      },
+      {
+        "line": 68,
+        "text": "- **Кодовая база:** **более 1 миллиона строк кода и свыше 85 000 шейдерных программ** (подтверждено в докладах вице-президента NVIDIA Роя Тейлора и публикациях Crytek на GDC 2008)"
+      },
+      {
+        "line": 69,
+        "text": "- **Mod support:** нет SDK"
+      },
+      {
+        "line": 70,
+        "text": "- **Antipiracy:** SecuROM (печально известный)"
+      },
+      {
+        "line": 73,
+        "text": "- **Выгода:** пионер volumetric lighting / parallax occlusion; \"Can it run Crysis?\" мем навсегда; Sandbox2 editor"
+      },
+      {
+        "line": 74,
+        "text": "- **Цена:** катастрофическая пиратство (Yerli: Crysis надо было консольным); мультиплеер мёртв с 2014; SecuROM"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-08:88",
+    "title": "2. Crysis 2 (2011, Crytek + Crytek UK) — AppID 47830",
+    "file": "партия-08.md",
+    "line": 88,
+    "sha256": "d55f991077764ee22b4214aae5ef849a18940fac926e6ad1b8a72a886cb7d3d9",
+    "technical_functions": [
+      "large_scale_terrain",
+      "split_screen_rendering",
+      "destruction_simulation",
+      "multiplayer_netcode",
+      "rendering_architecture",
+      "render_scalability",
+      "runtime_memory"
+    ],
+    "metadata": [
+      {
+        "line": 90,
+        "text": "- **Engine:** CryEngine 3 (первая игра на CryEngine 3)"
+      },
+      {
+        "line": 91,
+        "text": "- **Format:** 3D | **World:** linear (NYC) | **Scale:** small (urban jungle)"
+      },
+      {
+        "line": 92,
+        "text": "- **Platforms:** Windows + PS3 + Xbox 360 (22.03.2011 NA), Remastered (15.10.2021 Switch/PS4/XB1/PC)"
+      },
+      {
+        "line": 93,
+        "text": "- **Targets:** 720p (консоли) / 1080p (PC); 30 fps"
+      },
+      {
+        "line": 94,
+        "text": "- **Object/NPC level:** medium / high (CELL + Ceph) | **Multiplayer:** true (до 16 — PC, до 12 — консоли) — отключён 30.05.2014"
+      },
+      {
+        "line": 125,
+        "text": "- **Min HW (PC, 2011):** Core 2 Duo 2.4 GHz / Athlon X2 2.6 GHz, 2 GB RAM, GeForce 8800 GT / Radeon HD 3870"
+      },
+      {
+        "line": 126,
+        "text": "- **Rec HW (DX9):** Core i3-530 / Phenom II X4 905e, 4 GB RAM, GeForce GTS 250 / Radeon HD 5770"
+      },
+      {
+        "line": 127,
+        "text": "- **Rec HW (DX11):** Core i5-760 / Phenom II X4 955, 4 GB RAM, GeForce GTX 460 / Radeon HD 6850"
+      },
+      {
+        "line": 128,
+        "text": "- **Rec HW (Remastered, 2021):** Core i5-7600 / Ryzen 5 1600, 8 GB RAM, GeForce GTX 1070 / Radeon RX 580"
+      },
+      {
+        "line": 129,
+        "text": "- **Frame budget:** 33.3 мс (30 fps)"
+      },
+      {
+        "line": 130,
+        "text": "- **Streaming/IO:** **линейная Manhattan (коридорный дизайн)**, продиктованный жёстким дефицитом оперативной памяти консолей седьмого поколения (256 МБ на PS3 и 512 МБ на Xbox 360) — отказ от свободной воксельной топологии Crysis 1 в пользу ячеисто-коридорной структуры уровней"
+      },
+      {
+        "line": 131,
+        "text": "- **Engine limits:** PS3 256 MB RAM — серьёзный лимит. **На релизе в марте 2011 года игра поддерживала исключительно DirectX 9**. DirectX 11 добавлен патчем 1.9 (июнь 2011) вместе с пакетом текстур высокого разрешения. Скандал с тесселяцией: разработчики накладывали экстремальное полигональное разбиение на плоские поверхности бордюров и скрытую геометрию воды под землёй — непропорционально било по AMD Radeon HD 6000, уступавшим NVIDIA Fermi по скорости геометрических процессоров."
+      },
+      {
+        "line": 132,
+        "text": "- **Mod support:** НЕТ (даже Sandbox2)"
+      },
+      {
+        "line": 133,
+        "text": "- **Antipiracy:** Steamworks (PC), Origin (PC)"
+      },
+      {
+        "line": 136,
+        "text": "- **Выгода:** первая CryEngine 3 (cross-gen); HRTF audio; Hans Zimmer"
+      },
+      {
+        "line": 137,
+        "text": "- **Цена:** линейная Manhattan (отход от Crysis 1 free-form); тесселяция критика (tessellation abuse); 3.9 млн пиратских загрузок"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-08:153",
+    "title": "3. Crysis 3 (2013, Crytek + Crytek UK) — AppID 128340",
+    "file": "партия-08.md",
+    "line": 153,
+    "sha256": "d55f991077764ee22b4214aae5ef849a18940fac926e6ad1b8a72a886cb7d3d9",
+    "technical_functions": [
+      "open_world_streaming",
+      "character_animation",
+      "rendering_architecture",
+      "dynamic_lighting",
+      "audio_system"
+    ],
+    "metadata": [
+      {
+        "line": 155,
+        "text": "- **Engine:** CryEngine 3 (с улучшениями: volumetric fog shadows, dynamic caustics, dynamic vegetation)"
+      },
+      {
+        "line": 156,
+        "text": "- **Format:** 3D | **World:** semi-open (Nanodome NYC) | **Scale:** medium (7 уровней \"Seven Wonders\")"
+      },
+      {
+        "line": 157,
+        "text": "- **Platforms:** Windows + PS3 + Xbox 360 (19.02.2013 NA, 22.02.2013 EU), Remastered (15.10.2021 без multiplayer)"
+      },
+      {
+        "line": 158,
+        "text": "- **Targets:** 720p (консоли) / 1080p (PC DX11 only); 30 fps"
+      },
+      {
+        "line": 159,
+        "text": "- **Object/NPC level:** high / high (CELL + Ceph) | **Multiplayer:** true (до 16) — отключён 07.09.2023"
+      },
+      {
+        "line": 192,
+        "text": "- **Min HW (PC, 2013):** Core 2 Duo E6600 / Athlon 64 X2 6000+, 2 GB RAM, GeForce 9800 GT / Radeon HD 3870 (только DX9?)"
+      },
+      {
+        "line": 193,
+        "text": "- **Rec HW:** Core i3-530 / Phenom II X4 905e, 4 GB RAM, GeForce GTS 250 / Radeon HD 5770"
+      },
+      {
+        "line": 194,
+        "text": "- **Rec HW (DX11):** Core i5-760 / Phenom II X4 955, 4 GB RAM, GeForce GTX 460 / Radeon HD 6850"
+      },
+      {
+        "line": 195,
+        "text": "- **Rec HW (Remastered, 2021):** Core i5-7600 / Ryzen 5 1600, 8 GB RAM, GeForce GTX 1070 / Radeon RX 580"
+      },
+      {
+        "line": 196,
+        "text": "- **Frame budget:** 33.3 мс (30 fps)"
+      },
+      {
+        "line": 197,
+        "text": "- **Streaming/IO:** 7 больших уровней, но быстрые загрузки через CryEngine streaming"
+      },
+      {
+        "line": 198,
+        "text": "- **Engine limits:** PS3 RAM — серьёзный лимит"
+      },
+      {
+        "line": 199,
+        "text": "- **Mod support:** НЕТ"
+      },
+      {
+        "line": 200,
+        "text": "- **Antipiracy:** Origin (EA), Steamworks"
+      },
+      {
+        "line": 203,
+        "text": "- **Выгода:** CryEngine 3 на пике; улучшенный lighting; compound bow"
+      },
+      {
+        "line": 204,
+        "text": "- **Цена:** Wii U отменён; 7 уровней — короткая кампания (EA разочарована); серверы мертвы"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-08:217",
+    "title": "4. Hunt: Showdown 1896 (2019/2024, Crytek) — AppID 594650",
+    "file": "партия-08.md",
+    "line": 217,
+    "sha256": "d55f991077764ee22b4214aae5ef849a18940fac926e6ad1b8a72a886cb7d3d9",
+    "technical_functions": [
+      "ray_traced_effects",
+      "render_scalability",
+      "project_architecture",
+      "advanced_npc_ai",
+      "multiplayer_netcode"
+    ],
+    "metadata": [
+      {
+        "line": 219,
+        "text": "- **Engine:** CryEngine V (новая версия CryEngine с 2019; \"1896\" — 2024 обновление до CryEngine 5.11+)"
+      },
+      {
+        "line": 220,
+        "text": "- **Format:** 3D | **World:** open_world (Louisiana 1896, четыре карты) | **Scale:** medium"
+      },
+      {
+        "line": 221,
+        "text": "- **Platforms:** Windows (Early Access 22.02.2018, Full 27.08.2019), Xbox One (19.09.2019), PS4 (18.02.2020), PS5 + Xbox Series X|S (15.08.2024 \"1896\" обновление)"
+      },
+      {
+        "line": 222,
+        "text": "- **Targets:** 1080p / 60 fps; PS5/XSX 4K"
+      },
+      {
+        "line": 223,
+        "text": "- **Object/NPC level:** high / very_high (PvE боссы + PvP игроки) | **Multiplayer:** true (12 игроков)"
+      },
+      {
+        "line": 262,
+        "text": "- **Min HW (2019):** Core i5-2500K / FX-8320, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7870"
+      },
+      {
+        "line": 263,
+        "text": "- **Rec HW:** Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 6GB / Radeon RX 580 8GB"
+      },
+      {
+        "line": 264,
+        "text": "- **Rec HW (1896, 2024):** Core i7-9700K / Ryzen 7 2700, 16 GB RAM, GeForce RTX 2060 / Radeon RX 6600"
+      },
+      {
+        "line": 265,
+        "text": "- **Rec HW (RT, 2024):** Core i7-12700K / Ryzen 7 5800X, 32 GB RAM, GeForce RTX 3080 / Radeon RX 6800 XT"
+      },
+      {
+        "line": 266,
+        "text": "- **Frame budget:** 16.6 мс (60 fps)"
+      },
+      {
+        "line": 267,
+        "text": "- **Streaming/IO:** 4 карты, streaming работает отлично"
+      },
+      {
+        "line": 268,
+        "text": "- **Engine limits:** **1896 версия (CryEngine 5.11+, 15.08.2024) принудительно отключила поддержку DirectX 11** — обязательное требование **DirectX 12 и драйверов уровня Feature Level 12_0**, миграция повлекла исключение версий PS4/Xbox One и заявлена как причина возможных просадок fps на части конфигураций (часть игроков сообщала о падении fps после обновления 5.11)."
+      },
+      {
+        "line": 269,
+        "text": "- **Mod support:** НЕТ"
+      },
+      {
+        "line": 270,
+        "text": "- **Antipiracy:** Steamworks (PC), нет DRM"
+      },
+      {
+        "line": 273,
+        "text": "- **Выгода:** пионер жанра extraction shooter; CryEngine V отличный звук; мрачная атмосфера"
+      },
+      {
+        "line": 274,
+        "text": "- **Цена:** 7 лет до полного релиза (2018 EA → 2019 release); 4 года без крупных обновлений (2019-2023); PS4/Xbox One delisted"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-09:9",
+    "title": "1. Battlefield 4 (2013, DICE) — AppID 1238860",
+    "file": "партия-09.md",
+    "line": 9,
+    "sha256": "8249e1c7c1a20a3a50a86292a1e4f4ca4830dc8666709746b1471830721f08b8",
+    "technical_functions": [
+      "destruction_simulation",
+      "multiplayer_netcode",
+      "rendering_architecture",
+      "large_scale_terrain",
+      "volumetric_effects",
+      "render_scalability",
+      "post_processing",
+      "character_animation",
+      "open_world_streaming"
+    ],
+    "metadata": [
+      {
+        "line": 11,
+        "text": "- **Engine:** Frostbite 3 (новая версия)"
+      },
+      {
+        "line": 12,
+        "text": "- **Format:** 3D | **World:** multiplayer (64) + linear campaign | **Scale:** medium"
+      },
+      {
+        "line": 13,
+        "text": "- **Platforms:** PC + PS3 + Xbox 360 (29.10.2013 NA), PS4 (15.11.2013), Xbox One (22.11.2013)"
+      },
+      {
+        "line": 14,
+        "text": "- **Targets:** 720p (PS3/360) / 900p-1080p (PS4/XB1/PC); 30 fps"
+      },
+      {
+        "line": 15,
+        "text": "- **Object/NPC level:** very_high / high (64 мультиплеер) | **Multiplayer:** true (до 64)"
+      },
+      {
+        "line": 54,
+        "text": "- **Min HW (PC, 2013):** Core 2 Duo 2.0 GHz / Athlon X2 2.5 GHz, 2 GB RAM, GeForce 8800 GT / Radeon HD 3870"
+      },
+      {
+        "line": 55,
+        "text": "- **Rec HW:** Core i5-750 / Phenom II X4 955, 4 GB RAM, GeForce GTX 560 / Radeon HD 6950"
+      },
+      {
+        "line": 56,
+        "text": "- **Rec HW (64 мультиплеер):** Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 660 / Radeon HD 7850"
+      },
+      {
+        "line": 57,
+        "text": "- **Frame budget:** 33.3 мс (30 fps)"
+      },
+      {
+        "line": 58,
+        "text": "- **Streaming/IO:** большие карты, разрушаемая среда"
+      },
+      {
+        "line": 59,
+        "text": "- **Engine limits:** **стартовые характеристики сетевого тикрейта: 10 Гц на физику окружения и симуляцию волн, 30 Гц на перемещения игроков** — приводили к смерти за укрытиями до реформы CTE (2014). PS3 256 MB — серьёзный лимит; разрушения = просадки"
+      },
+      {
+        "line": 60,
+        "text": "- **Mod support:** через BF4Editor (community; официально закрыт в 2018 для поддержки)"
+      },
+      {
+        "line": 61,
+        "text": "- **Antipiracy:** Origin (обязателен онлайн)"
+      },
+      {
+        "line": 64,
+        "text": "- **Выгода:** пионер Levolution (полная разрушаемость); networked water; 64 игрока"
+      },
+      {
+        "line": 65,
+        "text": "- **Цена:** катастрофический релиз (баги, синие экраны, обвал NetCode); судебные иски от инвесторов; ban в Китае"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-09:80",
+    "title": "2. Battlefield 1 (2016, DICE) — AppID 1238840",
+    "file": "партия-09.md",
+    "line": 80,
+    "sha256": "8249e1c7c1a20a3a50a86292a1e4f4ca4830dc8666709746b1471830721f08b8",
+    "technical_functions": [
+      "destruction_simulation",
+      "multiplayer_netcode",
+      "volumetric_effects",
+      "audio_system"
+    ],
+    "metadata": [
+      {
+        "line": 82,
+        "text": "- **Engine:** Frostbite 3"
+      },
+      {
+        "line": 83,
+        "text": "- **Format:** 3D | **World:** multiplayer (64) + War Stories (single player) | **Scale:** large"
+      },
+      {
+        "line": 84,
+        "text": "- **Platforms:** PC + PS4 + Xbox One (21.10.2016)"
+      },
+      {
+        "line": 85,
+        "text": "- **Targets:** 1080p / 60 fps; PS4 Pro 4K"
+      },
+      {
+        "line": 86,
+        "text": "- **Object/NPC level:** very_high / high (WWI) | **Multiplayer:** true (64)"
+      },
+      {
+        "line": 118,
+        "text": "- **Min HW (PC, 2016):** Core i5-6600K / AMD FX-6350, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7850"
+      },
+      {
+        "line": 119,
+        "text": "- **Rec HW:** Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 3GB / Radeon RX 480 4GB"
+      },
+      {
+        "line": 120,
+        "text": "- **Rec HW (PS4 Pro 4K):** Core i7-6700K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+      },
+      {
+        "line": 121,
+        "text": "- **Frame budget:** 16.6 мс (60 fps)"
+      },
+      {
+        "line": 122,
+        "text": "- **Streaming/IO:** большие WWI-карты (64 игрока)"
+      },
+      {
+        "line": 123,
+        "text": "- **Engine limits:** PS4 8 GB GDDR5 (shared GPU+CPU)"
+      },
+      {
+        "line": 124,
+        "text": "- **Mod support:** через BF1Editor (Community)"
+      },
+      {
+        "line": 125,
+        "text": "- **Antipiracy:** Origin (обязателен онлайн)"
+      },
+      {
+        "line": 128,
+        "text": "- **Выгода:** WWI-сеттинг (рынок был голоден); Behemoth класс; War Stories (короткие кампании)"
+      },
+      {
+        "line": 129,
+        "text": "- **Цена:** хаос на 64 игроков; кампания короткая; конкуренция с CoD WW2 (2017)"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-09:146",
+    "title": "3. Battlefield V (2018, DICE) — AppID 1238810",
+    "file": "партия-09.md",
+    "line": 146,
+    "sha256": "8249e1c7c1a20a3a50a86292a1e4f4ca4830dc8666709746b1471830721f08b8",
+    "technical_functions": [
+      "ray_traced_effects",
+      "upscaling_frame_generation",
+      "destruction_simulation",
+      "multiplayer_netcode",
+      "character_animation",
+      "rendering_architecture",
+      "post_processing",
+      "dynamic_global_illumination"
+    ],
+    "metadata": [
+      {
+        "line": 148,
+        "text": "- **Engine:** Frostbite 3 (с RT)"
+      },
+      {
+        "line": 149,
+        "text": "- **Format:** 3D | **World:** multiplayer (64) + WW2 War Stories | **Scale:** large"
+      },
+      {
+        "line": 150,
+        "text": "- **Platforms:** PC + PS4 + Xbox One (20.11.2018)"
+      },
+      {
+        "line": 151,
+        "text": "- **Targets:** 1080p / 60 fps (PS4 Pro 4K); RT только на RTX-картах"
+      },
+      {
+        "line": 152,
+        "text": "- **Object/NPC level:** very_high / high (WW2) | **Multiplayer:** true (64)"
+      },
+      {
+        "line": 188,
+        "text": "- **Min HW (PC, 2018):** Core i5-6600K / AMD FX-6350, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7850"
+      },
+      {
+        "line": 189,
+        "text": "- **Rec HW:** Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 3GB / Radeon RX 480 4GB"
+      },
+      {
+        "line": 190,
+        "text": "- **Rec HW (RT):** Core i7-8700K / Ryzen 7 2700X, 16 GB RAM, GeForce RTX 2070 / Radeon VII"
+      },
+      {
+        "line": 191,
+        "text": "- **Rec HW (RT+DLSS 4K):** Core i9-9900K / Ryzen 9 3900X, 16 GB RAM, GeForce RTX 3080 / Radeon RX 6800 XT"
+      },
+      {
+        "line": 192,
+        "text": "- **Frame budget:** 16.6 мс (60 fps)"
+      },
+      {
+        "line": 193,
+        "text": "- **Streaming/IO:** 128 игроков не поддерживается (отличие от SWBFII); большие WW2-карты"
+      },
+      {
+        "line": 194,
+        "text": "- **Engine limits:** PS4 8 GB GDDR5 (shared)"
+      },
+      {
+        "line": 195,
+        "text": "- **Mod support:** НЕТ (только BF4Editor от сообщества)"
+      },
+      {
+        "line": 196,
+        "text": "- **Antipiracy:** Origin (обязателен онлайн)"
+      },
+      {
+        "line": 199,
+        "text": "- **Выгода:** первая игра Frostbite с RT и DLSS; 64 игрока; WW2-сеттинг"
+      },
+      {
+        "line": 200,
+        "text": "- **Цена:** катастрофический маркетинг (PR-скандал с женскими персонажами); Tides of War монетизация вызвала споры; предзаказы на 85% ниже CoD"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-09:213",
+    "title": "4. Battlefield 2042 (2021, DICE) — AppID 1517290",
+    "file": "партия-09.md",
+    "line": 213,
+    "sha256": "8249e1c7c1a20a3a50a86292a1e4f4ca4830dc8666709746b1471830721f08b8",
+    "technical_functions": [
+      "multiplayer_netcode",
+      "volumetric_effects",
+      "project_architecture",
+      "open_world_streaming"
+    ],
+    "metadata": [
+      {
+        "line": 215,
+        "text": "- **Engine:** Frostbite (новейшая версия)"
+      },
+      {
+        "line": 216,
+        "text": "- **Format:** 3D | **World:** multiplayer-only (до 128 игроков) | **Scale:** very_large"
+      },
+      {
+        "line": 217,
+        "text": "- **Platforms:** PC + PS4 + PS5 + Xbox One + Xbox Series X|S (19.11.2021)"
+      },
+      {
+        "line": 218,
+        "text": "- **Targets:** 1080p / 60 fps (PS5/XSX 4K), 64 на PS4/XB1"
+      },
+      {
+        "line": 219,
+        "text": "- **Object/NPC level:** extreme / extreme (128) | **Multiplayer:** true (128/64)"
+      },
+      {
+        "line": 250,
+        "text": "- **Min HW (PC, 2021):** Core i5-6600K / AMD Ryzen 5 1600, 8 GB RAM, GeForce GTX 1050 Ti / Radeon RX 560"
+      },
+      {
+        "line": 251,
+        "text": "- **Rec HW:** Core i7-4790 / AMD Ryzen 5 3600, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+      },
+      {
+        "line": 252,
+        "text": "- **Rec HW (128 игроков):** Core i9-9900K / Ryzen 7 3700X, 16 GB RAM, GeForce RTX 3070 / Radeon RX 6700 XT"
+      },
+      {
+        "line": 253,
+        "text": "- **Rec HW (PS5/XSX):** next-gen консоли нативно"
+      },
+      {
+        "line": 254,
+        "text": "- **Frame budget:** 16.6 мс (60 fps)"
+      },
+      {
+        "line": 255,
+        "text": "- **Streaming/IO:** карты до 128 игроков (рекорд)"
+      },
+      {
+        "line": 256,
+        "text": "- **Engine limits:** на PS4/XB1 — 64 игрока максимум"
+      },
+      {
+        "line": 257,
+        "text": "- **Mod support:** НЕТ (только Portal rules)"
+      },
+      {
+        "line": 258,
+        "text": "- **Antipiracy:** Origin/EA App (обязателен онлайн)"
+      },
+      {
+        "line": 261,
+        "text": "- **Выгода:** первый BF с кросс-игрой; до 128 игроков; BF Portal"
+      },
+      {
+        "line": 262,
+        "text": "- **Цена:** катастрофический релиз (один из худших рейтингов в Steam); отсутствие кампании; специалисты вместо классов; низкий онлайн"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-09:276",
+    "title": "5. Star Wars Battlefront II (2017, DICE + Motive + Criterion) — AppID 1238030",
+    "file": "партия-09.md",
+    "line": 276,
+    "sha256": "8249e1c7c1a20a3a50a86292a1e4f4ca4830dc8666709746b1471830721f08b8",
+    "technical_functions": [
+      "multiplayer_netcode",
+      "rendering_architecture",
+      "ray_traced_effects"
+    ],
+    "metadata": [
+      {
+        "line": 278,
+        "text": "- **Engine:** Frostbite 3"
+      },
+      {
+        "line": 279,
+        "text": "- **Format:** 3D | **World:** multiplayer + single-player campaign | **Scale:** medium"
+      },
+      {
+        "line": 280,
+        "text": "- **Platforms:** PC + PS4 + Xbox One (17.11.2017)"
+      },
+      {
+        "line": 281,
+        "text": "- **Targets:** 1080p / 60 fps; PS4 Pro 4K"
+      },
+      {
+        "line": 282,
+        "text": "- **Object/NPC level:** very_high / high (Star Wars) | **Multiplayer:** true (40 Galactic Assault)"
+      },
+      {
+        "line": 315,
+        "text": "- **Min HW (PC, 2017):** Core i5-6600K / AMD FX-6350, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7850"
+      },
+      {
+        "line": 316,
+        "text": "- **Rec HW:** Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 3GB / Radeon RX 480 4GB"
+      },
+      {
+        "line": 317,
+        "text": "- **Rec HW (4K):** Core i7-6700K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+      },
+      {
+        "line": 318,
+        "text": "- **Frame budget:** 16.6 мс (60 fps)"
+      },
+      {
+        "line": 319,
+        "text": "- **Streaming/IO:** средние карты, до 40 игроков"
+      },
+      {
+        "line": 320,
+        "text": "- **Engine limits:** PS4 8 GB GDDR5"
+      },
+      {
+        "line": 321,
+        "text": "- **Mod support:** НЕТ (Battlefront 2 closed source)"
+      },
+      {
+        "line": 322,
+        "text": "- **Antipiracy:** Origin (обязателен онлайн)"
+      },
+      {
+        "line": 325,
+        "text": "- **Выгода:** три эры Star Wars; campaign (Inferno Squad); heroes/villains"
+      },
+      {
+        "line": 326,
+        "text": "- **Цена:** печально известный \"Pride and Accomplishment\" скандал (самый downvoted комментарий Reddit в истории); $3 млрд потеря в акциях; правительственные расследования; отзыв Belgian/Dutch gambling регуляторов"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-10:8",
+    "title": "1. Metro Exodus (2019, 4A Games) — AppID 412020",
+    "file": "партия-10.md",
+    "line": 8,
+    "sha256": "1cfe9b1e302ba1339bf4f83a360bbff14600df5a34a373bc1a6430eb7fd439c8",
+    "technical_functions": [
+      "project_architecture",
+      "advanced_npc_ai",
+      "volumetric_effects",
+      "audio_system",
+      "open_world_streaming",
+      "rendering_architecture",
+      "upscaling_frame_generation",
+      "ray_traced_effects",
+      "path_tracing"
+    ],
+    "metadata": [
+      {
+        "line": 10,
+        "text": "- **Engine:** 4A Engine (собственный движок 4A Games, основан на предыдущих Metro 2033/Last Light)"
+      },
+      {
+        "line": 11,
+        "text": "- **Format:** 3D | **World:** semi-open (чередование линейных уровней и открытых локаций) | **Scale:** medium"
+      },
+      {
+        "line": 12,
+        "text": "- **Platforms:** PC + PS4 + Xbox One (15.02.2019), Stadia (19.11.2019), Linux/macOS (14.04.2021), PS5/XSX (Enhanced Edition, 18.06.2021)"
+      },
+      {
+        "line": 13,
+        "text": "- **Targets:** 1080p / 60 fps; Enhanced Edition — 4K / 60 fps + ray tracing"
+      },
+      {
+        "line": 14,
+        "text": "- **Object/NPC level:** medium / high (мутанты, бандиты) | **Multiplayer:** false (только single-player)"
+      },
+      {
+        "line": 57,
+        "text": "- **Min HW (PC, 2019):** Core i5-6600K / AMD FX-6350, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7850"
+      },
+      {
+        "line": 58,
+        "text": "- **Rec HW:** Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 3GB / Radeon RX 480 4GB"
+      },
+      {
+        "line": 59,
+        "text": "- **Rec HW (4K, Enhanced):** Core i7-6700K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+      },
+      {
+        "line": 60,
+        "text": "- **Rec HW (RT):** RTX 3060 / Radeon RX 6700 XT"
+      },
+      {
+        "line": 61,
+        "text": "- **Frame budget:** 16.6 мс (60 fps)"
+      },
+      {
+        "line": 62,
+        "text": "- **Streaming/IO:** большие открытые зоны + линейные участки"
+      },
+      {
+        "line": 63,
+        "text": "- **Engine limits:** 4A Engine не оптимизирован на старте (Epic exclusive скандал)"
+      },
+      {
+        "line": 64,
+        "text": "- **Mod support:** Steam Workshop (SDK с января 2023) — ПОЗДНО, через 4 года после релиза"
+      },
+      {
+        "line": 65,
+        "text": "- **Antipiracy:** Steam / Epic Games Store"
+      },
+      {
+        "line": 68,
+        "text": "- **Выгода:** physicalized HUD; immersive survival; ray tracing (Enhanced)"
+      },
+      {
+        "line": 69,
+        "text": "- **Цена:** Epic exclusive скандал (год без Steam); поздний SDK; attack на Metro Exodus от переноса с EGS"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-10:86",
+    "title": "2. Deus Ex: Mankind Divided (2016, Eidos-Montréal) — AppID 337000",
+    "file": "партия-10.md",
+    "line": 86,
+    "sha256": "1cfe9b1e302ba1339bf4f83a360bbff14600df5a34a373bc1a6430eb7fd439c8",
+    "technical_functions": [
+      "project_architecture",
+      "advanced_npc_ai",
+      "open_world_streaming",
+      "volumetric_effects",
+      "rendering_architecture",
+      "hair_rendering",
+      "post_processing",
+      "dynamic_lighting",
+      "large_scale_terrain"
+    ],
+    "metadata": [
+      {
+        "line": 88,
+        "text": "- **Engine:** **Dawn Engine** (новый собственный движок, основан на Glacier 2 от IO Interactive)"
+      },
+      {
+        "line": 89,
+        "text": "- **Format:** 3D | **World:** hub-based open (Прага) + linear миссии | **Scale:** medium"
+      },
+      {
+        "line": 90,
+        "text": "- **Platforms:** PC + PS4 + Xbox One (23.08.2016), Linux (03.11.2016), macOS (12.12.2017)"
+      },
+      {
+        "line": 91,
+        "text": "- **Targets:** 1080p / 30 fps; PS4 Pro 4K"
+      },
+      {
+        "line": 92,
+        "text": "- **Object/NPC level:** medium / high (Прага) | **Multiplayer:** false (но Breach mode = leaderboard)"
+      },
+      {
+        "line": 129,
+        "text": "- **Min HW (PC, 2016):** Core i5-2400 / AMD FX-8320, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7870"
+      },
+      {
+        "line": 130,
+        "text": "- **Rec HW:** Core i7-3770 / AMD FX-8350, 8 GB RAM, GeForce GTX 970 4GB / Radeon R9 290X 4GB"
+      },
+      {
+        "line": 131,
+        "text": "- **Rec HW (DX12):** Core i7-5820K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 / Radeon RX 480 8GB"
+      },
+      {
+        "line": 132,
+        "text": "- **Frame budget:** 33.3 мс (30 fps)"
+      },
+      {
+        "line": 133,
+        "text": "- **Streaming/IO:** hub + linear (Praha разбита на районы)"
+      },
+      {
+        "line": 134,
+        "text": "- **Engine limits:** Dawn Engine новый — отладка потребовала времени"
+      },
+      {
+        "line": 135,
+        "text": "- **Mod support:** НЕТ (кроме консольных команд)"
+      },
+      {
+        "line": 136,
+        "text": "- **Antipiracy:** Steamworks"
+      },
+      {
+        "line": 139,
+        "text": "- **Выгода:** PBR; DX12; Praxis; two-layered aug; аугментации как игровая механика"
+      },
+      {
+        "line": 140,
+        "text": "- **Цена:** controversial preorder campaign (5 tiers, отменена); controversial marketing (\"Apartheid\"); controversial \"Aug Lives Matter\""
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-10:156",
+    "title": "3. Kingdom Come: Deliverance (2018, Warhorse Studios) — AppID 379430",
+    "file": "партия-10.md",
+    "line": 156,
+    "sha256": "1cfe9b1e302ba1339bf4f83a360bbff14600df5a34a373bc1a6430eb7fd439c8",
+    "technical_functions": [
+      "physics_simulation",
+      "cloth_simulation",
+      "advanced_npc_ai",
+      "rendering_architecture",
+      "save_system",
+      "volumetric_effects",
+      "project_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 158,
+        "text": "- **Engine:** **CryEngine 3** (лицензирован у Crytek, с собственными модификациями)"
+      },
+      {
+        "line": 159,
+        "text": "- **Format:** 3D | **World:** open_world (medium-sized Bohemia) | **Scale:** medium"
+      },
+      {
+        "line": 160,
+        "text": "- **Platforms:** PC + PS4 + Xbox One (13.02.2018), Switch (15.03.2024), PS5/XSX (13.02.2026)"
+      },
+      {
+        "line": 161,
+        "text": "- **Targets:** 1080p / 30 fps; PS4 Pro 4K"
+      },
+      {
+        "line": 162,
+        "text": "- **Object/NPC level:** high / very_high (историческая Bohemia 1403) | **Multiplayer:** false (только single-player)"
+      },
+      {
+        "line": 210,
+        "text": "- **Min HW (PC, 2018):** Core i5-2500K / AMD FX-6300, 8 GB RAM, GeForce GTX 660 2GB / Radeon HD 7850"
+      },
+      {
+        "line": 211,
+        "text": "- **Rec HW:** Core i7-4790 / AMD FX-8350, 8 GB RAM, GeForce GTX 1060 3GB / Radeon RX 480 4GB"
+      },
+      {
+        "line": 212,
+        "text": "- **Rec HW (4K):** Core i7-6700K / Ryzen 5 1600, 16 GB RAM, GeForce GTX 1070 / Radeon RX Vega 56"
+      },
+      {
+        "line": 213,
+        "text": "- **Frame budget:** 33.3 мс (30 fps)"
+      },
+      {
+        "line": 214,
+        "text": "- **Streaming/IO:** Bohemia — средний open world, много streaming"
+      },
+      {
+        "line": 215,
+        "text": "- **Engine limits:** CryEngine 3 — старый; load times длинные"
+      },
+      {
+        "line": 216,
+        "text": "- **Mod support:** официальные tools с октября 2019"
+      },
+      {
+        "line": 217,
+        "text": "- **Antipiracy:** Steamworks (только Warhorse self-published)"
+      },
+      {
+        "line": 220,
+        "text": "- **Выгода:** исторический реализм; физика боя; CryEngine 3 визуал"
+      },
+      {
+        "line": 221,
+        "text": "- **Цена:** save-система (только в кроватях) — controversial; long load times; нет fantasy — узкая аудитория"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-10:237",
+    "title": "4. Alan Wake 2 (2023, Remedy Entertainment) — AppID 1080940",
+    "file": "партия-10.md",
+    "line": 237,
+    "sha256": "1cfe9b1e302ba1339bf4f83a360bbff14600df5a34a373bc1a6430eb7fd439c8",
+    "technical_functions": [
+      "rendering_architecture",
+      "ray_traced_effects",
+      "path_tracing",
+      "project_architecture",
+      "render_scalability"
+    ],
+    "metadata": [
+      {
+        "line": 239,
+        "text": "- **Engine:** **Northlight Engine** (Remedy собственный, использовался в Quantum Break и Control)"
+      },
+      {
+        "line": 240,
+        "text": "- **Format:** 3D | **World:** open-world (Bright Falls + Dark Place) + survival horror | **Scale:** medium"
+      },
+      {
+        "line": 241,
+        "text": "- **Platforms:** PC (Epic exclusive), PS5, Xbox Series X|S (27.10.2023)"
+      },
+      {
+        "line": 242,
+        "text": "- **Targets:** 4K / 60 fps (с DLSS/RT); PS5 и XSX нативно 4K"
+      },
+      {
+        "line": 243,
+        "text": "- **Object/NPC level:** very_high / high (horror) | **Multiplayer:** false (single-player)"
+      },
+      {
+        "line": 278,
+        "text": "- **Min HW (PC, 2023):** Core i5-7600K / Ryzen 5 1600, 16 GB RAM, GeForce RTX 2060 / Radeon RX 6600"
+      },
+      {
+        "line": 279,
+        "text": "- **Rec HW:** Core i7-9700K / Ryzen 7 3700X, 16 GB RAM, GeForce RTX 3060 Ti / Radeon RX 6700 XT"
+      },
+      {
+        "line": 280,
+        "text": "- **Rec HW (RT):** RTX 4070 / RX 7800 XT"
+      },
+      {
+        "line": 281,
+        "text": "- **Rec HW (4K RT):** RTX 4080 / RX 7900 XTX"
+      },
+      {
+        "line": 282,
+        "text": "- **Rec HW (RTX 10 серии):** 30 fps на минималках, требует GTX 16/RTX 20+"
+      },
+      {
+        "line": 283,
+        "text": "- **Frame budget:** 16.6 мс (60 fps)"
+      },
+      {
+        "line": 284,
+        "text": "- **Streaming/IO:** открытые пространства Bright Falls + Dark Place"
+      },
+      {
+        "line": 285,
+        "text": "- **Engine limits:** требует mesh shaders; GTX 10 серия не поддерживается; path tracing только PC"
+      },
+      {
+        "line": 286,
+        "text": "- **Mod support:** НЕТ"
+      },
+      {
+        "line": 287,
+        "text": "- **Antipiracy:** Epic Games Store (PC-эксклюзив год) + Steam позже"
+      },
+      {
+        "line": 290,
+        "text": "- **Выгода:** mesh shaders (первая игра); RT GI + path tracing; €70M бюджет"
+      },
+      {
+        "line": 291,
+        "text": "- **Цена:** Epic exclusive на PC (как Metro Exodus 4 года назад); требует мощный GPU; GTX 10 не поддерживается; не окупается на релизе (только через год)"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-11:8",
+    "title": "1. Cyberpunk 2077 (2020, CD PROJEKT RED) — AppID 1091500",
+    "file": "партия-11.md",
+    "line": 8,
+    "sha256": "2baa3e9cb0de461955d3151100cc27b87ba80d5e0fc0c533feefcfc5296402f4",
+    "technical_functions": [
+      "open_world_streaming",
+      "crowd_simulation",
+      "path_tracing",
+      "ray_traced_effects",
+      "rendering_architecture",
+      "advanced_npc_ai",
+      "vehicle_simulation"
+    ],
+    "metadata": [
+      {
+        "line": 10,
+        "text": "- **Engine:** REDengine 4 (последняя итерация; дальше — переход на UE5 для Orion)"
+      },
+      {
+        "line": 11,
+        "text": "- **Format:** 3D | **World:** open_world (Night City, вертикальный плотный город) | **Scale:** very_large"
+      },
+      {
+        "line": 12,
+        "text": "- **Platforms:** PC + PS4/Xbox One (10.12.2020), PS5/XSX (02.2022, патч 1.5), Switch 2 (2025)"
+      },
+      {
+        "line": 13,
+        "text": "- **Targets:** 1080p–4K / 30–120 fps (зависит от RT/апскейла)"
+      },
+      {
+        "line": 14,
+        "text": "- **Object/NPC level:** very_high / very_high (толпы, трафик) | **Multiplayer:** false (сингл; мультиплеер отменён)"
+      },
+      {
+        "line": 34,
+        "text": "- **Min HW (релиз 2020):** Core i5-3570K / FX-8310, 8 GB RAM, GTX 780 / RX 470, HDD"
+      },
+      {
+        "line": 35,
+        "text": "- **Min HW (2.0/PL 2023):** Core i7-6700 / Ryzen 5 1600, 12 GB RAM, GTX 1060 6GB / RX 580, **SSD обязателен**"
+      },
+      {
+        "line": 36,
+        "text": "- **Rec HW (RT Overdrive):** Core i9-12900 / Ryzen 9 7900X, 16 GB RAM, RTX 4080+, NVMe"
+      },
+      {
+        "line": 37,
+        "text": "- **Frame budget:** 16.6 мс (60 fps raster); 33.3 мс (30 fps RT на консолях); path tracing — только с FG"
+      },
+      {
+        "line": 38,
+        "text": "- **Streaming/IO:** district-чанки Night City; на HDD — статтеры текстур (исправлено отказом от HDD)"
+      },
+      {
+        "line": 39,
+        "text": "- **Engine limits:** REDengine 4 — последний; дальше Orion на UE5. CPU 90% на 8 ядрах в Dogtown (Pierściński, 09.2023)"
+      },
+      {
+        "line": 40,
+        "text": "- **Mod support:** REDmod (официальный, 2022) + ArchiveXL; нет Workshop"
+      },
+      {
+        "line": 41,
+        "text": "- **Antipiracy:** Steam/GOG DRM-free + Denuvo отсутствует (GOG); Steam-версия — Steamworks"
+      },
+      {
+        "line": 44,
+        "text": "- **Выгода:** Night City — самый плотный город поколения; RT Overdrive — витрина path tracing"
+      },
+      {
+        "line": 45,
+        "text": "- **Цена:** релиз 12.2020 — провальный (возвраты, снятие с PS Store до 06.2021); старая CPU-архитектура без SMT; HDD-статтеры"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-11:63",
+    "title": "2. Overwatch → Overwatch 2 (2016/2022, Blizzard) — AppID 2357570 (OW2)",
+    "file": "партия-11.md",
+    "line": 63,
+    "sha256": "2baa3e9cb0de461955d3151100cc27b87ba80d5e0fc0c533feefcfc5296402f4",
+    "technical_functions": [
+      "project_architecture",
+      "multiplayer_netcode",
+      "rendering_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 65,
+        "text": "- **Engine:** собственный in-house (Overwatch Engine → **Overwatch Engine 2.0**, не UE5)"
+      },
+      {
+        "line": 66,
+        "text": "- **Format:** 3D | **World:** arena (карты 5v5/6v6) | **Scale:** small"
+      },
+      {
+        "line": 67,
+        "text": "- **Platforms:** PC + PS4/Xbox One/Switch (OW1 2016); PC + PS5/XSX/Switch (OW2 10.2022, F2P)"
+      },
+      {
+        "line": 68,
+        "text": "- **Targets:** 1080p–1440p / 60–120+ fps (компетитив — 144+ fps на ПК)"
+      },
+      {
+        "line": 69,
+        "text": "- **Object/NPC level:** low / medium (12→10 игроков) | **Multiplayer:** true (компетитивный шутер)"
+      },
+      {
+        "line": 89,
+        "text": "- **Min HW (OW1 2016):** Core i3 / Phenom X3, 4 GB RAM, GTX 460 / HD 4850"
+      },
+      {
+        "line": 90,
+        "text": "- **Min HW (OW2 2022):** Core i3-12100 / Ryzen 3, 6 GB RAM, GTX 600 / HD 7000"
+      },
+      {
+        "line": 91,
+        "text": "- **Rec HW (144 fps):** Core i7 / Ryzen 7, 8 GB RAM, GTX 1060 / RX 580+"
+      },
+      {
+        "line": 92,
+        "text": "- **Frame budget:** 8.3 мс (120 fps компетитив); 16.6 мс (60 fps казуал)"
+      },
+      {
+        "line": 93,
+        "text": "- **Streaming/IO:** арены целиком, без стриминга мира"
+      },
+      {
+        "line": 94,
+        "text": "- **Engine limits:** 5v5 — техно-экономика: 12 игроков не держат 120 fps на старом железе с новыми фичами (контуры, healer vision); возврат 6v6 требует сезонов оптимизации (Keller, 07.2024)"
+      },
+      {
+        "line": 95,
+        "text": "- **Mod support:** нет (Workshop — скрипты режимов, не ассеты)"
+      },
+      {
+        "line": 96,
+        "text": "- **Antipiracy:** Battle.net + kernel античит"
+      },
+      {
+        "line": 99,
+        "text": "- **Выгода:** отзывчивость как религия; F2P + кроссплей + кросс-прогресс"
+      },
+      {
+        "line": 100,
+        "text": "- **Цена:** отмена PvE; 5v5 расколол комьюнити; баланс танков переписан"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-11:115",
+    "title": "3. Minecraft: Java Edition + Bedrock (2011–…, Mojang) — AppID нет (лаунчер)",
+    "file": "партия-11.md",
+    "line": 115,
+    "sha256": "2baa3e9cb0de461955d3151100cc27b87ba80d5e0fc0c533feefcfc5296402f4",
+    "technical_functions": [
+      "runtime_memory",
+      "open_world_streaming",
+      "rendering_architecture",
+      "project_architecture",
+      "advanced_npc_ai"
+    ],
+    "metadata": [
+      {
+        "line": 117,
+        "text": "- **Engine:** Java Edition (Java, LWJGL/OpenGL) vs Bedrock (C++, RenderDragon)"
+      },
+      {
+        "line": 118,
+        "text": "- **Format:** 3D voxel | **World:** infinite procedural (сид-генерация) | **Scale:** infinite"
+      },
+      {
+        "line": 119,
+        "text": "- **Platforms:** PC Java (2009–), PC Bedrock/Win10 (2015–), консоли, мобайл"
+      },
+      {
+        "line": 120,
+        "text": "- **Targets:** 1080p / 30–240 fps (зависит от дальности и модов)"
+      },
+      {
+        "line": 121,
+        "text": "- **Object/NPC level:** medium / low | **Multiplayer:** true (серверы, Realms)"
+      },
+      {
+        "line": 139,
+        "text": "- **Min HW (Java, ранние):** Core 2 Duo, 2 GB RAM, Intel HD (20–30 fps, короткие чанки)"
+      },
+      {
+        "line": 140,
+        "text": "- **Min HW (Java 1.20+):** Core i3, 4 GB RAM, Intel UHD / GTX 700 (60 fps на 8–12 чанков)"
+      },
+      {
+        "line": 141,
+        "text": "- **Rec HW (Sodium, 24+ чанка):** Core i5 / Ryzen 5, 8 GB RAM, GTX 1060 / RX 580 + Sodium"
+      },
+      {
+        "line": 142,
+        "text": "- **Frame budget:** 16.6 мс (60 fps); TPS-сервер — 50 мс тик (20 TPS)"
+      },
+      {
+        "line": 143,
+        "text": "- **Streaming/IO:** чанки 16×16, генерация на лету; на HDD — фризы генерации (SSD решает)"
+      },
+      {
+        "line": 144,
+        "text": "- **Engine limits:** Java single-thread наследие (мировой тик + часть генерации); дальность 32+ чанков упирается в CPU/RAM, а не GPU"
+      },
+      {
+        "line": 145,
+        "text": "- **Mod support:** эталон UGC (Forge/Fabric + CurseForge/Modrinth); Bedrock — Marketplace + Add-Ons"
+      },
+      {
+        "line": 146,
+        "text": "- **Antipiracy:** Microsoft Account + лаунчер-энтайтлмент"
+      },
+      {
+        "line": 149,
+        "text": "- **Выгода:** бесконечный мир из сида; моды чинят перфоманс лучше издателя (Sodium — стандарт)"
+      },
+      {
+        "line": 150,
+        "text": "- **Цена:** Java GC-наследие; Bedrock RenderDragon сломал шейдеры; версии дробят комьюнити (Java vs Bedrock)"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-11:167",
+    "title": "4. Counter-Strike: GO → Counter-Strike 2 (2012/2023, Valve) — AppID 730",
+    "file": "партия-11.md",
+    "line": 167,
+    "sha256": "2baa3e9cb0de461955d3151100cc27b87ba80d5e0fc0c533feefcfc5296402f4",
+    "technical_functions": [
+      "multiplayer_netcode",
+      "particle_systems",
+      "build_delivery",
+      "project_architecture"
+    ],
+    "metadata": [
+      {
+        "line": 169,
+        "text": "- **Engine:** Source (CS:GO) → **Source 2 (CS2, 09.2023)**"
+      },
+      {
+        "line": 170,
+        "text": "- **Format:** 3D | **World:** arena (de_/cs_ карты) | **Scale:** small"
+      },
+      {
+        "line": 171,
+        "text": "- **Platforms:** PC + Mac/Linux/PS3/X360 (GO 2012); PC only (CS2)"
+      },
+      {
+        "line": 172,
+        "text": "- **Targets:** 1080p–1440p / 144–400+ fps (компетитив — максимум fps, минимум latency)"
+      },
+      {
+        "line": 173,
+        "text": "- **Object/NPC level:** low / low | **Multiplayer:** true (5v5, 64/128 tick)"
+      },
+      {
+        "line": 192,
+        "text": "- **Min HW (GO 2012):** Core 2 Duo E6600, 2 GB RAM, GeForce 8600 / HD 3650"
+      },
+      {
+        "line": 193,
+        "text": "- **Rec HW (GO 144 fps):** Core i5, 8 GB RAM, GTX 1060 / RX 580"
+      },
+      {
+        "line": 194,
+        "text": "- **Rec HW (CS2 200+ fps):** Core i5-12400 / Ryzen 5 5600, 16 GB RAM, RTX 3060 / RX 6600"
+      },
+      {
+        "line": 195,
+        "text": "- **Frame budget:** 6.9 мс (144 fps); 2.5 мс (400 fps, про-сцена)"
+      },
+      {
+        "line": 196,
+        "text": "- **Streaming/IO:** карты целиком, VPK-предкэш"
+      },
+      {
+        "line": 197,
+        "text": "- **Engine limits:** CS2 снапшоты 64 Гц — джиттер и tick-miss остались; метрика сместилась с тика на джиттер"
+      },
+      {
+        "line": 198,
+        "text": "- **Mod support:** Workshop (карты, скины, стикеры — экономика)"
+      },
+      {
+        "line": 199,
+        "text": "- **Antipiracy:** VAC + VAC Live + Trust Factor"
+      },
+      {
+        "line": 202,
+        "text": "- **Выгода:** честный хитрег как религия; sub-tick — точность без удвоения цены серверов"
+      },
+      {
+        "line": 203,
+        "text": "- **Цена:** «128 tick не завезли» — скандал ожиданий; ватность; читеры"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  },
+  {
+    "id": "партия-11:218",
+    "title": "5. Arma 3 (2013, Bohemia Interactive) — AppID 107410",
+    "file": "партия-11.md",
+    "line": 218,
+    "sha256": "2baa3e9cb0de461955d3151100cc27b87ba80d5e0fc0c533feefcfc5296402f4",
+    "technical_functions": [
+      "rendering_architecture",
+      "open_world_streaming",
+      "dynamic_shadows",
+      "runtime_memory",
+      "project_architecture",
+      "advanced_npc_ai",
+      "multiplayer_netcode"
+    ],
+    "metadata": [
+      {
+        "line": 220,
+        "text": "- **Engine:** Real Virtuality 4 (RV4, собственный Bohemia)"
+      },
+      {
+        "line": 221,
+        "text": "- **Format:** 3D | **World:** open_world (Altis 270 км², Stratis, Tanoa, Livonia) | **Scale:** very_large"
+      },
+      {
+        "line": 222,
+        "text": "- **Platforms:** PC Windows (09.2013), Linux/Mac порты (экспериментальные), Xbox позже — нет (Arma Reforger отдельно)"
+      },
+      {
+        "line": 223,
+        "text": "- **Targets:** 1080p / 30–60 fps (CPU-bound, GPU вторичен)"
+      },
+      {
+        "line": 224,
+        "text": "- **Object/NPC level:** very_high / high (сотни AI + техника) | **Multiplayer:** true (до 100+, dedicated servers)"
+      },
+      {
+        "line": 244,
+        "text": "- **Min HW (2013):** Core i5-2300 / Phenom II X4, 2 GB RAM, GTX 8800 / HD 3830"
+      },
+      {
+        "line": 245,
+        "text": "- **Min HW (2025, обновлённые):** повышены до реалистичных entry-level (Steam-страница)"
+      },
+      {
+        "line": 246,
+        "text": "- **Rec HW:** Core i7 / Ryzen 7 (IPC+частота важнее ядер), 16 GB RAM, GTX 1060 / RX 580 + SSD"
+      },
+      {
+        "line": 247,
+        "text": "- **Frame budget:** 33.3 мс (30 fps крупные миссии); 16.6 мс (60 fps малые кооп)"
+      },
+      {
+        "line": 248,
+        "text": "- **Streaming/IO:** террейн-чанки Altis 270 км²; view distance — главный потребитель"
+      },
+      {
+        "line": 249,
+        "text": "- **Engine limits:** single-thread + DX11; скрипты SQF — интерпретатор; 2.20 разморозил часть (AI-группы параллельно), но скрипт-взаимодействия остались single"
+      },
+      {
+        "line": 250,
+        "text": "- **Mod support:** эталон (Steam Workshop + Bohemia Tools + Eden; DayZ вырос из мода)"
+      },
+      {
+        "line": 251,
+        "text": "- **Antipiracy:** Steamworks + BattlEye"
+      },
+      {
+        "line": 254,
+        "text": "- **Выгода:** симуляция + редактор + серверы + моды = платформа на десятилетие"
+      },
+      {
+        "line": 255,
+        "text": "- **Цена:** CPU-bound с рождения; GPU не решает; view distance — вечный компромисс"
+      }
+    ],
+    "evidence": "unverified_game_profile"
+  }
+]

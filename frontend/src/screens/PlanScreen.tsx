@@ -1,6 +1,7 @@
 /** Экран 11. Итоговый план проекта. Одновременно является печатной формой отчёта. */
 import { useMemo } from 'react';
 import { useEnsureResult, useStore } from '../store';
+import { TransitionDetails } from '../components/ImplementationTransition';
 import {
   Badge,
   Callout,
@@ -88,10 +89,17 @@ export function PlanScreen() {
 
         <div className="stat-grid" style={{ marginTop: 14 }}>
           <Metric label="Решений" value={selected.length} />
-          <Metric label="Трудозатраты" value={totalCost} hint="сумма баллов из 5" />
+          <Metric label="Исходные трудозатраты" value={totalCost} hint="сумма баллов каталога; переход оценён отдельно" />
           <Metric label="Рисков" value={result.risks.length} />
         </div>
       </Card>
+
+      {result.transitions?.some(item => item.status === 'removal') && <Card title="Вывод прежних решений из реализации">
+        {result.transitions.filter(item => item.status === 'removal').map(item => <div key={item.method_code}>
+          <strong>{methodsByCode[item.method_code]?.name ?? item.method_code}</strong>
+          <TransitionDetails item={item} />
+        </div>)}
+      </Card>}
 
       {result.risks.length > 0 && (
         <Card
@@ -164,10 +172,12 @@ export function PlanScreen() {
                   <div className="xsmall faint" style={{ marginBottom: 6 }}>
                     Рекомендуемая стадия: {method.recommended_stage_label} · способ расчёта:{' '}
                     {method.calc_mode_label} · область эффекта: {method.effect_scope_label} ·
-                    трудозатраты {method.implementation_cost} из 5 · сложность {method.complexity} из 5
+                    исходные трудозатраты {method.implementation_cost} из 5 · сложность метода {method.complexity} из 5
                   </div>
 
                   <ImpactGrid impacts={impactsOf(method)} />
+                  {result.transitions?.filter(item => item.method_code === method.code).map(item =>
+                    <TransitionDetails key={item.method_code} item={item} />)}
 
                   <div className="xsmall faint" style={{ marginTop: 6 }}>
                     Проверка: {method.verification_method || 'способ проверки не указан'}

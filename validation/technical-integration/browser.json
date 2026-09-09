@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "checks": [
+    "choose technical function",
+    "implement and save basket",
+    "later stage retains implementation",
+    "replace implementation",
+    "reload preserves baseline and draft",
+    "plan includes removal and replacement",
+    "new browser context starts clean",
+    "all five reviewed methods selectable through UI",
+    "all five saved as implemented and retained after reload"
+  ],
+  "pageErrors": []
+}

@@ -118,6 +118,7 @@ function AutoCalculateProbe({ enabled }: { enabled: boolean }) {
 
 beforeEach(() => {
   localStorage.clear();
+  sessionStorage.clear();
   mocks.enums.mockResolvedValue({});
   mocks.functions.mockResolvedValue([]);
   mocks.methods.mockResolvedValue([]);
@@ -125,6 +126,40 @@ beforeEach(() => {
   mocks.conflicts.mockResolvedValue([]);
   mocks.examples.mockResolvedValue([]);
   mocks.recommend.mockResolvedValue(makeResult('по умолчанию'));
+});
+
+it('keeps the implemented basket through edits and a page reload and sends it with calculations', async () => {
+  const first = renderHook(useStore, { wrapper });
+  await waitFor(() => expect(first.result.current.catalog.loading).toBe(false));
+  act(() => first.result.current.setBasket(['lightmap_atlas_baking']));
+  act(() => first.result.current.saveBaseline());
+  const saved = first.result.current.baseline;
+  act(() => first.result.current.updateProfile({ stage: 'alpha' }));
+  act(() => first.result.current.setBasket(['hardware_raytraced_gi']));
+  expect(first.result.current.baseline).toEqual(saved);
+  first.unmount();
+  const restored = renderHook(useStore, { wrapper });
+  await waitFor(() => expect(restored.result.current.catalog.loading).toBe(false));
+  expect(restored.result.current.baseline).toEqual(saved);
+  expect(restored.result.current.basket).toEqual(['hardware_raytraced_gi']);
+  expect(restored.result.current.profile.stage).toBe('alpha');
+  await act(async () => restored.result.current.calculate());
+  expect(mocks.recommend).toHaveBeenLastCalledWith(restored.result.current.profile,
+    ['hardware_raytraced_gi'], expect.any(AbortSignal), saved);
+  const previousKey = restored.result.current.inputKey;
+  act(() => restored.result.current.saveBaseline());
+  expect(restored.result.current.result).toBeNull();
+  expect(restored.result.current.inputKey).not.toEqual(previousKey);
+  act(() => restored.result.current.resetProfile());
+  expect(restored.result.current.baseline).toBeNull();
+});
+
+it('does not restore an implemented basket into a new browser session', async () => {
+  sessionStorage.clear();
+  const { result } = renderHook(useStore, { wrapper });
+  await waitFor(() => expect(result.current.catalog.loading).toBe(false));
+  expect(result.current.baseline).toBeNull();
+  expect(result.current.basket).toEqual([]);
 });
 
 afterEach(() => {

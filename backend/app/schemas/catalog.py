@@ -273,6 +273,28 @@ class BasketRequest(BaseModel):
         return out
 
 
+class ImplementationBaseline(BasketRequest):
+    """Реализованная основа, явно зафиксированная пользователем."""
+
+
+class RecommendationRequest(BasketRequest):
+    baseline: ImplementationBaseline | None = None
+
+
+class TransitionOut(BaseModel):
+    method_code: str
+    status: str
+    scope: str
+    cost_min: float
+    cost_max: float
+    complexity_min: float = 0
+    complexity_max: float = 5
+    replaces: list[str] = Field(default_factory=list)
+    affected_methods: list[str] = Field(default_factory=list)
+    reasons: list[str] = Field(default_factory=list)
+    evidence: str = "expert_scenario"
+
+
 # ---------------------------------------------------------------------------
 # Каталоги
 # ---------------------------------------------------------------------------
@@ -488,6 +510,7 @@ class RecommendationOut(BaseModel):
     # Группа равнозначных: разница с лидером меньше порога различимости TOPSIS.
     equivalent_to_leader: bool = False
     score_gap: float = 0.0
+    transition: TransitionOut | None = None
 
 
 class RiskOut(BaseModel):
@@ -766,6 +789,8 @@ class RecommendationResult(BaseModel):
     catalog_revision: str | None = None
     selected_methods: list[MethodOut] = Field(default_factory=list)
     accounted_method_codes: list[str] = Field(default_factory=list)
+    baseline: ImplementationBaseline | None = None
+    transitions: list[TransitionOut] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def _fill_input_key(self):
@@ -774,7 +799,7 @@ class RecommendationResult(BaseModel):
         # иначе отпечаток молча относился бы к пустому набору.
         if not self.input_key:
             object.__setattr__(
-                self, "input_key", input_fingerprint(self.profile, self.basket_codes)
+                self, "input_key", input_fingerprint(self.profile, self.basket_codes, baseline=self.baseline)
             )
         return self
 
@@ -784,6 +809,7 @@ def input_fingerprint(
     basket: list[str],
     algorithm_version: str = "",
     dataset_version: str = "",
+    baseline: ImplementationBaseline | None = None,
 ) -> str:
     """Устойчивый отпечаток входа: одинаковым данным — одинаковый ключ.
 
@@ -805,6 +831,8 @@ def input_fingerprint(
         payload_dict["algorithm_version"] = algorithm_version
     if dataset_version:
         payload_dict["dataset_version"] = dataset_version
+    if baseline is not None:
+        payload_dict["baseline"] = input_fingerprint(baseline.profile, baseline.basket)
     payload = json.dumps(
         payload_dict,
         sort_keys=True,

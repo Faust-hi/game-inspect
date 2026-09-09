@@ -4,6 +4,7 @@ import { useEnsureResult, useStore } from '../store';
 import { Badge, Callout, Card, Empty, ImpactGrid } from '../components/ui';
 import { ConflictEntry, DependencyEntry, SynergyEntry } from '../components/Compatibility';
 import { MethodCard } from '../components/MethodCard';
+import { TransitionDetails } from '../components/ImplementationTransition';
 import { methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
 import type { Method } from '../types';
 
@@ -18,6 +19,8 @@ export function BasketScreen() {
     clearBasket,
     calculate,
     calculating,
+    baseline,
+    saveBaseline,
   } = useStore();
   const [openCode, setOpenCode] = useState<string | null>(null);
 
@@ -35,7 +38,7 @@ export function BasketScreen() {
     [catalog.enums],
   );
 
-  if (selected.length === 0) {
+  if (selected.length === 0 && !baseline) {
     return (
       <Empty>
         <div style={{ marginBottom: 10 }}>
@@ -49,13 +52,23 @@ export function BasketScreen() {
 
   return (
     <>
+      <Card title="Реализованная основа проекта">
+        <p className="small muted">Зафиксируйте корзину после реализации решений. Следующие изменения будут оцениваться относительно этой основы. Черновые изменения корзины её не заменяют. Данные сохраняются в текущем сеансе браузера.</p>
+        {baseline && <p>Зафиксировано решений: {baseline.basket.length}. Стадия: {stageNames[baseline.profile.stage] ?? baseline.profile.stage}.</p>}
+        <button className="btn btn-primary" disabled={calculating || !result || result.basket_conflicts.some(item => item.conflict_type !== 'risk') || result.accounted_method_codes?.length !== basket.length}
+          onClick={saveBaseline}>Зафиксировать корзину как реализованную</button>
+        {result?.transitions?.map(item => <div key={item.method_code} style={{ marginTop: 12 }}>
+          <strong>{methodsByCode[item.method_code]?.name ?? item.method_code}</strong>
+          <TransitionDetails item={item} />
+        </div>)}
+      </Card>
       <Card
         title="Корзина проекта"
         hint="После изменения набора система пересчитывает сводный профиль нагрузки и совместимость решений."
         actions={
           <div className="btn-row">
             <Badge tone="info">решений: {selected.length}</Badge>
-            <Badge tone="neutral">суммарные трудозатраты: {totalCost}</Badge>
+            <Badge tone="neutral">исходные баллы трудозатрат: {totalCost}</Badge>
             <button className="btn btn-sm" onClick={() => void calculate()} disabled={calculating}>
               {calculating ? 'Пересчёт…' : 'Пересчитать'}
             </button>
@@ -113,8 +126,8 @@ export function BasketScreen() {
 
       {result && result.basket_conflicts.length > 0 && (
         <Card
-          title="Конфликты и незакрытые зависимости"
-          hint="Набор содержит решения, которые взаимно исключают друг друга или требуют дополнения."
+          title="Совместимость и риски набора"
+          hint="Проверьте тип каждой связи: условный риск допускает совместное применение; несовместимость или отсутствующая зависимость требуют изменения набора."
         >
           {result.basket_conflicts.map((item, index) => (
             <ConflictEntry key={index} item={item} />
@@ -131,7 +144,7 @@ export function BasketScreen() {
       )}
 
       {result && result.basket_synergies.length > 0 && (
-        <Card title="Усиливающие сочетания" hint="Решения, которые выгодно применять совместно.">
+        <Card title="Дополнения и перекрытия" hint="Связь не доказывает дополнительное ускорение. Проверяйте условия совместного применения.">
           {result.basket_synergies.map((item, index) => (
             <SynergyEntry key={index} item={item} />
           ))}

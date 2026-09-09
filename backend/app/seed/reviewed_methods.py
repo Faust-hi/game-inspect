@@ -1,0 +1,168 @@
+"""Mechanisms checked against primary sources; numerical effects remain unmeasured.
+
+proven-methods.md is review input, not executable seed data. In particular, its
+confidence threshold, benchmark percentages and mandatory dependencies are not
+imported. These entries describe reusable implementation choices.
+"""
+
+SOURCES = {
+    'GAME_AI_FLOW_FIELDS': ('Crowd Pathfinding and Steering Using Flow Field Tiles — Elijah Emerson',
+                            'https://www.gameaipro.com/GameAIPro/GameAIPro_Chapter23_Crowd_Pathfinding_and_Steering_Using_Flow_Field_Tiles.pdf', '2013'),
+    'UNITY_GPU_BUDGETS': ('Unity — Managing GPU usage for PC and console games',
+                         'https://unity.com/how-to/gpu-optimization', ''),
+    'NVIDIA_VOXEL_CONES': ('Interactive Indirect Illumination Using Voxel Cone Tracing — Crassin et al.',
+                          'https://research.nvidia.com/labs/rtr/publication/crassin2011givoxels/', '2011-09'),
+    'VALVE_DIRECTOR': ('The AI Systems of Left 4 Dead — Michael Booth, Valve',
+                       'https://cdn.akamai.steamstatic.com/apps/valve/2009/ai_systems_of_l4d_mike_booth.pdf', '2009'),
+    'VALVE_SUBTICK': ('Counter-Strike 2 — sub-tick updates, Valve',
+                      'https://www.counter-strike.net/cs2', '2023-03-22'),
+    'VALVE_REWIND': ('Valve Source SDK — player_lagcompensation.cpp',
+                     'https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/game/server/player_lagcompensation.cpp', ''),
+    'MS_DIRECTSTORAGE_GUIDANCE': ('Microsoft DirectStorage — Developer Guidance',
+                                 'https://github.com/microsoft/DirectStorage/blob/main/Docs/DeveloperGuidance.md', ''),
+    'KHRONOS_ASYNC_COMPUTE': ('Khronos Vulkan Samples — Using async compute to saturate GPU',
+                             'https://docs.vulkan.org/samples/latest/samples/performance/async_compute/README.html', ''),
+}
+
+# Notes, rather than fictional percentages, participate in the hardware report.
+EFFECTS = {
+    'ai_director_pacing': {'note': 'контроллер популяции требует отдельного замера CPU и памяти; предел NPC задаётся профилем, автоматической скидки за pacing нет'},
+    'subtick_networking': {'note': 'серверная обработка меток и клиентская отправка не измерены; sub-tick не снижает автоматически частоту симуляции или трафик'},
+    'lag_compensation_rewind': {'note': 'история и проверка попаданий относятся к серверу; их CPU/RAM и расходы хоста не оценены численно'},
+    'directstorage_io': {'note': 'I/O, staging и выбранный путь декомпрессии требуют замера; без этих данных CPU, GPU, RAM, VRAM, объём диска и FPS не корректируются'},
+    'async_compute_overlap': {'note': 'перекрытие очередей требует GPU-трассы; объём работы не уменьшается, возможен регресс, универсальной скидки GPU нет'},
+}
+
+
+def methods(M):
+    common = dict(confidence=0.5, requires_prototype=True, applicable_formats=['2D', '2.5D', '3D'])
+    records = [
+        M('ai_director_pacing', 'Контроллер популяции NPC по интенсивности событий', 'advanced_npc_ai',
+          source_key='VALVE_DIRECTOR', level='architecture', recommended_stage='prototype', late_cost='high',
+          summary='Автомат состояний регулирует создание групп NPC по интенсивности событий и лимитам популяции.',
+          description='Техническая часть AI Director: оценка состояния группы и планирование популяции. Сюжет и оценка реиграбельности в аппаратную модель не входят.',
+          problem='Пики появления агентов требуют управления популяцией и бюджетами ИИ.',
+          impact_cpu=1, impact_ram=1, concept_impact=-1, performance_gain=0.3, implementation_cost=4, complexity=4,
+          requires_features=['advanced_npc_ai'],
+          requires_conditions=['Нужны проверяемые точки появления и достижимость; тайловый стриминг navmesh не обязателен.',
+                               'В сетевой игре выбрать владельца популяции; стоимость хоста и сервера измерить отдельно.'],
+          pros=['Лимиты активной популяции задаются явно', 'Правила появления отделены от поведения отдельного NPC'],
+          cons=['Дополнительный контроллер и телеметрия', 'Переходы состояний и массовый спавн требуют проверки'],
+          limitations=['Не заменяет дерево поведения или бюджет восприятия.', 'Число NPC и стоимость их ИИ сами по себе не уменьшаются.'],
+          application_steps=['Задать лимиты популяции и валидные точки появления.', 'Описать переходы нарастания, пика, спада и паузы.',
+                             'Связать спавн с бюджетом обновления и навигацией.', 'Измерить пик NPC, CPU контроллера, навигацию и память.'],
+          verification_method='Прогоны с одинаковым seed: активные NPC, пики спавна, CPU контроллера/ИИ и память.',
+          verification_tools=['Unreal Insights', 'Unity Profiler', 'Телеметрия популяции'], **common),
+        M('subtick_networking', 'Временные метки ввода внутри сетевого такта', 'multiplayer_netcode',
+          source_key='VALVE_SUBTICK', level='architecture', recommended_stage='preproduction', late_cost='high',
+          effect_scope='server', summary='Ввод несёт уточнённое время события; сервер учитывает его при обработке команд между границами тактов.',
+          description='Метки времени дополняют дискретную симуляцию. Формат метки, порядок обработки и частота сервера определяются реализацией.',
+          problem='Квантование времени ввода границами серверного такта.',
+          impact_cpu=1, impact_network=1, performance_gain=0.3, implementation_cost=4, complexity=5,
+          requires_features=['multiplayer_netcode'],
+          requires_conditions=['Нужны согласование времени, проверка входных меток и ограничение очереди команд.',
+                               '64 Гц, float timestamp и запрет другого тикрейта не являются требованиями общего метода.'],
+          pros=['Позволяет сохранить время события точнее границы такта'],
+          cons=['Обработка поздних и переупорядоченных команд', 'Дополнительные данные и проверка времени'],
+          limitations=['Не устраняет сетевую задержку и не гарантирует преимущество над 128 Гц.',
+                       'Здесь описана серверная часть; клиентские расходы меток и локального хоста требуют отдельного замера.',
+                       'Не требует конкретного метода prediction или rewind из каталога.'],
+          application_steps=['Определить точность и допустимое окно времени.', 'Передавать и валидировать время ввода.',
+                             'Задать политику поздних команд и согласовать её с симуляцией.', 'Проверить джиттер, потери, перестановку пакетов и ложные метки.'],
+          verification_method='Сетевой стенд: ошибка времени события, задержка ответа, CPU очереди и байты команд при разных тактах.',
+          verification_tools=['Сетевой захват', 'Серверная трассировка команд'], **common),
+        M('lag_compensation_rewind', 'Серверная проверка попаданий по истории состояния', 'multiplayer_netcode',
+          source_key='VALVE_REWIND', level='architecture', recommended_stage='preproduction', late_cost='high',
+          effect_scope='server', summary='Сервер хранит ограниченную историю коллизий и проверяет команду в допустимом прошлом состоянии.',
+          description='Оценка времени команды учитывает сетевую задержку и интерполяцию. После исторической проверки актуальное состояние восстанавливается.',
+          problem='Положение цели на сервере к моменту получения команды отличается от показанного клиенту.',
+          impact_cpu=1, impact_ram=1, performance_gain=0.3, implementation_cost=4, complexity=4,
+          requires_features=['multiplayer_netcode'],
+          requires_conditions=['Нужны авторитетная проверка, ограниченное окно истории и контроль времени клиента.'],
+          pros=['Попадания можно проверять относительно наблюдавшегося клиентом состояния'],
+          cons=['Память истории и дополнительные проверки', 'Возможны попадания после ухода цели за укрытие'],
+          limitations=['Не требует sub-tick и не гарантирует справедливость при любом пинге.',
+                       'Хранение истории само по себе не означает увеличение сетевого трафика.',
+                       'Полный RTT нельзя безусловно вычитать как задержку доставки; политика зависит от протокола.',
+                       'CPU/RAM сервера и локального хоста в оценку компьютера игрока не включены.'],
+          application_steps=['Задать окно и состав исторических коллизий.', 'Оценить время команды и ограничить его серверными правилами.',
+                             'Проверить попадание и гарантировать восстановление текущего состояния.', 'Проверить телепорты, удалённые объекты, поздние команды и укрытия.'],
+          verification_method='Два клиента с разной задержкой: сверить историю коллизий, хитлог, память и серверное время обработки.',
+          verification_tools=['Сетевой захват', 'Серверный профилировщик', 'Журнал попаданий'], **common),
+        M('directstorage_io', 'DirectStorage: очереди I/O и выбор декомпрессии', 'open_world_streaming',
+          source_key='MS_DIRECTSTORAGE_GUIDANCE', level='architecture', recommended_stage='preproduction', late_cost='high',
+          summary='Пакетные запросы чтения и декомпрессии с явным управлением завершением, буферами и назначением данных.',
+          description='GPU-путь может переносить распаковку с CPU на GPU. CPU fallback и путь в системную память рассматриваются отдельно.',
+          problem='Стриминг ограничен подачей данных или CPU-декомпрессией.',
+          impact_cpu=-1, impact_gpu=1, impact_ram=1, impact_vram=1, performance_gain=0.5, implementation_cost=4, complexity=4,
+          applicable_platforms=['pc_windows'], requires_features=['open_world_streaming'],
+          requires_conditions=['Проверить Windows, версию SDK, драйвер и GetCompressionSupport.',
+                               'GPU-декомпрессия требует DX12 и Shader Model 6.0; DX12 Ultimate не обязателен.',
+                               'NVMe предпочтителен для пропускной способности, но не обязателен; на HDD проверить buffered I/O.'],
+          pros=['Возможность разгрузить CPU-декомпрессию', 'Явные очереди и контроль завершения запросов'],
+          cons=['Staging занимает RAM/VRAM', 'GPU-декомпрессия конкурирует с рендерингом'],
+          limitations=['Не уменьшает автоматически объём сборки или время кадра.', 'Размер чанков и буферов подбирается измерением.',
+                       'Баллы направления расходов относятся к GPU-пути; CPU fallback требует отдельного сравнения.'],
+          application_steps=['Разбить контент на независимо читаемые блоки и выбрать поддерживаемый кодек.',
+                             'Настроить очереди, завершения, ошибки и staging budget.', 'Проверить выбранный путь декомпрессии и CPU fallback.',
+                             'Сравнить загрузку и стриминг под одновременной нагрузкой рендера.'],
+          verification_method='GpuDecompressionBenchmark с проверкой данных и трасса игры: I/O latency, CPU, GPU queues, staging и пики кадра.',
+          verification_tools=['PIX', 'Microsoft DirectStorage samples', 'Профилировщик движка'], **common),
+        M('async_compute_overlap', 'Перекрытие графики и асинхронных вычислений GPU', 'rendering_architecture',
+          source_key='KHRONOS_ASYNC_COMPUTE', level='algorithm', recommended_stage='production', late_cost='high',
+          summary='Независимые compute-проходы планируются с возможностью перекрытия графических проходов.',
+          description='Несколько очередей и корректные зависимости могут заполнять простои GPU; фактический параллелизм зависит от устройства.',
+          problem='На GPU-трассе есть простои и независимая работа для перекрытия.',
+          impact_gpu=-1, performance_gain=0.4, implementation_cost=4, complexity=5,
+          requires_features=['rendering_architecture'],
+          requires_conditions=['Нужен доступ к очередям DX12/Vulkan и поддержка движка/устройства.',
+                               'Измерить конкуренцию за память и вычислительные блоки; отдельная очередь не гарантирует параллельность.'],
+          pros=['Может сократить простои при наличии независимых проходов'],
+          cons=['Сложнее синхронизация и срок жизни ресурсов', 'Возможен рост времени кадра и задержки'],
+          limitations=['Не сокращает объём работы шейдеров.', 'Не требует PSO precaching как обязательной зависимости.',
+                       'Проценты ускорения из отдельных игр и демонстраций не переносятся на проект.'],
+          application_steps=['Найти простои и независимые проходы на GPU-трассе.', 'Выделить очереди и задать барьеры и завершения.',
+                             'Проверить владение ресурсами и отсутствие гонок.', 'Сравнить async on/off, время кадра, память и input latency на целевых GPU.'],
+          verification_method='Одна сцена с async on/off: GPU timeline, p95/p99 кадра, задержка и validation layers.',
+          verification_tools=['PIX', 'GPU-профилировщик производителя', 'Vulkan validation layers'], **common),
+    ]
+    for record in records:
+        record['limitations'] = list(record['limitations']) + [
+            'Механизм подтверждён первичным источником; баллы эффектов, стоимости и confidence являются экспертными, а не измерениями.',
+            EFFECTS[record['code']]['note'],
+        ]
+    return records
+
+
+def relation(a, b, kind, text, check, source, severity=2):
+    return dict(a_code=a, b_code=b, conflict_type=kind, severity=severity,
+                description=text, resolution=check, source_key=source)
+
+
+# Cross-system relationships are engineering checks, not measured synergies.
+CONFLICTS = [
+    relation('ai_director_pacing', 'behaviour_tree_update_budget', 'complement',
+             'Управление популяцией и бюджет поведения решают разные задачи.', 'Проверить пики числа агентов и задержку их реакции.', 'VALVE_DIRECTOR'),
+    relation('ai_director_pacing', 'npc_perception_budget', 'complement',
+             'Популяция и квота восприятия могут применяться совместно.', 'Настроить квоты для максимального спавна.', 'VALVE_DIRECTOR'),
+    relation('ai_director_pacing', 'navmesh_tiling_streaming', 'risk',
+             'Спавн на неготовом навигационном тайле может нарушить достижимость.', 'Проверять готовность пути; тайловая navmesh не обязательна.', 'VALVE_DIRECTOR'),
+    relation('subtick_networking', 'tickrate_budgeting', 'complement',
+             'Метки ввода не отменяют выбор частоты симуляции.', 'Измерить метки при нескольких частотах; не начислять двойной выигрыш.', 'VALVE_SUBTICK'),
+    relation('subtick_networking', 'client_prediction_reconciliation', 'complement',
+             'Время ввода и предсказание клиента — разные части протокола.', 'Согласовать время и подтверждение команд.', 'VALVE_SUBTICK'),
+    relation('lag_compensation_rewind', 'subtick_networking', 'complement',
+             'Метки могут уточнять историческую проверку; rewind работает и без sub-tick.', 'Проверить единое время и предел истории.', 'VALVE_REWIND'),
+    relation('lag_compensation_rewind', 'client_prediction_reconciliation', 'complement',
+             'Серверная проверка и предсказание на клиенте могут сосуществовать.', 'Проверить согласованность подтверждений и истории.', 'VALVE_REWIND'),
+    relation('directstorage_io', 'async_loading_pipeline', 'complement',
+             'DirectStorage может обслуживать запросы асинхронного загрузчика.', 'Проверить завершение I/O, распаковку и активацию ресурсов; не складывать скидки.', 'MS_DIRECTSTORAGE_GUIDANCE'),
+    relation('directstorage_io', 'virtual_texturing', 'complement',
+             'Очереди I/O могут подавать тайлы виртуальных текстур.', 'Согласовать layout тайлов, staging и резидентную память.', 'MS_DIRECTSTORAGE_GUIDANCE'),
+    relation('directstorage_io', 'async_compute_overlap', 'risk',
+             'GPU-декомпрессия и рендер/compute могут конкурировать за ресурсы.', 'Измерить очереди при активном стриминге, включая CPU fallback.', 'MS_DIRECTSTORAGE_GUIDANCE', 3),
+    relation('async_compute_overlap', 'tiled_clustered_light_culling', 'complement',
+             'Отсечение уменьшает работу; перекрытие планирует оставшиеся проходы.', 'Проверить зависимости и трассу без общей процентной скидки.', 'KHRONOS_ASYNC_COMPUTE'),
+    relation('async_compute_overlap', 'pso_precaching_warmup', 'complement',
+             'Прогрев PSO не заменяет синхронизацию очередей и не является её условием.', 'Измерять компиляционные паузы и время GPU раздельно.', 'KHRONOS_ASYNC_COMPUTE'),
+]

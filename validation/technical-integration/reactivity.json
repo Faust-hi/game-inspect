@@ -1,0 +1,1080 @@
+{
+  "synthetic": true,
+  "fields": 41,
+  "cases": [
+    {
+      "field": "name",
+      "before": "Проект без названия",
+      "after": "Renamed",
+      "changed_domains": [],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "format",
+      "before": "3D",
+      "after": "2D",
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "applicability",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.2703,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "world_type",
+      "before": "open_world",
+      "after": "hub",
+      "changed_domains": [
+        "recommendations",
+        "applicability",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "scale",
+      "before": "large",
+      "after": "small",
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "applicability",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 11.5,
+        "estimated_vram_gb": 6.8,
+        "estimated_draw_calls": 377067
+      }
+    },
+    {
+      "field": "stage",
+      "before": "prototype",
+      "after": "release",
+      "changed_domains": [
+        "recommendations",
+        "warnings"
+      ],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "engine",
+      "before": "unreal",
+      "after": "unity",
+      "changed_domains": [
+        "recommendations",
+        "applicability",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "engine_version",
+      "before": null,
+      "after": "4.27",
+      "changed_domains": [
+        "recommendations",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "platforms",
+      "before": [
+        "pc_windows"
+      ],
+      "after": [
+        "pc_linux"
+      ],
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "applicability",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.2179,
+        "required_gpu_index": 2.2153,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "object_count_level",
+      "before": "medium",
+      "after": "high",
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.2788,
+        "required_gpu_index": 2.3427,
+        "estimated_ram_gb": 14.6,
+        "estimated_vram_gb": 9.4,
+        "estimated_draw_calls": 626166
+      }
+    },
+    {
+      "field": "object_count",
+      "before": null,
+      "after": 50000,
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1962,
+        "required_gpu_index": 2.2766,
+        "estimated_ram_gb": 14.0,
+        "estimated_vram_gb": 8.9,
+        "estimated_draw_calls": 577414
+      }
+    },
+    {
+      "field": "npc_count_level",
+      "before": "medium",
+      "after": "high",
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "warnings"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.2788,
+        "required_gpu_index": 2.3427,
+        "estimated_ram_gb": 14.6,
+        "estimated_vram_gb": 9.4,
+        "estimated_draw_calls": 648566
+      }
+    },
+    {
+      "field": "npc_count",
+      "before": null,
+      "after": 5000,
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "warnings"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.2825,
+        "required_gpu_index": 2.3456,
+        "estimated_ram_gb": 14.7,
+        "estimated_vram_gb": 9.4,
+        "estimated_draw_calls": 651544
+      }
+    },
+    {
+      "field": "player_count",
+      "before": 16,
+      "after": 128,
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 4518936
+      }
+    },
+    {
+      "field": "multiplayer",
+      "before": true,
+      "after": false,
+      "changed_domains": [
+        "subsystems",
+        "recommendations",
+        "applicability",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "local_view_count",
+      "before": null,
+      "after": 4,
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "warnings"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.8491,
+        "required_gpu_index": 2.8387,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 9.6,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "functions",
+      "before": [
+        "open_world_streaming",
+        "large_scale_terrain",
+        "procedural_vegetation",
+        "dynamic_global_illumination",
+        "baked_lighting",
+        "dynamic_shadows",
+        "particle_systems",
+        "physics_simulation",
+        "character_animation",
+        "crowd_simulation",
+        "ai_pathfinding",
+        "water_simulation",
+        "volumetric_effects",
+        "post_processing",
+        "rendering_architecture",
+        "render_scalability",
+        "geometry_pipeline",
+        "upscaling_frame_generation",
+        "storage_streaming",
+        "audio_system",
+        "build_delivery",
+        "runtime_memory",
+        "destruction_simulation",
+        "project_architecture",
+        "art_pipeline",
+        "split_screen_rendering",
+        "multiplayer_netcode",
+        "save_system",
+        "path_tracing",
+        "ray_traced_effects",
+        "dynamic_lighting",
+        "mesh_shaders",
+        "procedural_terrain",
+        "gameplay_ability_system",
+        "vehicle_simulation",
+        "advanced_npc_ai",
+        "portal_rendering",
+        "hair_rendering",
+        "cloth_simulation",
+        "runtime_security"
+      ],
+      "after": [
+        "physics_simulation"
+      ],
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "applicability",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 0.2251,
+        "required_gpu_index": 0.1515,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.3,
+        "estimated_draw_calls": 33104
+      }
+    },
+    {
+      "field": "target_resolution",
+      "before": "1080p",
+      "after": "2160p",
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "warnings"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 5.4109,
+        "estimated_ram_gb": 14.8,
+        "estimated_vram_gb": 15.9,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "target_quality",
+      "before": "high",
+      "after": "low",
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "warnings"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.1511,
+        "estimated_ram_gb": 13.1,
+        "estimated_vram_gb": 7.2,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "target_fps",
+      "before": 60,
+      "after": 144,
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 2.8197,
+        "required_gpu_index": 5.4231,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "render_api",
+      "before": "dx12",
+      "after": "dx11",
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "applicability"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.2753,
+        "required_gpu_index": 2.171,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "storage_type",
+      "before": "auto",
+      "after": "hdd",
+      "changed_domains": [
+        "subsystems",
+        "recommendations",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "memory_model",
+      "before": "auto",
+      "after": "unified",
+      "changed_domains": [
+        "requirements",
+        "recommendations",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 21.6,
+        "estimated_vram_gb": 8.2,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "upscaling_method",
+      "before": "auto",
+      "after": "fsr",
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 1.6879,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "network_topology",
+      "before": "auto",
+      "after": "lockstep",
+      "changed_domains": [
+        "subsystems",
+        "recommendations",
+        "applicability",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "frame_generation",
+      "before": false,
+      "after": true,
+      "changed_domains": [
+        "warnings"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "base_render_fps",
+      "before": null,
+      "after": 30,
+      "changed_domains": [],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "streaming_pool_gb",
+      "before": null,
+      "after": 8,
+      "changed_domains": [
+        "requirements",
+        "recommendations",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 14.4,
+        "estimated_vram_gb": 8.8,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "draw_call_budget",
+      "before": null,
+      "after": 10000,
+      "changed_domains": [
+        "warnings"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "simulation_radius_m",
+      "before": null,
+      "after": 1000,
+      "changed_domains": [
+        "subsystems",
+        "recommendations",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "physics_tick_hz",
+      "before": null,
+      "after": 240,
+      "changed_domains": [
+        "subsystems",
+        "recommendations",
+        "warnings",
+        "transitions"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "audio_complexity",
+      "before": null,
+      "after": "high",
+      "changed_domains": [
+        "requirements",
+        "subsystems",
+        "recommendations",
+        "warnings"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 14.6,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "ram_limit_gb",
+      "before": null,
+      "after": 4,
+      "changed_domains": [
+        "warnings"
+      ],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "vram_limit_gb",
+      "before": null,
+      "after": 2,
+      "changed_domains": [
+        "warnings"
+      ],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "size_limit_gb",
+      "before": null,
+      "after": 1,
+      "changed_domains": [
+        "recommendations",
+        "applicability"
+      ],
+      "runtime_invariant": false,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "deadline_weeks",
+      "before": null,
+      "after": 2,
+      "changed_domains": [
+        "warnings"
+      ],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "complexity_tolerance",
+      "before": null,
+      "after": 1,
+      "changed_domains": [
+        "recommendations",
+        "applicability"
+      ],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "priority",
+      "before": "balanced",
+      "after": "performance",
+      "changed_domains": [
+        "recommendations"
+      ],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "cpu_budget",
+      "before": null,
+      "after": "low",
+      "changed_domains": [
+        "recommendations"
+      ],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "gpu_budget",
+      "before": null,
+      "after": "low",
+      "changed_domains": [
+        "recommendations"
+      ],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "ram_budget",
+      "before": null,
+      "after": "low",
+      "changed_domains": [
+        "recommendations"
+      ],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    },
+    {
+      "field": "vram_budget",
+      "before": null,
+      "after": "low",
+      "changed_domains": [
+        "recommendations"
+      ],
+      "runtime_invariant": true,
+      "requirements_before": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      },
+      "requirements_after": {
+        "required_cpu_index": 1.1749,
+        "required_gpu_index": 2.2596,
+        "estimated_ram_gb": 13.9,
+        "estimated_vram_gb": 8.7,
+        "estimated_draw_calls": 564867
+      }
+    }
+  ]
+}

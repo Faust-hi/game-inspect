@@ -160,6 +160,23 @@ def evaluate(method: Method, profile: ProjectProfile) -> Applicability:
             "Метод существенно увеличивает размер сборки, что нарушает заданный предел."
         )
 
+    # Requirements of the reviewed mechanisms, also used when accounting a
+    # selected basket. Text-only conditions must not admit an offline server.
+    if method.code in {'subtick_networking', 'lag_compensation_rewind'}:
+        if not profile.multiplayer:
+            result.excluded_reasons.append('Серверная обработка сетевых команд требует мультиплеера.')
+        if profile.network_topology == 'lockstep':
+            result.excluded_reasons.append('Выбран чистый lockstep; для этого метода нужен авторитетный обработчик команд с отдельной историей времени.')
+        if profile.network_topology in {'auto', 'p2p'}:
+            result.conditions.append('Уточнить авторитетного владельца симуляции и проверку времени команд; распределённые узлы сами по себе этого не обеспечивают.')
+    if method.code == 'async_compute_overlap':
+        if profile.render_api not in {'auto', 'dx12', 'vulkan'}:
+            result.excluded_reasons.append('Вариант с явными асинхронными очередями требует DX12 или Vulkan; выбран другой API.')
+        if profile.render_api == 'auto':
+            result.conditions.append('Уточнить API и поддержку нескольких очередей движком и GPU.')
+    if method.code == 'directstorage_io' and profile.render_api not in {'auto', 'dx12'}:
+        result.conditions.append('Для выбранного RHI не предполагается прямой GPU-путь DirectStorage: проверить CPU/системную память или отдельный D3D12 interop без обещания ускорения.')
+
     result.applicable = not result.excluded_reasons
 
     # --- Мягкие правила --------------------------------------------------
@@ -175,11 +192,11 @@ def evaluate(method: Method, profile: ProjectProfile) -> Applicability:
 
     if result.stage_pressure > 0 and method.late_cost in ("high", "critical"):
         result.conditions.append(
-            "Текущая стадия проекта позже рекомендованной: внедрение потребует переработки уже готовых материалов."
+            "Текущая стадия проекта позже рекомендованной: проверить, затронет ли внедрение уже готовые материалы."
         )
 
     if method.quality_impact <= -1:
-        result.conditions.append("Решение снижает визуальное качество: требуется оценка приемлемости потерь.")
+        result.conditions.append("Возможны потери визуального качества: проверить их приемлемость на целевой сцене.")
 
     if method.concept_impact <= -1:
         result.conditions.append("Решение может изменить исходную концепцию: требуется согласование с геймдизайном.")
@@ -197,7 +214,9 @@ def assess_selected_methods(
     applicable: list[Method] = []
     notes: list[str] = []
     for method in methods:
-        result = evaluate(method, profile)
+        # A planning preference cannot remove the runtime work of a selected
+        # implementation. Physical compatibility and dependencies still apply.
+        result = evaluate(method, profile.model_copy(update={"complexity_tolerance": None}))
         if not result.applicable:
             notes.append(f"{method.name}: эффект не учтён. " + " ".join(result.excluded_reasons))
             continue
@@ -238,16 +257,16 @@ def assess_selected_methods(
                 "Рекомендуется выбрать одно, оба не исключены. " + (relation.description or "")
             )
         elif ctype == "complement":
-            # Синергия/дополнение: вместе выгоднее, но работают по отдельности
+            # Дополнение допускает совместное применение, но не доказывает выигрыш.
             warnings.append(
-                f"{relation.a_code} + {relation.b_code}: синергия. "
-                "Вместе дают больший эффект, по отдельности работают. " + (relation.description or "")
+                f"{relation.a_code} + {relation.b_code}: дополнение. "
+                "Разные механизмы могут применяться совместно; общий выигрыш требует измерения. " + (relation.description or "")
             )
         elif ctype == "overlap":
             # Перекрывающиеся эффекты: частичная дублировка
             warnings.append(
                 f"{relation.a_code} / {relation.b_code}: перекрытие эффектов. "
-                "Часть выигрыша дублируется, не суммируется полностью. " + (relation.description or "")
+                "Области действия могут пересекаться; величину перекрытия нужно проверить. " + (relation.description or "")
             )
         elif ctype == "unknown":
             # Непроверенная комбинация: отсутствие запрета ≠ доказанная совместимость
@@ -280,9 +299,11 @@ def assess_selected_methods(
     return [method for method in applicable if method.code in available], notes
 
 
-def resource_fit(method: Method, profile: ProjectProfile) -> float:
+def resource_fit(method: Method, profile: ProjectProfile, workload: dict[str, float] | None = None) -> float:
     """Насколько профиль нагрузки метода соответствует дефицитным ресурсам проекта (0..1)."""
     severity = resource_severity(profile)
+    if workload:
+        severity = {key: (value + workload.get(key, value)) / 2 for key, value in severity.items()}
     balance = (
         -method.impact_cpu * severity["cpu"]
         - method.impact_gpu * severity["gpu"]

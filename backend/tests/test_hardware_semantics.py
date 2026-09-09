@@ -454,7 +454,10 @@ def test_every_catalog_function_has_a_measurable_model_effect(db):
     """
     # Функции производства: их эффект лежит вне кадра (размер сборки, время
     # сборки, процесс), поэтому статью бюджета они не меняют.
-    no_frame_cost = {"art_pipeline", "build_delivery"}
+    no_frame_cost = {"art_pipeline", "build_delivery", "runtime_security"}
+    # Unknown SDK overhead is visible, rather than made up to change a number.
+    security = ProjectProfile(functions=['runtime_security'])
+    assert any('не измерены' in gap for gap in hardware._modeling_gaps(security, set(), 'sata_ssd'))
     base = ProjectProfile(scale="large", object_count_level="high")
     for code in {fn["code"] for fn in GAME_FUNCTIONS} - no_frame_cost:
         without = hardware.build_model(base, [], None)

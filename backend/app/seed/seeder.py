@@ -166,6 +166,7 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
     административные правки. Эта узкая синхронизация добавляет новые функции,
     декларативные связи методов и заполняет только пустые планы внедрения.
     """
+    from .verified_corrections import correct_existing
     functions: dict[str, GameFunction] = {}
     created_functions = 0
     for data in functions_data.with_sources():
@@ -198,6 +199,7 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
     db.flush()
     return {
         "functions_created": created_functions,
+        **sync_technical_extensions(db, functions),
         "methods_linked": linked_methods,
         "method_metadata_updated": metadata_updated,
         "relations_corrected": correct_shadow_relation(db),
@@ -206,7 +208,39 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
         "splitscreen_dependency_corrected": correct_splitscreen_dependency(db),
         "relation_types_corrected": correct_relation_types(db),
         "method_sources_corrected": correct_method_sources(db),
+        "verified_fields_corrected": correct_existing(db),
     }
+
+
+def sync_technical_extensions(db: Session, functions: dict[str, GameFunction]) -> dict[str, int]:
+    """Add the reviewed technical extension to existing databases, preserving edits."""
+    from .technical_extensions import EFFECTS, CONFLICTS
+    from .reviewed_methods import EFFECTS as reviewed_effects, CONFLICTS as reviewed_conflicts
+    extension_codes = set(EFFECTS) | set(reviewed_effects)
+    method_rows, relation_rows = methods_data.with_sources()
+    created_methods = created_relations = 0
+    for data in method_rows:
+        if data['code'] not in extension_codes or db.scalar(select(Method.id).where(Method.code == data['code'])):
+            continue
+        payload = {k: v for k, v in data.items() if hasattr(Method, k)}
+        payload.update(status=PUBLISHED, function_id=functions[data['function_code']].id)
+        db.add(Method(**payload))
+        created_methods += 1
+    db.flush()
+    keys = {(r['a_code'], r['b_code'], r['conflict_type']) for r in [*CONFLICTS, *reviewed_conflicts]}
+    for data in relation_rows:
+        if (data['a_code'], data['b_code'], data['conflict_type']) not in keys:
+            continue
+        # Preserve even a manually changed type for an existing pair.
+        existing = db.scalar(select(Conflict.id).where(
+            ((Conflict.a_code == data['a_code']) & (Conflict.b_code == data['b_code'])) |
+            ((Conflict.a_code == data['b_code']) & (Conflict.b_code == data['a_code']))))
+        if existing is None:
+            payload = {k: v for k, v in data.items() if hasattr(Conflict, k)}
+            db.add(Conflict(**{**payload, 'status': PUBLISHED}))
+            created_relations += 1
+    db.flush()
+    return {'technical_methods_created': created_methods, 'technical_relations_created': created_relations}
 
 
 def seed_engines(db: Session, outcome: SeedOutcome) -> dict[str, Engine]:
@@ -445,6 +479,8 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     # Источники, подобранные по названию, а не по механизму, заменяются и в
     # уже существующих базах: ссылка — часть обоснования карточки.
     sources_corrected = correct_method_sources(db)
+    from .verified_corrections import correct_existing
+    verified_fields_corrected = correct_existing(db)
     db.commit()
     issues = validate_knowledge_base(db) if validate else []
     db.commit()
@@ -461,6 +497,8 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
         "splitscreen_dependency_corrected": splitscreen_corrected,
         "legacy_conflict_types_corrected": legacy_conflicts,
         "relation_types_corrected": relations_corrected,
+        "method_sources_corrected": sources_corrected,
+        "verified_fields_corrected": verified_fields_corrected,
         **outcome.as_report(),
     }
 

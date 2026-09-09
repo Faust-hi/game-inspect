@@ -67,9 +67,11 @@ export function DependencyEntry({ item }: { item: BasketConflict }) {
 export function SynergyEntry({ item }: { item: BasketConflict }) {
   return (
     <CompatibilityEntry
-      tone="ok"
+      tone="info"
       head={`${item.a_name} + ${item.b_name}`}
+      badge={<Badge tone="info">{item.conflict_label}</Badge>}
       description={item.description}
+      resolution={item.resolution}
     />
   );
 }

@@ -341,7 +341,14 @@ FEATURE_GPU_SUBSYSTEM_LOAD: dict[str, dict[str, float]] = {
 #
 # Распределение задано явно для каждого решения: расчёт не обращается к
 # отсутствующему полю function_code и не выводит подсистему из названия.
+from ..seed.technical_extensions import CPU_LOAD, GPU_LOAD, EFFECTS as TECHNICAL_EFFECTS
+from ..seed.reviewed_methods import EFFECTS as REVIEWED_EFFECTS
+FEATURE_CPU_SUBSYSTEM_LOAD.update(CPU_LOAD)
+FEATURE_GPU_SUBSYSTEM_LOAD.update(GPU_LOAD)
+
 METHOD_SUBSYSTEM_EFFECTS: dict[str, dict] = {
+    **TECHNICAL_EFFECTS,
+    **REVIEWED_EFFECTS,
     # --- Мир и потоковая загрузка ---
     "world_partition_streaming": {"cpu": {"streaming": 0.30, "main_thread": 0.12}, "mem": {"streaming": 0.35}},
     # Сдвиг начала координат решает точность больших координат, а не стоимость
@@ -889,6 +896,12 @@ def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_
         "Объём буферов рендера и доля CPU-копий ресурсов заданы экспертно; "
         "резидентная и пиковая память отдельно не измерены.",
     ]
+    if "runtime_security" in profile.functions:
+        gaps.append("Накладные расходы античита/проверок целостности не измерены. Численная оценка их не включает; нужен замер конкретного SDK, а не универсальная поправка FPS.")
+    for code in sorted(method_codes & REVIEWED_EFFECTS.keys()):
+        gaps.append(REVIEWED_EFFECTS[code]['note'])
+    if set(profile.functions) & set(CPU_LOAD):
+        gaps.append("Новые технические подсистемы из партий: направления эффектов описаны по документации, величины CPU/GPU и памяти являются экспертными сценариями, без калибровки по играм.")
     streaming = _streaming_required(profile, method_codes)
     if profile.render_api == "auto":
         gaps.append("Не указан графический API/RHI: стоимость render thread и совместимость не определены.")

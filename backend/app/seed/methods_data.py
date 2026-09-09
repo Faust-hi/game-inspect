@@ -3922,10 +3922,14 @@ APPLICATION_STEPS: dict[str, list[str]] = {
 
 def all_methods() -> list[dict]:
     """Полный список методов с учётом расширений применимости."""
-    merged = list(METHODS) + list(EXTRA_METHODS)
+    from .technical_extensions import methods as technical_methods
+    from .reviewed_methods import methods as reviewed_methods
+    from .verified_corrections import correct_record
+    merged = list(METHODS) + list(EXTRA_METHODS) + technical_methods(M) + reviewed_methods(M)
     out = []
     for m in merged:
         data = dict(m)
+        correct_record(data)
         if data["code"] in FORMAT_OVERRIDES:
             data["applicable_formats"] = list(FORMAT_OVERRIDES[data["code"]])
         if data["code"] in CONCEPT_IMPACT_OVERRIDES:
@@ -4088,7 +4092,9 @@ def all_links() -> dict[str, dict[str, tuple[str, str, str]]]:
 
 
 def all_conflicts() -> list[dict]:
-    return list(CONFLICTS) + list(EXTRA_CONFLICTS)
+    from .technical_extensions import CONFLICTS as technical_conflicts
+    from .reviewed_methods import CONFLICTS as reviewed_conflicts
+    return list(CONFLICTS) + list(EXTRA_CONFLICTS) + list(technical_conflicts) + list(reviewed_conflicts)
 
 
 def with_sources() -> tuple[list[dict], list[dict]]:

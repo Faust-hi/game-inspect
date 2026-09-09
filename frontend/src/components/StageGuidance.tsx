@@ -21,13 +21,13 @@ export function StageGuidanceBlock({ guidance }: { guidance: StageGuidance }) {
       <div className="btn-row" style={{ margin: '10px 0 14px' }}>
         <Badge tone={LEVEL_TONE.available}>доступны: {joinLabels(guidance.available_level_labels)}</Badge>
         {guidance.restricted_level_labels.length > 0 && (
-          <Badge tone={LEVEL_TONE.restricted} title="Часть решений этого уровня требует переработки">
-            частично требуют переработки: {joinLabels(guidance.restricted_level_labels)}
+          <Badge tone={LEVEL_TONE.restricted} title="Уточните объём изменений относительно реализованной корзины">
+            возможна переработка: {joinLabels(guidance.restricted_level_labels)}
           </Badge>
         )}
         {guidance.rework_level_labels.length > 0 && (
-          <Badge tone={LEVEL_TONE.blocked} title="Решения этого уровня остаются в списке, но требуют переработки">
-            требуют переработки: {joinLabels(guidance.rework_level_labels)}
+          <Badge tone={LEVEL_TONE.blocked} title="Экспертный риск позднего внедрения, не доказательство переписи проекта">
+            проверить стоимость изменений: {joinLabels(guidance.rework_level_labels)}
           </Badge>
         )}
       </div>
