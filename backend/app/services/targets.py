@@ -206,7 +206,3 @@ def incompatible_notes(targets: list[PlatformTarget]) -> list[str]:
         for note in target.notes:
             notes.append(f"Цель «{target.label}»: {note}")
     return notes
-
-
-def any_compatible(targets: list[PlatformTarget]) -> bool:
-    return any(target.compatible for target in targets)

@@ -1,7 +1,7 @@
 /** Корневой компонент: навигация по этапам работы и административный раздел. */
 import { useMemo, useState, type ReactNode } from 'react';
 import { useEnsureResult, useStore } from './store';
-import { Callout, Loading, Toast } from './components/ui';
+import { Callout, Loading } from './components/ui';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { StageScreen } from './screens/StageScreen';
 import { FunctionsScreen } from './screens/FunctionsScreen';
@@ -78,7 +78,6 @@ export function App() {
   const [step, setStep] = useState<StepKey>('profile');
   const [showAdmin, setShowAdmin] = useState(false);
   const [compareCodes, setCompareCodes] = useState<string[] | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
 
   const hasFunctions = profile.functions.length > 0;
   const hasResult = result !== null;
@@ -249,7 +248,6 @@ export function App() {
         />
       )}
 
-      {toast && <Toast message={toast} onDone={() => setToast(null)} />}
     </div>
   );
 }

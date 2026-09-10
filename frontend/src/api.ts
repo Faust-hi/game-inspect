@@ -6,8 +6,6 @@ import type {
   Engine,
   Enums,
   GameFunction,
-  HardwareCPU,
-  HardwareGPU,
   Method,
   ProjectProfile,
   RecommendationResult,
@@ -110,16 +108,12 @@ async function postForm<T>(path: string, form: FormData, init?: RequestInit): Pr
 }
 
 export const api = {
-  health: () => request<{ status: string; version: string; database: string }>('/health'),
-
   enums: () => request<Enums>('/meta/enums'),
 
   functions: () => request<GameFunction[]>('/catalog/functions'),
   methods: () => request<Method[]>('/catalog/methods'),
-  method: (code: string) => request<Method>(`/catalog/methods/${code}`),
   engines: () => request<Engine[]>('/catalog/engines'),
   conflicts: () => request<Conflict[]>('/catalog/conflicts'),
-  hardware: () => request<{ cpu: HardwareCPU[]; gpu: HardwareGPU[] }>('/catalog/hardware'),
   stageGuidance: (stage: string) =>
     request<StageGuidance>(`/catalog/stage-guidance?stage=${encodeURIComponent(stage)}`),
 

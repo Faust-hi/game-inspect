@@ -211,10 +211,6 @@ describe('состояние проекта', () => {
     { name: 'setBasket', run: (store) => store.setBasket(['lod_system', 'occlusion_culling']) },
     { name: 'clearBasket', run: (store) => store.clearBasket() },
     { name: 'resetProfile', run: (store) => store.resetProfile() },
-    {
-      name: 'loadProject',
-      run: (store) => store.loadProject({ ...DEFAULT_PROFILE, name: 'Загруженный' }, ['lod_system']),
-    },
   ];
 
   // Один тест на все точки входа: проверяется один и тот же инвариант, и

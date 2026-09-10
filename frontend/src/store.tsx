@@ -134,7 +134,6 @@ interface ProjectStore {
   clearBasket: () => void;
   calculate: () => Promise<void>;
   reloadCatalog: () => Promise<void>;
-  loadProject: (profile: ProjectProfile, basket: string[]) => void;
 }
 
 const StoreContext = createContext<ProjectStore | null>(null);
@@ -291,16 +290,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setBasketState([]);
   }, [discardResult]);
 
-  const loadProject = useCallback(
-    (nextProfile: ProjectProfile, nextBasket: string[]) => {
-      discardResult();
-      setProfile({ ...DEFAULT_PROFILE, ...nextProfile });
-      setBasketState(nextBasket);
-      setBaseline(null);
-    },
-    [discardResult],
-  );
-
   const calculate = useCallback(async () => {
     // Прежний запрос отменяется: его результат уже никому не нужен.
     inFlight.current?.abort();
@@ -360,7 +349,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       clearBasket,
       calculate,
       reloadCatalog,
-      loadProject,
     }),
     [
       baseline,
@@ -382,7 +370,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       clearBasket,
       calculate,
       reloadCatalog,
-      loadProject,
     ],
   );
 

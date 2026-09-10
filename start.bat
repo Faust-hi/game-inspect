@@ -74,11 +74,6 @@ if errorlevel 1 (
     echo Check the two opened console windows for errors. Browser was NOT opened.
     goto :fail
 )
-if errorlevel 1 (
-    echo ERROR: services did not become ready or ports serve foreign processes.
-    echo Check the two opened console windows for errors. Browser was NOT opened.
-    goto :fail
-)
 
 start "" http://localhost:5173
 

@@ -331,14 +331,6 @@ export function SourceLink({ url, title }: { url: string; title?: string }) {
   );
 }
 
-export function Toast({ message, onDone }: { message: string; onDone: () => void }) {
-  useEffect(() => {
-    const timer = setTimeout(onDone, 2600);
-    return () => clearTimeout(timer);
-  }, [message, onDone]);
-  return <div className="toast">{message}</div>;
-}
-
 export function Metric({ label, value, hint }: { label: string; value: ReactNode; hint?: ReactNode }) {
   return (
     <div className="metric">

@@ -139,11 +139,6 @@ def _table_columns(database_url: str, table: str) -> set[str]:
         engine.dispose()
 
 
-def _method_columns(database_url: str) -> set[str]:
-    """Имена колонок таблицы methods для определения достигнутой ревизии."""
-    return _table_columns(database_url, "methods")
-
-
 def _legacy_stamp_revision(database_url: str, tables: set[str]) -> str | None:
     """Ревизия для штампа унаследованной базы без таблицы версий.
 

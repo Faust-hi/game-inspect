@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 import { existsSync } from 'node:fs';
 
-const localPython = process.platform === 'win32' ? '../.venv/Scripts/python.exe' : '../.venv/bin/python';
+const localPython = process.platform === 'win32' ? '../.venv/Scripts/python.exe' : '../.venv-linux/bin/python';
 const python = existsSync(localPython) ? localPython : 'python';
 
 export default defineConfig({

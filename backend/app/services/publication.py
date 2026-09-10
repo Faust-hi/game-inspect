@@ -294,17 +294,6 @@ def _columns_of(obj: Any) -> dict[str, Any]:
     return dict(vars(obj))
 
 
-def describe_transition(obj: Any, target: str, *, actor: str = "admin") -> dict[str, Any]:
-    """Описание перехода для журнала публикаций."""
-    return {
-        "entity": getattr(obj, "__tablename__", type(obj).__name__),
-        "entity_code": entity_key(obj),
-        "from_status": getattr(obj, "status", Status.DRAFT.value),
-        "to_status": target,
-        "actor": actor,
-    }
-
-
 def deduplicate(problems: Iterable[str]) -> list[str]:
     """Убирает повторы, сохраняя порядок: одна и та же ошибка не дублируется."""
     seen: set[str] = set()

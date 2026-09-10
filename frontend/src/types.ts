@@ -248,11 +248,6 @@ export interface RankStability {
   stable: boolean;
 }
 
-export interface SuggestedMethod {
-  method_code: string;
-  reason: string;
-}
-
 export interface Recommendation {
   transition?: ImplementationTransition | null;
   method_code: string;

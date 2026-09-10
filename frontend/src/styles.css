@@ -624,19 +624,6 @@ textarea:focus {
   gap: 8px;
 }
 
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #101a26;
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 8px;
-  box-shadow: var(--shadow-lg);
-  z-index: 200;
-  font-size: 13px;
-}
-
 .loading {
   display: flex;
   align-items: center;
