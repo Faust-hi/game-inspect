@@ -61,7 +61,7 @@ ENGINE_TOOL_INDEPENDENT: frozenset[str] = frozenset({
     "audio_convolution_reverb",      # обработка DSP: уровень аудиосистемы проекта
     "cloth_baked_animation",         # подготовленное движение: данные, а не подсистема
     "cloth_constraint_simulation",   # решатель ограничений: собственная физика
-    # МУТАЦИЯ: "directstorage_io" исключён из списка
+    "directstorage_io",              # платформенный API, условие — платформа, не движок
     "hair_cards_lod",                # подготовленная геометрия волос
     "hair_strand_simulation",        # собственный решатель прядей
     "lag_compensation_rewind",       # серверная логика поверх движка
