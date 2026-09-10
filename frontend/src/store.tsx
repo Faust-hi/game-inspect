@@ -134,7 +134,7 @@ interface ProjectStore {
   clearBasket: () => void;
   calculate: () => Promise<void>;
   reloadCatalog: () => Promise<void>;
-  loadProject: (profile: ProjectProfile, basket: string[], snapshot?: RecommendationResult | null) => void;
+  loadProject: (profile: ProjectProfile, basket: string[]) => void;
 }
 
 const StoreContext = createContext<ProjectStore | null>(null);
@@ -292,15 +292,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [discardResult]);
 
   const loadProject = useCallback(
-    (nextProfile: ProjectProfile, nextBasket: string[], snapshot?: RecommendationResult | null) => {
+    (nextProfile: ProjectProfile, nextBasket: string[]) => {
       discardResult();
       setProfile({ ...DEFAULT_PROFILE, ...nextProfile });
       setBasketState(nextBasket);
-      setBaseline(snapshot?.baseline ?? null);
-      if (snapshot) {
-        setResult(snapshot);
-        setResultKey(inputKeyOf({ ...DEFAULT_PROFILE, ...nextProfile }, nextBasket, snapshot.baseline));
-      }
+      setBaseline(null);
     },
     [discardResult],
   );

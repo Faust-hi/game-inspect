@@ -486,7 +486,6 @@ export interface StageGuidance {
 export interface RecommendationResult {
   baseline?: ImplementationBaseline | null;
   transitions?: ImplementationTransition[];
-  snapshot_id?: string | null;
   catalog_revision?: string | null;
   selected_methods?: Method[];
   accounted_method_codes?: string[];

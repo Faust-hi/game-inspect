@@ -785,7 +785,6 @@ class RecommendationResult(BaseModel):
     meta: dict[str, Any] = Field(default_factory=dict)
     basket_codes: list[str] = Field(default_factory=list)
     input_key: str = ""
-    snapshot_id: str | None = None
     catalog_revision: str | None = None
     selected_methods: list[MethodOut] = Field(default_factory=list)
     accounted_method_codes: list[str] = Field(default_factory=list)

@@ -52,6 +52,9 @@ jobs:
       - name: Тесты
         run: python -m pytest -q
 
+      - name: Научная сверка (метрика, пропуски, разделение выборок)
+        run: python -m pytest ../validation/test_evaluate.py -q
+
       - name: Миграции создают схему, соответствующую моделям
         env:
           DATABASE_URL: sqlite:///./ci_migrations.db

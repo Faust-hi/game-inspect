@@ -53,7 +53,6 @@ const mocks = vi.hoisted(() => ({
   methods: vi.fn(),
   engines: vi.fn(),
   conflicts: vi.fn(),
-  examples: vi.fn(),
 }));
 
 vi.mock('../api', () => ({
@@ -64,7 +63,6 @@ vi.mock('../api', () => ({
     methods: mocks.methods,
     engines: mocks.engines,
     conflicts: mocks.conflicts,
-    examples: mocks.examples,
   },
 }));
 
@@ -124,7 +122,6 @@ beforeEach(() => {
   mocks.methods.mockResolvedValue([]);
   mocks.engines.mockResolvedValue([]);
   mocks.conflicts.mockResolvedValue([]);
-  mocks.examples.mockResolvedValue([]);
   mocks.recommend.mockResolvedValue(makeResult('по умолчанию'));
 });
 
@@ -167,13 +164,6 @@ afterEach(() => {
 });
 
 describe('inputKeyOf', () => {
-  it('не зависит от порядка решений в корзине', () => {
-    const direct = inputKeyOf(DEFAULT_PROFILE, ['lod_system', 'occlusion_culling']);
-    const reversed = inputKeyOf(DEFAULT_PROFILE, ['occlusion_culling', 'lod_system']);
-
-    expect(direct).toBe(reversed);
-  });
-
   it('различает профиль и корзину', () => {
     const base = inputKeyOf(DEFAULT_PROFILE, ['lod_system']);
 

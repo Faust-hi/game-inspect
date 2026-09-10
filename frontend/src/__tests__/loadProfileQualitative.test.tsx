@@ -1,5 +1,5 @@
 /** Накопитель и сеть в сводке нагрузки: качественная оценка, а не проценты. */
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { LoadProfileScreen } from '../screens/LoadProfileScreen';
 import type { LoadProfile } from '../types';
@@ -74,10 +74,20 @@ describe('качественные ресурсы сводки нагрузки'
     expect(screen.getByText(/оценены качественно/)).toBeTruthy();
   });
 
-  it('числовая шкала остаётся только у измеряемых ресурсов', () => {
+  it('числовая шкала и экспертный балл не меняются местами', () => {
+    // Свойство вместо точного подсчёта: если ресурс сменят тип измерения,
+    // подпись обязана переехать вместе с ним, а не остаться числом.
     render(<LoadProfileScreen />);
 
-    expect(screen.getAllByText(/изменение стоимости кадра/)).toHaveLength(4);
-    expect(screen.getAllByText(/экспертный балл/)).toHaveLength(2);
+    for (const label of ['CPU', 'GPU', 'RAM', 'VRAM']) {
+      const row = screen.getByText(label, { selector: 'strong' }).closest('div');
+      expect(within(row as HTMLElement).queryByText(/изменение стоимости кадра/)).toBeTruthy();
+      expect(within(row as HTMLElement).queryByText(/экспертный балл/)).toBeNull();
+    }
+    for (const label of ['Накопитель', 'Сеть']) {
+      const row = screen.getByText(label, { selector: 'strong' }).closest('div');
+      expect(within(row as HTMLElement).queryByText(/экспертный балл/)).toBeTruthy();
+      expect(within(row as HTMLElement).queryByText(/изменение стоимости кадра/)).toBeNull();
+    }
   });
 });

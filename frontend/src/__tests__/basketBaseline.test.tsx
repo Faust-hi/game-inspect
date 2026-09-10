@@ -16,7 +16,7 @@ const state = vi.hoisted(() => ({
 vi.mock('../store', () => ({ useStore: () => state, useEnsureResult: () => {} }));
 afterEach(() => { cleanup(); vi.clearAllMocks(); state.result.accounted_method_codes = ['a']; });
 
-it('allows an accounted implementation with a visible conditional risk to be saved', () => {
+it('разрешает фиксацию при условном риске и учтённых решениях', () => {
   state.result.basket_conflicts[0].conflict_type = 'risk';
   render(<BasketScreen />);
   expect(screen.getByText('Конкуренция за GPU')).toBeTruthy();
@@ -26,14 +26,17 @@ it('allows an accounted implementation with a visible conditional risk to be sav
   expect(state.saveBaseline).toHaveBeenCalledOnce();
 });
 
-it.each(['hard_conflict', 'alternative', 'dependency', 'unknown'])('blocks unresolved %s when saving', type => {
-  state.result.basket_conflicts[0].conflict_type = type;
+it('блокирует фиксацию при неразрешённой несовместимости', () => {
+  // Кнопка блокируется любым типом кроме условного риска — проверяется один
+  // представитель: ветвления по типу в коде нет, четыре копии тестировали бы
+  // одну и ту же проверку `!== 'risk'`.
+  state.result.basket_conflicts[0].conflict_type = 'hard_conflict';
   render(<BasketScreen />);
   const save = screen.getByRole('button', { name: 'Зафиксировать корзину как реализованную' }) as HTMLButtonElement;
   expect(save.disabled).toBe(true);
 });
 
-it('still blocks a risk-only basket if some implementation could not be accounted', () => {
+it('блокирует фиксацию, если часть решений не учтена расчётом', () => {
   state.result.basket_conflicts[0].conflict_type = 'risk';
   state.result.accounted_method_codes = [];
   render(<BasketScreen />);

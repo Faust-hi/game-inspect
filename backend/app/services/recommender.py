@@ -19,8 +19,6 @@
 """
 from __future__ import annotations
 
-import uuid
-
 from sqlalchemy.orm import Session
 
 from .. import repositories, timeutil
@@ -367,7 +365,6 @@ def build_recommendations(db: Session, profile, basket_codes: list[str], baselin
         serializers.method_to_out_public(db, method, profile=profile) for method in selected
     ]
     result.accounted_method_codes = sorted(method.code for method in accounted)
-    result.snapshot_id = uuid.uuid4().hex
     result.catalog_revision = published_revision(db)
     result.meta["dataset_version"] = result.catalog_revision
     result.baseline = baseline
@@ -597,9 +594,9 @@ def _tail(
 ) -> dict:
     """Общая хвостовая часть результата: одинакова для пустого и полного расчёта.
 
-    Раньше обе ветки `build_recommendations` собирали похожие игры,
-    совместимость корзины, нагрузку и железо каждая по-своему — правка одной
-    забывала вторую. Теперь сборка в одном месте.
+    Раньше обе ветки `build_recommendations` собирали совместимость корзины,
+    нагрузку и железо каждая по-своему — правка одной забывала вторую.
+    Теперь сборка в одном месте.
     """
     relations = repositories.conflicts(db)
     estimate = hardware.estimate_hardware(db, profile, basket_methods)
