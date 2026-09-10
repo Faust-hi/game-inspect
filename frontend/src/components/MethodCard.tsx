@@ -143,10 +143,6 @@ export function MethodCard({ method, onClose }: { method: Method; onClose: () =>
         <h4>Шаги применения</h4>
         <ol>{(method.application_steps ?? []).map(step => <li key={step}>{step}</li>)}</ol>
       </>}
-      {(method.used_in_projects ?? []).length > 0 && <>
-        <h4>Примеры применения</h4>
-        <ul>{(method.used_in_projects ?? []).map(title => <li key={title}>{title}</li>)}</ul>
-      </>}
       <h4>Последующая проверка</h4>
       <p className="muted">{method.verification_method || 'Способ проверки не указан.'}</p>
       {method.verification_tools.length > 0 && (
@@ -162,7 +158,14 @@ export function MethodCard({ method, onClose }: { method: Method; onClose: () =>
       <div className="divider" />
       <h4 style={{ marginBottom: 8 }}>Аналоги в игровых движках</h4>
       {method.engine_links.length === 0 ? (
-        <p className="muted">Связи с инструментами движков не заданы.</p>
+        method.engine_tool_independent ? (
+          <p className="muted">
+            Метод реализуется своими средствами и не опирается на встроенные инструменты
+            движка — привязка к версии не требуется.
+          </p>
+        ) : (
+          <p className="muted">Связи с инструментами движков не заданы.</p>
+        )
       ) : (
         <table className="table">
           <thead>

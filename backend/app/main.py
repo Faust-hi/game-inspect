@@ -13,7 +13,7 @@ import uuid
 from urllib.parse import urlsplit
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -305,6 +305,15 @@ def create_app() -> FastAPI:
 
         @app.get("/{full_path:path}", include_in_schema=False)
         def spa(full_path: str):
+            # Ошибка в адресе запроса не должна маскироваться: без этого
+            # GET /api/... на неизвестный путь отдавал бы главную страницу
+            # с кодом 200, и клиент получал «успешный» ответ, который нельзя
+            # разобрать. Пути API обслуживаются только маршрутами API.
+            if full_path == "api" or full_path.startswith("api/"):
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Неизвестный путь API",
+                )
             return _spa_response(full_path)
     else:
 

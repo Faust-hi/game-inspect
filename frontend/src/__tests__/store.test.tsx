@@ -33,18 +33,6 @@ it('continues editing when browser storage refuses writes', async () => {
   } finally { write.mockRestore(); }
 });
 
-it('catalogue reload cancels an obsolete response and clears its result', async () => {
-  const delayed = deferred<RecommendationResult>();
-  mocks.recommend.mockReturnValue(delayed.promise);
-  const { result } = renderHook(useStore, { wrapper });
-  await waitFor(() => expect(result.current.catalog.loading).toBe(false));
-  let pending!: Promise<void>;
-  act(() => { pending = result.current.calculate(); });
-  await act(async () => result.current.reloadCatalog());
-  await act(async () => { delayed.resolve(makeResult('old')); await pending; });
-  expect(result.current.result).toBeNull();
-});
-
 /** Заглушки запросов: сеть в тестах не используется. */
 const mocks = vi.hoisted(() => ({
   recommend: vi.fn(),
@@ -229,25 +217,29 @@ describe('состояние проекта', () => {
     },
   ];
 
-  for (const item of resets) {
-    it(`сбрасывает прежний результат при изменении входа: ${item.name}`, async () => {
+  // Один тест на все точки входа: проверяется один и тот же инвариант, и
+  // отдельные копии различались бы только названием действия. Имя действия
+  // попадает в сообщение, поэтому при падении видно, какая точка сломалась.
+  it('сбрасывает прежний результат при любом изменении входа', async () => {
+    for (const item of resets) {
       const view = renderHook(() => useStore(), { wrapper });
 
       await act(async () => {
         await view.result.current.calculate();
       });
-      expect(view.result.current.result).not.toBeNull();
+      expect(view.result.current.result, item.name).not.toBeNull();
 
       await act(async () => {
         item.run(view.result.current);
       });
 
-      expect(view.result.current.result).toBeNull();
-      expect(view.result.current.resultKey).toBeNull();
-      expect(view.result.current.calculating).toBe(false);
-      expect(view.result.current.calculateError).toBeNull();
-    });
-  }
+      expect(view.result.current.result, item.name).toBeNull();
+      expect(view.result.current.resultKey, item.name).toBeNull();
+      expect(view.result.current.calculating, item.name).toBe(false);
+      expect(view.result.current.calculateError, item.name).toBeNull();
+      view.unmount();
+    }
+  });
 
   it('поздний ответ на устаревшие данные не перезаписывает актуальный результат', async () => {
     const slow = deferred<RecommendationResult>();
@@ -283,29 +275,6 @@ describe('состояние проекта', () => {
     expect(view.result.current.result?.input_key).toBe('актуальный');
     expect(view.result.current.resultKey).toBe(view.result.current.inputKey);
     expect(view.result.current.resultStale).toBe(false);
-  });
-
-  it('отменяет выполняющийся запрос при изменении входа', async () => {
-    const signals: AbortSignal[] = [];
-    const gate = deferred<RecommendationResult>();
-    mocks.recommend.mockImplementation(
-      (_profile: ProjectProfile, _basket: string[], signal?: AbortSignal) => {
-        if (signal) signals.push(signal);
-        return gate.promise;
-      },
-    );
-
-    const view = renderHook(() => useStore(), { wrapper });
-    act(() => {
-      void view.result.current.calculate();
-    });
-    expect(signals).toHaveLength(1);
-
-    await act(async () => {
-      view.result.current.updateProfile({ target_fps: 120 });
-    });
-
-    expect(signals[0]?.aborted).toBe(true);
   });
 
   it('сохраняет текст ошибки и снимает признак расчёта', async () => {

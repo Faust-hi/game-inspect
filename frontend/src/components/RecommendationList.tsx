@@ -106,6 +106,8 @@ export function RecommendationList({
                         {support.relation_label}
                       </Badge>
                     </>
+                  ) : item.engine_tool_independent ? (
+                    <span className="faint">своё решение поверх движка — встроенный инструмент не нужен</span>
                   ) : (
                     <span className="faint">встроенного аналога нет</span>
                   )}

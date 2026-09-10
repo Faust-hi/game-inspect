@@ -38,18 +38,24 @@ APPLICATION_STEPS_REVISION = "f225calib01"
 #: миграциями, либо её структура уже соответствует голове (см. ниже).
 #: Значение обязано совпадать с головой Alembic: устаревший штамп заставил бы
 #: применить уже существующую колонку поверх той же схемы.
-HEAD_REVISION = "7a1toolvers"
+HEAD_REVISION = "b2indep01"
 
-#: Колонки, добавленные миграциями и потому отсутствующие в унаследованной
-#: базе: `(таблица, колонка) → ревизия, после которой колонка обязательна`.
+#: Колонки, добавленные миграциями, в порядке цепочки:
+#: `(таблица, колонка, ревизия, добавившая колонку)`.
 #: Отсутствие такой колонки — не чужая структура, а признак более старой
-#: схемы: штампуется точка до её появления, остаток применяетсяupgrade head.
-#: Перечень общий для всех таблиц: раньше учитывались только колонки `methods`,
-#: и новая колонка в другой таблице делала унаследованную базу «неизвестной».
+#: схемы. Перечень общий для всех таблиц: раньше учитывались только колонки
+#: `methods`, и новая колонка в другой таблице делала унаследованную базу
+#: «неизвестной».
+LEGACY_MARKER_CHAIN: tuple[tuple[str, str, str], ...] = (
+    ("methods", "application_steps", APPLICATION_STEPS_REVISION),
+    ("methods", "effect_scope", "9547c3d766db"),
+    ("engine_tools", "min_version", "7a1toolvers"),
+    ("methods", "engine_tool_independent", HEAD_REVISION),
+)
+
+#: Те же маркеры словарём для сверки структуры.
 LEGACY_MARKER_COLUMNS: dict[tuple[str, str], str] = {
-    ("methods", "application_steps"): APPLICATION_STEPS_REVISION,
-    ("methods", "effect_scope"): "9547c3d766db",
-    ("engine_tools", "min_version"): HEAD_REVISION,
+    (table, column): revision for table, column, revision in LEGACY_MARKER_CHAIN
 }
 
 #: Таблицы исходной схемы. Их наличие отличает базу, созданную приложением до
@@ -192,13 +198,17 @@ def _legacy_stamp_revision(database_url: str, tables: set[str]) -> str | None:
                 return None
     finally:
         engine.dispose()
-    # Штампуется самая поздняя точка, которой структура ещё соответствует:
-    # остаток цепочки применяется обычным upgrade head.
-    if not missing:
-        return HEAD_REVISION
-    if ("methods", "application_steps") not in missing:
-        return APPLICATION_STEPS_REVISION
-    return INITIAL_REVISION
+    # Штампуется ревизия самого свежего присутствующего маркера: остаток
+    # цепочки от неё применит недостающие колонки обычным upgrade head.
+    # Раньше различались только три состояния (голова / application_steps /
+    # начальная): при четвёртой миграционной колонке база предыдущей ревизии
+    # штамповалась бы слишком рано, и upgrade падал бы на повторном
+    # добавлении уже существующей колонки.
+    stamp = INITIAL_REVISION
+    for table, column, revision in LEGACY_MARKER_CHAIN:
+        if column in present_columns.get(table, set()):
+            stamp = revision
+    return stamp
 
 
 def _current_revisions(database_url: str) -> set[str] | None:

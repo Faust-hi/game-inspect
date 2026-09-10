@@ -91,13 +91,22 @@ def test_rt_budget_reduces_introduced_pass(client):
 
 
 def test_raster_and_rt_share_one_frame_budget(client):
-    """Требование к GPU — сумма проходов, а не более тяжёлая часть."""
+    """Растр и трассировка укладываются в один бюджет кадра: работа складывается.
+
+    Границы заданы независимо от формулы реализации, из правила «все проходы
+    делят один бюджет»: индекс обязан быть больше доли любого отдельного
+    прохода (иначе учтён только самый тяжёлый) и не больше суммы долей
+    (иначе часть работы учтена дважды). На этой корзине трассировка дороже
+    растра, поэтому «только самый тяжёлый проход» дал бы примерно половину.
+    """
     functions = BASE["functions"] + ["ray_traced_effects"]
-    result = estimate(client, basket=["hardware_raytraced_gi"], functions=functions)
+    data = estimate(client, basket=["hardware_raytraced_gi"], functions=functions)
     budget_ms = 1000.0 / BASE["target_fps"]
-    assert result["required_gpu_index"] == pytest.approx(
-        (result["gpu_raster_cost"] + result["gpu_rt_cost"]) / budget_ms, abs=0.02
-    )
+    raster = data["gpu_raster_cost"] / budget_ms
+    rt = data["gpu_rt_cost"] / budget_ms
+    assert raster > 0 and rt > 0
+    assert data["required_gpu_index"] > max(raster, rt) + 0.05
+    assert data["required_gpu_index"] <= raster + rt + 0.02
 
 
 def test_two_increments_sum_but_two_savings_count_once(client):

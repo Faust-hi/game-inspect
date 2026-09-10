@@ -375,6 +375,10 @@ class MethodOut(BaseModel):
     # разработки не выглядели ускорением игры.
     effect_scope: str = "client"
     effect_scope_label: str = "клиент"
+    # Решение реализуется своими средствами и не опирается на встроенный
+    # инструмент движка. Различает «привязка к версии не нужна» и «данных
+    # нет»: без признака пустой список связей читается как пробел каталога.
+    engine_tool_independent: bool = False
     impact_cpu: int
     impact_gpu: int
     impact_ram: int
@@ -494,6 +498,10 @@ class RecommendationOut(BaseModel):
     stability: StabilityOut | None = None
     engine_support: MethodEngineLinkOut | None = None
     engine_alternatives: list[MethodEngineLinkOut] = Field(default_factory=list)
+    # Решение реализуется своими средствами: пустая привязка к версии движка
+    # тогда обоснована, а не означает пробел в данных. Без признака эти два
+    # состояния в карточке неразличимы.
+    engine_tool_independent: bool = False
     summary: str
     performance_gain: float
     implementation_cost: int

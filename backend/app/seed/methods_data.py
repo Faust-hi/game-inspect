@@ -44,7 +44,32 @@ _DEFAULTS: dict = {
     "verification_method": "", "verification_tools": [],
     "application_steps": [],
     "source_key": None,
+    "engine_tool_independent": False,
 }
+
+# Методы, которые реализуются своими средствами и не опираются на встроенный
+# инструмент движка: сетевой код и античит пишутся поверх движка, DirectStorage
+# — платформенный API, остальные — приёмы уровня движка в целом. Отсутствие
+# связей с инструментами у них обосновано, а не означает пробел в данных.
+#
+# Признак проставляется централизованно: часть методов описана позиционными
+# кортежами (`technical_extensions`), и правка каждого объявления читалась бы
+# хуже, чем один список с критерием.
+ENGINE_TOOL_INDEPENDENT: frozenset[str] = frozenset({
+    "ai_director_pacing",            # контроллер интенсивности событий: логика проекта
+    "async_compute_overlap",         # планирование очередей GPU: уровень графического API
+    "audio_convolution_reverb",      # обработка DSP: уровень аудиосистемы проекта
+    "cloth_baked_animation",         # подготовленное движение: данные, а не подсистема
+    "cloth_constraint_simulation",   # решатель ограничений: собственная физика
+    # МУТАЦИЯ: "directstorage_io" исключён из списка
+    "hair_cards_lod",                # подготовленная геометрия волос
+    "hair_strand_simulation",        # собственный решатель прядей
+    "lag_compensation_rewind",       # серверная логика поверх движка
+    "portal_scene_capture_budget",   # рендер в текстуру: общий приём
+    "runtime_fracture_budget",       # бюджет разрушений задаётся проектом
+    "runtime_security_budget",       # античит: внешний SDK, а не инструмент движка
+    "subtick_networking",            # метки ввода: сетевой код проекта
+})
 
 
 def M(code: str, name: str, function_code: str | None = None, **kw) -> dict:
@@ -3938,6 +3963,8 @@ def all_methods() -> list[dict]:
             data["function_code"] = FUNCTION_ASSIGNMENTS.get(data["code"])
         if not data.get("application_steps"):
             data["application_steps"] = list(APPLICATION_STEPS.get(data["code"], []))
+        if data["code"] in ENGINE_TOOL_INDEPENDENT:
+            data["engine_tool_independent"] = True
         out.append(data)
     return out
 

@@ -104,6 +104,13 @@ class Method(Base):
     # оборудования игрока (см. `EffectScope`).
     effect_scope: Mapped[str] = mapped_column(String(20), default=EffectScope.CLIENT.value)
 
+    # Решение реализуется своими средствами и не опирается на встроенный
+    # инструмент движка: сетевой код и античит пишутся поверх движка,
+    # DirectStorage — платформенный API. Отсутствие связей с инструментами
+    # тогда обосновано, а не означает пробел в данных. Без этого признака
+    # пустая привязка к версии движка неотличима от отсутствия данных.
+    engine_tool_independent: Mapped[bool] = mapped_column(Boolean, default=False)
+
     # Влияние на подсистемы: -2..+2 (отрицательное = снижает нагрузку)
     impact_cpu: Mapped[int] = mapped_column(Integer, default=0)
     impact_gpu: Mapped[int] = mapped_column(Integer, default=0)

@@ -111,3 +111,123 @@ def test_directstorage_needs_windows_and_modern_api(client):
     assert "directstorage_io" not in accounted(
         platforms=["pc_linux"], render_api="vulkan",
     )
+
+
+def test_unlinked_methods_are_explicitly_engine_independent(client):
+    """Несвязанные с инструментами методы помечены: «не нужен» ≠ «данных нет».
+
+    Дефект: пустая привязка к версии движка читалась одинаково и для решений
+    поверх движка (сетевой код, античит, DirectStorage), и для возможного
+    пробела каталога — пользователь не мог их различить.
+    """
+    methods = client.get("/api/catalog/methods").json()
+    unlinked = {m["code"] for m in methods if not m["engine_links"]}
+    marked = {m["code"] for m in methods if m["engine_tool_independent"]}
+    # Каждое отсутствие связей объяснено признаком (множества совпадают
+    # и непусты — иначе проверка выродилась бы в сравнение двух пустот).
+    assert unlinked and unlinked == marked
+    # Признак не врёт о методах со связями: они опираются на инструмент.
+    linked = [m for m in methods if m["engine_links"]]
+    assert linked and not any(m["engine_tool_independent"] for m in linked)
+
+
+def test_recommendation_names_independence_not_gap(client):
+    """В выдаче рекомендаций пустая поддержка движка помечается признаком.
+
+    Дефект: элемент рекомендации не отличал «методу не нужен встроенный
+    инструмент» от «данных нет» — то же поле, что и в карточке каталога.
+    """
+    response = _post(
+        client, "/api/recommend",
+        functions=["large_scale_terrain", "audio_system", "open_world_streaming"],
+        multiplayer=True, player_count=32, storage_type="hdd", render_api="dx12",
+    )
+    assert response.status_code == 200, response.text
+    items = response.json()["recommendations"]
+    unsupported = [i for i in items if i["engine_support"] is None]
+    assert unsupported, "ожидался метод без встроенного аналога в выдаче"
+    assert all(i["engine_tool_independent"] for i in unsupported)
+
+
+def test_seed_validation_distinguishes_independence(db):
+    """Правило целостности различает пробел и осознанное отсутствие связей.
+
+    Дефект: предупреждение «нет связей» было ложным для решений поверх
+    движка и настоящий пробел данных тонул в них; противоречие «признак
+    есть и связи есть» не замечалось вовсе.
+    """
+    from sqlalchemy import select
+
+    from app.models.entities import Method, MethodEngineLink
+    from app.seed import seeder
+
+    # Сид согласован: несвязанных методов без признака нет.
+    base = seeder.validate_knowledge_base(db)
+    assert not [e for e in base if "нет связей с инструментами" in e["message"]]
+
+    # Пробел: у метода со связями связи удалены, признака нет — предупреждение.
+    method = db.scalar(select(Method).where(Method.code == "virtual_geometry_clusters"))
+    links = db.scalars(
+        select(MethodEngineLink).where(MethodEngineLink.method_id == method.id)
+    ).all()
+    donor_tool_id = links[0].tool_id
+    for link in links:
+        db.delete(link)
+    db.flush()
+    entries = seeder.validate_knowledge_base(db)
+    assert any(
+        e["entity_code"] == "virtual_geometry_clusters" and e["severity"] == "warning"
+        and "нет связей с инструментами" in e["message"]
+        for e in entries
+    )
+
+    # Противоречие: независимому методу добавлена связь — ошибка.
+    independent = db.scalar(select(Method).where(Method.code == "directstorage_io"))
+    db.add(MethodEngineLink(
+        method_id=independent.id, tool_id=donor_tool_id,
+        relation_type="direct", note="противоречие для проверки", status="published",
+    ))
+    db.flush()
+    entries = seeder.validate_knowledge_base(db)
+    assert any(
+        e["entity_code"] == "directstorage_io" and e["severity"] == "error"
+        and "помечен не зависящим" in e["message"]
+        for e in entries
+    )
+
+
+def test_independence_sync_repairs_existing_database(db):
+    """Синхронизация доносит признак до существующих баз и не трогает чужое.
+
+    Дефект: колонку добавляет миграция со значением по умолчанию «ложь» —
+    у рабочей базы все несвязанные методы остались бы неотмеченными,
+    и различие «не нужен» / «данных нет» действовало бы только на новых
+    установках. Значение True вне списка каталога сохраняется: его мог
+    поставить администратор осознанно.
+    """
+    from sqlalchemy import select
+
+    from app.models.entities import Method
+    from app.seed.corrections import correct_engine_tool_independence
+
+    # Существующая база до синхронизации: колонку добавила миграция,
+    # у всех записей значение по умолчанию «ложь».
+    for row in db.scalars(select(Method)).all():
+        row.engine_tool_independent = False
+    db.flush()
+    # Администраторская правка: признак у метода, которого нет в списке
+    # каталога, — синхронизация обязана его сохранить.
+    admin_row = db.scalar(select(Method).where(Method.code == "bindless_uber_shaders"))
+    admin_row.engine_tool_independent = True
+    db.flush()
+
+    updated = correct_engine_tool_independence(db)
+
+    codes = {
+        m.code for m in db.scalars(
+            select(Method).where(Method.engine_tool_independent.is_(True))
+        ).all()
+    }
+    from app.seed.methods_data import ENGINE_TOOL_INDEPENDENT
+    assert updated == len(ENGINE_TOOL_INDEPENDENT)
+    assert codes == set(ENGINE_TOOL_INDEPENDENT) | {"bindless_uber_shaders"}

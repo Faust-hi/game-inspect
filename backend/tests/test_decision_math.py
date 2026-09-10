@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import math
 
+import pytest
+
 from app.services.sensitivity import analyze
 from app.services.topsis import NEUTRAL_SCORE, Criterion, topsis
 
@@ -51,22 +53,21 @@ def test_weights_flip_order():
     assert cost_first[0] > cost_first[1]
 
 
-def test_single_alternative_is_neutral_not_worst():
-    """Единственная альтернатива — нейтральна, а не «не рекомендуется».
+@pytest.mark.parametrize(
+    "matrix",
+    ([[0.9, 1.0]], [[0.5], [0.5], [0.5]]),
+    ids=("одна альтернатива", "одинаковые альтернативы"),
+)
+def test_degenerate_comparison_is_neutral_not_worst(matrix):
+    """Вырожденное сравнение — нейтральное, а не «не рекомендуется».
 
-    Дефект: классический TOPSIS при n=1 даёт 0.0 (идеалы совпадают).
-    Опасность: хорошее единственное решение помечается худшим.
+    Дефект: классический TOPSIS при одной альтернативе или при полностью
+    совпадающих альтернативах даёт 0.0 — идеалы совпадают с анти-идеалами.
+    Опасность: единственное пригодное решение показывается худшим, и
+    пользователь ищет альтернативу там, где её нет и не может быть.
     """
-    result = topsis([[0.9, 1.0]], _criteria())
-    assert result.scores == [NEUTRAL_SCORE]
-    assert result.comparable is False
-
-
-def test_identical_alternatives_are_incomparable():
-    """Одинаковые альтернативы несравнимы, но не нулевые."""
-    result = topsis([[0.5], [0.5], [0.5]], _criteria()[:1])
-    assert len(set(result.scores)) == 1
-    assert result.scores[0] == NEUTRAL_SCORE
+    result = topsis(matrix, _criteria()[: len(matrix[0])])
+    assert set(result.scores) == {NEUTRAL_SCORE}
     assert result.comparable is False
 
 

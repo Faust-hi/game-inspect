@@ -26,14 +26,25 @@ frontend React 18 + TypeScript + Vite. Все тексты интерфейса,
 
 ## Проверка
 
-- `cd backend && ../.venv/Scripts/python.exe -m pytest -q` — 452 теста (+2 пропущено).
-- `cd backend && ../.venv/Scripts/python.exe smoke_check.py --base http://127.0.0.1:8000`
-  — 85 проверок работающего сервиса (нужно `no_proxy=127.0.0.1,localhost`,
-  иначе urllib уходит в системный прокси и скрипт не видит localhost).
-- `cd frontend && npm test` — 34 теста (vitest + jsdom + testing-library).
+- `cd backend && ../.venv/Scripts/python.exe -m pytest -q` — **59 тестов**, 9 файлов
+  критических свойств (сокращено с 452 коммитом 551ae62, затем 61 → 58 отбором
+  по последствиям ошибки; +1 на неизвестный путь API).
+- Полезность набора подтверждена мутациями: ошибка вносится в продукт,
+  соответствующий тест обязан упасть, правка откатывается `git checkout --`.
+  Переписанные тесты проверены мутациями повторно — переписанный тест может
+  потерять силу, не упав ни разу.
+- `cd validation && ../.venv/Scripts/python.exe -m pytest -q` — 6 тестов внешней
+  сверки (метрика ±70 %, пропуски, разделение train/test).
+- `cd frontend && npm test` — **29 тестов** (vitest + jsdom + testing-library).
 - `cd frontend && npm run typecheck` — проверка типов; `npm run build` — сборка.
+- `cd frontend && npm run test:e2e` — 2 браузерных сценария. Контур раздаёт
+  `frontend/dist`; сборка выполняется автоматически в `globalSetup`, но только
+  если `dist` старше исходников (свежая сборка не пересобирается).
+  Браузер: `npx playwright install chromium`.
 - `cd backend && ../.venv/Scripts/python.exe -m alembic check` — сверка моделей со схемой.
-- CI: `.github/workflows/ci.yml` (backend: pytest + миграции; frontend: типы, тесты, сборка).
+- Отдельного `smoke_check.py` больше нет (дублировал pytest, падал на Windows).
+- CI: `.github/workflows/ci.yml` (backend: pytest + миграции + validation;
+  frontend: типы, тесты, сборка; e2e — вручную перед показом).
 
 ## Схема базы
 

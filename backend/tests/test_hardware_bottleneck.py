@@ -108,17 +108,17 @@ def test_unknown_inputs_lower_confidence_instead_of_promise(client):
 
 
 def test_zero_means_empty_not_missing(client):
-    """Явный ноль дешевле неизвестности; шкала монотонна с нуля."""
-    from app.schemas.catalog import ProjectProfile
-    from app.services.hardware import _load_indices
+    """Явный ноль дешевле неизвестности; шкала монотонна с нуля.
 
-    zero = _load_indices(ProjectProfile(npc_count=0), [])["cpu_index"]
-    unknown = _load_indices(
-        ProjectProfile(npc_count=None, npc_count_level="unknown"), []
-    )["cpu_index"]
-    assert zero < unknown
-    one = _load_indices(ProjectProfile(npc_count=1), [])["cpu_index"]
-    assert zero < one
+    Дефект: «NPC нет» приравнивалось к «неизвестно». Тогда пустой проект
+    получал ту же нагрузку, что и неописанный, а отсутствие данных выглядело
+    как измеренная величина.
+    """
+    zero = estimate(client, npc_count=0)
+    unknown = estimate(client, npc_count=None, npc_count_level="unknown")
+    one = estimate(client, npc_count=1)
+    assert zero["required_cpu_index"] < unknown["required_cpu_index"]
+    assert zero["required_cpu_index"] < one["required_cpu_index"]
 
 
 def test_beyond_model_range_is_reported(client):

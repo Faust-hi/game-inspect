@@ -131,7 +131,6 @@ export interface MethodEngineLink {
 
 export interface Method {
   application_steps?: string[];
-  used_in_projects?: string[];
   code: string;
   name: string;
   kind: string;
@@ -153,6 +152,8 @@ export interface Method {
   /** Где проявляется эффект: только `client` меняет требования к компьютеру игрока. */
   effect_scope: string;
   effect_scope_label: string;
+  /** Решение реализуется своими средствами: пустые связи с инструментами движков — не пробел данных. */
+  engine_tool_independent: boolean;
   impact_cpu: number;
   impact_gpu: number;
   impact_ram: number;
@@ -192,29 +193,6 @@ export interface Conflict {
   source_url: string;
 }
 
-export interface GameExample {
-  title: string;
-  year: number;
-  developer: string;
-  engine: string;
-  format: string;
-  world_type: string;
-  scale: string;
-  platforms: string[];
-  target_resolution: string;
-  target_fps: number;
-  object_count_level: string;
-  npc_count_level: string;
-  multiplayer: boolean;
-  player_count: number;
-  features: string[];
-  optimizations_used: string[];
-  summary: string;
-  performance_outcome: string;
-  source_title: string;
-  source_url: string;
-  verified_by: string;
-}
 
 export interface HardwareCPU {
   model: string;
@@ -292,6 +270,8 @@ export interface Recommendation {
   criteria: CriterionScore[];
   engine_support: MethodEngineLink | null;
   engine_alternatives: MethodEngineLink[];
+  /** Решение реализуется своими средствами: пустая поддержка движка — не пробел данных. */
+  engine_tool_independent: boolean;
   summary: string;
   performance_gain: number;
   implementation_cost: number;

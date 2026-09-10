@@ -27,6 +27,7 @@ function recommendation(effectScope: string, effectScopeLabel: string): Recommen
     criteria: [],
     engine_support: null,
     engine_alternatives: [],
+    engine_tool_independent: false,
     summary: 'Серверная сборка без рендера.',
     performance_gain: 0.6,
     implementation_cost: 3,

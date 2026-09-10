@@ -132,6 +132,7 @@ def method_to_out(
         late_cost=m.late_cost, late_cost_label=label_of(LateCost, m.late_cost),
         calc_mode=m.calc_mode, calc_mode_label=label_of(CalcMode, m.calc_mode),
         effect_scope=m.effect_scope, effect_scope_label=label_of(EffectScope, m.effect_scope),
+        engine_tool_independent=bool(m.engine_tool_independent),
         impact_cpu=m.impact_cpu, impact_gpu=m.impact_gpu, impact_ram=m.impact_ram,
         impact_vram=m.impact_vram, impact_disk=m.impact_disk, impact_network=m.impact_network,
         quality_impact=m.quality_impact, concept_impact=m.concept_impact,

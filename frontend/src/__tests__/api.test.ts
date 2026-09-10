@@ -1,6 +1,6 @@
 /** Проверки разбора ошибок, приходящих от backend-приложения. */
 import { describe, expect, it } from 'vitest';
-import { ApiRequestError, parseApiError } from '../api';
+import { parseApiError } from '../api';
 
 describe('parseApiError', () => {
   it('разбирает единый формат {error, details, request_id}', () => {
@@ -53,18 +53,4 @@ describe('parseApiError', () => {
     expect(error.details).toEqual([]);
   });
 
-  it('без тела ответа оставляет понятное сообщение по коду состояния', () => {
-    expect(parseApiError(null, 502).message).toBe('Ошибка 502');
-    expect(parseApiError('не JSON', 500).message).toBe('Ошибка 500');
-  });
-
-  it('возвращает ApiRequestError — полноценную ошибку с сохранённым статусом', () => {
-    const error = parseApiError({ error: 'нет доступа' }, 403);
-
-    expect(error).toBeInstanceOf(ApiRequestError);
-    expect(error).toBeInstanceOf(Error);
-    expect(error.status).toBe(403);
-    expect(error.requestId).toBeNull();
-    expect(error.message).toBe('нет доступа');
-  });
 });

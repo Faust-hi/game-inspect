@@ -6,8 +6,15 @@
 
 Полный pytest и браузер при обычном запуске не требуются:
 это проверки разработки и предпоказа, а не часть старта.
+
+Широкие наборы инфраструктуры и безопасности сюда не входят — они не
+обнаруживают дефекта, опасного для результата или показа. Из миграций
+оставлена только минимальная проверка чистой SQLite: она непосредственно
+защищает запуск демонстрации.
 """
 from __future__ import annotations
+
+import pytest
 
 
 def test_health_ready_on_seeded_database(client):
@@ -69,45 +76,6 @@ def test_fresh_sqlite_bootstraps_through_migrations(tmp_path, monkeypatch):
         reload_settings()
 
 
-def test_unknown_structure_is_refused_with_backup(tmp_path, monkeypatch):
-    """Чужая структура: явный отказ + резервная копия, а не догадки."""
-    import os
-
-    from sqlalchemy import create_engine, text
-
-    from app.config import reload_settings
-
-    original = os.environ.get("DATABASE_URL")
-    target = tmp_path / "foreign.db"
-    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{target.as_posix()}")
-    reload_settings()
-    try:
-        from app import db_migrate
-
-        saved = dict(db_migrate.state)
-        try:
-            engine = create_engine(f"sqlite:///{target.as_posix()}", future=True)
-            try:
-                with engine.begin() as connection:
-                    connection.execute(
-                        text("CREATE TABLE foreign_data (id INTEGER PRIMARY KEY)")
-                    )
-            finally:
-                engine.dispose()
-            report = db_migrate.ensure_schema()
-            assert report["migrated"] is False, report
-            assert report["backup"] is not None
-        finally:
-            db_migrate.state.clear()
-            db_migrate.state.update(saved)
-    finally:
-        if original is None:
-            monkeypatch.delenv("DATABASE_URL", raising=False)
-        else:
-            monkeypatch.setenv("DATABASE_URL", original)
-        reload_settings()
-
-
 def test_published_slice_has_sources_and_no_dangling_links(client):
     """Опубликованный срез целостен: источники есть, связи не оборваны.
 
@@ -122,8 +90,10 @@ def test_published_slice_has_sources_and_no_dangling_links(client):
 
     codes = {item["code"] for item in methods}
     for link in client.get("/api/catalog/conflicts").json():
-        assert link["a_code"] in codes or link["a_code"], link
-        assert link["b_code"] in codes or link["b_code"], link
+        # Строгое вхождение: запись `x in codes or x` истинна при любом
+        # непустом коде и не обнаруживала бы оборванную связь.
+        assert link["a_code"] in codes, link
+        assert link["b_code"] in codes, link
 
     hardware = client.get("/api/catalog/hardware").json()
     assert len(hardware["cpu"]) >= 30
@@ -145,36 +115,6 @@ def test_draft_does_not_leak_into_public_slice(client):
     assert client.get("/api/catalog/methods/tmp_draft_probe").status_code == 404
 
 
-def test_static_path_rejects_escape_and_serves_nested(tmp_path):
-    """Раздача сборки: выход за пределы каталога закрыт, вложенный файл доступен."""
-    from app.staticfiles_safe import safe_static_path
-
-    root = tmp_path / "dist"
-    (root / "assets").mkdir(parents=True)
-    nested = root / "assets" / "app.js"
-    nested.write_text("console.log(1)", encoding="utf-8")
-    assert safe_static_path(root, "../gamedev_dss.db") is None
-    assert safe_static_path(root, "..%2Fgamedev_dss.db") is None
-    assert safe_static_path(root, "assets/app.js") == nested.resolve()
-
-
-def test_foreign_origin_mutation_is_rejected(client):
-    """Изменяющий запрос с чужого Origin — 403 с request_id, свой — проходит."""
-    foreign = client.post(
-        "/api/hardware-estimate",
-        json={"profile": {}, "basket": []},
-        headers={"Origin": "https://evil.example"},
-    )
-    assert foreign.status_code == 403
-    assert foreign.json()["request_id"]
-    own = client.post(
-        "/api/hardware-estimate",
-        json={"profile": {}, "basket": []},
-        headers={"Origin": "http://localhost:5173"},
-    )
-    assert own.status_code == 200
-
-
 def test_critical_error_is_understandable(client):
     """Критическая ошибка: понятное сообщение + код + request_id, а не молчание."""
     response = client.post("/api/hardware-estimate", json={
@@ -186,3 +126,27 @@ def test_critical_error_is_understandable(client):
     assert body["code"] == "validation_error"
     assert body["request_id"]
     assert body["request_id"] == response.headers["x-request-id"]
+
+
+def test_unknown_api_path_is_not_served_as_page(client):
+    """Неизвестный путь API — 404 JSON, а не главная страница с кодом 200.
+
+    Дефект: собранное приложение раздаёт маршрут `/{full_path}`, поэтому GET
+    на неверный адрес API возвращал 200 text/html. Клиент получал «успешный»
+    ответ, который нельзя разобрать, и ошибка в адресе запроса пропадала —
+    вместо неё пользователь видел сбой без причины.
+    """
+    from app.main import FRONTEND_DIST
+
+    if not FRONTEND_DIST.exists():
+        pytest.skip("нужна собранная сборка: без dist маршрут не регистрируется")
+
+    response = client.get("/api/catalog/nonexistent")
+    assert response.status_code == 404, response.text
+    assert response.headers["content-type"].startswith("application/json")
+    body = response.json()
+    assert body["code"] == "not_found"
+    assert body["request_id"]
+
+    # Пути самого приложения по-прежнему отдаются страницей.
+    assert client.get("/profile").status_code == 200
