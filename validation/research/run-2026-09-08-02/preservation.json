@@ -1,6 +1,0 @@
-{
-  "checked_files": 175,
-  "changed": [],
-  "scope": "source/fixtures/locks; excludes dependencies, secrets, generated files, research outputs",
-  "live_database_opened": false
-}
