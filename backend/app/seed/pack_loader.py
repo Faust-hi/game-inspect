@@ -335,13 +335,36 @@ def _upsert_case(db: Session, payload: dict[str, Any], sources_map: dict[str, Ev
 def _upsert_work_package(db: Session, payload: dict[str, Any]) -> WorkPackage | None:
     code = payload["code"]
     stage_code, stage_note = normalize_stage(payload.get("recommended_stage"))
+    # Поля, которые ведёт загрузчик пакетов: пакет — их источник.
+    owned = {
+        "name": payload.get("name", "")[:220],
+        "package_type": payload.get("package_type", "integration"),
+        "role": payload.get("role", "engineering"),
+        "p50_days": payload.get("p50_days", 1.0),
+        "p80_days": payload.get("p80_days", 1.5),
+        "basis": payload.get("basis", "expert_estimate"),
+    }
     existing = db.scalar(select(WorkPackage).where(WorkPackage.code == code))
     if existing:
         # Согласующий проход: «заполняется только пустое» не лечит уже собранные
-        # базы. Пакеты, созданные до появления `stage_note`, сохранили код
-        # стадии, но исходный текст рекомендации у них не записан.
+        # базы. Раньше так сверялся только `stage_note`, поэтому правка словаря
+        # ролей (`designer` → `design`) до собранной базы не доходила: 868
+        # пакетов сохранили имена, которых нет в ёмкости команды, а
+        # планировщик молча брал для них ёмкость 1 — размер команды переставал
+        # влиять на план. Правка пакета должна доходить до базы, иначе источник
+        # и результат расходятся молча.
+        changed = False
+        for field, value in owned.items():
+            if getattr(existing, field) != value:
+                setattr(existing, field, value)
+                changed = True
+        if stage_code and existing.recommended_stage != stage_code:
+            existing.recommended_stage = stage_code
+            changed = True
         if stage_note and not (existing.stage_note or "").strip():
             existing.stage_note = stage_note
+            changed = True
+        if changed:
             db.flush()
         return existing
     wp = WorkPackage(
@@ -590,11 +613,15 @@ def sync_packs(db: Session) -> dict[str, int]:
         # Число загруженных пакетов и число сбоев видны в статистике: по ней
         # видно, что часть доказательной базы не попала в расчёт.
         "packs_loaded": len(packs), "pack_load_failures": len(pack_failures),
+        # Оценка трудоёмкости, описанная дважды с разными значениями: это
+        # расхождение источников, а не молчаливый выбор победителя.
+        "pack_effort_conflicts": 0,
     }
     sources_map: dict[str, EvidenceSource] = {}
     method_rows = {m.code: m for m in db.scalars(select(Method))}
     known_methods = set(method_rows)
     seen_relations: set[tuple[str, str, str]] = set()
+    effort_seen: dict[str, tuple[float, float, str]] = {}
 
     # 1. Sources
     for pack in packs:
@@ -688,13 +715,31 @@ def sync_packs(db: Session) -> dict[str, int]:
             # work packages
             effort = mdata.get("effort_person_days", {})
             if effort and effort.get("p50") is not None:
+                # Одна и та же оценка трудоёмкости может быть описана в двух
+                # пакетах с разными значениями. Победитель определяется порядком
+                # загрузки, поэтому расхождение объявляется, а не растворяется
+                # молча: при согласующем проходе в базу попадает значение
+                # последнего пакета.
+                method_p50 = float(effort["p50"])
+                method_p80 = float(effort.get("p80") if effort.get("p80") is not None
+                                   else method_p50 * 1.5)
+                seen_effort = effort_seen.get(mcode)
+                if seen_effort is not None and seen_effort[:2] != (method_p50, method_p80):
+                    logger.warning(
+                        "Метод %s: трудоёмкость задана дважды с разными значениями "
+                        "(%.2f чел.-дн. в паке %s против %.2f в паке %s): в базу попадёт последняя",
+                        mcode, seen_effort[0], seen_effort[2], method_p50, pack.get("pack"),
+                    )
+                    stats["pack_effort_conflicts"] += 1
+                effort_seen[mcode] = (method_p50, method_p80, pack.get("pack", ""))
                 # Роли — из словаря сценариев команды (`team_scenarios.role_capacity`:
                 # design / engineering / technical_art / qa / production) и те же,
                 # что у пакетов из `evidence_catalog.sync_work_packages` и
                 # `planning._fallback_packages`. Прежние названия (designer,
                 # engineer, artist, writer) не совпадали ни с одним ключом
                 # ёмкости: планировщик молча брал ёмкость 1, и размер команды
-                # переставал влиять на 868 пакетов из 1794.
+                # переставал влиять на 868 пакетов из 1794. Согласующий проход в
+                # `_upsert_work_package` доводит это исправление до уже собранных баз.
                 for pkg_type, role in {
                     "design": "design",
                     "feasibility": "engineering",

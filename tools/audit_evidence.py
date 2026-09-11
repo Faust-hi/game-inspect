@@ -298,6 +298,20 @@ def main() -> int:
     # A draft is a DECLARED state for `evidence_claims`: a claim without a
     # source stays draft on purpose (declared gap), so it is not a gap here.
     DECLARED_DRAFT_TABLES = {"evidence_claims"}
+    #
+    # Row-level declarations: the invisibility of these rows is a DECISION with a
+    # recorded reason, not an unexplained hole. The pack family of work packages
+    # (`WP_*`, 992 rows) carries per-method effort with a curated formula but no
+    # external source, and the planner uses the formula family instead; the
+    # choice of the authoritative family (N2) is deferred, so those rows stay
+    # draft on purpose. The declaration is scoped to the family: a work package
+    # that goes invisible for any other reason is still reported.
+    DECLARED_DRAFT_ROWS: dict[str, tuple[str, str]] = {
+        "work_packages": (
+            "code like 'WP\\_%' escape '\\'",
+            "pack family (curated effort, no external source): decision N2 deferred",
+        ),
+    }
     visibility: dict[str, dict] = {}
     for row in q(conn, "select name from sqlite_master where type='table' order by name"):
         name = row["name"]
@@ -309,17 +323,37 @@ def main() -> int:
         total = scalar(conn, f"select count(*) from {name}") or 0
         published = scalar(conn, f"select count(*) from {name} where status='published'") or 0
         declared_draft = name in DECLARED_DRAFT_TABLES
+        declared_rows = 0
+        declaration = ""
+        if declared_draft:
+            # Table-level: every draft row of this table is a declared state.
+            declared_rows = total - published
+            declaration = ("a claim without a source stays draft on purpose "
+                           "(declared gap), so draft is the declared state here")
+        else:
+            rule = DECLARED_DRAFT_ROWS.get(name)
+            if rule:
+                declared_rows = scalar(
+                    conn,
+                    f"select count(*) from {name} where status<>'published' and {rule[0]}",
+                ) or 0
+                declaration = rule[1]
+        undeclared = total - published - declared_rows
         visibility[name] = {
             "total": total,
             "published": published,
             "invisible": total - published,
+            "declared_invisible": declared_rows,
+            "undeclared_invisible": undeclared,
             "declared_draft": declared_draft,
-            "ok": declared_draft or published == total,
+            "declaration": declaration,
+            "ok": undeclared <= 0,
         }
     out["visibility"] = {
         "tables": visibility,
         "invisible_tables": sorted(k for k, v in visibility.items() if not v["ok"]),
         "invisible_rows": sum(v["invisible"] for v in visibility.values() if not v["ok"]),
+        "declared_invisible_rows": sum(v["declared_invisible"] for v in visibility.values()),
     }
 
     # NOTE: `kind` MUST match the `entity` value actually used in
@@ -685,7 +719,12 @@ def main() -> int:
               ", ".join(f"{k} {v['published']}/{v['total']}"
                         for k, v in vis["tables"].items() if not v["ok"]))
     else:
-        print("\nvisibility: all status-bearing tables fully published")
+        print("\nvisibility: no undeclared invisible rows")
+    declared = [f"{k} {v['declared_invisible']}/{v['total']} — {v['declaration']}"
+                for k, v in vis["tables"].items() if v["declared_invisible"]]
+    if declared:
+        print("\nDECLARED invisible rows (invisibility is a decision, not a finding):",
+              "; ".join(declared))
     print("\nfull report ->", args.out)
     return 0
 
