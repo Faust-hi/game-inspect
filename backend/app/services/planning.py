@@ -17,6 +17,7 @@ from ..schemas.catalog import (
     EffortEstimateOut, EstimateBand, ScheduleOut, ScheduleTaskOut,
     TeamScenarioOut, WorkPackageOut,
 )
+from . import method_dependencies
 
 PACKAGE_ORDER = {
     "design": 0, "feasibility": 1, "prototype": 1, "integration": 2,
@@ -182,44 +183,22 @@ def _db_packages(rows: list[WorkPackage]) -> list[Task]:
 
 
 def _methods_with_dependencies(db: Session, codes: list[str], include: bool) -> tuple[list[str], list[str]]:
-    selected = set(codes)
+    selected = {code for code in codes if code}
     unresolved: list[str] = []
     if not include:
         return sorted(selected), unresolved
-    nodes = {node.code: node for node in repositories.technology_nodes(db)}
+    # Обязательные зависимости method→method достраивает общий модуль — тот же,
+    # которым пользуется профиль нагрузки. Раньше здесь жила своя копия этого
+    # правила, и два представления одного проекта считали разные наборы: у
+    # сценария S16 в расписании было 15 методов, а в нагрузке — 0.
+    selected = set(method_dependencies.mandatory_closure(db, selected).codes)
+    # Карта по id: рёбра ссылаются на числовые идентификаторы узлов, а не на коды.
+    nodes = {node.id: node for node in repositories.technology_nodes(db)}
     edges = repositories.dependency_edges(db)
-    # Карта по id строится один раз: рёбра ссылаются на числовые идентификаторы
-    # узлов, а не на их коды. Раньше здесь был холостой проход, который искал
-    # узлы по коду в словаре, ключованном кодом, и присваивал неиспользуемые
-    # локальные переменные, — то есть не делал ничего.
-    by_id = {node.id: node for node in nodes.values()}
-    # Набор известных методов — тоже один раз: раньше внутри цикла выполнялся
-    # запрос `repositories.methods(db)` на каждую добавленную зависимость.
-    known_methods = {m.code for m in repositories.methods(db)}
-    changed = True
-    while changed:
-        changed = False
-        for edge in edges:
-            source = by_id.get(edge.source_node_id)
-            target = by_id.get(edge.target_node_id)
-            if source is None or target is None or source.node_type != "method" or not edge.mandatory:
-                continue
-            if source.code.removeprefix("method:") not in selected:
-                continue
-            target_code = target.code.removeprefix("method:") if target.node_type == "method" else ""
-            if target_code and target_code not in selected:
-                if target_code in known_methods:
-                    selected.add(target_code)
-                    changed = True
-                else:
-                    unresolved.append(f"{source.code} требует отсутствующий метод {target.code}")
-            # Ветка «узел неизвестен» здесь недостижима: `target is None` уже
-            # отсечён условием выше. Неизвестные узлы рёбер собираются ниже,
-            # отдельным проходом по всем рёбрам.
     # Validate mandatory non-method dependencies against the selected profile.
     for edge in edges:
-        source = by_id.get(edge.source_node_id)
-        target = by_id.get(edge.target_node_id)
+        source = nodes.get(edge.source_node_id)
+        target = nodes.get(edge.target_node_id)
         if source is None or target is None:
             unresolved.append(f"edge:{edge.id}: неизвестный узел")
             continue

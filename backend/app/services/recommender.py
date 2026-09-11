@@ -19,8 +19,6 @@
 """
 from __future__ import annotations
 
-from collections.abc import Sequence
-
 from sqlalchemy.orm import Session
 
 from .. import repositories, timeutil
@@ -36,7 +34,7 @@ from ..schemas.catalog import (
 from ..seed.methods_data import FUNCTION_ASSIGNMENTS
 from . import engines as engine_service
 from . import evidence as evidence_service
-from . import hardware, rules, sensitivity, serializers, stage_guidance, transitions
+from . import hardware, method_dependencies, rules, sensitivity, serializers, stage_guidance, transitions
 from .serializers import label_of as _label
 from .serializers import link_out
 from .topsis import Criterion, criterion_matrix_rows, equivalence_group, topsis, EQUIVALENCE_TOLERANCE
@@ -101,13 +99,6 @@ CROSS_CUTTING_METHODS = frozenset(FUNCTION_ASSIGNMENTS)
 # ---------------------------------------------------------------------------
 # Вспомогательные преобразования
 # ---------------------------------------------------------------------------
-def _function_name(functions: dict, method: Method) -> str | None:
-    """Название игровой функции метода. Один помощник вместо двух копий."""
-    if method.function and method.function.code in functions:
-        return functions.get(method.function.code).name
-    return None
-
-
 def _recommendation_function(method: Method) -> tuple[str | None, str | None]:
     """Вернуть область показа метода, сохраняя общий список оптимизаций."""
     if method.function is None:
@@ -361,19 +352,33 @@ def build_recommendations(db: Session, profile, basket_codes: list[str], baselin
         "functions": sorted(set(profile.functions)),
         "platforms": sorted(set(profile.platforms)),
     })
-    result = _build_recommendations(db, profile, basket_codes, baseline)
-    selected = repositories.methods_by_codes(db, basket_codes)
-    accounted, _ = rules.assess_selected_methods(selected, profile, repositories.conflicts(db))
+    # Обязательные зависимости достраиваются ОДИН раз здесь и дальше используются
+    # всеми расчётами. Раньше эта достройка была написана, но не вызывалась:
+    # выбранная техника выпадала из расчёта вместе со своей зависимостью, и
+    # профиль нагрузки показывал нейтральные 50/50 при непустой корзине, а
+    # расписание считало другой набор методов.
+    closure = method_dependencies.mandatory_closure(db, basket_codes)
+    result = _build_recommendations(db, profile, basket_codes, baseline, closure=closure)
+    declared = repositories.methods_by_codes(db, basket_codes)
+    accounted_set = repositories.methods_by_codes(db, closure.codes)
+    accounted, _ = rules.assess_selected_methods(accounted_set, profile, repositories.conflicts(db))
+    # Корзина пользователя показывается как есть; достроенные зависимости идут
+    # отдельной группой, чтобы расширение набора не выглядело самовольным.
     result.selected_methods = [
-        serializers.method_to_out_public(db, method, profile=profile) for method in selected
+        serializers.method_to_out_public(db, method, profile=profile) for method in declared
     ]
+    result.required_additionally = [
+        serializers.method_to_out_public(db, method, profile=profile)
+        for method in repositories.methods_by_codes(db, sorted(closure.added))
+    ]
+    result.required_additionally_notes = list(closure.notes)
     result.accounted_method_codes = sorted(method.code for method in accounted)
     result.catalog_revision = published_revision(db)
     result.meta["dataset_version"] = result.catalog_revision
     result.baseline = baseline
     relations = repositories.conflicts(db)
     methods = {m.code: m for m in repositories.methods(db)}
-    result.transitions = [transitions.assess(m, profile, baseline, methods, relations, basket_codes) for m in selected]
+    result.transitions = [transitions.assess(m, profile, baseline, methods, relations, basket_codes) for m in declared]
     result.transitions.extend(transitions.removed(baseline, basket_codes, relations))
     if baseline:
         unknown = sorted(set(baseline.basket) - set(methods))
@@ -385,7 +390,9 @@ def build_recommendations(db: Session, profile, basket_codes: list[str], baselin
     return result
 
 
-def _build_recommendations(db: Session, profile, basket_codes: list[str], baseline=None) -> RecommendationResult:
+def _build_recommendations(
+    db: Session, profile, basket_codes: list[str], baseline=None, *, closure=None,
+) -> RecommendationResult:
     conflicts = conflict_map(db)
     engines = repositories.engines(db)
 
@@ -395,7 +402,11 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str], baseli
     functions = {f.code: f for f in repositories.functions(db)}
     all_methods = repositories.methods(db)
     methods_by_code = {m.code: m for m in all_methods}
-    basket_methods = repositories.methods_by_codes(db, basket_codes)
+    # В расчёт идут методы вместе с достроенными обязательными зависимостями.
+    # Это тот же набор, что использует расписание: иначе два представления
+    # одного проекта описывали бы разную работу.
+    accounted_codes = closure.codes if closure is not None else basket_codes
+    basket_methods = repositories.methods_by_codes(db, accounted_codes)
     relations = repositories.conflicts(db)
     transition_map = {m.code: transitions.assess(m, profile, baseline, methods_by_code, relations, basket_codes) for m in all_methods}
 
@@ -911,18 +922,6 @@ def _build_excluded(method: Method, functions: dict, applicability: rules.Applic
         effect_scope=method.effect_scope,
         effect_scope_label=_label(EffectScope, method.effect_scope) or "не распознана",
     )
-
-
-def _gain_text(value: float) -> str:
-    if value >= 0.7:
-        return "высокий"
-    if value >= 0.5:
-        return "заметный"
-    if value >= 0.3:
-        return "умеренный"
-    if value > 0:
-        return "небольшой"
-    return "отсутствует (решение повышает качество)"
 
 
 RESOURCE_LABELS = {

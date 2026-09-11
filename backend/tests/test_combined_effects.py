@@ -46,50 +46,23 @@ def recommend(client, basket=(), **overrides):
 #: Каталог объявляет обязательные зависимости («чтобы включить A, сначала
 #: нужен B»), и правило проекта требует явного исключения зависимого решения,
 #: когда его предусловие отсутствует. Поэтому корзина из одного решения
-#: проверяла бы не эффект решения, а срабатывание этого правила. Набор
-#: предусловий подставляется в корзину, чтобы тест измерял то, что заявлено
-#: в его названии. Замыкание транзитивное: предусловие может иметь свои
-#: предусловия.
-_PREREQUISITES: dict[str, tuple[str, ...]] = {
-    "hardware_raytraced_gi": (
-        "deferred_forward_plus_choice", "temporal_upscaling",
-        "selective_ray_traced_effects", "dynamic_light_priority_budget",
-        "tiled_clustered_light_culling",
-    ),
-    "deferred_forward_plus_choice": (
-        "dynamic_light_priority_budget", "tiled_clustered_light_culling",
-    ),
-    "dynamic_light_priority_budget": ("tiled_clustered_light_culling",),
-    "heightmap_compression": (
-        "build_size_startup_budgets", "directstorage_io",
-        "terrain_generation_streaming_budget", "async_loading_pipeline",
-    ),
-    "build_size_startup_budgets": (
-        "directstorage_io", "terrain_generation_streaming_budget",
-        "async_loading_pipeline",
-    ),
-    "directstorage_io": (
-        "async_loading_pipeline", "terrain_generation_streaming_budget",
-    ),
-    "ml_frame_generation": ("temporal_upscaling",),
-    "rt_effect_resolution_budget": ("selective_ray_traced_effects",),
-}
+#: проверяла бы не эффект решения, а срабатывание этого правила.
+#:
+#: Предусловия здесь **не перечисляются руками**. Раньше в этом месте лежала
+#: рукописная копия карты предусловий, и она разошлась с графом: `static_shadow_caching`
+#: → `virtual_shadow_maps` в копию не попал, из-за чего пара «два расхода
+#: складываются» проверяла один и тот же набор дважды. Достройку выполняет сам
+#: расчёт (`services.method_dependencies`), и тест обязан проверять именно её.
 
 
 def with_prerequisites(*codes: str) -> list[str]:
-    """Дополнить корзину обязательными предусловиями, включая транзитивные.
+    """Корзина из указанных решений.
 
-    Порядок не важен: расчёт читает корзину как множество.
+    Обязательные предусловия достраивает расчёт — тем же замыканием, что и в
+    `/recommend` и `/schedule`. Дублировать их в тесте нельзя: копия правила
+    неизбежно расходится с графом и перестаёт что-либо проверять.
     """
-    basket: list[str] = []
-    pending = list(codes)
-    while pending:
-        code = pending.pop()
-        if code in basket:
-            continue
-        basket.append(code)
-        pending.extend(_PREREQUISITES.get(code, ()))
-    return basket
+    return list(codes)
 
 
 def test_streaming_pool_counts_only_transient_part(client):
@@ -182,14 +155,21 @@ def test_raster_and_rt_share_one_frame_budget(client):
 
 
 def test_two_increments_sum_but_two_savings_count_once(client):
-    """Два расхода складываются; две экономии одного объёма — по максимуму."""
-    vsm = estimate(client, basket=["virtual_shadow_maps"])
-    caching = estimate(client, basket=["static_shadow_caching"])
+    """Два расхода складываются; две экономии одного объёма — по максимуму.
+
+    Пара для «расходов» выбрана без обязательной связи между методами. Прежняя
+    пара (`static_shadow_caching` + `virtual_shadow_maps`) для этого не годится:
+    кэш теней требует виртуальных карт теней, поэтому его корзина уже содержит
+    оба метода, и как два независимых расхода они не проверяют ничего (см.
+    `test_mandatory_dependency_is_pulled_into_the_basket`).
+    """
+    first = estimate(client, basket=["cascaded_shadow_maps"])
+    second = estimate(client, basket=["distance_field_shadows"])
     both_up = estimate(
-        client, basket=["virtual_shadow_maps", "static_shadow_caching"]
+        client, basket=["cascaded_shadow_maps", "distance_field_shadows"]
     )
-    assert both_up["estimated_vram_gb"] > vsm["estimated_vram_gb"]
-    assert both_up["estimated_vram_gb"] > caching["estimated_vram_gb"]
+    assert both_up["estimated_vram_gb"] > first["estimated_vram_gb"]
+    assert both_up["estimated_vram_gb"] > second["estimated_vram_gb"]
 
     functions = BASE["functions"] + ["large_scale_terrain", "procedural_terrain"]
     base = estimate(client, functions=functions)["estimated_vram_gb"]
@@ -210,6 +190,37 @@ def test_two_increments_sum_but_two_savings_count_once(client):
         max(saving(first), saving(second)), abs=0.2
     )
     assert saving(both_down) < saving(first) + saving(second)
+
+
+def test_mandatory_dependency_is_pulled_into_the_basket(client):
+    """Обязательная зависимость достраивается, а не выбрасывает метод из расчёта.
+
+    `static_shadow_caching` без `virtual_shadow_maps` не реализуется. Раньше
+    такой метод молча выпадал из расчёта: профиль нагрузки показывал нейтральные
+    50/50 при непустой корзине. Теперь корзина с зависимостью и без неё
+    считается одинаково — потому что это один и тот же набор методов.
+    """
+    alone = estimate(client, basket=["static_shadow_caching"])
+    explicit = estimate(
+        client, basket=["static_shadow_caching", "virtual_shadow_maps"]
+    )
+    neutral = estimate(client, basket=[])
+
+    assert alone["estimated_vram_gb"] == pytest.approx(explicit["estimated_vram_gb"])
+    assert alone["estimated_vram_gb"] > neutral["estimated_vram_gb"], "корзина схлопнулась"
+
+
+def test_closure_additions_are_reported_and_counted(client):
+    """Достроенные зависимости видны отдельной группой и входят в расчёт."""
+    data = recommend(client, basket=["static_shadow_caching"])
+    neutral = recommend(client, basket=[])
+
+    assert data["basket_codes"] == ["static_shadow_caching"], "корзина пользователя переписана"
+    assert "virtual_shadow_maps" in {item["code"] for item in data["required_additionally"]}
+    assert data["required_additionally_notes"]
+    # Объявленная, но не посчитанная зависимость — та же потеря, только скрытая.
+    assert "virtual_shadow_maps" in data["accounted_method_codes"]
+    assert data["load_profile"]["vram"] != neutral["load_profile"]["vram"]
 
 
 def test_server_effect_does_not_discount_player_pc(client):

@@ -1102,6 +1102,14 @@ class RecommendationResult(BaseModel):
     basket_conflicts: list[BasketConflictOut] = Field(default_factory=list)
     basket_dependencies: list[BasketConflictOut] = Field(default_factory=list)
     basket_synergies: list[BasketConflictOut] = Field(default_factory=list)
+    #: Решения, достроенные в расчёт как обязательные зависимости выбранной
+    #: корзины. Отдельная группа нужна, чтобы расширение набора было видимым:
+    #: без неё пользователь видел бы в расчёте методы, которых не выбирал, и не
+    #: понимал, откуда они. `basket_codes` при этом остаётся ровно тем, что
+    #: выбрал пользователь.
+    required_additionally: list[MethodOut] = Field(default_factory=list)
+    #: Пояснения к достроенным зависимостям: что добавлено и по чьему требованию.
+    required_additionally_notes: list[str] = Field(default_factory=list)
     hardware: HardwareEstimateOut | None = None
     practice_check: "PracticeCheckOut" = Field(default_factory=lambda: PracticeCheckOut())
     evidence_summary: "EvidenceSummaryOut" = Field(default_factory=lambda: EvidenceSummaryOut())

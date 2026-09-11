@@ -10,9 +10,21 @@ from ..schemas.catalog import (
     BasketRequest, LoadProfileOut, RecommendationResult, RecommendationRequest,
     ProjectProfile, ReportDataOut, ScheduleOut, ScheduleRequest,
 )
-from ..services import evidence, engines as engine_catalog, hardware, planning, recommender
+from ..services import evidence, engines as engine_catalog, hardware, method_dependencies, planning, recommender
 
 router = APIRouter(prefix="", tags=["Расчёт"])
+
+
+def _basket_methods(db: Session, codes: list[str]):
+    """Методы корзины вместе с достроенными обязательными зависимостями.
+
+    Возвращает `(методы, пояснения)`. Достройка нужна и на этих маршрутах:
+    иначе «Профиль нагрузки» и «Оценка железа» для той же корзины считали бы
+    другой набор, чем `/recommend` и `/schedule`, — ровно то расхождение, из-за
+    которого расписание и нагрузка расходились.
+    """
+    closure = method_dependencies.mandatory_closure(db, codes)
+    return repositories.methods_by_codes(db, closure.codes), closure.notes
 
 
 @router.post("/recommend", response_model=RecommendationResult, summary="Рассчитать рекомендации по профилю проекта")
@@ -24,17 +36,19 @@ def recommend(payload: RecommendationRequest, db: Session = Depends(get_db)):
 @router.post("/load-profile", response_model=LoadProfileOut, summary="Пересчитать сводный профиль нагрузки корзины")
 def load_profile(payload: BasketRequest, db: Session = Depends(get_db)):
     engine_catalog.require_known(db, payload.profile.engine)
-    methods = repositories.methods_by_codes(db, payload.basket or [])
+    methods, closure_notes = _basket_methods(db, payload.basket or [])
     estimate = hardware.estimate_hardware(db, payload.profile, methods)
-    return recommender.aggregate_load(
+    load = recommender.aggregate_load(
         methods, payload.profile, relations=repositories.conflicts(db), estimate=estimate,
     )
+    load.notes = list(closure_notes) + list(load.notes)
+    return load
 
 
 @router.post("/hardware-estimate", summary="Оценка референсного минимального класса оборудования")
 def hardware_estimate(payload: BasketRequest, db: Session = Depends(get_db)):
     engine_catalog.require_known(db, payload.profile.engine)
-    methods = repositories.methods_by_codes(db, payload.basket or [])
+    methods, _closure_notes = _basket_methods(db, payload.basket or [])
     return hardware.estimate_hardware(db, payload.profile, methods)
 
 

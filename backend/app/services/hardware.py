@@ -2061,54 +2061,6 @@ def _target_rows_out(profile: ProjectProfile, rows) -> list[PlatformTargetOut]:
     return out
 
 
-def _load_indices(profile: ProjectProfile, methods: list, relations=()) -> dict:
-    """Индексы нагрузки и памяти по единой модели стоимости кадра.
-
-    Тонкий адаптер над `build_model`: индексы нужны там, где полная оценка
-    оборудования не требуется (сравнение вариантов профиля, проверка области
-    применимости). Формулы не дублируются — они читаются из модели.
-
-    Индексы берутся по наибольшей потребности среди целей сборки, поэтому
-    сводка нагрузки и подбор оборудования не противоречат друг другу.
-    """
-    _, binding, combined = _target_evaluations(profile, methods, relations)
-    model = binding["model"]
-    st_index = combined["cpu_st_index"]
-    mt_index = combined["cpu_mt_index"]
-    raster_index = combined["gpu_raster_index"]
-    rt_index = combined["gpu_rt_index"]
-    ram_gb, vram_gb = combined["ram_gb"], combined["vram_gb"]
-    client_methods = rules.split_by_effect_scope(methods)[0]
-    method_codes = {m.code for m in client_methods}
-    recommended_storage = _recommended_storage(profile, method_codes)
-    return {
-        "gpu_index": raster_index + rt_index,
-        "cpu_index": max(st_index, mt_index),
-        "cpu_st_index": st_index,
-        "cpu_mt_index": mt_index,
-        "gpu_raster_index": raster_index,
-        "gpu_rt_index": rt_index,
-        "vram_gb": vram_gb,
-        "ram_gb": ram_gb,
-        "required_rt": any(
-            "Hardware Ray Tracing" in (m.requires_hw_features or []) for m in client_methods
-        ) or model.gpu_rt_ms > 0,
-        "required_hw": sorted({
-            feature for m in client_methods for feature in (m.requires_hw_features or [])
-        }),
-        "recommended_storage": recommended_storage,
-        "estimated_draw_calls": _estimated_draw_calls(profile, model.world_content, method_codes),
-        "modeling_gaps": _modeling_gaps(profile, method_codes, recommended_storage),
-        "applicability_limits": _applicability_limits(profile),
-        "non_client_methods": _non_client_out(rules.split_by_effect_scope(methods)[1]),
-        "incompatible_targets": incompatible_notes(resolve_targets(profile)),
-        "cpu_subsystem_load": dict(model.cpu),
-        "gpu_subsystem_load": dict(model.gpu),
-        "cpu_subsystem_total": model.cpu_sequential_ms + model.cpu_parallel_ms,
-        "gpu_subsystem_total": model.gpu_raster_ms + model.gpu_rt_ms,
-    }
-
-
 def _subsystem_shares(costs: dict[str, float], labels: dict[str, str], total: float) -> list[SubsystemBreakdown]:
     """Доли подсистем в своей группе (сумма долей равна 1)."""
     if total <= 0:
