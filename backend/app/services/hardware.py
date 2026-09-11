@@ -746,6 +746,19 @@ def _api_supports(gpu: HardwareGPU, api: str) -> bool:
     return any(item.startswith(api) for item in apis)
 
 
+#: Возможности, которые являются базовыми для графического API, а не
+#: расширением конкретного вендора. Документация карт их не перечисляет —
+#: ровно потому, что они подразумеваются самим API, — поэтому в `hw_features`
+#: каталога их нет ни у одной записи. Отсутствие такой возможности в списке
+#: означает пробел словаря, а не отказ оборудования: проверять её нужно по
+#: поддержке API. Без этого правила требование «Compute Shaders» не мог
+#: подтвердить ни один GPU каталога, и подбор ориентира обнулялся целиком.
+_API_BASELINE_FEATURES: dict[str, tuple[str, ...]] = {
+    "compute shaders": ("dx11", "vulkan"),
+    "bindless textures": ("dx12", "vulkan"),
+}
+
+
 def _gpu_feature_support(gpu: HardwareGPU, required: str) -> bool | None:
     """Подтверждает ли каталог поддержку возможности картой (D05).
 
@@ -770,6 +783,11 @@ def _gpu_feature_support(gpu: HardwareGPU, required: str) -> bool | None:
         for f in features
     ):
         return True
+    # Базовые возможности API: подтверждаются поддержкой самого API, а не
+    # записью в `hw_features` (её там нет по построению словаря).
+    baseline = _API_BASELINE_FEATURES.get(req)
+    if baseline is not None:
+        return True if any(_api_supports(gpu, api) for api in baseline) else False
     if "ray tracing" in req or req in {"rt", "rtx", "rt cores", "ray accelerators"}:
         return _supports_ray_tracing(gpu)
     if req.startswith(("dlss", "fsr", "xess")):
@@ -2621,14 +2639,27 @@ def _pick_references(
             f"{profile.draw_call_budget:,}. Это риск превышения бюджета, а не измеренное число вызовов.".replace(",", " ")
         )
 
-    compatible_gpus = [g for g in gpus if _supports_profile_gpu(g, profile)]
-    missing_features = [
-        g for g in compatible_gpus
-        if not all(_gpu_feature_support(g, feature) is True for feature in required_hw)
+    api_compatible = [g for g in gpus if _supports_profile_gpu(g, profile)]
+    compatible_gpus = [
+        g for g in api_compatible
+        if all(_gpu_feature_support(g, feature) is True for feature in required_hw)
     ]
-    compatible_gpus = [g for g in compatible_gpus if g not in missing_features]
     if not compatible_gpus and gpus:
-        unmet.append("В каталоге нет GPU с подтверждённой поддержкой выбранного API и апскейлера.")
+        # Причина отказа называется точно: раньше сообщение всегда ссылалось на
+        # API и апскейлер, даже когда карты отсеивались по обязательной
+        # возможности (например «Compute Shaders»), и пользователь искал
+        # причину не там, где она была.
+        unconfirmed = [
+            feature for feature in required_hw
+            if not any(_gpu_feature_support(g, feature) is True for g in api_compatible)
+        ]
+        if unconfirmed:
+            unmet.append(
+                "В каталоге нет GPU с подтверждённой поддержкой обязательных возможностей: "
+                + ", ".join(unconfirmed) + "."
+            )
+        else:
+            unmet.append("В каталоге нет GPU с подтверждённой поддержкой выбранного API и апскейлера.")
 
     reference_gpu, rt_missing = _pick_gpu(
         compatible_gpus, raster_index=raster_index, rt_index=rt_index,
@@ -2645,6 +2676,15 @@ def _pick_references(
             )
         elif not gpus:
             caveats.append("В базе нет опубликованных записей о видеокартах: оценка не выполнена.")
+        elif not compatible_gpus:
+            # Пул отсеян по обязательным возможностям или API: причина уже
+            # названа в `unmet`. Раньше сюда проваливалась ветка про объём
+            # видеопамяти, и пользователь видел «нет карты с 7.0 ГБ» там, где
+            # карты отсеивались по «Compute Shaders».
+            caveats.append(
+                "Подбор ориентира не выполнен: ни одна видеокарта каталога не подтверждает "
+                "обязательные возможности выбранных решений."
+            )
         elif required_rt and not any(_supports_ray_tracing(g) for g in compatible_gpus):
             caveats.append(
                 "В каталоге нет видеокарты с подтверждённой аппаратной трассировкой лучей: "
@@ -2673,9 +2713,16 @@ def _pick_references(
     if reference_cpu is None:
         exceeds = True
         if cpus:
+            # Потолок каталога называется по имени: пустой ориентир без
+            # объяснения выглядел как сбой расчёта, хотя означал «в базе нет
+            # процессора быстрее требуемого».
+            ceiling = max(cpus, key=lambda c: (c.single_thread_score, c.multi_thread_score))
             caveats.append(
                 "Требуемая производительность CPU (однопоточная, многопоточная или обе) "
-                "превышает самую производительную запись базы."
+                f"превышает самую производительную запись базы — {ceiling.model} "
+                f"(однопоточный индекс {ceiling.single_thread_score:.2f}, "
+                f"многопоточный {ceiling.multi_thread_score:.2f}). Более быстрого ориентира "
+                "в каталоге нет: требование следует читать как нижнюю оценку."
             )
         else:
             caveats.append("В базе нет опубликованных записей о процессорах: оценка не выполнена.")

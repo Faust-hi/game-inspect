@@ -110,3 +110,38 @@ def test_hard_conflict_blocks_stacking(db):
     assert accepted == []
     load = aggregate_load(methods, profile, relations=[relation])
     assert load.cpu == load.gpu == 50
+
+
+def test_dependency_is_not_reported_as_unrecognized(db):
+    """Обязательная зависимость — не «нераспознанный тип связи».
+
+    Тип `dependency` обрабатывает каскад исключения, но в разборе конфликтов
+    ветки для него не было: связь проваливалась в общий `else`, и на каждой
+    штатной зависимости в пояснениях появлялось «тип связи «dependency» не
+    распознан» — при том что зависимость учитывалась в расчёте.
+    """
+    from app import repositories
+    from app.models.entities import Conflict
+    from app.schemas.catalog import ProjectProfile
+    from app.services.rules import assess_selected_methods
+
+    relation = Conflict(
+        a_code="world_partition_streaming",
+        b_code="async_loading_pipeline",
+        conflict_type="dependency",
+        description="Потоковая загрузка опирается на асинхронный конвейер загрузки.",
+    )
+    profile = ProjectProfile(functions=["open_world_streaming"])
+
+    # Обе стороны присутствуют: связь удовлетворена и ничем не «не распознана».
+    both = repositories.methods_by_codes(db, [relation.a_code, relation.b_code])
+    assert len(both) == 2
+    _, notes = assess_selected_methods(both, profile, [relation])
+    assert not any("не распознан" in note for note in notes)
+
+    # Зависимость отсутствует: причина названа как зависимость, а не как тип связи.
+    only_source = repositories.methods_by_codes(db, [relation.a_code])
+    accepted, notes = assess_selected_methods(only_source, profile, [relation])
+    assert accepted == []
+    assert any("обязательная зависимость" in note for note in notes)
+    assert not any("не распознан" in note for note in notes)

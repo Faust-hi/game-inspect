@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Дополнение: покрытие, железо, разбор дефектов</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; max-width: 1100px;
+         margin: 0 auto; padding: 32px 24px 80px; line-height: 1.6; color: #1a1a1a; background: #fff; }
+  h1 { font-size: 28px; border-bottom: 3px solid #2b6cb0; padding-bottom: 12px; }
+  h2 { font-size: 22px; margin-top: 40px; color: #2b6cb0; border-bottom: 1px solid #cbd5e0; padding-bottom: 6px; }
+  h3 { font-size: 17px; margin-top: 26px; background: #edf2f7; padding: 8px 12px; border-left: 4px solid #2b6cb0; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 13.5px; }
+  th, td { border: 1px solid #cbd5e0; padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #edf2f7; font-weight: 600; }
+  tr:nth-child(even) td { background: #f9fafb; }
+  code { background: #edf2f7; padding: 1px 5px; border-radius: 3px; font-size: 12.5px;
+         font-family: "Cascadia Code", Consolas, monospace; }
+  ul { margin: 8px 0; padding-left: 22px; }
+  li { margin: 5px 0; }
+  strong { color: #1a202c; }
+  @media print { body { max-width: none; } h3 { break-after: avoid; } table { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<h1>Диагностика: причины дефектов, переклассификация и план исправлений</h1>
+
+<p>Продолжение <code>scenario-testing-2026-09-11-addendum.md</code>. Здесь — <strong>точные причины</strong></p>
+<p>каждого пункта (с доказательствами из кода и базы), <strong>переклассификация</strong> того, что</p>
+<p>дефектом не является, и <strong>что уже исправлено</strong>. Проверено 2026-09-11.</p>
+
+<p>---</p>
+
+<h2>Часть A. Переклассификация: это НЕ дефекты</h2>
+
+<p>Пункты, которые в дополнении были поданы как «проект ломается», но по существу</p>
+<p>являются объявленными ограничениями или штатным поведением.</p>
+
+<table>
+<tr><th>Пункт</th><th>Вердикт</th><th>Почему</th></tr>
+<tr><td>Каталог железа 2013–2025</td><td><strong>не дефект</strong></td><td>Проект подбирает компонент <strong>по характеристикам</strong> (индекс CPU, объём VRAM), а не историческую карту. Отсутствие карт 2005–2011 гг. — техническая особенность каталога, а не ошибка подбора.</td></tr>
+<tr><td>Целевые требования (1080p/high/60, CS2 — 240 FPS)</td><td><strong>не дефект</strong></td><td>Разрешение, качество и FPS задаёт пользователь. Сравнение с требованиями издателя (1080p/30–60 на низких) было <strong>ошибкой методики сравнения</strong> в отчёте, а не свойством системы.</td></tr>
+<tr><td>Ashes of the Singularity: «изменение концепции», «снижение качества»</td><td><strong>не дефект</strong></td><td>Это предупреждения-рекомендации (<code>concept_impact</code> / <code>quality_impact</code>). Их можно принять или отклонить; они ничего не блокируют.</td></tr>
+<tr><td>Horizon / Uncharted: «прогноз только для Windows/Linux»</td><td><strong>не дефект</strong></td><td>Проект PC-only по построению. Для консольной цели совместимая конфигурация не подбирается намеренно — импорт на другую платформу меняет и методы, и функции.</td></tr>
+<tr><td>City Sample: NPC 35 000 &gt; 10 000</td><td><strong>объявленное ограничение</strong></td><td>Граница модели (<code>count_scale_bounds(&quot;npc_count&quot;)</code> = 10 000) и она <strong>сообщается явно</strong> в <code>applicability_limits</code>. Не дефект; задача — предлагать методы снижения давления.</td></tr>
+<tr><td>STWOR: 100 игроков &gt; порога 32</td><td><strong>объявленное ограничение</strong></td><td><code>_PLAYER_SATURATION = 32</code> — экспертное допущение, тоже сообщается явно. Не дефект; задача — предлагать сетевые методы.</td></tr>
+<tr><td>CS2: FPS 240 выше диапазона (30–144)</td><td><strong>объявленное ограничение</strong></td><td><code>_FPS_CALIBRATED_RANGE = (30, 144)</code>; за диапазоном — линейная экстраполяция, о чём сказано в <code>applicability_limits</code>.</td></tr>
+</table>
+
+<p><strong>Фиксированные накладные расходы — отдельный случай.</strong> Это не дефект, но и не</p>
+<p>проверенное число: <code>OS_RAM_RESERVE_GB = 3.0</code>, <code>BACKGROUND_RAM_RESERVE_GB = 1.0</code>,</p>
+<p><code>OS_VRAM_RESERVE_GB = 0.5</code>. Модель сама объявляет их допущением</p>
+<p>(«Постоянные расходы памяти ОС и движка не измерены»). Это <strong>задача на исследование</strong>,</p>
+<p>а не баг: нужны публичные данные о реальном потреблении ОС + драйверов на игровом ПК.</p>
+
+<p>---</p>
+
+<h2>Часть B. Причина 50/50/50/50 — найдена</h2>
+
+<p><strong>Симптом.</strong> Horizon Zero Dawn (S16) и Uncharted 4 (S19) дают нагрузку ровно</p>
+<p><code>50/50/50/50</code> при непустой корзине, а <code>accounted_method_codes</code> пуст.</p>
+
+<p><strong>Причина — не пустая корзина и не область эффекта.</strong> Прямой прогон показывает:</p>
+
+<p><code></code><code></code></p>
+<p>S16: применимы 6/6, область эффекта у всех — client</p>
+<p>S19: применимы 5/5, область эффекта у всех — client</p>
+<p>     но с реальными связями: accounted 0/6 и 0/5</p>
+<p><code></code><code></code></p>
+
+<p>Все методы отсеиваются <strong>каскадом обязательных зависимостей</strong>. В базе <strong>80 рёбер</strong></p>
+<p>типа <code>dependency</code> с <code>mandatory=1</code>, и все они «метод → метод»<strong>. Правило</strong></p>
+<p><code>assess_selected_methods</code> (<code>backend/app/services/rules.py</code>, каскадный проход)</p>
+<p>исключает метод, если его обязательная зависимость отсутствует в корзине:</p>
+
+<p><code></code><code></code></p>
+<p>world_partition_streaming  → async_loading_pipeline        (нет в корзине)</p>
+<p>heightmap_compression      → build_size_startup_budgets    (нет)</p>
+<p>gpu_instancing_vegetation  → gpu_compute_culling           (нет)</p>
+<p>impostors_billboards       → vegetation_atlas_lod          (нет)</p>
+<p>animation_compression      → motion_matching               (нет)</p>
+<p>animation_lod_budget       → gpu_skinning_compute          (нет)</p>
+<p><code></code><code></code></p>
+
+<p>Пользователь выбрал технику — система молча её выбросила, потому что «нужна ещё</p>
+<p>вот эта». При этом цепочки <strong>транзитивные</strong>: <code>gpu_instancing_vegetation</code> →</p>
+<p><code>gpu_compute_culling</code> → <code>mesh_index_optimization</code> → …</p>
+
+<p><strong>Это дефект проектного решения, высокой тяжести.</strong> Правильное поведение — тянуть</p>
+<p>обязательные зависимости <strong>замыканием</strong> (транзитивно) в рабочий набор и показывать</p>
+<p>их как «требуется дополнительно», а не обнулять корзину. Тот же механизм объясняет</p>
+<p>и «53% техник не доходит до расчёта»: это не случайность, а один и тот же каскад.</p>
+
+<p>---</p>
+
+<h2>Часть C. Остальные подтверждённые дефекты с точной причиной</h2>
+
+<h3>C1. «Compute Shaders» обнулял подбор GPU — <strong>исправлено</strong></h3>
+
+<p><code>gpu_particle_simulation</code>, <code>gpu_compute_culling</code>, <code>gpu_procedural_placement</code>,</p>
+<p><code>gerstner_fft_water</code> требуют <code>requires_hw_features = [&quot;Compute Shaders&quot;]</code>. В</p>
+<p><code>hw_features</code> <strong>ни одной из 79 карт</strong> такой записи нет (словарь каталога: Mesh</p>
+<p>Shaders, DLSS, RT cores, VRS, …), поэтому <code>_gpu_feature_support</code> возвращал <code>None</code>,</p>
+<p>пул отсеивался целиком, и ориентир пропадал.</p>
+
+<p>Причина по существу: <strong>Compute Shaders — базовая возможность API</strong> (DX11+/Vulkan),</p>
+<p>а не расширение вендора. Документация карт её не перечисляет именно потому, что она</p>
+<p>подразумевается API. Проверено: <strong>все 79 карт поддерживают DX11+, 72 — Vulkan</strong>.</p>
+<p>Тот же класс — <code>bindless_uber_shaders</code> (<code>Bindless Textures</code>).</p>
+
+<h3>C2. Ложная причина отказа GPU — <strong>исправлено</strong></h3>
+
+<p>DOOM Eternal показывал: <code>unmet_limits</code> = «нет GPU с подтверждённой поддержкой</p>
+<p><strong>выбранного API и апскейлера</strong>», а в <code>caveats</code> — «нет видеокарты с <strong>7.0 ГБ</strong></p>
+<p>видеопамяти и выше». Обе причины неверны: карты отсеивались по <code>Compute Shaders</code>.</p>
+<p>Сообщение об API/апскейлере было захардкожено, а ветка про VRAM срабатывала как</p>
+<p><code>not any(...)</code> на пустом списке.</p>
+
+<h3>C3. Тип связи <code>dependency</code> «не распознан» — <strong>исправлено</strong></h3>
+
+<p><code>assess_selected_methods</code> разбирает типы <code>hard_conflict</code>/<code>risk</code>/<code>alternative</code>/</p>
+<p><code>complement</code>/<code>overlap</code>/<code>unknown</code>, а <code>dependency</code> (80 записей) проваливался в</p>
+<p><code>else</code> → «тип связи «dependency» не распознан», хотя зависимость учитывалась</p>
+<p>отдельным каскадом. Пользователь получал противоречивую картину.</p>
+
+<h3>C4. Пустой ориентир CPU без объяснения — <strong>исправлено</strong></h3>
+
+<p>CS2 требует CPU-индекс 1.05 при потолке каталога 1.00 (i9-14900K) → <code>reference_cpu</code></p>
+<p>= <code>None</code>. Caveat существовал, но не называл ни потолок, ни его характеристики,</p>
+<p>поэтому выглядел как сбой расчёта.</p>
+
+<h3>C5. Дубликаты игровых кейсов — <strong>причина найдена, не исправлено</strong></h3>
+
+<p>155 записей в <code>game_cases</code> при <strong>107 уникальных названиях</strong>. Причина —</p>
+<p><code>pack_loader.py</code>: на <strong>каждый (метод, игра)-пример</strong> создаётся отдельная запись с</p>
+<p>кодом <code>CASE_{game}_{i}</code>, где <code>i</code> — индекс примера <strong>внутри метода</strong>. Одна игра в</p>
+<p>трёх методах даёт <code>CASE_Left_4_Dead_0/1/2</code>. Плюс есть курируемые кейсы с</p>
+<p>описательными кодами (<code>left4dead_ai_director</code>) — то есть Left 4 Dead существует как</p>
+<p>1 курируемый + 2 автогенерированных кейса.</p>
+
+<p>Это <strong>не «временные профили»</strong>: 155 кейсов — это доказательная база каталога</p>
+<p>(«Сверка с практикой»), а не тестовые сценарии. Тестовые — 25 сценариев в</p>
+<p><code>tmp/run_scenarios.py</code>, они в базу не пишутся. Но счётчик кейсов действительно</p>
+<p>раздут: доказательств столько же, а сущностей втрое больше.</p>
+
+<p>Правильно: <strong>нормализовать кейс по игре</strong> (одна запись на игру, ключ —</p>
+<p>название+год+движок), а примеры методов держать строками <code>case_evidence</code> со ссылкой</p>
+<p>на неё. Тогда <code>game_cases</code> 155 → ~107 без потери ни одного доказательства.</p>
+
+<h3>C6. Кейсы не привязаны к функциям — <strong>причина найдена, не исправлено</strong></h3>
+
+<p><code>case_evidence</code> (375 строк): <strong>291</strong> с <code>method_code</code>, <strong>93</strong> с <code>function_code</code>,</p>
+<p>пересечение — 9. То есть <strong>282 строки не имеют <code>function_code</code></strong>, а <strong>84</strong> —</p>
+<p>function-only (без <code>method_code</code>). Поиск практики (<code>cases_for_methods</code>) матчит</p>
+<p><strong>только по <code>method_code</code></strong>, поэтому 84 строки function-only не видны нигде, а</p>
+<p>282 строки недоступны при выборе функции без выбора метода.</p>
+
+<h3>C7. <code>storage_streaming</code> без методов — <strong>причина найдена, не исправлено</strong></h3>
+
+<p>Функция объявлена в каталоге (<code>functions_data.py</code>, <code>source_key=UNITY_TEXTURE_STREAMING</code>),</p>
+<p>но <strong>ни одного метода с <code>function_id</code> этой функции нет</strong>. Причина: методы попадают</p>
+<p>под функцию либо через <code>function_code</code> из пака, либо через словарь</p>
+<p><code>FUNCTION_ASSIGNMENTS</code> (<code>methods_data.py</code>); для <code>storage_streaming</code> нет ни одного</p>
+<p>метода ни там, ни там — тема просто не была разобрана.</p>
+
+<h3>C8. Восемь функций с одним методом — <strong>причина найдена, не исправлено</strong></h3>
+
+<p><code>geometry_pipeline</code>, <code>portal_rendering</code>, <code>project_architecture</code>, <code>render_scalability</code>,</p>
+<p><code>runtime_memory</code>, <code>runtime_security</code>, <code>split_screen_rendering</code>,</p>
+<p><code>upscaling_frame_generation</code> — по 1 методу. У <code>multiplayer_netcode</code> и</p>
+<p><code>open_world_streaming</code> — по 8. Покрытие закрывает «широкие» темы и не выдерживает</p>
+<p>глубины: там, где метод один, ранжирование по TOPSIS вырождается.</p>
+
+<h3>C9. Противоречивые рёбра на одну пару</h3>
+
+<p><code>motion_matching</code> ↔ <code>animation_lod_budget</code> одновременно: <code>hard_conflict</code></p>
+<p>(<code>mandatory=0</code>, basis <code>derived</code>) <strong>и</strong> <code>dependency</code> (<code>mandatory=1</code>, basis</p>
+<p><code>expert_estimate</code>). Движок честно применяет оба правила и выдаёт взаимоисключающие</p>
+<p>советы. Ошибка наполнения данными.</p>
+
+<h3>C10. Меш-шейдеры без PS5</h3>
+
+<p><code>meshlet_pipeline_adoption</code> и <code>gpu_meshlet_culling_budget</code> объявлены для</p>
+<p><code>[&quot;pc_windows&quot;, &quot;xbox_series&quot;]</code>. PS5 (RDNA2) поддерживает меш-шейдеры, поэтому</p>
+<p>Alan Wake 2 теряет эти методы при указании PS5. Ошибка <strong>занижает</strong> применимость.</p>
+
+<h3>C11. Таксономия Nanite</h3>
+
+<p><code>virtual_geometry_clusters</code> числится под <code>large_scale_terrain</code>, а его</p>
+<p>кейс-доказательство — под <code>geometry_pipeline</code>. Выбрав «конвейер геометрии»,</p>
+<p>пользователь не увидит Nanite.</p>
+
+<h3>C12. Сквозные методы в чужих функциях</h3>
+
+<p><code>CROSS_CUTTING_METHODS = frozenset(FUNCTION_ASSIGNMENTS)</code> — 20 методов всегда</p>
+<p>кандидаты. Группировка идёт по исходной функции метода, поэтому арена-шутер</p>
+<p>получает рекомендацию в разделе <code>open_world_streaming</code>. Ошибка <strong>представления</strong>,</p>
+<p>не расчёта.</p>
+
+<p>---</p>
+
+<h2>Часть D. Что уже исправлено (проверено)</h2>
+
+<table>
+<tr><th>№</th><th>Файл</th><th>Было</th><th>Стало</th></tr>
+<tr><td>C1</td><td><code>services/hardware.py</code></td><td>«Compute Shaders» не подтверждался ни одной картой → ориентир пропадал</td><td>добавлена карта базовых возможностей API: <code>Compute Shaders</code> → DX11/Vulkan, <code>Bindless Textures</code> → DX12/Vulkan</td></tr>
+<tr><td>C2</td><td><code>services/hardware.py</code></td><td><code>unmet</code> всегда про «API и апскейлер»; caveat про VRAM на пустом пуле</td><td>называется <strong>точная</strong> неподтверждённая возможность; добавлена ветка «пул отсеян по возможностям»</td></tr>
+<tr><td>C3</td><td><code>services/rules.py</code></td><td><code>dependency</code> проваливался в <code>else</code> → «не распознан»</td><td>явная ветка: зависимость обрабатывает каскад, в предупреждения не попадает</td></tr>
+<tr><td>C4</td><td><code>services/hardware.py</code></td><td>пустой ориентир CPU без объяснения</td><td>caveat называет потолок каталога по имени и его индексы</td></tr>
+</table>
+
+<p><strong>Проверка.</strong></p>
+
+<ul>
+<li>DOOM Eternal: <code>reference_gpu</code> был <code>None</code> → стал <code>Arc A750</code>; <code>unmet_limits</code> пуст;</li>
+</ul>
+<p>  в <code>caveats</code> появилось корректное условие про «Compute Shaders».</p>
+<ul>
+<li>CS2: caveat теперь «…превышает самую производительную запись базы — <strong>Core</strong></li>
+</ul>
+<p>  i9-14900K<strong> (однопоточный индекс 1.00, многопоточный 0.94). Более быстрого</strong></p>
+<p>  ориентира в каталоге нет: требование следует читать как нижнюю оценку.»</p>
+<ul>
+<li>Предупреждений «тип связи не распознан» — <strong>0</strong> (было на каждой зависимости).</li>
+<li>Тесты: <strong>115 passed</strong> (было 111; добавлено 4 регрессионных).</li>
+<li><code>tools/check_research_invariants.py</code> — <strong>exit 0</strong> (§2.3/§2.8/§2.10 не сдвинулись).</li>
+</ul>
+
+<p>Регрессионные тесты: <code>tests/test_hardware_bottleneck.py</code></p>
+<p>(<code>test_baseline_api_feature_does_not_empty_gpu_pool</code>,</p>
+<p><code>test_feature_support_distinguishes_unknown_from_absent</code>,</p>
+<p><code>test_cpu_ceiling_is_named_when_requirement_exceeds_catalog</code>) и</p>
+<p><code>tests/test_conflicts.py</code> (<code>test_dependency_is_not_reported_as_unrecognized</code>).</p>
+
+<p>---</p>
+
+<h2>Часть E. План исправлений (осталось)</h2>
+
+<p>Порядок — по отношению «тяжесть / риск».</p>
+
+<h3>E1. Замыкание обязательных зависимостей (высокая)</h3>
+
+<p>Причина 50/50 и «53%». Решение: при сборке корзины достраивать <strong>транзитивное</strong></p>
+<p>замыкание<strong> по рёбрам <code>dependency</code> с <code>mandatory=1</code> и передавать расширенный набор в</strong></p>
+<p><code>assess_selected_methods</code>, <code>aggregate_load</code> и <code>estimate_hardware</code>. Добавленные</p>
+<p>методы показывать отдельной группой «требуется дополнительно», а не прятать.</p>
+<p>Каскадное исключение при этом сохраняется для случая, когда зависимость</p>
+<p><strong>неприменима</strong> к профилю.</p>
+
+<p>Место правки: <code>recommender.build_recommendations</code> (сборка <code>basket_methods</code>) плюс</p>
+<p>опциональный параметр каталога в <code>rules.assess_selected_methods</code>. Риск: меняет</p>
+<p>числа нагрузки на профилях с зависимостями → потребуется перегенерация</p>
+<p><code>research/*.md</code> и сверка сходимости.</p>
+
+<h3>E2. Нормализация кейсов (средняя)</h3>
+
+<p><code>pack_loader._load_packs</code> / <code>sync_packs</code>: искать существующий <code>GameCase</code> по</p>
+<p>(название, год, движок) и переиспользовать его; <code>case_evidence</code> продолжает</p>
+<p>ссылаться на кейс. Ожидаемо <code>game_cases</code> 155 → ~107. Плюс слияние с курируемыми</p>
+<p>кейсами по названию.</p>
+
+<h3>E3. Привязка кейсов к функциям (средняя)</h3>
+
+<p>1. Заполнить <code>case_evidence.function_code</code> у 282 строк (выводится из</p>
+<p>   <code>methods.function_id</code> — детерминированно, без новых источников).</p>
+<p>2. Расширить <code>cases_for_methods</code>, чтобы практика находилась и по <code>function_code</code></p>
+<p>   (сейчас 84 строки function-only недостижимы).</p>
+
+<h3>E4. Наполнение <code>storage_streaming</code> и восьми «тонких» функций (средняя)</h3>
+
+<p>Требует <strong>адресного исследования</strong>, а не догадок. Для каждой функции — набор</p>
+<p>методов реализации с полями: описание, проблема, плюсы, минусы, ограничения,</p>
+<p>конфликты/зависимости, стадия, эффект (CPU/GPU/RAM/VRAM/накопитель), источник.</p>
+
+<p><strong>Правило:</strong> методы описываются <strong>на уровне функции и техники</strong>, а не «как в игре</p>
+<p>X». Игра — только пример-доказательство (<code>game_examples</code>), а не определение метода.</p>
+
+<p>Кандидатный состав по темам (подлежит проверке источником):</p>
+
+<ul>
+<li><code>storage_streaming</code> — потоковая подкачка текстур и мешей; бюджет streaming pool;</li>
+</ul>
+<p>  сжатие с прямым доступом (BCn/ASTC + GPU-декомпрессия); DirectStorage/IO-очереди;</p>
+<p>  асинхронная распаковка в фоновых потоках; приоритизация и отмена запросов;</p>
+<p>  кэш «горячих» ассетов; предвыборка по траектории камеры.</p>
+<ul>
+<li><code>geometry_pipeline</code> — уже есть <code>mesh_index_optimization</code>; добавить: кластеризация</li>
+</ul>
+<p>  и LOD-цепочки мешей, оптимизация порядка индексов (post-transform cache),</p>
+<p>  инстансинг и merge-батчинг, отсечение на уровне кластеров.</p>
+<ul>
+<li><code>render_scalability</code> — тиры качества, динамическое разрешение, адаптивные</li>
+</ul>
+<p>  бюджеты кадра, автоматический выбор настроек по классу GPU.</p>
+<ul>
+<li><code>runtime_memory</code> — пулы и арены, арендный аллокатор для горячих циклов,</li>
+</ul>
+<p>  бюджеты managed-GC, борьба с фрагментацией, стриминг ресурсов по требованию.</p>
+<ul>
+<li><code>project_architecture</code> — модульная композиция, data-oriented слой, шина сервисов,</li>
+</ul>
+<p>  конфигурация как данные, каркас запуска и жизненный цикл.</p>
+<ul>
+<li><code>portal_rendering</code> — портальная видимость, рекурсивные вьюпорты, портальные</li>
+</ul>
+<p>  клиппинг-плоскости, бюджет вложенности.</p>
+<ul>
+<li><code>split_screen_rendering</code> — уже есть <code>splitscreen_render_budget</code>; добавить:</li>
+</ul>
+<p>  разделение целевых буферов, независимое отсечение на вид, понижение частоты</p>
+<p>  обновления второстепенного вида.</p>
+<ul>
+<li><code>upscaling_frame_generation</code> — уже есть <code>ml_frame_generation</code>; добавить:</li>
+</ul>
+<p>  временное масштабирование с историей, spatial-апскейл, реконструкция деталей,</p>
+<p>  бюджеты латентности.</p>
+<ul>
+<li><code>runtime_security</code> — целостность сборки, проверка подписи, серверная валидация</li>
+</ul>
+<p>  ввода, обнаружение аномалий, античит-телеметрия.</p>
+
+<h3>E5. Данные: противоречия и таксономия (средняя)</h3>
+
+<ul>
+<li>Убрать дубль <code>hard_conflict</code> + <code>dependency</code> на пару <code>motion_matching</code> /</li>
+</ul>
+<p>  <code>animation_lod_budget</code> (C9).</p>
+<ul>
+<li>Добавить <code>ps5</code> в <code>applicable_platforms</code> мешлет-методов (C10).</li>
+<li>Перенести <code>virtual_geometry_clusters</code> в <code>geometry_pipeline</code> либо связать обе</li>
+</ul>
+<p>  функции (C11).</p>
+<ul>
+<li>Вынести сквозные методы в отдельную группу «сквозные оптимизации» (C12).</li>
+</ul>
+
+<h3>E6. Пересмотр накладных расходов (низкая, но требует источников)</h3>
+
+<p>Проверить <code>OS_RAM_RESERVE_GB</code> / <code>BACKGROUND_RAM_RESERVE_GB</code> / <code>OS_VRAM_RESERVE_GB</code></p>
+<p>по публичным измерениям потребления Windows + драйверов на игровом ПК. Значения —</p>
+<p>допущения; менять только с источником, иначе это выдумывание данных.</p>
+
+<p>---</p>
+
+<h2>Часть F. Ответы на исходные вопросы</h2>
+
+<p>1. <strong>Покрытие решений.</strong> Для учебного MVP — нормально; для продакшена — нет.</p>
+<p>   Одна функция без методов, 8 функций с одним, 282 из 375 доказательств без</p>
+<p>   привязки к функции, 155 записей кейсов при 107 уникальных играх.</p>
+<p>2. <strong>Железо против реальных требований.</strong> Систематически завышает — по трём</p>
+<p>   причинам: узкий диапазон каталога, фиксированные накладные расходы, <strong>иная цель,</strong></p>
+<p>   чем у издателя<strong> (последнее — не дефект, а следствие выбранного ТЗ). На</strong></p>
+<p>   современных AAA-играх сходится близко (Alan Wake 2, Cyberpunk, Split Fiction).</p>
+<p>3. <strong>Как проект оценил игры.</strong> По всем 25 — вердикт, узкое место, направление</p>
+<p>   нагрузки и объявленные ограничения в дополнении, §3.</p>
+<p>4. <strong>Пункты 1–8.</strong> Шесть настоящих дефектов (2 высокой тяжести, 4 средней), один</p>
+<p>   концептуальный, один пограничный. С учётом переклассификации Части A картина</p>
+<p>   уточнена: часть «ломается» — это честные объявленные границы модели.</p>
+<p>5. <strong>50/50/50/50.</strong> Причина — каскад 80 обязательных зависимостей «метод → метод».</p>
+<p>   Это главный дефект корректности; план — E1.</p>
+
+</body>
+</html>

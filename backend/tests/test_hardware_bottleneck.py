@@ -153,3 +153,52 @@ def test_scene_scale_changes_load_not_frame_cost(client):
     # Стоимость кадра при неизменной активной сцене не меняется от площади мира.
     assert very_large["required_cpu_index"] == small["required_cpu_index"]
     assert very_large["required_gpu_index"] == small["required_gpu_index"]
+
+
+def test_baseline_api_feature_does_not_empty_gpu_pool(client):
+    """«Compute Shaders» — базовая возможность API, а не расширение вендора.
+
+    Каталог не перечисляет её в `hw_features` (как и документация карт), поэтому
+    требование не мог подтвердить ни один GPU: пул отсеивался целиком, ориентир
+    пропадал, и оценка оборудования обнулялась из-за одного метода в корзине.
+    """
+    data = estimate(client, basket=["gpu_particle_simulation"])
+    assert data["reference_gpu"] is not None
+    assert not any("Compute Shaders" in item for item in data["unmet_limits"])
+
+
+def test_feature_support_distinguishes_unknown_from_absent():
+    """Возможность подтверждается по API, но неизвестность не становится отказом."""
+    from app.services import hardware as hardware_service
+
+    class ModernGPU:
+        api_support = ["DirectX 12", "Vulkan 1.2"]
+        hw_features: list[str] = []
+
+    class LegacyGPU:
+        api_support = ["DirectX 9", "OpenGL 3.3"]
+        hw_features: list[str] = []
+
+    # Базовая возможность API подтверждается поддержкой самого API.
+    assert hardware_service._gpu_feature_support(ModernGPU(), "Compute Shaders") is True
+    # Карта без нужного API заведомо без возможности — это отказ, а не неизвестность.
+    assert hardware_service._gpu_feature_support(LegacyGPU(), "Compute Shaders") is False
+    # Неизвестная возможность остаётся неизвестной и не превращается в отказ.
+    assert hardware_service._gpu_feature_support(ModernGPU(), "Неведомая возможность") is None
+
+
+def test_cpu_ceiling_is_named_when_requirement_exceeds_catalog(client):
+    """Требование выше потолка каталога объясняется, а не отдаёт пустой ориентир."""
+    data = estimate(
+        client,
+        basket=["tickrate_budgeting", "network_relevancy_priority"],
+        world_type="arena",
+        engine="source",
+        functions=["multiplayer_netcode"],
+        target_quality="low",
+        target_fps=240,
+        multiplayer=True,
+        player_count=10,
+    )
+    assert data["reference_cpu"] is None
+    assert any("Core i9-14900K" in item for item in data["caveats"])

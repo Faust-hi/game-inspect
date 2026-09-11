@@ -19,6 +19,8 @@
 """
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from sqlalchemy.orm import Session
 
 from .. import repositories, timeutil

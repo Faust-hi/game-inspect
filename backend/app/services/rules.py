@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 
 from ..models.entities import Conflict, Method
 from ..models.enums import DevStage, EffectScope, LateCost, Scale
@@ -210,6 +210,57 @@ def evaluate(method: Method, profile: ProjectProfile) -> Applicability:
     return result
 
 
+def mandatory_dependency_closure(
+    methods: Sequence[Method],
+    catalog: Mapping[str, Method],
+    relations: Sequence[Conflict],
+) -> tuple[list[Method], list[str]]:
+    """Достроить обязательные зависимости выбранных решений (транзитивно).
+
+    Обязательная зависимость означает «без B эффект A не реализуется». Раньше
+    отсутствие B в корзине просто выбрасывало A, и корзина схлопывалась: без
+    `async_loading_pipeline` исчезал `world_partition_streaming`, а без
+    `gpu_compute_culling` — `gpu_instancing_vegetation`. Пользователь выбирал
+    технику и получал нейтральную нагрузку 50/50, не зная, что расчёт пуст:
+    у Horizon Zero Dawn так пропадали все 6 решений из 6.
+
+    Здесь зависимости достраиваются до неподвижной точки. Добавленные решения
+    возвращаются отдельным списком пояснений, чтобы их появление в расчёте было
+    видно пользователю, а не выглядело самовольным расширением корзины.
+
+    Каскадное исключение в `assess_selected_methods` при этом сохраняется: если
+    достроенная зависимость окажется неприменимой к профилю, зависящее от неё
+    решение по-прежнему не будет учитываться — но уже с названной причиной.
+    """
+    ordered: list[Method] = list(methods)
+    seen = {method.code for method in ordered}
+    required_by: dict[str, str] = {}
+
+    changed = True
+    while changed:
+        changed = False
+        for relation in relations:
+            if relation.conflict_type != "dependency":
+                continue
+            if relation.a_code not in seen or relation.b_code in seen:
+                continue
+            target = catalog.get(relation.b_code)
+            if target is None:
+                continue
+            ordered.append(target)
+            seen.add(target.code)
+            required_by[target.code] = relation.a_code
+            changed = True
+
+    notes = [
+        f"«{catalog[code].name}» добавлено в расчёт как обязательная зависимость "
+        f"для «{catalog[required_by[code]].name}»."
+        for code in required_by
+        if code in catalog and required_by[code] in catalog
+    ]
+    return ordered, notes
+
+
 def assess_selected_methods(
     methods: list[Method], profile: ProjectProfile, relations: Sequence[Conflict] = (),
 ) -> tuple[list[Method], list[str]]:
@@ -277,6 +328,13 @@ def assess_selected_methods(
                 f"{relation.a_code} / {relation.b_code}: не проверено. "
                 "Совместимость не подтверждена отдельно. " + (relation.description or "")
             )
+        elif ctype == "dependency":
+            # Обязательная зависимость — не конфликт и не риск: её обрабатывает
+            # отдельный каскадный проход ниже (метод без доступной зависимости
+            # исключается). Раньше тип не имел ветки и проваливался в `else`,
+            # поэтому на каждой штатной зависимости пользователь видел
+            # «тип связи «dependency» не распознан» — хотя связь учитывалась.
+            continue
         else:
             # Неизвестный тип связи. Раньше такая запись не попадала ни в одну
             # ветку и связь молча исчезала из расчёта: в базе она была, но не
