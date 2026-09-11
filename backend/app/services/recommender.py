@@ -33,6 +33,7 @@ from ..schemas.catalog import (
 )
 from ..seed.methods_data import FUNCTION_ASSIGNMENTS
 from . import engines as engine_service
+from . import evidence as evidence_service
 from . import hardware, rules, sensitivity, serializers, stage_guidance, transitions
 from .serializers import label_of as _label
 from .serializers import link_out
@@ -456,7 +457,8 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str], baseli
             basket_dependencies=tail["basket_dependencies"],
             basket_synergies=tail["basket_synergies"],
             hardware=tail["hardware"],
-            practice_check=hardware.practice_check(),
+            practice_check=tail["practice_check"],
+            evidence_summary=tail["evidence_summary"],
             contributions=tail["contributions"],
             basket_codes=basket_codes,
             input_key=tail["input_key"],
@@ -565,7 +567,8 @@ def _build_recommendations(db: Session, profile, basket_codes: list[str], baseli
         basket_dependencies=tail["basket_dependencies"],
         basket_synergies=tail["basket_synergies"],
         hardware=tail["hardware"],
-        practice_check=hardware.practice_check(),
+        practice_check=tail["practice_check"],
+        evidence_summary=tail["evidence_summary"],
         contributions=tail["contributions"],
         basket_codes=basket_codes,
         input_key=tail["input_key"],
@@ -600,6 +603,8 @@ def _tail(
     """
     relations = repositories.conflicts(db)
     estimate = hardware.estimate_hardware(db, profile, basket_methods)
+    case_codes = [method.code for method in basket_methods]
+    cases = evidence_service.cases_for_methods(db, case_codes)
     basket_conflicts, basket_dependencies, basket_synergies = basket_compatibility(
         db, basket_codes, methods_by_code
     )
@@ -609,6 +614,8 @@ def _tail(
         "basket_synergies": basket_synergies,
         "load_profile": aggregate_load(basket_methods, profile, relations=relations, estimate=estimate),
         "hardware": estimate,
+        "practice_check": evidence_service.practice_check(cases),
+        "evidence_summary": evidence_service.summary(db),
         "contributions": hardware.build_contributions(
             profile, basket_methods, estimate, relations=relations,
         ),

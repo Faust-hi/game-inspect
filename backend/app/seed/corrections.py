@@ -2,7 +2,10 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models.entities import Conflict, Method
+from ..models.entities import (
+    CaseEvidence, Conflict, DependencyEdge, Engine, EngineTool, EvidenceClaim,
+    EvidenceSource, Method, MethodEngineLink,
+)
 from . import methods_data, sources
 
 
@@ -204,7 +207,50 @@ def correct_method_sources(db: Session) -> int:
             continue
         row = db.scalar(select(Method).where(Method.code == code))
         if row is not None and row.source_url == old["url"]:
+            # The URL and its human-readable title form one provenance pair.
+            # Updating only the URL leaves an apparently plausible but false
+            # citation in the public catalogue (for example VSM titled as
+            # Distance Field Shadows).  Replace the legacy title/date only
+            # when the URL still has its seeded value; administrator-owned
+            # sources remain untouched.
             row.source_url = new["url"]
+            row.source_title = new.get("title", row.source_title)
+            row.source_date = new.get("date", row.source_date)
+            updated += 1
+    if updated:
+        db.flush()
+    return updated
+
+
+def correct_source_publication(db: Session) -> int:
+    """Опубликовать источники, оставшиеся черновиками при переносе из пакетов.
+
+    Тип источника по умолчанию — черновик, поэтому записи, созданные без
+    явного статуса, не отдавались в выдаче: `source_to_out` возвращает None для
+    неопубликованного источника, и публичное утверждение выглядело как
+    утверждение без источника. Исправление нужно и уже существующим базам —
+    иначе публикация доказательной базы появится только при пересоздании.
+
+    Публикуется только источник, на который ссылается хотя бы одно публичное
+    утверждение или факт кейса: остальной черновик — рабочая заготовка, и
+    повышать его без причины нельзя.
+    """
+    referenced: set[int] = set()
+    for claim in db.scalars(select(EvidenceClaim).where(EvidenceClaim.status == "published")):
+        if claim.source_id:
+            referenced.add(claim.source_id)
+    for item in db.scalars(select(CaseEvidence).where(CaseEvidence.status == "published")):
+        if item.source_id:
+            referenced.add(item.source_id)
+    updated = 0
+    if referenced:
+        for source in db.scalars(
+            select(EvidenceSource).where(
+                EvidenceSource.id.in_(referenced),
+                EvidenceSource.status != "published",
+            )
+        ):
+            source.status = "published"
             updated += 1
     if updated:
         db.flush()
@@ -260,3 +306,60 @@ def correct_engine_tool_independence(db: Session) -> int:
     if updated:
         db.flush()
     return updated
+
+
+def declare_evidence_gaps(db: Session) -> dict[str, int]:
+    """Довести машинно-читаемые декларации пробелов до согласованного вида.
+
+    Три класса записей законно не имеют внешнего источника, но декларация об
+    этом не была проставлена в машиночитаемое поле, и аудит считал их
+    «незадекларированными дырами»:
+
+    * связка «метод-инструмент» с инструментом собственной реализации
+      (`is_user_defined`) — публичного источника не существует; честное
+      состояние — `evidence_status='user_defined'`, а не пустой URL;
+    * конфликт, выведенный из структуры каталога («A требует B»), — URL не
+      существует: это не факт из документа, а следствие связей каталога;
+      помечается `source_url='user_defined:catalog_dependency'`;
+    * ребро графа без источника — плановая зависимость пакетов работ;
+      помечается префиксом `[expert_estimate:no_external_source]` в описании.
+
+    Функция идемпотентна и нужна уже существующим базам. Раньше эти проходы
+    выполнялись внутри `seed_methods` — до того, как создавались сами
+    инструменты, связи и железо, — поэтому на свежей базе не срабатывали:
+    декларации появлялись только при повторном заполнении.
+    """
+    from .fixes_v2 import apply_hardware_raw_values, mark_user_defined_tech, normalize_link_evidence
+
+    # Инструменты собственной реализации и их связи.
+    links_marked = mark_user_defined_tech(db)
+    links_normalized = normalize_link_evidence(db)
+
+    # Конфликты без источника: выведены из структуры каталога, а не из документа.
+    conflicts_declared = 0
+    for row in db.scalars(select(Conflict)):
+        if not (row.source_url or "").strip():
+            row.source_url = "user_defined:catalog_dependency"
+            conflicts_declared += 1
+
+    # Рёбра графа без источника: плановая зависимость пакетов работ.
+    marker = "[expert_estimate:no_external_source]"
+    edges_declared = 0
+    for row in db.scalars(select(DependencyEdge)):
+        if not row.source_id and marker not in (row.description or ""):
+            row.description = f"{marker} {row.description or ''}".strip()
+            edges_declared += 1
+
+    # Сырые значения бенчмарков: нормализованные индексы были записаны без
+    # исходной величины, из-за чего нормализация непроверяема.
+    hardware_raw = apply_hardware_raw_values(db)
+
+    if conflicts_declared or edges_declared:
+        db.flush()
+    return {
+        "links_user_defined_marked": links_marked,
+        "links_evidence_normalized": links_normalized,
+        "conflicts_declared": conflicts_declared,
+        "dependency_edges_declared": edges_declared,
+        "hardware_raw_values": hardware_raw,
+    }

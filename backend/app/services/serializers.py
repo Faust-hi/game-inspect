@@ -67,6 +67,10 @@ def link_out(db: Session, link: MethodEngineLink, profile=None) -> MethodEngineL
         relation_label=label,
         note=link.note,
         docs_url=tool.docs_url if tool else "",
+        source_locator=link.source_locator,
+        source_url=link.source_url,
+        evidence_basis=link.evidence_basis,
+        evidence_status=link.evidence_status,
         tool_min_version=getattr(tool, "min_version", None) if tool else None,
         available=available,
         availability_note=availability_note,
@@ -90,6 +94,11 @@ def cpu_out(cpu: HardwareCPU) -> HardwareCPUOut:
         notes=cpu.notes,
         source_title=cpu.source_title,
         source_url=cpu.source_url,
+        benchmark_name=cpu.benchmark_name,
+        benchmark_context=cpu.benchmark_context,
+        benchmark_raw_value=cpu.benchmark_raw_value,
+        normalization_note=cpu.normalization_note,
+        evidence_basis=cpu.evidence_basis,
     )
 
 
@@ -112,6 +121,11 @@ def gpu_out(gpu: HardwareGPU) -> HardwareGPUOut:
         notes=gpu.notes,
         source_title=gpu.source_title,
         source_url=gpu.source_url,
+        benchmark_name=gpu.benchmark_name,
+        benchmark_context=gpu.benchmark_context,
+        benchmark_raw_value=gpu.benchmark_raw_value,
+        normalization_note=gpu.normalization_note,
+        evidence_basis=gpu.evidence_basis,
     )
 
 

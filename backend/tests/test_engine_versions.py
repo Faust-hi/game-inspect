@@ -94,14 +94,28 @@ def test_directstorage_needs_windows_and_modern_api(client):
     """
     def accounted(**changes):
         profile = {
-            "functions": ["audio_system", "open_world_streaming"],
+            # `procedural_terrain` нужен предусловию DirectStorage — бюджету
+            # генерации и кэша чанков: без выбранной функции метод исключается
+            # как неприменимый, и до платформенного условия дело не доходит.
+            "functions": ["audio_system", "open_world_streaming", "procedural_terrain"],
             "multiplayer": True, "player_count": 8,
             "render_api": "dx12", "world_type": "open_world",
         }
         profile.update(changes)
+        # DirectStorage объявлен зависимым от слоя асинхронной загрузки: без
+        # предусловия решение исключается целиком, и тест проверял бы правило
+        # зависимостей, а не платформенное условие. Предусловия добавляются,
+        # чтобы измерялось именно условие Windows/DX12.
         data = client.post(
             "/api/recommend",
-            json={"profile": profile, "basket": ["directstorage_io"]},
+            json={
+                "profile": profile,
+                "basket": [
+                    "async_loading_pipeline",
+                    "terrain_generation_streaming_budget",
+                    "directstorage_io",
+                ],
+            },
         ).json()
         return data["accounted_method_codes"]
 

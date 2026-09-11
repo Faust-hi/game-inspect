@@ -63,7 +63,7 @@ class ProjectProfile(BaseModel):
     engine_version: Annotated[str | None, Field(max_length=40)] = None
     platforms: Annotated[
         list[Literal[tuple(_values(Platform))]], Field(min_length=1, max_length=11)
-    ] = Field(default_factory=lambda: ["pc_windows"])
+    ] = ["pc_windows"]
 
     # Масштаб сцены
     object_count_level: LevelValue = "medium"
@@ -79,7 +79,11 @@ class ProjectProfile(BaseModel):
     local_view_count: Annotated[int | None, Field(ge=1, le=8)] = None
 
     # Функции
-    functions: Annotated[list[str], Field(max_length=40)] = Field(default_factory=list)
+    # Простые значения по умолчанию нужны также для FastAPI `Depends()` в
+    # GET /report-data: FastAPI передаёт default_factory как служебный объект
+    # вместо вызова фабрики при разборе модели-зависимости. Pydantic копирует
+    # изменяемые значения по умолчанию для каждого экземпляра модели.
+    functions: Annotated[list[str], Field(max_length=40)] = []
 
     # Целевые показатели
     target_resolution: Literal[tuple(_values(Resolution))] = "1080p"
@@ -101,6 +105,16 @@ class ProjectProfile(BaseModel):
     simulation_radius_m: Annotated[int | None, Field(ge=0, le=100_000)] = None
     physics_tick_hz: Annotated[float | None, Field(ge=15, le=480, allow_inf_nan=False)] = None
     audio_complexity: LevelValue | None = None
+
+    # Необязательные проверяемые цели. Отсутствие значения означает
+    # `unknown`, а не нулевую нагрузку и не автоматически выполненную цель.
+    target_1_percent_low_fps: Annotated[int | None, Field(ge=1, le=480)] = None
+    max_startup_seconds: Annotated[float | None, Field(gt=0, le=600)] = None
+    max_streaming_latency_ms: Annotated[int | None, Field(gt=0, le=60000)] = None
+    max_save_seconds: Annotated[float | None, Field(gt=0, le=600)] = None
+    target_network_latency_ms: Annotated[int | None, Field(gt=0, le=2000)] = None
+    target_server_tick_hz: Annotated[float | None, Field(gt=0, le=1000)] = None
+    max_network_kbps: Annotated[float | None, Field(gt=0, le=1000000)] = None
 
     # Обязательные ограничения
     ram_limit_gb: Annotated[float | None, Field(gt=0, le=512)] = None
@@ -281,6 +295,15 @@ class RecommendationRequest(BasketRequest):
     baseline: ImplementationBaseline | None = None
 
 
+class ScheduleRequest(BaseModel):
+    """Вход для сценарного календарного плана."""
+
+    profile: ProjectProfile
+    basket: Annotated[list[str], Field(max_length=200)] = Field(default_factory=list)
+    team: Annotated[str, Field(min_length=1, max_length=40)] = "small_2_5"
+    include_dependencies: bool = True
+
+
 class TransitionOut(BaseModel):
     method_code: str
     status: str
@@ -349,6 +372,13 @@ class MethodEngineLinkOut(BaseModel):
     #: указана или граница не задана). None не означает «доступен».
     available: bool | None = None
     availability_note: str | None = None
+    source_locator: str = ""
+    #: Собственный URL связи. Пустая строка означает, что публичного
+    #: источника не существует (например, инструмент пользовательского
+    #: движка) — это не то же самое, что «источник не проверен».
+    source_url: str = ""
+    evidence_basis: str = "unknown"
+    evidence_status: str = "unknown"
 
 
 class MethodOut(BaseModel):
@@ -435,6 +465,11 @@ class HardwareCPUOut(BaseModel):
     notes: str
     source_title: str
     source_url: str
+    benchmark_name: str = ""
+    benchmark_context: str = ""
+    benchmark_raw_value: float | None = None
+    normalization_note: str = ""
+    evidence_basis: str = "derived"
 
 
 class HardwareGPUOut(BaseModel):
@@ -455,6 +490,11 @@ class HardwareGPUOut(BaseModel):
     notes: str
     source_title: str
     source_url: str
+    benchmark_name: str = ""
+    benchmark_context: str = ""
+    benchmark_raw_value: float | None = None
+    normalization_note: str = ""
+    evidence_basis: str = "derived"
 
 
 # ---------------------------------------------------------------------------
@@ -623,6 +663,33 @@ class PlatformTargetOut(BaseModel):
     vram_gb: float | None = None
     # Цель с наибольшей потребностью: она объясняет общий ориентир.
     binding: bool = False
+    frame_budget_ms: float | None = None
+    target_assessments: list["TargetAssessmentOut"] = Field(default_factory=list)
+
+
+class EstimateBand(BaseModel):
+    """Оценочный диапазон; P50/P80 не являются runtime-измерением."""
+
+    minimum: float | None = None
+    p50: float | None = None
+    p80: float | None = None
+    unit: str = ""
+    basis: str = "expert_estimate"
+    confidence: float | None = None
+
+
+class TargetAssessmentOut(BaseModel):
+    metric: str
+    label: str
+    target: float | None = None
+    unit: str = ""
+    status: str = "unknown"  # meets | at_risk | unknown | not_modeled
+    estimated: float | None = None
+    basis: str = "unknown"
+    note: str = ""
+
+
+PlatformTargetOut.model_rebuild()
 
 
 class HardwareEstimateOut(BaseModel):
@@ -681,24 +748,233 @@ class HardwareEstimateOut(BaseModel):
     # Требование к накопителю отдельной строкой: это самостоятельный результат,
     # а не только оговорка.
     storage_requirement: str = ""
+    # Диапазоны показывают неопределённость каталога и сценарных оценок;
+    # конкретный FPS без runtime-профиля не выводится.
+    cpu_requirement: EstimateBand | None = None
+    gpu_requirement: EstimateBand | None = None
+    ram_requirement: EstimateBand | None = None
+    vram_requirement: EstimateBand | None = None
+    evidence_basis: str = "derived_plus_expert_estimate"
+    hardware_evidence: list[str] = Field(default_factory=list)
+    target_assessments: list[TargetAssessmentOut] = Field(default_factory=list)
 
 
 class PracticeCheckOut(BaseModel):
     """Блок «Сверка с практикой».
 
-    В текущей версии это заглушка: сверка с реальными играми не выполняется,
-    паспорта игр не загружаются и показатели точности не вычисляются. Блок
-    существует, чтобы граница была видна пользователю, а не подразумевалась.
+    Кейсы подтверждают факт применения подхода, но не переносят FPS и не
+    превращают одну игру в эталон другой.
     """
 
-    status: str = "in_development"
-    title: str = "Сверка с практикой — в разработке"
+    status: str = "case_evidence"
+    title: str = "Сверка с практикой"
     message: str = (
-        "Сверка расчёта с реальными играми не выполняется: паспорта игр "
-        "не загружаются, показатели точности не вычисляются. Заявленная "
-        "погрешность ±70% является целью модели, а не подтверждённым результатом."
+        "Публичные кейсы подтверждают применение механизмов и инженерные "
+        "компромиссы. Точность FPS и межигровая переносимость не вычисляются "
+        "без runtime-профилей и реальной валидационной выборки."
     )
     details: list[str] = Field(default_factory=list)
+    case_count: int = 0
+    case_codes: list[str] = Field(default_factory=list)
+    accuracy_status: str = "not_calibrated"
+    transferability: str = "not_claimed"
+
+
+# ---------------------------------------------------------------------------
+# Доказательства, кейсы, зависимости и планирование
+# ---------------------------------------------------------------------------
+class EvidenceSourceOut(BaseModel):
+    code: str
+    title: str
+    authors: str
+    publisher: str
+    source_type: str
+    published_date: str
+    checked_at: str
+    url: str
+    version: str
+    platform: str
+    locator: str
+    availability: str
+    applicability: str
+    notes: str
+
+
+class EvidenceClaimOut(BaseModel):
+    code: str
+    entity: str
+    entity_code: str
+    field: str
+    claim: str
+    unit: str
+    value_text: str
+    value_num: float | None = None
+    range_min: float | None = None
+    range_max: float | None = None
+    source: EvidenceSourceOut | None = None
+    locator: str
+    basis: str
+    verification_status: str
+    evidence_level: str
+    formula: str
+    input_parameters: dict[str, Any] = Field(default_factory=dict)
+    context: str
+
+
+class CaseEvidenceOut(BaseModel):
+    code: str
+    function_code: str
+    method_code: str
+    fact: str
+    match_level: str
+    locator: str
+    source: EvidenceSourceOut | None = None
+    basis: str
+    transfer_limits: str
+
+
+class GameCaseOut(BaseModel):
+    code: str
+    title: str
+    studio: str
+    release_year: int | None
+    technology: str
+    engine_code: str
+    world_type: str
+    network_mode: str
+    summary: str
+    relevance: str
+    transfer_limits: str
+    evidence: list[CaseEvidenceOut] = Field(default_factory=list)
+
+
+class DependencyOut(BaseModel):
+    code: str
+    source_code: str
+    source_name: str
+    source_type: str
+    target_code: str
+    target_name: str
+    target_type: str
+    dependency_type: str
+    mandatory: bool
+    min_version: str
+    max_version: str
+    platform: str
+    scope: str
+    severity: int
+    source: EvidenceSourceOut | None = None
+    description: str
+    workaround: str
+    status: str
+
+
+class GraphIssueOut(BaseModel):
+    """Одна находка проверки графа зависимостей."""
+
+    check: str
+    severity: str
+    message: str
+    details: dict[str, Any] = Field(default_factory=dict)
+
+
+class GraphChecksOut(BaseModel):
+    """Результат проверок графа.
+
+    Список находок содержит не только ошибки: непроверенные сочетания
+    перечисляются отдельно, потому что «не проверено» и «совместимо» — это
+    разные утверждения.
+    """
+
+    issues: list[GraphIssueOut] = Field(default_factory=list)
+    counts: dict[str, int] = Field(default_factory=dict)
+    engine: str | None = None
+    engine_version: str | None = None
+    render_api: str | None = None
+    basket: list[str] = Field(default_factory=list)
+
+
+class WorkPackageOut(BaseModel):
+    code: str
+    method_code: str
+    name: str
+    package_type: str
+    role: str
+    min_days: float
+    p50_days: float
+    p80_days: float
+    parallelizable: bool
+    recommended_stage: str
+    late_factor: float
+    dependency_codes: list[str] = Field(default_factory=list)
+    basis: str
+
+
+class EffortEstimateOut(BaseModel):
+    method_code: str
+    method_name: str
+    packages: list[WorkPackageOut] = Field(default_factory=list)
+    total: EstimateBand
+    risk_factors: list[str] = Field(default_factory=list)
+
+
+class TeamScenarioOut(BaseModel):
+    code: str
+    name: str
+    description: str
+    team_size: int
+    role_capacity: dict[str, Any] = Field(default_factory=dict)
+    parallel_tracks: int
+    communication_pct: float
+    unplanned_pct: float
+    specialist_capacity: dict[str, Any] = Field(default_factory=dict)
+
+
+class ScheduleTaskOut(BaseModel):
+    code: str
+    name: str
+    method_code: str
+    package_type: str
+    role: str
+    dependencies: list[str] = Field(default_factory=list)
+    #: Минимальная оценка нужна, чтобы показать разброс, а не только P50/P80.
+    minimum_days: float = 0.0
+    p50_days: float
+    p80_days: float
+    parallelizable: bool = True
+    recommended_stage: str = "prototype"
+    late_factor: float = 1.0
+    #: Основание оценки: экспертное допущение или выведенное значение.
+    basis: str = "expert_estimate"
+    start_p50: float
+    finish_p50: float
+    start_p80: float
+    finish_p80: float
+    critical: bool = False
+
+
+class ScheduleOut(BaseModel):
+    team: TeamScenarioOut
+    methods: list[str] = Field(default_factory=list)
+    effort: EstimateBand
+    calendar: EstimateBand
+    critical_path: list[str] = Field(default_factory=list)
+    tasks: list[ScheduleTaskOut] = Field(default_factory=list)
+    unresolved_dependencies: list[str] = Field(default_factory=list)
+    stage_notes: list[str] = Field(default_factory=list)
+    evidence_basis: str = "expert_estimate"
+
+
+class EvidenceSummaryOut(BaseModel):
+    source_count: int = 0
+    claim_count: int = 0
+    case_count: int = 0
+    claims_with_sources: int = 0
+    numeric_claims_published: int = 0
+    numeric_claims_unknown: int = 0
+    coverage_label: str = "не оценено"
+    unconfirmed_numeric_factors: list[str] = Field(default_factory=list)
+    calibration_status: str = "not_calibrated"
 
 
 class ContributionItem(BaseModel):
@@ -786,6 +1062,7 @@ class RecommendationResult(BaseModel):
     basket_synergies: list[BasketConflictOut] = Field(default_factory=list)
     hardware: HardwareEstimateOut | None = None
     practice_check: "PracticeCheckOut" = Field(default_factory=lambda: PracticeCheckOut())
+    evidence_summary: "EvidenceSummaryOut" = Field(default_factory=lambda: EvidenceSummaryOut())
     contributions: "ContributionsOut" = Field(default_factory=lambda: ContributionsOut())
     stage_guidance: "StageGuidanceOut" = Field(default_factory=lambda: StageGuidanceOut(
         stage="", stage_label="", summary="",
@@ -847,3 +1124,14 @@ def input_fingerprint(
         separators=(",", ":"),
     )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:32]
+
+
+class ReportDataOut(BaseModel):
+    """Снимок, достаточный для печатного отчёта и исследовательского аудита."""
+
+    recommendation: RecommendationResult
+    evidence_summary: EvidenceSummaryOut
+    sources: list[EvidenceSourceOut] = Field(default_factory=list)
+    cases: list[GameCaseOut] = Field(default_factory=list)
+    dependencies: list[DependencyOut] = Field(default_factory=list)
+    schedule: ScheduleOut

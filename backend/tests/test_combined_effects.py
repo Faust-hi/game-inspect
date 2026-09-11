@@ -41,6 +41,57 @@ def recommend(client, basket=(), **overrides):
     return response.json()
 
 
+#: Обязательные предусловия решений, которые тесты берут в корзину по одному.
+#:
+#: Каталог объявляет обязательные зависимости («чтобы включить A, сначала
+#: нужен B»), и правило проекта требует явного исключения зависимого решения,
+#: когда его предусловие отсутствует. Поэтому корзина из одного решения
+#: проверяла бы не эффект решения, а срабатывание этого правила. Набор
+#: предусловий подставляется в корзину, чтобы тест измерял то, что заявлено
+#: в его названии. Замыкание транзитивное: предусловие может иметь свои
+#: предусловия.
+_PREREQUISITES: dict[str, tuple[str, ...]] = {
+    "hardware_raytraced_gi": (
+        "deferred_forward_plus_choice", "temporal_upscaling",
+        "selective_ray_traced_effects", "dynamic_light_priority_budget",
+        "tiled_clustered_light_culling",
+    ),
+    "deferred_forward_plus_choice": (
+        "dynamic_light_priority_budget", "tiled_clustered_light_culling",
+    ),
+    "dynamic_light_priority_budget": ("tiled_clustered_light_culling",),
+    "heightmap_compression": (
+        "build_size_startup_budgets", "directstorage_io",
+        "terrain_generation_streaming_budget", "async_loading_pipeline",
+    ),
+    "build_size_startup_budgets": (
+        "directstorage_io", "terrain_generation_streaming_budget",
+        "async_loading_pipeline",
+    ),
+    "directstorage_io": (
+        "async_loading_pipeline", "terrain_generation_streaming_budget",
+    ),
+    "ml_frame_generation": ("temporal_upscaling",),
+    "rt_effect_resolution_budget": ("selective_ray_traced_effects",),
+}
+
+
+def with_prerequisites(*codes: str) -> list[str]:
+    """Дополнить корзину обязательными предусловиями, включая транзитивные.
+
+    Порядок не важен: расчёт читает корзину как множество.
+    """
+    basket: list[str] = []
+    pending = list(codes)
+    while pending:
+        code = pending.pop()
+        if code in basket:
+            continue
+        basket.append(code)
+        pending.extend(_PREREQUISITES.get(code, ()))
+    return basket
+
+
 def test_streaming_pool_counts_only_transient_part(client):
     """Пул 8 ГБ не даёт +8 RAM / +4 VRAM поверх текстур (двойной учёт объёма)."""
     base = estimate(client)
@@ -60,19 +111,38 @@ def test_upscaling_field_and_card_act_once(client):
 
 
 def test_frame_generation_field_and_card_act_once(client):
-    """Поле и карточка генерации кадров — одна стоимость синтеза."""
+    """Поле и карточка генерации кадров — один синтез, а не две скидки."""
     overrides = {"frame_generation": True, "base_render_fps": 60, "target_fps": 120}
     field_only = estimate(client, **overrides)
-    both = estimate(client, basket=["ml_frame_generation"], **overrides)
-    assert both["gpu_raster_cost"] == pytest.approx(field_only["gpu_raster_cost"])
+    both = estimate(
+        client, basket=with_prerequisites("ml_frame_generation"), **overrides
+    )
+    # Карточка ML-генерации требует temporal_upscaling, который законно
+    # удешевляет растр, поэтому равенство растра не гарантируется. Проверяем
+    # то, что заявлено в названии: синтез промежуточных кадров начисляется
+    # один раз, а не дважды — поле и карточка вместе не дают второй цифры.
+    fg_field = next(
+        s["share"] for s in field_only["gpu_subsystems"]
+        if s["label"] == "Генерация кадров"
+    )
+    fg_both = next(
+        s["share"] for s in both["gpu_subsystems"]
+        if s["label"] == "Генерация кадров"
+    )
+    assert fg_both == pytest.approx(fg_field, abs=0.01)
+    # Карточка добавляет буферы генератора — объём видеопамяти растёт.
     assert both["estimated_vram_gb"] > field_only["estimated_vram_gb"]
 
 
 def test_rt_cost_scales_with_resolution(client):
     """RT-проход дорожает с разрешением (1080p → 4K более чем вдвое)."""
-    basket = ["hardware_raytraced_gi"]
-    low = estimate(client, basket=basket, target_resolution="1080p")
-    high = estimate(client, basket=basket, target_resolution="2160p")
+    # Предусловия RT-метода требуют функций «ray_traced_effects» и
+    # «dynamic_lighting»: без них решение исключается по правилу зависимостей,
+    # и RT-проход не вводился бы вовсе.
+    functions = BASE["functions"] + ["ray_traced_effects", "dynamic_lighting"]
+    basket = with_prerequisites("hardware_raytraced_gi")
+    low = estimate(client, basket=basket, functions=functions, target_resolution="1080p")
+    high = estimate(client, basket=basket, functions=functions, target_resolution="2160p")
     assert low["gpu_rt_cost"] > 0
     assert high["gpu_rt_cost"] > low["gpu_rt_cost"] * 2.0
 
@@ -80,10 +150,12 @@ def test_rt_cost_scales_with_resolution(client):
 def test_rt_budget_reduces_introduced_pass(client):
     """Бюджет трассировки сокращает введённый проход, а не теряется."""
     functions = BASE["functions"] + ["ray_traced_effects"]
-    plain = estimate(client, basket=["hardware_raytraced_gi"], functions=functions)
+    plain = estimate(
+        client, basket=with_prerequisites("hardware_raytraced_gi"), functions=functions
+    )
     budgeted = estimate(
         client,
-        basket=["hardware_raytraced_gi", "rt_effect_resolution_budget"],
+        basket=with_prerequisites("hardware_raytraced_gi", "rt_effect_resolution_budget"),
         functions=functions,
     )
     assert plain["gpu_rt_cost"] > 0
@@ -119,13 +191,17 @@ def test_two_increments_sum_but_two_savings_count_once(client):
     assert both_up["estimated_vram_gb"] > vsm["estimated_vram_gb"]
     assert both_up["estimated_vram_gb"] > caching["estimated_vram_gb"]
 
-    functions = BASE["functions"] + ["large_scale_terrain"]
+    functions = BASE["functions"] + ["large_scale_terrain", "procedural_terrain"]
     base = estimate(client, functions=functions)["estimated_vram_gb"]
-    first = estimate(client, basket=["heightmap_compression"], functions=functions)
-    second = estimate(client, basket=["neural_texture_compression"], functions=functions)
+    first = estimate(
+        client, basket=with_prerequisites("heightmap_compression"), functions=functions
+    )
+    second = estimate(
+        client, basket=with_prerequisites("neural_texture_compression"), functions=functions
+    )
     both_down = estimate(
         client,
-        basket=["heightmap_compression", "neural_texture_compression"],
+        basket=with_prerequisites("heightmap_compression", "neural_texture_compression"),
         functions=functions,
     )
     saving = lambda result: base - result["estimated_vram_gb"]

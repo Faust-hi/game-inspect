@@ -125,3 +125,31 @@ def test_beyond_model_range_is_reported(client):
     """Выход за границу модели виден в ответе, а не выдаётся за измерение."""
     data = estimate(client, npc_count=10_000_000, target_fps=240)
     assert data["applicability_limits"]
+
+
+def test_scene_scale_changes_load_not_frame_cost(client):
+    """Масштаб сцены обязан менять расчёт нагрузки, но не стоимость кадра.
+
+    Обязательная проверка спеки: «изменение масштаба сцены меняет расчёт
+    нагрузки». Размер мира задаёт стриминг, резидентную память и объём
+    контента — то есть RAM/VRAM, draw-call ориентир и класс накопителя.
+    Работу на кадр задаёт активная сцена (объекты и NPC), а не площадь мира,
+    поэтому CPU/GPU-индексы остаются прежними при том же числе сущностей.
+    Раньше один множитель `content` включал и мир, и активную сцену: тогда
+    рост масштаба молча удорожал кадр без изменения сцены.
+    """
+    small = estimate(client, scale="small")
+    very_large = estimate(client, scale="very_large")
+
+    # Нагрузка и память монотонно растут вместе с масштабом.
+    assert very_large["ram_requirement"]["p50"] > small["ram_requirement"]["p50"]
+    assert very_large["vram_requirement"]["p50"] > small["vram_requirement"]["p50"]
+    assert very_large["estimated_draw_calls"] > small["estimated_draw_calls"]
+
+    # Класс накопителя отражает рост объёма контента.
+    assert very_large["recommended_storage"] != "hdd"
+    assert small["recommended_storage"] in {"hdd", "sata_ssd"}
+
+    # Стоимость кадра при неизменной активной сцене не меняется от площади мира.
+    assert very_large["required_cpu_index"] == small["required_cpu_index"]
+    assert very_large["required_gpu_index"] == small["required_gpu_index"]

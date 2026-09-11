@@ -16,7 +16,8 @@ from sqlalchemy.orm import Session
 
 from .models.entities import (
     Conflict, Engine, EngineTool, GameFunction, HardwareCPU, HardwareGPU,
-    Method, MethodEngineLink,
+    Method, MethodEngineLink, EvidenceSource, EvidenceClaim, GameCase,
+    CaseEvidence, TechnologyNode, DependencyEdge, WorkPackage, TeamScenario,
 )
 from .models.enums import Status
 
@@ -107,4 +108,69 @@ def published_snapshot_counts(db: Session) -> dict[str, int]:
         "conflicts": _count(Conflict),
         "hardware_cpu": _count(HardwareCPU),
         "hardware_gpu": _count(HardwareGPU),
+        "evidence_sources": _count(EvidenceSource),
+        "evidence_claims": _count(EvidenceClaim),
+        "game_cases": _count(GameCase),
+        "case_evidence": _count(CaseEvidence),
+        "technology_nodes": _count(TechnologyNode),
+        "dependency_edges": _count(DependencyEdge),
+        "work_packages": _count(WorkPackage),
+        "team_scenarios": _count(TeamScenario),
     }
+
+
+def evidence_sources(db: Session) -> list[EvidenceSource]:
+    return list(db.scalars(_published(EvidenceSource).order_by(EvidenceSource.code)))
+
+
+def evidence_source(db: Session, code: str) -> EvidenceSource | None:
+    return db.scalar(_published(EvidenceSource).where(EvidenceSource.code == code))
+
+
+def evidence_claims(
+    db: Session, entity: str | None = None, entity_code: str | None = None,
+) -> list[EvidenceClaim]:
+    stmt = _published(EvidenceClaim).order_by(EvidenceClaim.entity, EvidenceClaim.entity_code, EvidenceClaim.field)
+    if entity:
+        stmt = stmt.where(EvidenceClaim.entity == entity)
+    if entity_code:
+        stmt = stmt.where(EvidenceClaim.entity_code == entity_code)
+    return list(db.scalars(stmt))
+
+
+def game_cases(db: Session) -> list[GameCase]:
+    return list(db.scalars(_published(GameCase).order_by(GameCase.title)))
+
+
+def game_case(db: Session, code: str) -> GameCase | None:
+    return db.scalar(_published(GameCase).where(GameCase.code == code))
+
+
+def case_evidence(db: Session, case_id: int | None = None) -> list[CaseEvidence]:
+    stmt = _published(CaseEvidence).order_by(CaseEvidence.code)
+    if case_id is not None:
+        stmt = stmt.where(CaseEvidence.case_id == case_id)
+    return list(db.scalars(stmt))
+
+
+def technology_nodes(db: Session) -> list[TechnologyNode]:
+    return list(db.scalars(_published(TechnologyNode).order_by(TechnologyNode.node_type, TechnologyNode.code)))
+
+
+def dependency_edges(db: Session) -> list[DependencyEdge]:
+    return list(db.scalars(_published(DependencyEdge).order_by(DependencyEdge.id)))
+
+
+def work_packages(db: Session, method_codes: list[str] | None = None) -> list[WorkPackage]:
+    stmt = _published(WorkPackage).order_by(WorkPackage.method_code, WorkPackage.id)
+    if method_codes:
+        stmt = stmt.where(WorkPackage.method_code.in_(method_codes))
+    return list(db.scalars(stmt))
+
+
+def team_scenarios(db: Session) -> list[TeamScenario]:
+    return list(db.scalars(_published(TeamScenario).order_by(TeamScenario.team_size, TeamScenario.code)))
+
+
+def team_scenario(db: Session, code: str) -> TeamScenario | None:
+    return db.scalar(_published(TeamScenario).where(TeamScenario.code == code))

@@ -19,18 +19,22 @@ from sqlalchemy.orm import Session
 
 from ..config import DATA_DIR
 from ..models.entities import (
-    Conflict, Engine, EngineTool, GameFunction, HardwareCPU, HardwareGPU,
-    Method, MethodEngineLink, ValidationIssue,
+    CaseEvidence, Conflict, DependencyEdge, Engine, EngineTool, EvidenceClaim,
+    EvidenceSource, GameCase, GameFunction, HardwareCPU, HardwareGPU, Method,
+    MethodEngineLink, TeamScenario, TechnologyNode, ValidationIssue, WorkPackage,
 )
-from ..models.enums import Status
+from ..models.enums import DevStage, Status
 from . import engines_data, functions_data, methods_data
 from .corrections import (
     correct_effect_scopes, correct_engine_tool_independence, correct_legacy_conflict_types,
     correct_method_sources, correct_relation_types, correct_shadow_relation,
-    correct_splitscreen_dependency,
+    correct_source_publication, correct_splitscreen_dependency, declare_evidence_gaps,
 )
 
 PUBLISHED = Status.PUBLISHED.value
+
+#: Коды стадий разработки, допустимые в полях `recommended_stage`.
+_DEV_STAGES = {stage.value for stage in DevStage}
 
 #: Ключ, по которому сущность узнаётся в отчёте о заполнении.
 _ENTITY_LABELS = {
@@ -198,6 +202,11 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
             method.application_steps = list(steps)
             metadata_updated += 1
     db.flush()
+    from .evidence_catalog import sync_all as sync_evidence_catalog
+    from .fixes_v2 import apply_all as apply_fixes_v2
+    from .pack_loader import sync_packs
+    fix_stats = apply_fixes_v2(db)
+    pack_stats = sync_packs(db)
     return {
         "functions_created": created_functions,
         **sync_technical_extensions(db, functions),
@@ -210,6 +219,9 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
         "relation_types_corrected": correct_relation_types(db),
         "method_sources_corrected": correct_method_sources(db),
         "verified_fields_corrected": correct_existing(db),
+        **fix_stats,
+        **pack_stats,
+        **sync_evidence_catalog(db),
     }
 
 
@@ -450,7 +462,93 @@ def validate_knowledge_base(db: Session) -> list[dict]:
         if not gpu.source_url:
             add("hardware_gpu", gpu.model, "error", "Отсутствует источник данных.")
 
-    # 6. Минимальное наполнение MVP.
+    # 6. Доказательства: источник и локатор различаются, а числовой claim
+    # с экспертным основанием не считается измеренным только из-за URL.
+    sources = list(db.scalars(select(EvidenceSource)))
+    source_by_id = {source.id: source for source in sources}
+    for source in sources:
+        if source.status == PUBLISHED and not source.url:
+            add("evidence_source", source.code, "error", "Опубликованный источник не имеет URL.")
+    for claim in db.scalars(select(EvidenceClaim)):
+        if claim.status != PUBLISHED:
+            continue
+        source = source_by_id.get(claim.source_id) if claim.source_id else None
+        if claim.source_id and source is None:
+            add("evidence_claim", claim.code, "error", "Claim ссылается на несуществующий источник.")
+        # Источник, оставшийся черновиком, при выдаче обнуляется: `source_to_out`
+        # возвращает None для неопубликованного источника. Публичное утверждение
+        # тогда выглядит как утверждение без источника, хотя ссылка в базе есть,
+        # — то есть ровно как нарушение «запись без обязательного источника не
+        # публикуется». Пробел относится к источнику, а не к утверждению, поэтому
+        # сообщение указывает на источник.
+        if source is not None and source.status != PUBLISHED:
+            add(
+                "evidence_source", source.code, "warning",
+                "Публичное утверждение опирается на источник в статусе черновика: "
+                "при выдаче ссылка обнуляется.",
+            )
+        # A documented/measured/case claim needs an external source and a
+        # locator. A derived claim can be self-provenanced by its explicit
+        # formula and input parameters: the calculation is reproducible even
+        # when no publication asserts the resulting number.
+        externally_supported = claim.basis in {"documented", "measured", "case_evidence"}
+        self_contained_derived = (
+            claim.basis == "derived" and bool(claim.formula)
+            and bool(claim.input_parameters) and bool(claim.locator)
+        )
+        if externally_supported and (source is None or not claim.locator):
+            add("evidence_claim", claim.code, "warning", "У claim нет одновременно источника и проверяемого локатора.")
+        elif claim.basis == "derived" and not self_contained_derived and (source is None or not claim.locator):
+            add("evidence_claim", claim.code, "warning", "У derived claim нет источника либо воспроизводимой формулы и входных параметров.")
+
+    cases = list(db.scalars(select(GameCase)))
+    case_ids = {case.id for case in cases}
+    method_codes = {method.code for method in methods}
+    for item in db.scalars(select(CaseEvidence)):
+        if item.status == PUBLISHED and item.case_id not in case_ids:
+            add("case_evidence", item.code, "error", "Факт кейса ссылается на несуществующий кейс.")
+        if item.status == PUBLISHED and item.method_code and item.method_code not in method_codes:
+            add(
+                "case_evidence", item.code, "error",
+                "Факт кейса ссылается не на код метода, а на неизвестную или функциональную запись.",
+            )
+        if item.status == PUBLISHED:
+            source = source_by_id.get(item.source_id) if item.source_id else None
+            if source is None or not item.locator:
+                add(
+                    "case_evidence", item.code, "warning",
+                    "Опубликованный факт кейса должен иметь источник и проверяемый локатор.",
+                )
+
+    nodes = list(db.scalars(select(TechnologyNode)))
+    node_ids = {node.id for node in nodes}
+    for edge in db.scalars(select(DependencyEdge)):
+        if edge.status == PUBLISHED and (edge.source_node_id not in node_ids or edge.target_node_id not in node_ids):
+            add("dependency_edge", str(edge.id), "error", "Зависимость ссылается на несуществующий узел.")
+
+    for package in db.scalars(select(WorkPackage)):
+        if package.status == PUBLISHED and package.p80_days < package.p50_days:
+            add("work_package", package.code, "error", "P80 не может быть меньше P50.")
+        # Стадия — значение перечисления, а не свободный текст: иначе её нельзя
+        # ни сравнить, ни отфильтровать, и план теряет привязку к этапу.
+        if package.status == PUBLISHED and package.recommended_stage not in _DEV_STAGES:
+            add(
+                "work_package", package.code, "error",
+                f"Рекомендованная стадия «{package.recommended_stage}» не является "
+                f"кодом этапа. Допустимо: {', '.join(sorted(_DEV_STAGES))}.",
+            )
+    for method in methods:
+        if method.status == PUBLISHED and method.recommended_stage not in _DEV_STAGES:
+            add(
+                "method", method.code, "error",
+                f"Рекомендованная стадия «{method.recommended_stage}» не является "
+                f"кодом этапа. Допустимо: {', '.join(sorted(_DEV_STAGES))}.",
+            )
+    for team in db.scalars(select(TeamScenario)):
+        if team.status == PUBLISHED and (team.team_size < 1 or team.parallel_tracks < 1):
+            add("team_scenario", team.code, "error", "Сценарий команды должен иметь положительную ёмкость.")
+
+    # 7. Минимальное наполнение MVP.
     if len(methods) < 40:
         add("knowledge_base", "methods", "warning", f"Методов меньше рекомендуемых 40: {len(methods)}.")
     if len(cpus) < 30:
@@ -491,6 +589,49 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     independence_corrected = correct_engine_tool_independence(db)
     from .verified_corrections import correct_existing
     verified_fields_corrected = correct_existing(db)
+    from .evidence_catalog import sync_all as sync_evidence_catalog
+    evidence = sync_evidence_catalog(db)
+    # Источники, перенесённые из пакетов, по умолчанию оставались черновиками и
+    # обнулялись при выдаче: публичное утверждение выглядело как утверждение без
+    # источника. Публикуется только тот источник, на который уже ссылается
+    # публичное утверждение или факт кейса.
+    sources_published = correct_source_publication(db)
+    db.flush()
+    db.commit()
+    # Повторная загрузка пакетов: разделы доказательств (инструменты движков,
+    # узлы технологий, стадии, профили нагрузки, сетевые режимы, риски,
+    # целевые метрики и платформы) ссылаются на сущности, которые создаются
+    # позже первого вызова sync_packs. Без этого прохода такие утверждения
+    # записывались только при повторном заполнении базы, то есть в свежей
+    # установке их не было вовсе. Функция идемпотентна: уже существующие
+    # записи возвращаются как есть, дубликатов не создаётся.
+    from .pack_loader import sync_packs
+    pack_stats = sync_packs(db)
+    for key, value in pack_stats.items():
+        evidence[key] = evidence.get(key, 0) + value
+    db.flush()
+    db.commit()
+    # Граф зависимостей строится последним: ему нужны и узлы технологий, и
+    # связи «метод-метод» из загруженных пакетов.
+    from .dependency_graph import break_dependency_cycles, sync_dependency_graph
+    graph_stats = sync_dependency_graph(db)
+    graph_stats.update(break_dependency_cycles(db))
+    # Повторная загрузка пакетов добавляет связи «метод-метод», часть которых
+    # образует взаимные предусловия. Обязательное ребро в цикле неразрешимо —
+    # ни один метод в нём нельзя поставить в план, — поэтому циклы разрываются
+    # ещё раз, уже после построения графа. Без этого шага свежая база
+    # получала граф с циклами, который проходил проверки только потому, что
+    # первая загрузка пакетов не успевала создать спорные рёбра.
+    for key, value in break_dependency_cycles(db).items():
+        graph_stats[key] = graph_stats.get(key, 0) + value
+    db.flush()
+    db.commit()
+    # Декларации пробелов — последними: им нужны и инструменты, и связи
+    # «метод-инструмент», и конфликты, и рёбра графа, и железо. Раньше эти
+    # проходы выполнялись до создания перечисленных сущностей и на свежей базе
+    # не срабатывали (связки оставались без пометки user_defined, конфликты и
+    # рёбра — без декларации, сырые значения бенчмарков — пустыми).
+    declarations = declare_evidence_gaps(db)
     db.commit()
     issues = validate_knowledge_base(db) if validate else []
     db.commit()
@@ -508,8 +649,12 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
         "legacy_conflict_types_corrected": legacy_conflicts,
         "relation_types_corrected": relations_corrected,
         "method_sources_corrected": sources_corrected,
+        "sources_published": sources_published,
         "engine_tool_independence_corrected": independence_corrected,
         "verified_fields_corrected": verified_fields_corrected,
+        **evidence,
+        **graph_stats,
+        **declarations,
         **outcome.as_report(),
     }
 

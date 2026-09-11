@@ -19,10 +19,12 @@ from ..models.enums import (
     RenderAPI, Scale, SolutionLevel, Status, StorageType, UpscalingMethod, WorldType,
 )
 from ..schemas.catalog import (
-    ConflictOut, EngineOut, EngineToolOut, GameFunctionOut, MethodOut,
-    StageGuidanceOut,
+    ConflictOut, DependencyOut, EngineOut, EngineToolOut, EvidenceClaimOut,
+    EvidenceSourceOut, EvidenceSummaryOut, GameCaseOut, GameFunctionOut,
+    GraphChecksOut, MethodOut, StageGuidanceOut, TeamScenarioOut,
 )
-from ..services import serializers, stage_guidance
+from ..services import evidence as evidence_service, serializers, stage_guidance
+from ..services import graph as graph_service
 from ..services.serializers import label_of as _label
 from ..services.serializers import link_out
 
@@ -131,6 +133,96 @@ def list_hardware(db: Session = Depends(get_db)):
         "cpu": [serializers.cpu_out(c) for c in repositories.hardware_cpu(db)],
         "gpu": [serializers.gpu_out(g) for g in repositories.hardware_gpu(db)],
     }
+
+
+@router.get("/sources", response_model=list[EvidenceSourceOut], summary="Реестр опубликованных источников")
+def list_sources(db: Session = Depends(get_db)):
+    return [
+        item for source in repositories.evidence_sources(db)
+        if (item := evidence_service.source_to_out(source)) is not None
+    ]
+
+
+@router.get("/evidence", response_model=list[EvidenceClaimOut], summary="Атомарные утверждения и их provenance")
+def list_evidence(
+    entity: str | None = Query(None, description="Тип сущности, например method или hardware_gpu"),
+    entity_code: str | None = Query(None, description="Код сущности"),
+    db: Session = Depends(get_db),
+):
+    return [evidence_service.claim_to_out(db, claim)
+            for claim in repositories.evidence_claims(db, entity=entity, entity_code=entity_code)]
+
+
+@router.get("/evidence/{entity}/{code}", response_model=list[EvidenceClaimOut],
+            summary="Доказательства сущности")
+def list_entity_evidence(entity: str, code: str, db: Session = Depends(get_db)):
+    """Вернуть claims ровно для одной сущности каталога.
+
+    Алиас нужен для ссылок из карточек UI и отчёта. Фильтрация остаётся в
+    репозитории, поэтому draft/review claims не становятся публичными.
+    """
+    return [evidence_service.claim_to_out(db, claim)
+            for claim in repositories.evidence_claims(db, entity=entity, entity_code=code)]
+
+
+@router.get("/evidence-summary", response_model=EvidenceSummaryOut, summary="Покрытие доказательной базы")
+def evidence_summary(db: Session = Depends(get_db)):
+    return evidence_service.summary(db)
+
+
+@router.get("/cases", response_model=list[GameCaseOut], summary="Кейсы реальных игр и демо")
+def list_cases(db: Session = Depends(get_db)):
+    return evidence_service.cases_to_out(db, repositories.game_cases(db))
+
+
+@router.get("/cases/{code}", response_model=GameCaseOut, summary="Кейс игры")
+def get_case(code: str, db: Session = Depends(get_db)):
+    case = repositories.game_case(db, code)
+    if case is None:
+        raise HTTPException(404, "Кейс не найден или не опубликован")
+    return evidence_service.cases_to_out(db, [case])[0]
+
+
+@router.get("/dependencies", response_model=list[DependencyOut], summary="Технологические зависимости")
+def list_dependencies(db: Session = Depends(get_db)):
+    return evidence_service.dependencies_to_out(db)
+
+
+@router.get("/graph-checks", response_model=GraphChecksOut, summary="Проверки графа зависимостей")
+def graph_checks(
+    basket: list[str] = Query(default_factory=list, description="Коды методов в корзине решений"),
+    engine: str | None = Query(default=None, description="Код выбранного движка"),
+    engine_version: str | None = Query(default=None, description="Версия выбранного движка"),
+    render_api: str | None = Query(default=None, description="Выбранный графический API"),
+    db: Session = Depends(get_db),
+):
+    """Проверить граф зависимостей и вернуть находки вместе со счётчиками.
+
+    Отсутствие находок не означает совместимость: непроверенные сочетания
+    возвращаются отдельными записями со статусом `info`.
+    """
+    return graph_service.graph_checks(
+        db,
+        basket=basket,
+        engine=engine,
+        engine_version=engine_version,
+        render_api=render_api,
+    )
+
+
+@router.get("/teams", response_model=list[TeamScenarioOut], summary="Сценарии состава команды")
+def list_teams(db: Session = Depends(get_db)):
+    return [
+        TeamScenarioOut(
+            code=item.code, name=item.name, description=item.description,
+            team_size=item.team_size, role_capacity=item.role_capacity or {},
+            parallel_tracks=item.parallel_tracks,
+            communication_pct=item.communication_pct,
+            unplanned_pct=item.unplanned_pct,
+            specialist_capacity=item.specialist_capacity or {},
+        )
+        for item in repositories.team_scenarios(db)
+    ]
 
 
 # ---------------------------------------------------------------------------

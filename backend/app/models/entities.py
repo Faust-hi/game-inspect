@@ -175,6 +175,7 @@ class Engine(Base):
     docs_url: Mapped[str] = mapped_column(String(600), default="")
     status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+    is_user_defined: Mapped[bool] = mapped_column(Boolean, default=False)
 
     tools: Mapped[list["EngineTool"]] = relationship(back_populates="engine", cascade="all, delete-orphan")
 
@@ -200,6 +201,7 @@ class EngineTool(Base):
     min_version: Mapped[str | None] = mapped_column(String(40), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+    is_user_defined: Mapped[bool] = mapped_column(Boolean, default=False)
 
     engine: Mapped["Engine"] = relationship(back_populates="tools")
     method_links: Mapped[list["MethodEngineLink"]] = relationship(back_populates="tool", cascade="all, delete-orphan")
@@ -217,6 +219,9 @@ class MethodEngineLink(Base):
     relation_type: Mapped[str] = mapped_column(String(20), default="direct")
     note: Mapped[str] = mapped_column(Text, default="")
     source_url: Mapped[str] = mapped_column(String(600), default="")
+    source_locator: Mapped[str] = mapped_column(String(300), default="")
+    evidence_basis: Mapped[str] = mapped_column(String(30), default="unknown")
+    evidence_status: Mapped[str] = mapped_column(String(30), default="unknown")
     status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
@@ -277,6 +282,12 @@ class HardwareCPU(Base):
     source_title: Mapped[str] = mapped_column(String(300), default="")
     source_url: Mapped[str] = mapped_column(String(600), default="")
     source_date: Mapped[str] = mapped_column(String(20), default="")
+    benchmark_name: Mapped[str] = mapped_column(String(180), default="")
+    benchmark_context: Mapped[str] = mapped_column(Text, default="")
+    benchmark_raw_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    normalization_note: Mapped[str] = mapped_column(Text, default="")
+    evidence_basis: Mapped[str] = mapped_column(String(30), default="derived")
+    evidence_source_id: Mapped[int | None] = mapped_column(ForeignKey("evidence_sources.id"), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
@@ -311,6 +322,12 @@ class HardwareGPU(Base):
     source_title: Mapped[str] = mapped_column(String(300), default="")
     source_url: Mapped[str] = mapped_column(String(600), default="")
     source_date: Mapped[str] = mapped_column(String(20), default="")
+    benchmark_name: Mapped[str] = mapped_column(String(180), default="")
+    benchmark_context: Mapped[str] = mapped_column(Text, default="")
+    benchmark_raw_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    normalization_note: Mapped[str] = mapped_column(Text, default="")
+    evidence_basis: Mapped[str] = mapped_column(String(30), default="derived")
+    evidence_source_id: Mapped[int | None] = mapped_column(ForeignKey("evidence_sources.id"), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
@@ -345,3 +362,211 @@ class ValidationIssue(Base):
     severity: Mapped[str] = mapped_column(String(20), default="warning")  # error | warning | info
     message: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+# ---------------------------------------------------------------------------
+# Доказательная база, кейсы, технологические зависимости и планирование.
+# ---------------------------------------------------------------------------
+# Эти сущности намеренно отделены от legacy-полей source_title/source_url и
+# implementation_cost. Старые поля остаются совместимыми с импортами и
+# внешними клиентами, а новые записи дают проверяемый локатор, тип основания и
+# диапазон неопределённости.
+
+
+class EvidenceSource(Base):
+    """Нормализованная запись внешнего или внутреннего источника."""
+
+    __tablename__ = "evidence_sources"
+    __table_args__ = (UniqueConstraint("code", name="uq_evidence_sources_code"), STATUS_CHECK)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    code: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(300), nullable=False)
+    # Для книг, стандартов и докладов автор важнее домена издателя. Для
+    # корпоративной документации поле может оставаться пустым, а publisher
+    # содержит организацию-владельца материала.
+    authors: Mapped[str] = mapped_column(String(300), default="")
+    publisher: Mapped[str] = mapped_column(String(200), default="")
+    source_type: Mapped[str] = mapped_column(String(40), default="secondary")
+    published_date: Mapped[str] = mapped_column(String(20), default="")
+    checked_at: Mapped[str] = mapped_column(String(30), default="")
+    url: Mapped[str] = mapped_column(String(800), default="")
+    version: Mapped[str] = mapped_column(String(80), default="")
+    platform: Mapped[str] = mapped_column(String(120), default="")
+    locator: Mapped[str] = mapped_column(String(300), default="overview")
+    availability: Mapped[str] = mapped_column(String(30), default="available")
+    applicability: Mapped[str] = mapped_column(Text, default="")
+    notes: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+    claims: Mapped[list["EvidenceClaim"]] = relationship(back_populates="source")
+
+
+class EvidenceClaim(Base):
+    """Атомарное утверждение с основанием и проверяемым локатором."""
+
+    __tablename__ = "evidence_claims"
+    __table_args__ = (UniqueConstraint("code", name="uq_evidence_claims_code"), STATUS_CHECK)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    code: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    entity: Mapped[str] = mapped_column(String(60), nullable=False, index=True)
+    entity_code: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
+    field: Mapped[str] = mapped_column(String(120), nullable=False)
+    claim: Mapped[str] = mapped_column(Text, nullable=False)
+    unit: Mapped[str] = mapped_column(String(40), default="")
+    value_text: Mapped[str] = mapped_column(Text, default="")
+    value_num: Mapped[float | None] = mapped_column(Float, nullable=True)
+    range_min: Mapped[float | None] = mapped_column(Float, nullable=True)
+    range_max: Mapped[float | None] = mapped_column(Float, nullable=True)
+    source_id: Mapped[int | None] = mapped_column(ForeignKey("evidence_sources.id"), nullable=True)
+    locator: Mapped[str] = mapped_column(String(300), default="")
+    basis: Mapped[str] = mapped_column(String(30), default="unknown")
+    verification_status: Mapped[str] = mapped_column(String(30), default="unverified")
+    evidence_level: Mapped[str] = mapped_column(String(20), default="low")
+    formula: Mapped[str] = mapped_column(Text, default="")
+    input_parameters: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    context: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+    source: Mapped["EvidenceSource | None"] = relationship(back_populates="claims")
+
+
+class GameCase(Base):
+    """Публичный кейс реальной игры или инженерного демо."""
+
+    __tablename__ = "game_cases"
+    __table_args__ = (UniqueConstraint("code", name="uq_game_cases_code"), STATUS_CHECK)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    code: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    studio: Mapped[str] = mapped_column(String(200), default="")
+    release_year: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    technology: Mapped[str] = mapped_column(String(200), default="")
+    engine_code: Mapped[str] = mapped_column(String(64), default="")
+    world_type: Mapped[str] = mapped_column(String(80), default="")
+    network_mode: Mapped[str] = mapped_column(String(120), default="")
+    summary: Mapped[str] = mapped_column(Text, default="")
+    relevance: Mapped[str] = mapped_column(Text, default="")
+    transfer_limits: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+    evidence: Mapped[list["CaseEvidence"]] = relationship(back_populates="case", cascade="all, delete-orphan")
+
+
+class CaseEvidence(Base):
+    """Связь кейса с методом/функцией и атомарный подтверждённый факт."""
+
+    __tablename__ = "case_evidence"
+    __table_args__ = (UniqueConstraint("code", name="uq_case_evidence_code"), STATUS_CHECK)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    code: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    case_id: Mapped[int] = mapped_column(ForeignKey("game_cases.id"), nullable=False)
+    function_code: Mapped[str] = mapped_column(String(64), default="")
+    method_code: Mapped[str] = mapped_column(String(64), default="")
+    fact: Mapped[str] = mapped_column(Text, nullable=False)
+    match_level: Mapped[str] = mapped_column(String(30), default="direct")
+    locator: Mapped[str] = mapped_column(String(300), default="")
+    source_id: Mapped[int | None] = mapped_column(ForeignKey("evidence_sources.id"), nullable=True)
+    basis: Mapped[str] = mapped_column(String(30), default="case_evidence")
+    transfer_limits: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+    case: Mapped["GameCase"] = relationship(back_populates="evidence")
+    source: Mapped["EvidenceSource | None"] = relationship()
+
+
+class TechnologyNode(Base):
+    """Узел технологического графа: метод, движок, API, SDK или библиотека."""
+
+    __tablename__ = "technology_nodes"
+    __table_args__ = (UniqueConstraint("code", name="uq_technology_nodes_code"), STATUS_CHECK)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    code: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    node_type: Mapped[str] = mapped_column(String(30), nullable=False)
+    name: Mapped[str] = mapped_column(String(220), nullable=False)
+    version: Mapped[str] = mapped_column(String(80), default="")
+    platform: Mapped[str] = mapped_column(String(120), default="")
+    scope: Mapped[str] = mapped_column(String(30), default="runtime")
+    docs_url: Mapped[str] = mapped_column(String(800), default="")
+    source_id: Mapped[int | None] = mapped_column(ForeignKey("evidence_sources.id"), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+
+class DependencyEdge(Base):
+    """Направленная зависимость между технологическими узлами."""
+
+    __tablename__ = "dependency_edges"
+    __table_args__ = (UniqueConstraint("source_node_id", "target_node_id", "dependency_type", name="uq_dependency_edge"), STATUS_CHECK)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    source_node_id: Mapped[int] = mapped_column(ForeignKey("technology_nodes.id"), nullable=False)
+    target_node_id: Mapped[int] = mapped_column(ForeignKey("technology_nodes.id"), nullable=False)
+    dependency_type: Mapped[str] = mapped_column(String(30), default="requires")
+    mandatory: Mapped[bool] = mapped_column(Boolean, default=True)
+    min_version: Mapped[str] = mapped_column(String(80), default="")
+    max_version: Mapped[str] = mapped_column(String(80), default="")
+    platform: Mapped[str] = mapped_column(String(120), default="")
+    scope: Mapped[str] = mapped_column(String(30), default="runtime")
+    severity: Mapped[int] = mapped_column(Integer, default=2)
+    source_id: Mapped[int | None] = mapped_column(ForeignKey("evidence_sources.id"), nullable=True)
+    description: Mapped[str] = mapped_column(Text, default="")
+    workaround: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+
+class WorkPackage(Base):
+    """Пакет работ с диапазоном P50/P80."""
+
+    __tablename__ = "work_packages"
+    __table_args__ = (
+        UniqueConstraint("code", name="uq_work_packages_code"), STATUS_CHECK,
+        CheckConstraint("p50_days >= 0 and p80_days >= p50_days", name="ck_work_package_bands"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    code: Mapped[str] = mapped_column(String(180), nullable=False, index=True)
+    method_code: Mapped[str] = mapped_column(String(64), default="", index=True)
+    name: Mapped[str] = mapped_column(String(220), nullable=False)
+    package_type: Mapped[str] = mapped_column(String(40), default="integration")
+    role: Mapped[str] = mapped_column(String(60), default="engineering")
+    min_days: Mapped[float] = mapped_column(Float, default=0.0)
+    p50_days: Mapped[float] = mapped_column(Float, default=1.0)
+    p80_days: Mapped[float] = mapped_column(Float, default=1.5)
+    parallelizable: Mapped[bool] = mapped_column(Boolean, default=True)
+    recommended_stage: Mapped[str] = mapped_column(String(20), default="prototype")
+    late_factor: Mapped[float] = mapped_column(Float, default=1.0)
+    dependency_codes: Mapped[list[str]] = mapped_column(JSON, default=list)
+    basis: Mapped[str] = mapped_column(String(40), default="expert_estimate")
+    source_id: Mapped[int | None] = mapped_column(ForeignKey("evidence_sources.id"), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+
+
+class TeamScenario(Base):
+    """Сценарий команды и доступности ролей."""
+
+    __tablename__ = "team_scenarios"
+    __table_args__ = (UniqueConstraint("code", name="uq_team_scenarios_code"), STATUS_CHECK)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    code: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    description: Mapped[str] = mapped_column(Text, default="")
+    team_size: Mapped[int] = mapped_column(Integer, default=1)
+    role_capacity: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    parallel_tracks: Mapped[int] = mapped_column(Integer, default=1)
+    communication_pct: Mapped[float] = mapped_column(Float, default=0.1)
+    unplanned_pct: Mapped[float] = mapped_column(Float, default=0.15)
+    specialist_capacity: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)

@@ -38,7 +38,7 @@ APPLICATION_STEPS_REVISION = "f225calib01"
 #: миграциями, либо её структура уже соответствует голове (см. ниже).
 #: Значение обязано совпадать с головой Alembic: устаревший штамп заставил бы
 #: применить уже существующую колонку поверх той же схемы.
-HEAD_REVISION = "b2indep01"
+HEAD_REVISION = "dss_evidence01"
 
 #: Колонки, добавленные миграциями, в порядке цепочки:
 #: `(таблица, колонка, ревизия, добавившая колонку)`.
@@ -50,7 +50,11 @@ LEGACY_MARKER_CHAIN: tuple[tuple[str, str, str], ...] = (
     ("methods", "application_steps", APPLICATION_STEPS_REVISION),
     ("methods", "effect_scope", "9547c3d766db"),
     ("engine_tools", "min_version", "7a1toolvers"),
-    ("methods", "engine_tool_independent", HEAD_REVISION),
+    ("methods", "engine_tool_independent", "b2indep01"),
+    # Таблица-маркер новой доказательной ревизии. Старые базы не имеют ни
+    # этой таблицы, ни прочих новых таблиц, поэтому они штампуются на прежнюю
+    # голову и проходят dss_evidence01 обычным upgrade.
+    ("evidence_sources", "id", HEAD_REVISION),
 )
 
 #: Те же маркеры словарём для сверки структуры.
@@ -64,6 +68,11 @@ EXPECTED_INITIAL_TABLES = frozenset({
     "game_functions", "methods", "engines", "engine_tools",
     "method_engine_links", "conflicts",
     "hardware_cpu", "hardware_gpu",
+})
+
+LEGACY_NEW_TABLES = frozenset({
+    "evidence_sources", "evidence_claims", "game_cases", "case_evidence",
+    "technology_nodes", "dependency_edges", "work_packages", "team_scenarios",
 })
 
 #: Состояние последнего запуска миграций для health-check. Процесс отвечает
@@ -160,6 +169,12 @@ def _legacy_stamp_revision(database_url: str, tables: set[str]) -> str | None:
     present_columns = {
         table: _table_columns(database_url, table) for table in {pair[0] for pair in LEGACY_MARKER_COLUMNS}
     }
+    present_new_tables = tables & LEGACY_NEW_TABLES
+    # Частичная ручная копия нового слоя не имеет однозначного происхождения:
+    # не пытаемся «угадать» её ревизию и не перезаписываем пользовательские
+    # данные миграцией.
+    if present_new_tables and present_new_tables != LEGACY_NEW_TABLES:
+        return None
     missing = {
         (table, column)
         for (table, column) in LEGACY_MARKER_COLUMNS
@@ -170,6 +185,10 @@ def _legacy_stamp_revision(database_url: str, tables: set[str]) -> str | None:
     try:
         inspector = inspect(engine)
         for name, table in Base.metadata.tables.items():
+            if name not in tables:
+                if name in LEGACY_NEW_TABLES:
+                    continue
+                return None
             actual = {column['name']: column for column in inspector.get_columns(name)}
             skipped = {column for (tbl, column) in missing if tbl == name}
             expected = {column.name: column for column in table.columns

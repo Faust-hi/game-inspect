@@ -82,9 +82,10 @@ from sqlalchemy.orm import Session
 from .. import repositories
 from ..models.entities import HardwareCPU, HardwareGPU
 from ..schemas.catalog import (
-    ContributionItem, ContributionsOut, HardwareEstimateOut, MemoryComposition,
-    NonClientMethodOut, PlatformTargetOut, PracticeCheckOut, ProjectProfile,
-    SubsystemBreakdown, count_scale_bounds, level_unspecified,
+    ContributionItem, ContributionsOut, EstimateBand, HardwareEstimateOut,
+    MemoryComposition, NonClientMethodOut, PlatformTargetOut, PracticeCheckOut,
+    ProjectProfile, SubsystemBreakdown, TargetAssessmentOut, count_scale_bounds,
+    level_unspecified,
 )
 from . import engines as engine_service
 from . import rules, serializers
@@ -1041,6 +1042,31 @@ def _applicability_limits(profile: ProjectProfile) -> list[str]:
     return limits
 
 
+def _target_assessments(profile: ProjectProfile) -> list[TargetAssessmentOut]:
+    """Зафиксировать пользовательские цели без выдуманного runtime-замера."""
+    definitions = (
+        ("target_fps", "Целевой FPS", profile.target_fps, "FPS"),
+        ("target_1_percent_low_fps", "1% low FPS", profile.target_1_percent_low_fps, "FPS"),
+        ("max_startup_seconds", "Максимальное время запуска", profile.max_startup_seconds, "с"),
+        ("max_streaming_latency_ms", "Максимальная задержка стриминга", profile.max_streaming_latency_ms, "мс"),
+        ("max_save_seconds", "Максимальное время сохранения", profile.max_save_seconds, "с"),
+        ("target_network_latency_ms", "Целевая сетевая задержка", profile.target_network_latency_ms, "мс"),
+        ("target_server_tick_hz", "Целевой серверный tick", profile.target_server_tick_hz, "Гц"),
+        ("max_network_kbps", "Максимальный сетевой трафик", profile.max_network_kbps, "кбит/с"),
+    )
+    out: list[TargetAssessmentOut] = []
+    for metric, label, target, unit in definitions:
+        if target is None:
+            continue
+        scope = "runtime-профиля кадра" if metric in {"target_fps", "target_1_percent_low_fps"} else "runtime-профиля подсистемы"
+        out.append(TargetAssessmentOut(
+            metric=metric, label=label, target=float(target), unit=unit,
+            status="not_modeled", estimated=None, basis="not_calibrated",
+            note=f"Цель зафиксирована; оценка требует конкретного {scope}, импорт профиля не выполняется.",
+        ))
+    return out
+
+
 def _non_client_out(methods: list) -> list[NonClientMethodOut]:
     """Представление решений, чей эффект не относится к компьютеру игрока."""
     out: list[NonClientMethodOut] = []
@@ -1948,6 +1974,7 @@ def _target_rows_out(profile: ProjectProfile, rows) -> list[PlatformTargetOut]:
     if rows:
         top = max(rows, key=lambda row: max(row["cpu_index"], row["gpu_index"]))
         binding_platform = top["target"].platform if top["target"] else None
+    assessments = _target_assessments(profile)
     out: list[PlatformTargetOut] = []
     for target in resolve_targets(profile):
         row = by_platform.get(target.platform)
@@ -1965,6 +1992,7 @@ def _target_rows_out(profile: ProjectProfile, rows) -> list[PlatformTargetOut]:
             ram_gb=row["ram_gb"] if row else None,
             vram_gb=row["vram_gb"] if row else None,
             binding=bool(binding_platform and target.platform == binding_platform),
+            target_assessments=assessments,
         ))
     return out
 
@@ -2026,6 +2054,22 @@ def _subsystem_shares(costs: dict[str, float], labels: dict[str, str], total: fl
         for key, value in sorted(costs.items(), key=lambda item: item[1], reverse=True)
         if value > 0
     ]
+
+
+def _estimate_band(
+    value: float, *, unit: str, confidence: float, spread: float = 0.2,
+) -> EstimateBand:
+    """Сценарный диапазон вокруг индекса/объёма модели.
+
+    Это не доверительный интервал и не benchmark: lower/P50/P80 нужны для
+    планирования проверки на прототипе, пока нет runtime-профиля проекта.
+    """
+    base = max(0.0, float(value))
+    return EstimateBand(
+        minimum=round(base * 0.9, 3), p50=round(base, 3),
+        p80=round(base * (1.0 + spread), 3), unit=unit,
+        basis="expert_scenario", confidence=confidence,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -2431,6 +2475,23 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
         applicability_limits=applicability_limits,
         non_client_methods=non_client_methods,
         targets=target_out,
+        target_assessments=_target_assessments(profile),
+        cpu_requirement=_estimate_band(
+            max(st_index, mt_index), unit="normalized CPU index",
+            confidence=confidence, spread=0.25,
+        ),
+        gpu_requirement=_estimate_band(
+            raster_index + rt_index, unit="normalized GPU index",
+            confidence=confidence, spread=0.3,
+        ),
+        ram_requirement=_estimate_band(
+            ram_gb, unit="GB resident working set",
+            confidence=confidence, spread=0.2,
+        ),
+        vram_requirement=_estimate_band(
+            vram_gb, unit="GB VRAM working set",
+            confidence=confidence, spread=0.25,
+        ),
         cpu_main_thread_cost=round(model.cpu_sequential_ms, 3),
         cpu_parallel_cost=round(model.cpu_parallel_ms, 3),
         cpu_subsystems=_subsystem_shares(model.cpu, CPU_SUBSYSTEM_LABELS, model.cpu_sequential_ms + model.cpu_parallel_ms),

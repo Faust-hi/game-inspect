@@ -5,4 +5,6 @@ from .enums import (  # noqa: F401
 from .entities import (  # noqa: F401
     Base, Conflict, Engine, EngineTool, GameFunction, HardwareCPU,
     HardwareGPU, Method, MethodEngineLink, ValidationIssue,
+    EvidenceSource, EvidenceClaim, GameCase, CaseEvidence,
+    TechnologyNode, DependencyEdge, WorkPackage, TeamScenario,
 )

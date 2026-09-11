@@ -434,7 +434,7 @@ SOURCES: dict[str, dict[str, str]] = {
     },
     "RIOT_TICK": {
         "title": "Valorant 128-tick servers (Riot Engineering)",
-        "url": "https://technology.riotgames.com/news/valorants-128-tick-servers",
+        "url": "https://www.riotgames.com/en/news/valorants-128-tick-servers",
         "date": "2020-04-16",
     },
     "UE_SAVEGAME": {
