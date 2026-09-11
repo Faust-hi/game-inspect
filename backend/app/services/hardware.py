@@ -168,18 +168,15 @@ GPU_SUBSYSTEM_LABELS: dict[str, str] = {
     "frame_generation": "Генерация кадров",
 }
 
-BOTTLENECK_LABELS: dict[str, str] = {
-    "cpu_main_thread": "главный поток CPU",
-    "cpu_parallel": "параллельная работа CPU",
-    "gpu_raster": "обычный рендеринг GPU",
-    "gpu_rt": "трассировка лучей GPU",
-    "memory": "память (RAM/VRAM)",
-}
+#: Названия узких мест. GPU — один ключ, а не два: растеризация и трассировка
+#: складываются в одну стадию кадра (см. `combined["gpu_index"]` и
+#: `FrameModel.gpu_raster_ms + gpu_rt_ms`), поэтому отдельные ключи `gpu_raster`
+#: и `gpu_rt` описывали половины одной стадии и приводили к диагнозу, который
+#: расходился с подбором железа.
 BOTTLENECK_TITLES: dict[str, str] = {
     "cpu_main_thread": "CPU (главный поток)",
     "cpu_parallel": "CPU (многопоточная работа)",
-    "gpu_raster": "GPU (растеризация)",
-    "gpu_rt": "GPU (трассировка лучей)",
+    "gpu": "GPU (растеризация и трассировка суммарно)",
     "memory": "Память",
 }
 
@@ -2104,19 +2101,28 @@ def _cpu_need(index: float) -> float:
 def _pick_gpu(
     pool: list[HardwareGPU], *, raster_index: float, rt_index: float,
     required_rt: bool, vram_gb: float,
-) -> tuple[HardwareGPU | None, bool]:
+) -> tuple[HardwareGPU | None, str | None]:
     """Выбрать видеокарту, одновременно покрывающую растровую и RT-составляющие.
 
     Запас на ОС и фон учитывается здесь, один раз: кандидат сравнивается не по
     полной паспортной мощности, а по условно доступной игре. Иначе резерв
     превратился бы либо в фиксированные миллисекунды на каждой подсистеме, либо
     в невидимую скидку самого метода.
+
+    Второй элемент результата — причина отказа, когда карта не выбрана:
+    ``"rt"`` (нет карты с аппаратной трассировкой), ``"vram"`` (нет карты с
+    нужным объёмом видеопамяти), ``"perf"`` (нет карты нужной
+    производительности). Прежний флаг отвечал только на вопрос «дело в RT?»,
+    поэтому вызывающий не мог отличить отказ по памяти от отказа по
+    производительности и называл причину наугад.
     """
     if required_rt:
         pool = [g for g in pool if _supports_ray_tracing(g)]
         if not pool:
-            return None, True
+            return None, "rt"
     pool = [g for g in pool if g.vram_gb >= vram_gb]
+    if not pool:
+        return None, "vram"
     raster_need = _gpu_need(raster_index)
     rt_need = _gpu_need(rt_index)
     candidates = [
@@ -2124,11 +2130,11 @@ def _pick_gpu(
         if g.raster_score >= raster_need and (rt_need <= 0 or g.rt_score >= rt_need)
     ]
     if not candidates:
-        return None, False
+        return None, "perf"
     # Десктопные карты предпочтительнее мобильных и встроек.
     desktop = [g for g in candidates if not _is_mobile_gpu(g.model)]
     chosen = desktop or candidates
-    return min(chosen, key=lambda g: (g.perf_class, g.raster_score)), False
+    return min(chosen, key=lambda g: (g.perf_class, g.raster_score)), None
 
 
 def _pick_cpu(pool: list[HardwareCPU], *, st_index: float, mt_index: float) -> HardwareCPU | None:
@@ -2343,17 +2349,22 @@ def _memory_pressure(
     return stall_ms / max(1.0, budget_ms), note
 
 
-def _bottleneck(model: FrameModel, *, st_index: float, mt_index: float,
+def _bottleneck(*, st_index: float, mt_index: float,
                 raster_index: float, rt_index: float, memory_pressure: float) -> tuple[str, str]:
     """Самая медленная стадия обработки кадра.
 
     Все величины — доли бюджета кадра, поэтому шкалы сопоставимы.
+
+    GPU сравнивается по сумме растровой и RT-составляющих: в модели стоимости
+    кадра они складываются, а не выбирается большая из двух. Сравнение порознь
+    называло узким местом CPU там, где ограничитель — GPU целиком
+    (raster = RT = 0.4 при CPU = 0.5: 0.8 против 0.5), и диагноз расходился с
+    тем, по какому индексу подбирается видеокарта.
     """
     options = {
         "cpu_main_thread": st_index,
         "cpu_parallel": mt_index,
-        "gpu_raster": raster_index,
-        "gpu_rt": rt_index,
+        "gpu": raster_index + rt_index,
         "memory": memory_pressure,
     }
     key = max(options, key=lambda item: options[item])
@@ -2428,7 +2439,7 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
     )
 
     bottleneck, bottleneck_label = _bottleneck(
-        model, st_index=st_index, mt_index=mt_index,
+        st_index=st_index, mt_index=mt_index,
         raster_index=raster_index, rt_index=rt_index, memory_pressure=memory_pressure,
     )
 
@@ -2597,36 +2608,45 @@ def _pick_references(
         if all(_gpu_feature_support(g, feature) is True for feature in required_hw)
     ]
     if not compatible_gpus and gpus:
-        # Причина отказа называется точно: раньше сообщение всегда ссылалось на
-        # API и апскейлер, даже когда карты отсеивались по обязательной
-        # возможности (например «Compute Shaders»), и пользователь искал
-        # причину не там, где она была.
-        unconfirmed = [
-            feature for feature in required_hw
-            if not any(_gpu_feature_support(g, feature) is True for g in api_compatible)
-        ]
-        if unconfirmed:
+        # Причина отказа называется точно. Сначала проверяется, не отсеял ли
+        # пул сам API/апскейлер: при пустом `api_compatible` прежняя проверка
+        # «unconfirmed» вычислялась по пустому списку, объявляла отсутствие
+        # ВСЕХ обязательных возможностей сразу и уводила пользователя не туда.
+        # Возможности проверяются только там, где есть на чём их проверять.
+        if not api_compatible:
             unmet.append(
-                "В каталоге нет GPU с подтверждённой поддержкой обязательных возможностей: "
-                + ", ".join(unconfirmed) + "."
+                "Ни одна видеокарта каталога не подтверждает выбранный API и апскейлер "
+                "(render API / DLSS): обязательные возможности выбранных решений не "
+                "проверялись, потому что проверять их не на чем."
             )
         else:
-            unmet.append("В каталоге нет GPU с подтверждённой поддержкой выбранного API и апскейлера.")
+            unconfirmed = [
+                feature for feature in required_hw
+                if not any(_gpu_feature_support(g, feature) is True for g in api_compatible)
+            ]
+            if unconfirmed:
+                unmet.append(
+                    "В каталоге нет GPU с подтверждённой поддержкой обязательных возможностей: "
+                    + ", ".join(unconfirmed) + "."
+                )
+            else:
+                # Ни одной «безнадёжной» возможности нет, но карты, покрывающей
+                # их ВСЕ одновременно, тоже нет: каждая возможность по
+                # отдельности где-то подтверждена.
+                unmet.append(
+                    "В каталоге нет видеокарты, которая одновременно подтверждает все "
+                    "обязательные возможности выбранных решений (по отдельности каждая "
+                    "из них подтверждена хотя бы одной картой)."
+                )
 
-    reference_gpu, rt_missing = _pick_gpu(
+    reference_gpu, gpu_reason = _pick_gpu(
         compatible_gpus, raster_index=raster_index, rt_index=rt_index,
         required_rt=required_rt, vram_gb=vram_gb,
     )
     exceeds = False
     if reference_gpu is None:
         exceeds = True
-        if rt_missing:
-            caveats.append(
-                "Выбранные решения требуют аппаратной трассировки лучей, но в базе нет ни одной "
-                "подходящей видеокарты: оценка выполнена по производительности без учёта этого "
-                "требования и не является применимой."
-            )
-        elif not gpus:
+        if not gpus:
             caveats.append("В базе нет опубликованных записей о видеокартах: оценка не выполнена.")
         elif not compatible_gpus:
             # Пул отсеян по обязательным возможностям или API: причина уже
@@ -2637,22 +2657,30 @@ def _pick_references(
                 "Подбор ориентира не выполнен: ни одна видеокарта каталога не подтверждает "
                 "обязательные возможности выбранных решений."
             )
-        elif required_rt and not any(_supports_ray_tracing(g) for g in compatible_gpus):
+        elif gpu_reason == "rt":
+            # Раньше это сообщение висело на отдельном условии
+            # `required_rt and not any(_supports_ray_tracing(g) ...)`, которое
+            # было недостижимо: `_pick_gpu` сам отсеивает карты без трассировки
+            # и сообщает об этом. Теперь причина приходит из него.
             caveats.append(
-                "В каталоге нет видеокарты с подтверждённой аппаратной трассировкой лучей: "
-                "подходящий ориентир не найден."
+                "Выбранные решения требуют аппаратной трассировки лучей, но в базе нет ни одной "
+                "подходящей видеокарты: оценка выполнена по производительности без учёта этого "
+                "требования и не является применимой."
             )
-        elif not any(g.vram_gb >= vram_gb for g in compatible_gpus):
+        elif gpu_reason == "vram":
             caveats.append(
                 f"В каталоге нет видеокарты с {vram_gb:.1f} ГБ видеопамяти и выше: "
                 "подходящий ориентир не найден."
             )
-        else:
+        elif gpu_reason == "perf":
             caveats.append(
                 "В каталоге нет GPU, одновременно покрывающего расчётную растровую "
-                "производительность, RT-составляющую, видеопамять и обязательные возможности. "
-                "Подходящий ориентир не найден."
+                "производительность и RT-составляющую: ни одна карта каталога не дотягивает "
+                "до требуемого класса. Подходящий ориентир не найден."
             )
+        # Ветки «иная причина» здесь нет намеренно: `_pick_gpu` называет одну из
+        # трёх причин при каждой неудаче, а сообщение без причины выдавало бы
+        # себя за диагноз.
         reference_gpu = None
     # Ветки «карта меньше требуемой VRAM» здесь быть не может: `_pick_gpu`
     # фильтрует пул по `vram_gb` и возвращает карту только из него, поэтому
