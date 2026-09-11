@@ -1449,25 +1449,25 @@
     "dangling": [],
     "dangling_count": 0,
     "by_basis": {
-      "unknown": 263,
+      "derived": 208,
       "expert_estimate": 164,
       "case_evidence": 244,
-      "derived": 208,
+      "unknown": 263,
       "documented": 1581,
       "measured": 104
     },
     "by_verification": {
-      "derived_from_published_rate": 1,
-      "derived_from_formula": 2,
-      "partially_verified": 8,
-      "derived_from_dag": 1,
-      "unverified": 503,
-      "verified": 1316,
       "derived_from_input": 4,
-      "scenario_only": 124,
       "needs_review": 1,
       "derived_with_context": 130,
-      "source_verified": 474
+      "derived_from_formula": 2,
+      "derived_from_published_rate": 1,
+      "source_verified": 474,
+      "verified": 1316,
+      "derived_from_dag": 1,
+      "partially_verified": 8,
+      "scenario_only": 124,
+      "unverified": 503
     },
     "numeric_without_source": 0
   },
