@@ -298,6 +298,15 @@ def _upsert_case(db: Session, payload: dict[str, Any], sources_map: dict[str, Ev
     code = payload["code"]
     existing = db.scalar(select(GameCase).where(GameCase.code == code))
     if existing:
+        # Согласующий проход: игровой пример несёт `world_type` и
+        # `network_mode`, но в секции методов они раньше не переносились, и
+        # запись оставалась с пустыми полями. Заполняется только пустое —
+        # курируемое значение не затирается; повторная загрузка идемпотентна.
+        for field in ("world_type", "network_mode"):
+            value = str(payload.get(field) or "").strip()
+            if value and not (getattr(existing, field) or "").strip():
+                setattr(existing, field, value[:120])
+                db.flush()
         return existing
     case = GameCase(
         code=code,
@@ -311,6 +320,12 @@ def _upsert_case(db: Session, payload: dict[str, Any], sources_map: dict[str, Ev
         summary=payload.get("summary", "")[:4000],
         relevance=payload.get("relevance", "")[:2000],
         transfer_limits=payload.get("transfer_limits", "")[:2000],
+        # Статус — как у связанного факта: кейс публикуем, если игровой пример
+        # разрешился в источник. Без явного статуса тип оставлял запись
+        # черновиком, и публичный слой (`repositories.game_cases`) её не
+        # отдавал: в выдаче были видны только курируемые кейсы — 8 из 155, а
+        # 363 из 375 фактов ссылались на невидимого родителя.
+        status=PUBLISHED if sources_map.get(payload.get("source")) is not None else DRAFT,
     )
     db.add(case)
     db.flush()
@@ -639,11 +654,14 @@ def sync_packs(db: Session) -> dict[str, int]:
                     "studio": ex.get("studio", ""),
                     "year": ex.get("year"),
                     "engine": ex.get("engine", ""),
-                    "world_type": "",
-                    "network_mode": "",
+                    "world_type": ex.get("world_type", ""),
+                    "network_mode": ex.get("network_mode", ""),
                     "summary": ex.get("fact", ""),
                     "relevance": ex.get("relevance", ""),
                     "transfer_limits": ex.get("non_transferable", ""),
+                    # Источник примера нужен для статуса кейса: кейс публикуем,
+                    # если пример разрешился в источник (см. `_upsert_case`).
+                    "source": ex.get("source"),
                 }, sources_map)
                 if case:
                     # case evidence row
@@ -787,6 +805,9 @@ def sync_packs(db: Session) -> dict[str, int]:
                             "summary": ex.get("fact", ""),
                             "relevance": ex.get("relevance", ""),
                             "transfer_limits": ex.get("non_transferable", ""),
+                            # Источник примера нужен для статуса кейса: кейс
+                            # публикуем, если пример разрешился в источник.
+                            "source": ex.get("source"),
                         }, sources_map)
                         if case:
                             ce_code = f"CE_{case_code}_{ecode}_{i}"[:160]

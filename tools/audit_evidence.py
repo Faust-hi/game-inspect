@@ -286,6 +286,42 @@ def main() -> int:
         "min_game_proofs": MIN_GAME_PROOFS,
     }, "classes": {}, "gaps": {}}
 
+    # ---- publication visibility -----------------------------------------
+    # The class checks below read whole tables and measure CONTENT
+    # completeness. They are blind to whether a row is published, while the
+    # public API filters on status (`repositories._published`). A row that is
+    # complete but draft is invisible and the audit stays green: 147 of 155
+    # game cases and 992 of 1794 work packages were drafts, so the practice
+    # cross-check came back empty and the planner ignored the researched
+    # effort. Visibility is therefore measured as its own class.
+    #
+    # A draft is a DECLARED state for `evidence_claims`: a claim without a
+    # source stays draft on purpose (declared gap), so it is not a gap here.
+    DECLARED_DRAFT_TABLES = {"evidence_claims"}
+    visibility: dict[str, dict] = {}
+    for row in q(conn, "select name from sqlite_master where type='table' order by name"):
+        name = row["name"]
+        if name.startswith("sqlite_"):
+            continue
+        columns = {c["name"] for c in q(conn, f"pragma table_info({name})")}
+        if "status" not in columns:
+            continue
+        total = scalar(conn, f"select count(*) from {name}") or 0
+        published = scalar(conn, f"select count(*) from {name} where status='published'") or 0
+        declared_draft = name in DECLARED_DRAFT_TABLES
+        visibility[name] = {
+            "total": total,
+            "published": published,
+            "invisible": total - published,
+            "declared_draft": declared_draft,
+            "ok": declared_draft or published == total,
+        }
+    out["visibility"] = {
+        "tables": visibility,
+        "invisible_tables": sorted(k for k, v in visibility.items() if not v["ok"]),
+        "invisible_rows": sum(v["invisible"] for v in visibility.values() if not v["ok"]),
+    }
+
     # NOTE: `kind` MUST match the `entity` value actually used in
     # evidence_claims.entity -- the DB uses 'game_function' (singular), not
     # 'function'. Getting this wrong silently reports 0% coverage.
@@ -643,6 +679,13 @@ def main() -> int:
     print("title/url contradictions:", len(contradictions))
     print("claims by basis:", json.dumps(out["claims"]["by_basis"], ensure_ascii=False))
     print("dangling claims:", len(dangling_claims))
+    vis = out["visibility"]
+    if vis["invisible_tables"]:
+        print("\nINVISIBLE rows (complete but not published):",
+              ", ".join(f"{k} {v['published']}/{v['total']}"
+                        for k, v in vis["tables"].items() if not v["ok"]))
+    else:
+        print("\nvisibility: all status-bearing tables fully published")
     print("\nfull report ->", args.out)
     return 0
 

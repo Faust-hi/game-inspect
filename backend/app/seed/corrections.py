@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from ..models.entities import (
     CaseEvidence, Conflict, DependencyEdge, EvidenceClaim, EvidenceSource,
-    HardwareCPU, HardwareGPU, Method, MethodEngineLink,
+    GameCase, HardwareCPU, HardwareGPU, Method, MethodEngineLink,
 )
 from . import methods_data, sources
 
@@ -310,6 +310,48 @@ def correct_source_publication(db: Session) -> int:
     return updated
 
 
+def correct_case_publication(db: Session) -> int:
+    """Опубликовать игровые кейсы, подтверждённые опубликованным фактом с источником.
+
+    `pack_loader._upsert_case` создавал кейс без явного статуса, поэтому тип
+    записи оставлял его черновиком. Публичный слой (`repositories.game_cases`)
+    фильтрует по статусу, поэтому в API и отчёте были видны только курируемые
+    кейсы: 8 из 155. Следствие шире одного счётчика — 363 из 375 строк
+    `case_evidence` ссылались на неопубликованного родителя, и «Сверка с
+    практикой» оставалась пустой в 12 сценариях из 25, хотя доказательство
+    было опубликовано. Тот же класс, что уже исправлен для источников
+    (`correct_source_publication`) и утверждений.
+
+    Публикуется только кейс, на который ссылается хотя бы один **опубликованный**
+    факт с источником: кейс без подтверждённого доказательства остаётся
+    черновиком — это объявленный пробел, а не повод публиковать «на всякий
+    случай». Функция идемпотентна.
+    """
+    backed = {
+        item.case_id
+        for item in db.scalars(
+            select(CaseEvidence).where(
+                CaseEvidence.status == "published",
+                CaseEvidence.source_id.is_not(None),
+            )
+        )
+        if item.case_id is not None
+    }
+    updated = 0
+    if backed:
+        for case in db.scalars(
+            select(GameCase).where(
+                GameCase.id.in_(backed),
+                GameCase.status != "published",
+            )
+        ):
+            case.status = "published"
+            updated += 1
+    if updated:
+        db.flush()
+    return updated
+
+
 def correct_effect_scopes(db: Session) -> int:
     """Проставить область эффекта записям, созданным до появления поля.
 
@@ -421,7 +463,9 @@ def declare_evidence_gaps(db: Session) -> dict[str, int]:
       существует: это не факт из документа, а следствие связей каталога;
       помечается `source_url='user_defined:catalog_dependency'`;
     * ребро графа без источника — плановая зависимость пакетов работ;
-      помечается префиксом `[expert_estimate:no_external_source]` в описании.
+      помечается префиксом `[expert_estimate:no_external_source]` в описании;
+    * игровой кейс, оставшийся черновиком при переносе из пакетов, —
+      публикуется, если подтверждён опубликованным фактом с источником.
 
     Функция идемпотентна и нужна уже существующим базам. Раньше эти проходы
     выполнялись внутри `seed_methods` — до того, как создавались сами
@@ -456,6 +500,11 @@ def declare_evidence_gaps(db: Session) -> dict[str, int]:
     # Переехавшие адреса источников: 404 в уже собранной базе.
     urls_repaired = repair_dead_source_urls(db)
 
+    # Кейсы, оставшиеся черновиками при переносе из пакетов: публикуются те,
+    # что подтверждены опубликованным фактом с источником. Без этого прохода
+    # видимость кейсов зависела бы только от пересоздания базы.
+    cases_published = correct_case_publication(db)
+
     if conflicts_declared or edges_declared:
         db.flush()
     return {
@@ -465,4 +514,5 @@ def declare_evidence_gaps(db: Session) -> dict[str, int]:
         "dependency_edges_declared": edges_declared,
         "hardware_raw_values": hardware_raw,
         "source_urls_repaired": urls_repaired,
+        "game_cases_published": cases_published,
     }

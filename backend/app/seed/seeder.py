@@ -555,10 +555,25 @@ def validate_knowledge_base(db: Session) -> list[dict]:
 
     cases = list(db.scalars(select(GameCase)))
     case_ids = {case.id for case in cases}
+    case_code_by_id = {case.id: case.code for case in cases}
+    published_case_ids = {case.id for case in cases if case.status == PUBLISHED}
     method_codes = {method.code for method in methods}
     for item in db.scalars(select(CaseEvidence)):
         if item.status == PUBLISHED and item.case_id not in case_ids:
             add("case_evidence", item.code, "error", "Факт кейса ссылается на несуществующий кейс.")
+        # Публичный слой отдаёт только опубликованные кейсы (`repositories.game_cases`).
+        # Опубликованный факт на черновике-родителе выглядит как доказательство,
+        # у которого нет кейса: связь в базе есть, а в выдаче её не видно.
+        if (
+            item.status == PUBLISHED
+            and item.case_id in case_ids
+            and item.case_id not in published_case_ids
+        ):
+            add(
+                "game_case", case_code_by_id.get(item.case_id, str(item.case_id)), "warning",
+                "Опубликованный факт кейса опирается на кейс в статусе черновика: "
+                "при выдаче кейс не отдаётся.",
+            )
         if item.status == PUBLISHED and item.method_code and item.method_code not in method_codes:
             add(
                 "case_evidence", item.code, "error",
