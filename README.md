@@ -351,6 +351,9 @@ Backend:
 ```bash
 cd backend
 python -m pytest -q
+# Схема, собранная миграциями с нуля, обязана совпадать с моделями:
+# иначе `alembic check` показывает расхождение (индексы, NOT NULL).
+alembic upgrade head && alembic check
 ```
 
 Frontend:
