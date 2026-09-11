@@ -300,7 +300,7 @@
 - Кандидатов: 46, рекомендовано: 35, исключено: 11.
 - Учтено в расчёте: 6 из 7 выбранных техник, плюс 5 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `crowd_simulation` → `agent_update_budget`; `dynamic_global_illumination` → `screen_space_gi`; `dynamic_shadows` → `screen_space_contact_shadows`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `gpu_compute_culling`; `procedural_terrain` → `terrain_generation_streaming_budget`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `upscaling_frame_generation` → `ml_frame_generation`.
-- Оборудование: CPU-индекс 0.18 (класс 1, ориентир Core i3-8100), GPU-индекс 0.37 (класс 3, ориентир Arc A770), RAM 17.7 ГБ, VRAM 14.7 ГБ; узкое место — GPU (растеризация).
+- Оборудование: CPU-индекс 0.18 (класс 1, ориентир Core i3-8100), GPU-индекс 0.37 (класс 3, ориентир Arc A770), RAM 17.7 ГБ, VRAM 14.7 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
 - Календарь (команда `small_2_5`): трудоёмкость P50 151.87 чел.-дн., P80 227.84; срок P50 88.76 дн., P80 133.15.
 - Объявленных пробелов модели: 8.
 
@@ -393,7 +393,7 @@
 - Кандидатов: 29, рекомендовано: 21, исключено: 8.
 - Учтено в расчёте: 4 из 6 выбранных техник.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `destruction_simulation` → `runtime_fracture_budget`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `baked_occlusion_culling`; `particle_systems` → `particle_pooling`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
-- Оборудование: CPU-индекс 0.35 (класс 1, ориентир Core i3-8100), GPU-индекс 0.35 (класс 2, ориентир Arc A750), RAM 12.1 ГБ, VRAM 7.0 ГБ; узкое место — GPU (растеризация).
+- Оборудование: CPU-индекс 0.35 (класс 1, ориентир Core i3-8100), GPU-индекс 0.35 (класс 2, ориентир Arc A750), RAM 12.1 ГБ, VRAM 7.0 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
 - Календарь (команда `small_2_5`): трудоёмкость P50 73.44 чел.-дн., P80 110.2; срок P50 44.97 дн., P80 67.49.
 - Объявленных пробелов модели: 8.
 
@@ -425,7 +425,7 @@
 - Кандидатов: 42, рекомендовано: 33, исключено: 9.
 - Учтено в расчёте: 4 из 6 выбранных техник, плюс 3 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `dynamic_global_illumination` → `screen_space_gi`; `dynamic_shadows` → `screen_space_contact_shadows`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `gpu_compute_culling`; `project_architecture` → `composition_bootstrap_architecture`; `ray_traced_effects` → `rt_effect_resolution_budget`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
-- Оборудование: CPU-индекс 0.33 (класс 1, ориентир Core i3-8100), GPU-индекс 0.57 (класс 3, ориентир GeForce RTX 5060 Ti), RAM 17.3 ГБ, VRAM 14.7 ГБ; узкое место — Память.
+- Оборудование: CPU-индекс 0.33 (класс 1, ориентир Core i3-8100), GPU-индекс 0.57 (класс 3, ориентир GeForce RTX 5060 Ti), RAM 17.3 ГБ, VRAM 14.7 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
 - Календарь (команда `small_2_5`): трудоёмкость P50 104.98 чел.-дн., P80 157.46; срок P50 62.24 дн., P80 93.33.
 - Объявленных пробелов модели: 7.
 
@@ -486,7 +486,7 @@
 - Кандидатов: 38, рекомендовано: 29, исключено: 9.
 - Учтено в расчёте: 4 из 5 выбранных техник, плюс 2 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `geometry_pipeline` → `mesh_index_optimization`; `large_scale_terrain` → `neural_texture_compression`; `open_world_streaming` → `gpu_compute_culling`; `procedural_vegetation` → `vegetation_atlas_lod`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
-- Оборудование: CPU-индекс 0.28 (класс 2, ориентир Core i3-10100), GPU-индекс 0.34 (класс 3, ориентир GeForce RTX 3060), RAM 15.0 ГБ, VRAM 9.3 ГБ; узкое место — GPU (растеризация).
+- Оборудование: CPU-индекс 0.28 (класс 2, ориентир Core i3-10100), GPU-индекс 0.34 (класс 3, ориентир GeForce RTX 3060), RAM 15.0 ГБ, VRAM 9.3 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
 - Календарь (команда `small_2_5`): трудоёмкость P50 100.79 чел.-дн., P80 151.18; срок P50 60.48 дн., P80 90.71.
 - Объявленных пробелов модели: 7.
 
@@ -517,7 +517,7 @@
 - Кандидатов: 29, рекомендовано: 24, исключено: 5.
 - Учтено в расчёте: 4 из 4 выбранных техник, плюс 2 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `destruction_simulation` → `runtime_fracture_budget`; `geometry_pipeline` → `mesh_index_optimization`; `physics_simulation` → `collision_layer_matrix`; `project_architecture` → `composition_bootstrap_architecture`; `ray_traced_effects` → `rt_effect_resolution_budget`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
-- Оборудование: CPU-индекс 0.25 (класс 2, ориентир Core i3-10100), GPU-индекс 0.44 (класс 2, ориентир Radeon RX 6600), RAM 12.8 ГБ, VRAM 6.8 ГБ; узкое место — CPU (главный поток).
+- Оборудование: CPU-индекс 0.25 (класс 2, ориентир Core i3-10100), GPU-индекс 0.44 (класс 2, ориентир Radeon RX 6600), RAM 12.8 ГБ, VRAM 6.8 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
 - Календарь (команда `small_2_5`): трудоёмкость P50 55.11 чел.-дн., P80 82.66; срок P50 34.48 дн., P80 51.72.
 - Объявленных пробелов модели: 9.
 
@@ -637,7 +637,7 @@
 - Кандидатов: 36, рекомендовано: 29, исключено: 7.
 - Учтено в расчёте: 2 из 5 выбранных техник, плюс 2 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `dynamic_global_illumination` → `screen_space_gi`; `geometry_pipeline` → `mesh_index_optimization`; `hair_rendering` → `hair_cards_lod`; `open_world_streaming` → `baked_occlusion_culling`; `path_tracing` → `path_tracing_sample_denoiser_budget`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`; `volumetric_effects` → `volumetric_half_resolution`.
-- Оборудование: CPU-индекс 0.36 (класс 1, ориентир Core i3-8100), GPU-индекс 0.81 (класс 4, ориентир GeForce RTX 4070), RAM 12.6 ГБ, VRAM 9.6 ГБ; узкое место — GPU (растеризация).
+- Оборудование: CPU-индекс 0.36 (класс 1, ориентир Core i3-8100), GPU-индекс 0.81 (класс 4, ориентир GeForce RTX 4070), RAM 12.6 ГБ, VRAM 9.6 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
 - Календарь (команда `small_2_5`): трудоёмкость P50 104.76 чел.-дн., P80 157.17; срок P50 63.37 дн., P80 95.08.
 - Объявленных пробелов модели: 8.
 
@@ -790,7 +790,7 @@
 - Кандидатов: 34, рекомендовано: 24, исключено: 10.
 - Учтено в расчёте: 4 из 4 выбранных техник, плюс 1 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `gpu_compute_culling`; `procedural_vegetation` → `vegetation_atlas_lod`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `upscaling_frame_generation` → `ml_frame_generation`.
-- Оборудование: CPU-индекс 0.29 (класс 2, ориентир Core i5-8400), GPU-индекс 0.29 (класс 3, ориентир GeForce RTX 3060), RAM 12.9 ГБ, VRAM 9.0 ГБ; узкое место — GPU (растеризация).
+- Оборудование: CPU-индекс 0.29 (класс 2, ориентир Core i5-8400), GPU-индекс 0.29 (класс 3, ориентир GeForce RTX 3060), RAM 12.9 ГБ, VRAM 9.0 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
 - Календарь (команда `small_2_5`): трудоёмкость P50 40.77 чел.-дн., P80 61.18; срок P50 26.34 дн., P80 39.51.
 - Объявленных пробелов модели: 8.
 

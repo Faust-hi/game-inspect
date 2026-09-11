@@ -361,7 +361,7 @@
 <li>Кандидатов: 46, рекомендовано: 35, исключено: 11.</li>
 <li>Учтено в расчёте: 6 из 7 выбранных техник, плюс 5 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>crowd_simulation</code> → <code>agent_update_budget</code>; <code>dynamic_global_illumination</code> → <code>screen_space_gi</code>; <code>dynamic_shadows</code> → <code>screen_space_contact_shadows</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>procedural_terrain</code> → <code>terrain_generation_streaming_budget</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.18 (класс 1, ориентир Core i3-8100), GPU-индекс 0.37 (класс 3, ориентир Arc A770), RAM 17.7 ГБ, VRAM 14.7 ГБ; узкое место — GPU (растеризация).</li>
+<li>Оборудование: CPU-индекс 0.18 (класс 1, ориентир Core i3-8100), GPU-индекс 0.37 (класс 3, ориентир Arc A770), RAM 17.7 ГБ, VRAM 14.7 ГБ; узкое место — GPU (растеризация и трассировка суммарно).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 151.87 чел.-дн., P80 227.84; срок P50 88.76 дн., P80 133.15.</li>
 <li>Объявленных пробелов модели: 8.</li>
 </ul>
@@ -472,7 +472,7 @@
 <li>Кандидатов: 29, рекомендовано: 21, исключено: 8.</li>
 <li>Учтено в расчёте: 4 из 6 выбранных техник.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>destruction_simulation</code> → <code>runtime_fracture_budget</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>baked_occlusion_culling</code>; <code>particle_systems</code> → <code>particle_pooling</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.35 (класс 1, ориентир Core i3-8100), GPU-индекс 0.35 (класс 2, ориентир Arc A750), RAM 12.1 ГБ, VRAM 7.0 ГБ; узкое место — GPU (растеризация).</li>
+<li>Оборудование: CPU-индекс 0.35 (класс 1, ориентир Core i3-8100), GPU-индекс 0.35 (класс 2, ориентир Arc A750), RAM 12.1 ГБ, VRAM 7.0 ГБ; узкое место — GPU (растеризация и трассировка суммарно).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 73.44 чел.-дн., P80 110.2; срок P50 44.97 дн., P80 67.49.</li>
 <li>Объявленных пробелов модели: 8.</li>
 </ul>
@@ -510,7 +510,7 @@
 <li>Кандидатов: 42, рекомендовано: 33, исключено: 9.</li>
 <li>Учтено в расчёте: 4 из 6 выбранных техник, плюс 3 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>dynamic_global_illumination</code> → <code>screen_space_gi</code>; <code>dynamic_shadows</code> → <code>screen_space_contact_shadows</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>ray_traced_effects</code> → <code>rt_effect_resolution_budget</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.33 (класс 1, ориентир Core i3-8100), GPU-индекс 0.57 (класс 3, ориентир GeForce RTX 5060 Ti), RAM 17.3 ГБ, VRAM 14.7 ГБ; узкое место — Память.</li>
+<li>Оборудование: CPU-индекс 0.33 (класс 1, ориентир Core i3-8100), GPU-индекс 0.57 (класс 3, ориентир GeForce RTX 5060 Ti), RAM 17.3 ГБ, VRAM 14.7 ГБ; узкое место — GPU (растеризация и трассировка суммарно).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 104.98 чел.-дн., P80 157.46; срок P50 62.24 дн., P80 93.33.</li>
 <li>Объявленных пробелов модели: 7.</li>
 </ul>
@@ -583,7 +583,7 @@
 <li>Кандидатов: 38, рекомендовано: 29, исключено: 9.</li>
 <li>Учтено в расчёте: 4 из 5 выбранных техник, плюс 2 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>large_scale_terrain</code> → <code>neural_texture_compression</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>procedural_vegetation</code> → <code>vegetation_atlas_lod</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.28 (класс 2, ориентир Core i3-10100), GPU-индекс 0.34 (класс 3, ориентир GeForce RTX 3060), RAM 15.0 ГБ, VRAM 9.3 ГБ; узкое место — GPU (растеризация).</li>
+<li>Оборудование: CPU-индекс 0.28 (класс 2, ориентир Core i3-10100), GPU-индекс 0.34 (класс 3, ориентир GeForce RTX 3060), RAM 15.0 ГБ, VRAM 9.3 ГБ; узкое место — GPU (растеризация и трассировка суммарно).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 100.79 чел.-дн., P80 151.18; срок P50 60.48 дн., P80 90.71.</li>
 <li>Объявленных пробелов модели: 7.</li>
 </ul>
@@ -620,7 +620,7 @@
 <li>Кандидатов: 29, рекомендовано: 24, исключено: 5.</li>
 <li>Учтено в расчёте: 4 из 4 выбранных техник, плюс 2 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>destruction_simulation</code> → <code>runtime_fracture_budget</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>physics_simulation</code> → <code>collision_layer_matrix</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>ray_traced_effects</code> → <code>rt_effect_resolution_budget</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.25 (класс 2, ориентир Core i3-10100), GPU-индекс 0.44 (класс 2, ориентир Radeon RX 6600), RAM 12.8 ГБ, VRAM 6.8 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.25 (класс 2, ориентир Core i3-10100), GPU-индекс 0.44 (класс 2, ориентир Radeon RX 6600), RAM 12.8 ГБ, VRAM 6.8 ГБ; узкое место — GPU (растеризация и трассировка суммарно).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 55.11 чел.-дн., P80 82.66; срок P50 34.48 дн., P80 51.72.</li>
 <li>Объявленных пробелов модели: 9.</li>
 </ul>
@@ -764,7 +764,7 @@
 <li>Кандидатов: 36, рекомендовано: 29, исключено: 7.</li>
 <li>Учтено в расчёте: 2 из 5 выбранных техник, плюс 2 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>dynamic_global_illumination</code> → <code>screen_space_gi</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>hair_rendering</code> → <code>hair_cards_lod</code>; <code>open_world_streaming</code> → <code>baked_occlusion_culling</code>; <code>path_tracing</code> → <code>path_tracing_sample_denoiser_budget</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>; <code>volumetric_effects</code> → <code>volumetric_half_resolution</code>.</li>
-<li>Оборудование: CPU-индекс 0.36 (класс 1, ориентир Core i3-8100), GPU-индекс 0.81 (класс 4, ориентир GeForce RTX 4070), RAM 12.6 ГБ, VRAM 9.6 ГБ; узкое место — GPU (растеризация).</li>
+<li>Оборудование: CPU-индекс 0.36 (класс 1, ориентир Core i3-8100), GPU-индекс 0.81 (класс 4, ориентир GeForce RTX 4070), RAM 12.6 ГБ, VRAM 9.6 ГБ; узкое место — GPU (растеризация и трассировка суммарно).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 104.76 чел.-дн., P80 157.17; срок P50 63.37 дн., P80 95.08.</li>
 <li>Объявленных пробелов модели: 8.</li>
 </ul>
@@ -947,7 +947,7 @@
 <li>Кандидатов: 34, рекомендовано: 24, исключено: 10.</li>
 <li>Учтено в расчёте: 4 из 4 выбранных техник, плюс 1 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>procedural_vegetation</code> → <code>vegetation_atlas_lod</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.29 (класс 2, ориентир Core i5-8400), GPU-индекс 0.29 (класс 3, ориентир GeForce RTX 3060), RAM 12.9 ГБ, VRAM 9.0 ГБ; узкое место — GPU (растеризация).</li>
+<li>Оборудование: CPU-индекс 0.29 (класс 2, ориентир Core i5-8400), GPU-индекс 0.29 (класс 3, ориентир GeForce RTX 3060), RAM 12.9 ГБ, VRAM 9.0 ГБ; узкое место — GPU (растеризация и трассировка суммарно).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 40.77 чел.-дн., P80 61.18; срок P50 26.34 дн., P80 39.51.</li>
 <li>Объявленных пробелов модели: 8.</li>
 </ul>
