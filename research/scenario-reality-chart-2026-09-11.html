@@ -457,6 +457,46 @@
 <text x="18" y="228" fill="#475569" font-size="13" text-anchor="middle" transform="rotate(-90 18 228)">отклонение индекса GPU, %</text>
 </svg>
 <p class='cap'>Зависимость положительная (r = +0,49), но <strong>слабая</strong>: разрыв в годе объясняет лишь часть разброса. При одинаковом разрыве в 5 лет DOOM Eternal даёт −13 %, а Fortnite — +225 %. Значит, дело не в «возрасте» как таковом, а в том, насколько сама игра легка для железа.</p></div>
+<div class='card'><h2>Квантование: почему «минимально подходящая» карта оказывается в разы мощнее нужной</h2>
+<p>Подбор устроен так: сначала жёсткий порог <code>vram_gb &gt;= требуемого</code>, затем среди прошедших берётся <strong>слабейшая</strong> по классу и индексу. Каталог дискретен, и объём памяти растёт вместе с классом карты — поэтому «слабейшая подходящая» легко оказывается в несколько раз мощнее требуемого индекса. Итог раскладывается на два множителя: ошибку самой модели требований и эту дискретность.</p>
+<table><tr><th>Сценарий</th><th>Игра</th><th class='n'>Реально</th><th class='n'>Нужен индекс</th><th class='n'>Выбрано</th><th class='n'>Δ модели</th><th class='n'>Δ квантования</th><th class='n'>Δ итог</th></tr>
+<tr><td>S05</td><td>Split Fiction</td><td class='n'>0.46</td><td class='n'>0.43</td><td class='n'>0.59</td><td class='n neg'>-7 %</td><td class='n pos'>+37 %</td><td class='n pos'><strong>+28 %</strong></td></tr>
+<tr><td>S06</td><td>Unreal Engine City Sample</td><td class='n'>0.56</td><td class='n'>0.37</td><td class='n'>0.43</td><td class='n neg'>-34 %</td><td class='n pos'>+16 %</td><td class='n neg'><strong>-23 %</strong></td></tr>
+<tr><td>S07</td><td>Fortnite</td><td class='n'>0.16</td><td class='n'>0.26</td><td class='n'>0.52</td><td class='n pos'>+62 %</td><td class='n pos'>+100 %</td><td class='n pos'><strong>+225 %</strong></td></tr>
+<tr><td>S08</td><td>VALORANT</td><td class='n'>0.13</td><td class='n'>0.29</td><td class='n'>0.33</td><td class='n pos'>+123 %</td><td class='n pos'>+14 %</td><td class='n pos'><strong>+154 %</strong></td></tr>
+<tr><td>S09</td><td>DOOM Eternal</td><td class='n'>0.45</td><td class='n'>0.35</td><td class='n'>0.39</td><td class='n neg'>-22 %</td><td class='n pos'>+11 %</td><td class='n neg'><strong>-13 %</strong></td></tr>
+<tr><td>S10</td><td>Cyberpunk 2077</td><td class='n'>0.24</td><td class='n'>0.57</td><td class='n'>0.59</td><td class='n pos'>+138 %</td><td class='n pos'>+4 %</td><td class='n pos'><strong>+146 %</strong></td></tr>
+<tr><td>S11</td><td>No Man's Sky</td><td class='n'>0.16</td><td class='n'>0.20</td><td class='n'>0.52</td><td class='n pos'>+25 %</td><td class='n pos'>+160 %</td><td class='n pos'><strong>+225 %</strong></td></tr>
+<tr><td>S12</td><td>Microsoft Flight Simulator</td><td class='n'>0.56</td><td class='n'>0.34</td><td class='n'>0.52</td><td class='n neg'>-39 %</td><td class='n pos'>+53 %</td><td class='n neg'><strong>-7 %</strong></td></tr>
+<tr><td>S14</td><td>BeamNG.drive</td><td class='n'>0.25</td><td class='n'>0.19</td><td class='n'>0.22</td><td class='n neg'>-24 %</td><td class='n pos'>+16 %</td><td class='n neg'><strong>-12 %</strong></td></tr>
+<tr><td>S15</td><td>Ashes of the Singularity</td><td class='n'>0.25</td><td class='n'>0.29</td><td class='n'>0.52</td><td class='n pos'>+16 %</td><td class='n pos'>+79 %</td><td class='n pos'><strong>+108 %</strong></td></tr>
+<tr><td>S16</td><td>Horizon Zero Dawn</td><td class='n'>0.26</td><td class='n'>0.11</td><td class='n'>0.52</td><td class='n neg'>-58 %</td><td class='n pos'>+373 %</td><td class='n pos'><strong>+100 %</strong></td></tr>
+<tr><td>S17</td><td>Alan Wake 2</td><td class='n'>0.61</td><td class='n'>0.79</td><td class='n'>0.59</td><td class='n pos'>+30 %</td><td class='n neg'>-25 %</td><td class='n neg'><strong>-3 %</strong></td></tr>
+<tr><td>S19</td><td>Uncharted 4: A Thief's End</td><td class='n'>0.26</td><td class='n'>0.10</td><td class='n'>0.22</td><td class='n neg'>-62 %</td><td class='n pos'>+120 %</td><td class='n neg'><strong>-15 %</strong></td></tr>
+<tr><td>S22</td><td>Hunt: Showdown</td><td class='n'>0.39</td><td class='n'>0.29</td><td class='n'>0.52</td><td class='n neg'>-26 %</td><td class='n pos'>+79 %</td><td class='n pos'><strong>+33 %</strong></td></tr>
+<tr><td>S23</td><td>V Rising</td><td class='n'>0.30</td><td class='n'>0.16</td><td class='n'>0.22</td><td class='n neg'>-48 %</td><td class='n pos'>+38 %</td><td class='n neg'><strong>-28 %</strong></td></tr>
+</table>
+<p class='cap'>Медиана <strong>Δ модели -22.2 %</strong> — модель требований скорее <em>занижает</em> нужный индекс. Медиана <strong>Δ квантования +37.5 %</strong>, размах -25 … +373 %. То есть основную часть завышения даёт не ошибка расчёта, а дискретность каталога в сочетании с порогом памяти. Крайний случай — Horizon Zero Dawn: модель требует индекс 0,11 (ниже реальных 0,26), но выбирает карту 0,52 — квантование даёт +373 %.</p>
+<p class='cap'><strong>Оговорка о методике:</strong> наружу отдаётся один <code>required_gpu_index</code>, а это <em>сумма</em> растра и трассировки (поэтому у City Sample на максимуме он равен 1,32 — больше единицы). Сравнивать его с <code>raster_score</code> карты корректно лишь там, где трассировка не доминирует; для RT-тяжёлых сценариев (S05, S10, S17) отрицательное «квантование» — артефакт этого сведения, а не реальный запас вниз.</p></div>
+<div class='card'><h2>Порог VRAM на минимальных настройках: сколько карт отсекается</h2>
+<table><tr><th>Сценарий</th><th>Игра</th><th class='n'>Нужен индекс</th><th class='n'>Нужно VRAM</th><th class='n'>Выбрано</th><th class='n'>Во сколько раз мощнее</th><th class='n'>Отсечено слабых карт</th></tr>
+<tr><td>S23</td><td>V Rising</td><td class='n'>0.05</td><td class='n'>4.7 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×4.4</strong></td><td class='n'>11</td></tr>
+<tr><td>S19</td><td>Uncharted 4: A Thief's End</td><td class='n'>0.06</td><td class='n'>4.3 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×3.7</strong></td><td class='n'>11</td></tr>
+<tr><td>S11</td><td>No Man's Sky</td><td class='n'>0.07</td><td class='n'>7.2 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×3.1</strong></td><td class='n'>10</td></tr>
+<tr><td>S14</td><td>BeamNG.drive</td><td class='n'>0.07</td><td class='n'>4.8 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×3.1</strong></td><td class='n'>10</td></tr>
+<tr><td>S16</td><td>Horizon Zero Dawn</td><td class='n'>0.07</td><td class='n'>5.6 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×3.1</strong></td><td class='n'>10</td></tr>
+<tr><td>S22</td><td>Hunt: Showdown</td><td class='n'>0.07</td><td class='n'>5.1 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×3.1</strong></td><td class='n'>10</td></tr>
+<tr><td>S12</td><td>Microsoft Flight Simulator</td><td class='n'>0.08</td><td class='n'>5.8 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×2.8</strong></td><td class='n'>8</td></tr>
+<tr><td>S06</td><td>Unreal Engine City Sample</td><td class='n'>0.17</td><td class='n'>8.3 ГБ</td><td class='n'>0.43</td><td class='n pos'><strong>×2.5</strong></td><td class='n'>26</td></tr>
+<tr><td>S07</td><td>Fortnite</td><td class='n'>0.09</td><td class='n'>6.6 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×2.4</strong></td><td class='n'>8</td></tr>
+<tr><td>S15</td><td>Ashes of the Singularity</td><td class='n'>0.10</td><td class='n'>6.0 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×2.2</strong></td><td class='n'>8</td></tr>
+<tr><td>S09</td><td>DOOM Eternal</td><td class='n'>0.12</td><td class='n'>4.8 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×1.8</strong></td><td class='n'>7</td></tr>
+<tr><td>S05</td><td>Split Fiction</td><td class='n'>0.13</td><td class='n'>5.8 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×1.7</strong></td><td class='n'>7</td></tr>
+<tr><td>S10</td><td>Cyberpunk 2077</td><td class='n'>0.14</td><td class='n'>7.5 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×1.6</strong></td><td class='n'>5</td></tr>
+<tr><td>S08</td><td>VALORANT</td><td class='n'>0.04</td><td class='n'>3.7 ГБ</td><td class='n'>0.06</td><td class='n pos'><strong>×1.5</strong></td><td class='n'>1</td></tr>
+<tr><td>S17</td><td>Alan Wake 2</td><td class='n'>0.21</td><td class='n'>4.9 ГБ</td><td class='n'>0.22</td><td class='n pos'><strong>×1.0</strong></td><td class='n'>0</td></tr>
+</table>
+<p class='cap'>На 720p / low / 30 требуемый индекс лежит в пределах 0,04 … 0,21, но в 15 случаях из 25 выбирается одна и та же карта — 0,22. Она же RX 580 с 8 ГБ: всё, что требует больше 4 ГБ, перескакивает через весь ряд карт с 2–6 ГБ. Там, где хватает 3,6–4,0 ГБ (F.E.A.R., Brotato, Portal 2), модель спокойно берёт GT 1030 и GTX 750 Ti — запас всего ×1,0 … ×1,2. То есть <strong>«пол» — это не свойство расчёта, а ступенька объёма памяти в каталоге</strong>, на которую натыкается требование.</p></div>
 <div class='card'><h2>Корреляции: от чего зависит отклонение</h2>
 <table><tr><th>Фактор</th><th class='n'>Δ GPU</th><th class='n'>Δ VRAM</th><th class='n'>Δ RAM</th><th class='n'>Δ CPU</th></tr>
 <tr><td>год выхода игры</td><td class='n neg'>-0.369 <small>(n=15)</small></td><td class='n neg'>-0.585 <small>(n=15)</small></td><td class='n neg'>-0.823 <small>(n=20)</small></td><td class='n neg'>-0.573 <small>(n=5)</small></td></tr>
