@@ -205,7 +205,6 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>ai_director_pacing</code>, а движок ставит его на 3-е место из 3 в группе <code>advanced_npc_ai</code>; первым идёт <code>npc_perception_budget</code>. Причина — критерии TOPSIS: у <code>ai_director_pacing</code> экспертный балл эффекта 0.3, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>high</code>.</li>
 <li><strong>Совпадение:</strong> ключевая техника игры <code>agent_update_budget</code> стоит на 1-м месте в своей группе (crowd_simulation).</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -278,7 +277,6 @@
 <ul>
 <li><strong>Совпадение:</strong> ключевая техника игры <code>portal_scene_capture_budget</code> стоит на 1-м месте в своей группе (portal_rendering).</li>
 <li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 2 выбранных техник (<code>portal_scene_capture_budget</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -478,7 +476,7 @@
 <li>Кандидатов: 29, рекомендовано: 21, исключено: 8.</li>
 <li>Учтено в расчёте: 4 из 6 выбранных техник.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>destruction_simulation</code> → <code>runtime_fracture_budget</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>baked_occlusion_culling</code>; <code>particle_systems</code> → <code>particle_pooling</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.35 (класс 1, ориентир Core i3-8100), GPU-индекс 0.35 (класс 5, ориентир None), RAM 12.1 ГБ, VRAM 7.0 ГБ; узкое место — GPU (растеризация).</li>
+<li>Оборудование: CPU-индекс 0.35 (класс 1, ориентир Core i3-8100), GPU-индекс 0.35 (класс 2, ориентир Arc A750), RAM 12.1 ГБ, VRAM 7.0 ГБ; узкое место — GPU (растеризация).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 73.44 чел.-дн., P80 110.2; срок P50 44.97 дн., P80 67.49.</li>
 <li>Объявленных пробелов модели: 8.</li>
 </ul>
@@ -498,10 +496,7 @@
 <li><strong>Исключение:</strong> техника игры <code>destruction_geometry_cache</code> исключена — Метод требует наличия функции «physics_simulation», которая не выбрана в профиле..</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>async_compute_overlap</code>, а движок ставит его на 5-е место из 5 в группе <code>rendering_architecture</code>; первым идёт <code>tiled_clustered_light_culling</code>. Причина — критерии TOPSIS: у <code>async_compute_overlap</code> экспертный балл эффекта 0.4, стоимость внедрения 4, сложность 5, штраф за позднее внедрение <code>high</code>.</li>
 <li><strong>Не учтено в расчёте нагрузки:</strong> 2 из 6 выбранных техник (<code>depth_prepass_early_z</code>, <code>destruction_geometry_cache</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
-<li><strong>Оценка оборудования не выдана:</strong> В каталоге нет GPU с подтверждённой поддержкой выбранного API и апскейлера.</li>
-<li><strong>Ориентир по видеокарте не выдан:</strong> требуемый GPU-индекс 0.35 не покрыт каталогом (или не подтверждена обязательная аппаратная возможность), поэтому итоговая рекомендация пуста.</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps4, xbox_one) совместимый аппаратный прогноз не обещается.</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -575,7 +570,6 @@
 <li><strong>Расхождение ранга:</strong> игра применяет <code>chunked_procedural_terrain</code>, а движок ставит его на 2-е место из 2 в группе <code>procedural_terrain</code>; первым идёт <code>terrain_generation_streaming_budget</code>. Причина — критерии TOPSIS: у <code>chunked_procedural_terrain</code> экспертный балл эффекта 0.7, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>critical</code>.</li>
 <li><strong>Совпадение:</strong> ключевая техника игры <code>terrain_generation_streaming_budget</code> стоит на 1-м месте в своей группе (procedural_terrain).</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps4, xbox_one) совместимый аппаратный прогноз не обещается.</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -649,7 +643,6 @@
 <li><strong>Совпадение:</strong> ключевая техника игры <code>runtime_fracture_budget</code> стоит на 1-м месте в своей группе (destruction_simulation).</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>destruction_geometry_cache</code>, а движок ставит его на 2-е место из 2 в группе <code>destruction_simulation</code>; первым идёт <code>runtime_fracture_budget</code>. Причина — критерии TOPSIS: у <code>destruction_geometry_cache</code> экспертный балл эффекта 0.65, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>medium</code>.</li>
 <li><strong>Не учтено в расчёте нагрузки:</strong> 2 из 4 выбранных техник (<code>runtime_fracture_budget</code>, <code>gpu_compute_culling</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -686,7 +679,6 @@
 <li><strong>Расхождение ранга:</strong> игра применяет <code>multithreaded_physics_jobs</code>, а движок ставит его на 4-е место из 5 в группе <code>physics_simulation</code>; первым идёт <code>collision_layer_matrix</code>. Причина — критерии TOPSIS: у <code>multithreaded_physics_jobs</code> экспертный балл эффекта 0.65, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>high</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>fixed_timestep_physics</code>, а движок ставит его на 5-е место из 5 в группе <code>physics_simulation</code>; первым идёт <code>collision_layer_matrix</code>. Причина — критерии TOPSIS: у <code>fixed_timestep_physics</code> экспертный балл эффекта 0.35, стоимость внедрения 3, сложность 3, штраф за позднее внедрение <code>critical</code>.</li>
 <li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 4 выбранных техник (<code>vehicle_simulation_lod</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -800,7 +792,6 @@
 <li><strong>Расхождение ранга:</strong> игра применяет <code>hair_strand_simulation</code>, а движок ставит его на 2-е место из 2 в группе <code>hair_rendering</code>; первым идёт <code>hair_cards_lod</code>. Причина — критерии TOPSIS: у <code>hair_strand_simulation</code> экспертный балл эффекта 0.5, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>medium</code>.</li>
 <li><strong>Не учтено в расчёте нагрузки:</strong> 3 из 5 выбранных техник (<code>full_path_tracing_pipeline</code>, <code>meshlet_pipeline_adoption</code>, <code>froxel_volumetric_fog</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps5, xbox_series) совместимый аппаратный прогноз не обещается.</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -837,7 +828,6 @@
 <li><strong>Совпадение:</strong> ключевая техника игры <code>npc_perception_budget</code> стоит на 1-м месте в своей группе (advanced_npc_ai).</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>time_sliced_pathfinding</code>, а движок ставит его на 2-е место из 2 в группе <code>ai_pathfinding</code>; первым идёт <code>rvo_local_avoidance</code>. Причина — критерии TOPSIS: у <code>time_sliced_pathfinding</code> экспертный балл эффекта 0.5, стоимость внедрения 2, сложность 2, штраф за позднее внедрение <code>medium</code>.</li>
 <li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 4 выбранных техник (<code>navmesh_tiling_streaming</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -876,7 +866,6 @@
 <li><strong>Не учтено в расчёте нагрузки:</strong> 5 из 5 выбранных техник (<code>motion_matching</code>, <code>animation_compression</code>, <code>animation_lod_budget</code>, <code>normal_bake_retopology_pipeline</code>, <code>depth_prepass_early_z</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Профиль нагрузки нейтрален (50/50) при непустой корзине:</strong> ни одна выбранная техника не дошла до расчёта, поэтому числа отражают пустой набор, а не выбранные решения.</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps4) совместимый аппаратный прогноз не обещается.</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 30.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -950,7 +939,6 @@
 <li><strong>Расхождение ранга:</strong> игра применяет <code>chunked_procedural_terrain</code>, а движок ставит его на 2-е место из 2 в группе <code>procedural_terrain</code>; первым идёт <code>terrain_generation_streaming_budget</code>. Причина — критерии TOPSIS: у <code>chunked_procedural_terrain</code> экспертный балл эффекта 0.7, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>critical</code>.</li>
 <li><strong>Совпадение:</strong> ключевая техника игры <code>managed_gc_alloc_budget</code> стоит на 1-м месте в своей группе (runtime_memory).</li>
 <li><strong>Не учтено в расчёте нагрузки:</strong> 2 из 4 выбранных техник (<code>terrain_generation_streaming_budget</code>, <code>managed_gc_alloc_budget</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -1061,7 +1049,6 @@
 <li><strong>Совпадение:</strong> ключевая техника игры <code>sprite_particle_atlas</code> стоит на 1-м месте в своей группе (particle_systems).</li>
 <li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 4 выбранных техник (<code>sprite_atlas_batching</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (android, ios, switch) совместимый аппаратный прогноз не обещается.</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -1099,7 +1086,6 @@
 <li><strong>Расхождение ранга:</strong> игра применяет <code>network_relevancy_priority</code>, а движок ставит его на 3-е место из 8 в группе <code>multiplayer_netcode</code>; первым идёт <code>delta_compression_state</code>. Причина — критерии TOPSIS: у <code>network_relevancy_priority</code> экспертный балл эффекта 0.7, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>critical</code>.</li>
 <li><strong>Не учтено в расчёте нагрузки:</strong> 2 из 4 выбранных техник (<code>client_prediction_reconciliation</code>, <code>delta_compression_state</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Число игроков (100) выше порога различения (32): сетевой вклад оценён по насыщению.</li>
-<li><strong>«Сверка с практикой» пуста:</strong> ни один кейс каталога не сопоставлен с корзиной (сопоставление идёт только по коду метода, а часть доказательств привязана к функции).</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -1108,7 +1094,7 @@
 <ul>
 <li><strong>Совпадение с реальностью:</strong> хотя бы одна ключевая техника игры стоит на 1-м месте в своей группе в <strong>21 из 25</strong> сценариев.</li>
 <li><strong>Полнота учёта:</strong> в расчёт нагрузки и оборудования дошли <strong>60 из 114</strong> выбранных техник (53%). Остальные отброшены отсутствующими обязательными зависимостями.</li>
-<li><strong>«Сверка с практикой» пуста</strong> в <strong>12 из 25</strong> сценариев.</li>
+<li><strong>«Сверка с практикой» пуста</strong> в <strong>0 из 25</strong> сценариев.</li>
 <li><strong>FPS не моделируется нигде:</strong> целевая частота кадров всегда остаётся статусом <code>not_modeled</code>, поэтому прямое сравнение с фактической производительностью оригинала по построению невозможно.</li>
 </ul>
 
