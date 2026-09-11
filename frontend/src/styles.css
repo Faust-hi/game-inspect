@@ -673,3 +673,99 @@ textarea:focus {
   body { background: #fff; font-size: 11.5pt; }
   .method-row { break-inside: avoid; }
 }
+
+/* ------------------------------------------- доказательность и оценки */
+.claim-blocks {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.claim-block {
+  border-left: 3px solid var(--border-strong);
+  background: var(--surface-2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 7px 10px;
+}
+.claim-block-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 3px;
+}
+.claim-block-fact { border-left-color: var(--ok); }
+.claim-block-fact .claim-block-title { color: var(--ok); }
+.claim-block-inference { border-left-color: var(--info); }
+.claim-block-inference .claim-block-title { color: var(--info); }
+.claim-block-assumption { border-left-color: var(--warn); }
+.claim-block-assumption .claim-block-title { color: var(--warn); }
+
+.estimate-range {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 7px;
+}
+.estimate-bad {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------- граф связей */
+.graph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.graph-edge {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.graph-edge:last-child { border-bottom: none; }
+.graph-edge-arrow { color: var(--text-faint); font-weight: 700; }
+.graph-node {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.graph-node-type {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.schedule-bar {
+  position: relative;
+  height: 16px;
+  background: var(--neutral-soft);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.schedule-bar span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px;
+}
+.schedule-bar .p50 { background: var(--accent); }
+.schedule-bar .p80 {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.filter-row .input, .filter-row .select { min-width: 150px; }

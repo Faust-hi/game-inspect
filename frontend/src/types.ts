@@ -127,6 +127,12 @@ export interface MethodEngineLink {
   relation_label: string;
   note: string;
   docs_url: string;
+  tool_min_version?: string | null;
+  available?: boolean | null;
+  availability_note?: string | null;
+  source_locator?: string;
+  evidence_basis?: string;
+  evidence_status?: string;
 }
 
 export interface Method {
@@ -210,6 +216,11 @@ export interface HardwareCPU {
   notes: string;
   source_title: string;
   source_url: string;
+  benchmark_name?: string;
+  benchmark_context?: string;
+  benchmark_raw_value?: number | null;
+  normalization_note?: string;
+  evidence_basis?: string;
 }
 
 export interface HardwareGPU {
@@ -230,6 +241,11 @@ export interface HardwareGPU {
   notes: string;
   source_title: string;
   source_url: string;
+  benchmark_name?: string;
+  benchmark_context?: string;
+  benchmark_raw_value?: number | null;
+  normalization_note?: string;
+  evidence_basis?: string;
 }
 
 export interface CriterionScore {
@@ -362,6 +378,28 @@ export interface PlatformTarget {
   vram_gb: number | null;
   /** Цель с наибольшей потребностью: она объясняет общий ориентир. */
   binding: boolean;
+  frame_budget_ms?: number | null;
+  target_assessments?: TargetAssessment[];
+}
+
+export interface EstimateBand {
+  minimum: number | null;
+  p50: number | null;
+  p80: number | null;
+  unit: string;
+  basis: string;
+  confidence?: number | null;
+}
+
+export interface TargetAssessment {
+  metric: string;
+  label: string;
+  target: number | null;
+  unit: string;
+  status: string;
+  estimated: number | null;
+  basis: string;
+  note: string;
 }
 
 export interface HardwareEstimate {
@@ -403,6 +441,13 @@ export interface HardwareEstimate {
   storage_requirement: string;
   /** Цели сборки считаются и показываются раздельно. */
   targets?: PlatformTarget[];
+  cpu_requirement?: EstimateBand | null;
+  gpu_requirement?: EstimateBand | null;
+  ram_requirement?: EstimateBand | null;
+  vram_requirement?: EstimateBand | null;
+  evidence_basis?: string;
+  hardware_evidence?: string[];
+  target_assessments?: TargetAssessment[];
 }
 
 /** Решение из корзины, исключённое из аппаратной оценки с указанием причины. */
@@ -432,6 +477,10 @@ export interface PracticeCheck {
   title: string;
   message: string;
   details: string[];
+  case_count?: number;
+  case_codes?: string[];
+  accuracy_status?: string;
+  transferability?: string;
 }
 
 /** Предупреждение или предложение, привязанное к стадии проекта. */
@@ -481,6 +530,191 @@ export interface RecommendationResult {
   meta: Record<string, unknown>;
   /** Отпечаток входа, для которого выполнен расчёт (присваивается backend). */
   input_key: string;
+  evidence_summary?: EvidenceSummary;
+}
+
+export interface EvidenceSource {
+  code: string;
+  title: string;
+  authors: string;
+  publisher: string;
+  source_type: string;
+  published_date: string;
+  checked_at: string;
+  url: string;
+  version: string;
+  platform: string;
+  locator: string;
+  availability: string;
+  applicability: string;
+  notes: string;
+}
+
+export interface EvidenceClaim {
+  code: string;
+  entity: string;
+  entity_code: string;
+  field: string;
+  claim: string;
+  unit: string;
+  value_text: string;
+  value_num?: number | null;
+  range_min?: number | null;
+  range_max?: number | null;
+  source?: EvidenceSource | null;
+  locator: string;
+  basis: string;
+  verification_status: string;
+  evidence_level: string;
+  formula: string;
+  input_parameters: Record<string, unknown>;
+  context: string;
+}
+
+export interface CaseEvidence {
+  code: string;
+  function_code: string;
+  method_code: string;
+  fact: string;
+  match_level: string;
+  locator: string;
+  source?: EvidenceSource | null;
+  basis: string;
+  transfer_limits: string;
+}
+
+export interface GameCase {
+  code: string;
+  title: string;
+  studio: string;
+  release_year: number | null;
+  technology: string;
+  engine_code: string;
+  world_type: string;
+  network_mode: string;
+  summary: string;
+  relevance: string;
+  transfer_limits: string;
+  evidence: CaseEvidence[];
+}
+
+export interface Dependency {
+  code: string;
+  source_code: string;
+  source_name: string;
+  source_type: string;
+  target_code: string;
+  target_name: string;
+  target_type: string;
+  dependency_type: string;
+  mandatory: boolean;
+  min_version: string;
+  max_version: string;
+  platform: string;
+  scope: string;
+  severity: number;
+  source?: EvidenceSource | null;
+  description: string;
+  workaround: string;
+  status: string;
+}
+
+export interface GraphIssue {
+  check: string;
+  severity: string;
+  message: string;
+  details: Record<string, unknown>;
+}
+
+export interface GraphChecks {
+  issues: GraphIssue[];
+  counts: Record<string, number>;
+  engine?: string | null;
+  engine_version?: string | null;
+  render_api?: string | null;
+  basket: string[];
+}
+
+export interface EvidenceSummary {
+  source_count: number;
+  claim_count: number;
+  case_count: number;
+  claims_with_sources: number;
+  numeric_claims_published: number;
+  numeric_claims_unknown: number;
+  coverage_label: string;
+  unconfirmed_numeric_factors: string[];
+  calibration_status: string;
+}
+
+export interface WorkPackage {
+  code: string;
+  method_code: string;
+  name: string;
+  package_type: string;
+  role: string;
+  min_days: number;
+  p50_days: number;
+  p80_days: number;
+  parallelizable: boolean;
+  recommended_stage: string;
+  late_factor: number;
+  dependency_codes: string[];
+  basis: string;
+}
+
+export interface TeamScenario {
+  code: string;
+  name: string;
+  description: string;
+  team_size: number;
+  role_capacity: Record<string, unknown>;
+  parallel_tracks: number;
+  communication_pct: number;
+  unplanned_pct: number;
+  specialist_capacity: Record<string, unknown>;
+}
+
+export interface ScheduleTask {
+  code: string;
+  name: string;
+  method_code: string;
+  package_type: string;
+  role: string;
+  dependencies: string[];
+  minimum_days: number;
+  p50_days: number;
+  p80_days: number;
+  parallelizable: boolean;
+  recommended_stage: string;
+  late_factor: number;
+  basis: string;
+  start_p50: number;
+  finish_p50: number;
+  start_p80: number;
+  finish_p80: number;
+  critical: boolean;
+}
+
+export interface Schedule {
+  team: TeamScenario;
+  methods: string[];
+  effort: EstimateBand;
+  calendar: EstimateBand;
+  critical_path: string[];
+  tasks: ScheduleTask[];
+  unresolved_dependencies: string[];
+  stage_notes: string[];
+  evidence_basis: string;
+}
+
+export interface ReportData {
+  recommendation: RecommendationResult;
+  evidence_summary: EvidenceSummary;
+  sources: EvidenceSource[];
+  cases: GameCase[];
+  dependencies: Dependency[];
+  schedule: Schedule;
 }
 
 export interface ValidationIssue {

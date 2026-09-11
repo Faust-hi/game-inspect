@@ -3,14 +3,23 @@ import type {
   ImplementationBaseline,
   AdminOverview,
   Conflict,
+  Dependency,
   Engine,
   Enums,
+  EvidenceClaim,
+  EvidenceSource,
+  EvidenceSummary,
   GameFunction,
+  GameCase,
+  GraphChecks,
   Method,
   ProjectProfile,
   RecommendationResult,
+  ReportData,
+  Schedule,
   SeedReport,
   StageGuidance,
+  TeamScenario,
   ValidationIssue,
 } from './types';
 
@@ -114,6 +123,25 @@ export const api = {
   methods: () => request<Method[]>('/catalog/methods'),
   engines: () => request<Engine[]>('/catalog/engines'),
   conflicts: () => request<Conflict[]>('/catalog/conflicts'),
+  sources: () => request<EvidenceSource[]>('/catalog/sources'),
+  evidence: (entity?: string, entityCode?: string) => {
+    const query = new URLSearchParams();
+    if (entity) query.set('entity', entity);
+    if (entityCode) query.set('entity_code', entityCode);
+    return request<EvidenceClaim[]>(`/catalog/evidence${query.toString() ? `?${query}` : ''}`);
+  },
+  evidenceSummary: () => request<EvidenceSummary>('/catalog/evidence-summary'),
+  cases: () => request<GameCase[]>('/catalog/cases'),
+  dependencies: () => request<Dependency[]>('/catalog/dependencies'),
+  graphChecks: (options?: { basket?: string[]; engine?: string; engineVersion?: string; renderApi?: string }) => {
+    const query = new URLSearchParams();
+    (options?.basket ?? []).forEach(code => query.append('basket', code));
+    if (options?.engine) query.set('engine', options.engine);
+    if (options?.engineVersion) query.set('engine_version', options.engineVersion);
+    if (options?.renderApi) query.set('render_api', options.renderApi);
+    return request<GraphChecks>(`/catalog/graph-checks${query.toString() ? `?${query}` : ''}`);
+  },
+  teams: () => request<TeamScenario[]>('/catalog/teams'),
   stageGuidance: (stage: string) =>
     request<StageGuidance>(`/catalog/stage-guidance?stage=${encodeURIComponent(stage)}`),
 
@@ -122,6 +150,18 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ profile, basket, ...(baseline ? { baseline } : {}) }),
       signal,
+    }),
+
+  schedule: (profile: ProjectProfile, basket: string[], team = 'small_2_5', includeDependencies = true) =>
+    request<Schedule>('/schedule', {
+      method: 'POST',
+      body: JSON.stringify({ profile, basket, team, include_dependencies: includeDependencies }),
+    }),
+
+  reportData: (profile: ProjectProfile, basket: string[], baseline?: ImplementationBaseline | null) =>
+    request<ReportData>('/report-data', {
+      method: 'POST',
+      body: JSON.stringify({ profile, basket, ...(baseline ? { baseline } : {}) }),
     }),
 
 };

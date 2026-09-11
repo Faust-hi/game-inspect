@@ -1,6 +1,7 @@
 /** Экран рисков проекта (шаг 2 алгоритма раздела 4). */
 import { useEnsureResult, useStore } from '../store';
 import { Badge, Callout, Card, Empty, Loading, severityLabel, severityTone } from '../components/ui';
+import { ClaimBlocks, EvidenceBadge } from '../components/Evidence';
 import type { Risk } from '../types';
 
 const SEVERITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
@@ -15,8 +16,16 @@ function RiskItem({ risk }: { risk: Risk }) {
       <p className="small muted" style={{ marginTop: 6 }}>
         {risk.description}
       </p>
-      <div className="xsmall faint" style={{ marginTop: 4 }}>
+      <ClaimBlocks
+        inference={risk.description}
+        assumption={`Правило каталога «${risk.code}». Риск выведен из сопоставления характеристик проекта со стадией и масштабом, а не из внешнего измерения.`}
+      />
+      <div className="xsmall faint" style={{ marginTop: 6 }}>
         <strong>Что делать:</strong> {risk.advice}
+      </div>
+      <div className="xsmall faint" style={{ marginTop: 4 }}>
+        Источник риска: правило <span className="mono">{risk.code}</span>{' '}
+        <EvidenceBadge basis="derived" title="Риск получен правилом над профилем проекта; внешнего измерения за ним нет." />
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 /** Экран 8. Сводный профиль нагрузки выбранного набора решений. */
 import { useMemo } from 'react';
 import { useEnsureResult, useStore } from '../store';
-import { Badge, Callout, Card, Empty, Loading } from '../components/ui';
+import { Badge, Callout, Card, Empty, Loading, SourceLink } from '../components/ui';
+import { ClaimBlocks, EvidenceBadge, UnconfirmedFactors } from '../components/Evidence';
 import { impactsOf, methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
 import type { LoadProfile, LoadResourceDetail } from '../types';
 
@@ -153,11 +154,15 @@ export function LoadProfileScreen() {
                   {RESOURCES.map(({ key, label }) => (
                     <th key={key}>{label}</th>
                   ))}
+                  <th style={{ minWidth: 170 }}>Основание</th>
                 </tr>
               </thead>
               <tbody>
                 {selected.map((method) => {
                   const impacts = impactsOf(method);
+                  const qualitativeOnly = ['disk', 'network'].every(
+                    key => load.per_resource[key]?.quantitative === false,
+                  );
                   return (
                     <tr key={method.code}>
                       <td className="small">
@@ -178,6 +183,22 @@ export function LoadProfileScreen() {
                           </td>
                         );
                       })}
+                      <td className="small">
+                        <EvidenceBadge
+                          basis={method.source_url ? 'documented' : 'expert_estimate'}
+                          title={method.source_url
+                            ? 'У решения есть опубликованный источник; числовой эффект всё равно требует проверки на прототипе.'
+                            : 'Публичного источника у решения нет: вклад является экспертной оценкой каталога.'}
+                        />
+                        <div className="xsmall faint" style={{ marginTop: 3 }}>
+                          {qualitativeOnly ? 'балл каталога' : 'вклад в стоимость кадра'}
+                        </div>
+                        {method.source_url && (
+                          <div className="xsmall">
+                            <SourceLink url={method.source_url} title={method.source_title || 'Источник'} />
+                          </div>
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
@@ -193,10 +214,26 @@ export function LoadProfileScreen() {
                       </td>
                     );
                   })}
+                  <td className="small faint">—</td>
                 </tr>
               </tbody>
             </table>
           </div>
+
+          <div className="divider" />
+          <ClaimBlocks
+            fact={`Набор состоит из ${selected.length} решений, учтённых в расчёте нагрузки.`}
+            inference="Суммарный профиль получен сложением вкладов отдельных решений по подсистемам."
+            assumption="Сложение вкладов предполагает отсутствие взаимодействия между решениями. Перекрывающиеся эффекты и синергии учитываются отдельно, но числовой бонус за дополнение не начисляется без отдельного измерения совместного эффекта."
+          />
+
+          <UnconfirmedFactors
+            items={[
+              'Числовой эффект совместного применения двух и более решений не подтверждён измерением.',
+              ...(load.notes ?? []),
+            ]}
+            title="Неучтённые и неподтверждённые факторы нагрузки"
+          />
         </Card>
       )}
     </>

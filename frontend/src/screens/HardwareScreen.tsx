@@ -1,6 +1,7 @@
 /** Экран 9. Ориентировочный минимальный класс оборудования (раздел 5 плана). */
 import { useEnsureResult, useStore } from '../store';
 import { Badge, Callout, Card, Empty, Loading, Metric, SourceLink } from '../components/ui';
+import { EvidenceBadge } from '../components/Evidence';
 import type { HardwareCPU, HardwareGPU } from '../types';
 
 const STORAGE_LABELS: Record<string, string> = {
@@ -8,6 +9,71 @@ const STORAGE_LABELS: Record<string, string> = {
   sata_ssd: 'SATA SSD',
   nvme: 'NVMe SSD',
 };
+
+const ASSESSMENT_TONE: Record<string, 'ok' | 'warn' | 'danger' | 'info'> = {
+  meets: 'ok',
+  at_risk: 'warn',
+  unknown: 'warn',
+  not_modeled: 'info',
+};
+
+const ASSESSMENT_LABEL: Record<string, string> = {
+  meets: 'укладывается',
+  at_risk: 'под риском',
+  unknown: 'неизвестно',
+  not_modeled: 'не моделируется',
+};
+
+/**
+ * Происхождение аппаратного индекса.
+ *
+ * Нормированное число без исходного значения и контекста измерения выглядит как
+ * измерение, хотя им не является. Поэтому рядом с индексом всегда показываются
+ * исходное значение, контекст бенчмарка и способ нормировки.
+ */
+function BenchmarkProvenance({
+  name,
+  context,
+  raw,
+  note,
+  basis,
+  unit,
+}: {
+  name?: string;
+  context?: string;
+  raw?: number | null;
+  note?: string;
+  basis?: string;
+  unit: string;
+}) {
+  if (!name && !context && raw == null && !note) {
+    return (
+      <div className="subtle-box" style={{ marginTop: 8 }}>
+        <div className="xsmall faint">
+          Происхождение индекса не указано: значение нельзя проверить по публичному измерению.
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="subtle-box" style={{ marginTop: 8 }}>
+      <div className="xsmall" style={{ display: 'flex', gap: 7, alignItems: 'baseline', flexWrap: 'wrap' }}>
+        <strong>Происхождение индекса</strong>
+        <EvidenceBadge basis={basis} />
+      </div>
+      <dl className="kv" style={{ marginTop: 6 }}>
+        <dt>Бенчмарк</dt>
+        <dd>{name || 'не указан'}</dd>
+        <dt>Исходное значение</dt>
+        <dd className="mono">{raw != null ? `${raw} ${unit}` : 'не указано'}</dd>
+        <dt>Контекст</dt>
+        <dd>{context || 'контекст измерения не указан'}</dd>
+        <dt>Нормировка</dt>
+        <dd>{note || 'способ нормировки не указан'}</dd>
+      </dl>
+    </div>
+  );
+}
 
 function CpuSpec({ cpu }: { cpu: HardwareCPU }) {
   return (
@@ -34,6 +100,14 @@ function CpuSpec({ cpu }: { cpu: HardwareCPU }) {
         <dd>{cpu.tdp_w ? `${cpu.tdp_w} Вт` : 'не указан'}</dd>
       </dl>
       {cpu.notes && <p className="xsmall muted">{cpu.notes}</p>}
+      <BenchmarkProvenance
+        name={cpu.benchmark_name}
+        context={cpu.benchmark_context}
+        raw={cpu.benchmark_raw_value}
+        note={cpu.normalization_note}
+        basis={cpu.evidence_basis}
+        unit="ед."
+      />
       <SourceLink url={cpu.source_url} title={cpu.source_title} />
     </div>
   );
@@ -73,6 +147,14 @@ function GpuSpec({ gpu }: { gpu: HardwareGPU }) {
         </div>
       )}
       {gpu.notes && <p className="xsmall muted">{gpu.notes}</p>}
+      <BenchmarkProvenance
+        name={gpu.benchmark_name}
+        context={gpu.benchmark_context}
+        raw={gpu.benchmark_raw_value}
+        note={gpu.normalization_note}
+        basis={gpu.evidence_basis}
+        unit="ед."
+      />
       <SourceLink url={gpu.source_url} title={gpu.source_title} />
     </div>
   );
@@ -178,8 +260,7 @@ export function HardwareScreen() {
         )}
 
         <div className="stat-grid" style={{ marginTop: 16 }}>
-          <Metric label="Класс GPU" value={hw.gpu_class} hint="из 5" />
-          <Metric label="Класс CPU" value={hw.cpu_class} hint="из 5" />
+          <Metric label="Класс GPU" value={hw.gpu_class} hint="из 5" />          <Metric label="Класс CPU" value={hw.cpu_class} hint="из 5" />
           <Metric label="Оценка VRAM" value={`${hw.estimated_vram_gb} ГБ`} />
           <Metric label="Оценка RAM" value={`${hw.estimated_ram_gb} ГБ`} />
           <Metric
@@ -192,6 +273,51 @@ export function HardwareScreen() {
           <Metric label="Индекс CPU" value={hw.required_cpu_index.toFixed(2)} hint="нормированная шкала" />
         </div>
       </Card>
+
+      {(hw.target_assessments ?? []).length > 0 && (
+        <Card
+          title="Соответствие целевым показателям"
+          hint="Показатель без опубликованного измерения не подменяется точным числом: статус остаётся «неизвестно» или «не моделируется»."
+        >
+          <div style={{ overflowX: 'auto' }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Показатель</th>
+                  <th>Цель</th>
+                  <th>Оценка</th>
+                  <th>Статус</th>
+                  <th>Основание</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(hw.target_assessments ?? []).map((item) => (
+                  <tr key={item.metric}>
+                    <td className="small">{item.label}</td>
+                    <td className="small mono">
+                      {item.target != null ? `${item.target} ${item.unit}` : 'не задано'}
+                    </td>
+                    <td className="small mono">
+                      {item.estimated != null ? `${item.estimated} ${item.unit}` : '—'}
+                    </td>
+                    <td className="small">
+                      <Badge tone={ASSESSMENT_TONE[item.status] ?? 'info'}>
+                        {ASSESSMENT_LABEL[item.status] ?? item.status}
+                      </Badge>
+                      {item.note && <div className="xsmall faint">{item.note}</div>}
+                    </td>
+                    <td className="small"><EvidenceBadge basis={item.basis} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="xsmall faint" style={{ marginBottom: 0, marginTop: 8 }}>
+            Статус «неизвестно» означает отсутствие данных, а не нулевой эффект. Система не подставляет
+            измеренное значение вместо незаданного параметра.
+          </p>
+        </Card>
+      )}
 
       {(hw.non_client_methods ?? []).length > 0 && (
         <Card
