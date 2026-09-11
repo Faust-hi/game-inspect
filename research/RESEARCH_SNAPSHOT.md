@@ -1,0 +1,199 @@
+# Снимок исследований DSS — 2026-09-11
+
+> Зафиксированная (immutable) версия всех исследовательских материалов проекта
+> **game-inspect**. Служит точкой опоры для безопасной интеграции и калибровки проекта.
+> Снимок создан после починки повреждённого объектного хранилища `.git` (см. §7).
+
+## 1. Идентификация снимка
+
+| Параметр | Значение |
+|---|---|
+| Дата снимка | 2026-09-11 |
+| Ветка | `main` |
+| Коммит исследований | `83b3053c85799e7d221222e6a6c9cef36cdbdd19` |
+| Синхронизация с `origin/main` | локальные коммиты не запушены (см. §7) |
+
+Коммиты, входящие в снимок (в порядке применения):
+
+| # | Коммит | Сообщение |
+|---|---|---|
+| 1 | `36d8400` | chore(repo): игнорировать локальные кэши, скретч и промежуточные артефакты исследований |
+| 2 | `8b78595` | feat(evidence): пайплайн публикации доказательств, граф зависимостей и планирование |
+| 3 | `b1f0377` | feat(ui): экраны доказательств, кейсов, зависимостей и расписания |
+| 4 | `83b3053` | docs(research): верификация категорий 1–2, отчёт сессии, аудит-инструменты и паки |
+
+## 2. Проверка состояния на момент снимка
+
+- **Тесты:** `91 passed, 1 warning` (`pytest`, интерпретатор `.dss-venv`, ~22.6 с).
+- **Целостность git:** `git fsck` — 0 ошибок (только безобидные dangling-объекты).
+- **Рабочее дерево:** чистое (все изменения закоммичены).
+
+## 3. Контрольные счётчики доказательной базы (published)
+
+| Сущность | Значение |
+|---|---|
+| `EvidenceClaim` (published) | 2539 |
+| `EvidenceSource` (published) | 936 |
+| `Conflict` | 458 |
+| `DependencyEdge` | 929 |
+| Обязательных циклов в графе | 0 |
+
+## 4. Как воспроизвести
+
+```bash
+# 1. Восстановить БД (интерпретатор backend/audit)
+.dss-venv/Scripts/python.exe -m app.seed.seeder            # из backend/
+
+# 2. Проверить published-счётчики (§B.5 HANDOFF) — ожидается 2539 claims / 936 sources
+.dss-venv/Scripts/python.exe ../tools/audit_evidence.py
+
+# 3. Извлечь доказательства по параметрам
+.dss-venv/Scripts/python.exe ../tools/extract_category_evidence.py
+
+# 4. Собрать PDF из Markdown (интерпретатор .venv — только там есть reportlab)
+.venv/Scripts/python.exe tools/md_to_pdf.py research/category_verification.md output/pdf/category-verification.pdf
+```
+
+## 5. Инвентарь файлов и контрольные суммы (SHA256)
+
+Все 93 файла, входящие в снимок, с контрольными суммами. Любое расхождение означает,
+что рабочая копия отличается от зафиксированного состояния.
+
+| Файл | SHA256 |
+|---|---|
+| `.gitignore` | `005665f389629f4af49c4a3045a1c13389de506258f5f76d0cd0b2c1a4c3fd58` |
+| `README.md` | `fca6265898ae89f125ff0b8868b1f8969cbbe4658f92133b27c31e0e1f745766` |
+| `backend/alembic/versions/20260910_dss_evidence01.py` | `14312468f4b4e96ad486c1cddcb603bef30e7c2d027bdb4e22d8b83bceb3b2ce` |
+| `backend/alembic/versions/20260910_fix01_user_defined.py` | `1cfeb5dc7b3a432b3083cd8db1c34c3dedb4e6a210df00f83a0aabd5157ab2c6` |
+| `backend/app/api/catalog.py` | `d656f7584b31119b2fe7d8b3cdacfbea25e80283e2fdb98bad2d657d5d6c8385` |
+| `backend/app/api/recommend.py` | `80fd11f058e9f06eaa9ebe941f6c42cdec82077a9547c52821dcb30344a0e580` |
+| `backend/app/db_migrate.py` | `597b619dcb0f8dfff706987feb5cd6f19809c729aa17f49f7cce7c374fdea89c` |
+| `backend/app/models/__init__.py` | `2258d2213ef17b7f322ab4d8a375f83f011e8eaf6391ee4f21f0da9ae4339e4b` |
+| `backend/app/models/entities.py` | `e63628f987f519de6d7506a65d571514a1211c7f40cba4d8072f95adcb5b8bc3` |
+| `backend/app/repositories.py` | `b2dd40b22b858b4338095515d6735095848b321b1d1ae80d5a749b13d81d82e3` |
+| `backend/app/schemas/catalog.py` | `d63686a69ccf84bf12f3df2c82a3bffd73a0e0d11f1f20a146a7f18599ef69a0` |
+| `backend/app/seed/corrections.py` | `cfea309097f38bad3cea969c6f9963a63529f52c64654734d21efb9ba2d41aad` |
+| `backend/app/seed/dependency_graph.py` | `2925ba579d2c27feb2ce46221bbd9073259bc50238d1da7d52820f831794a0c2` |
+| `backend/app/seed/evidence_catalog.py` | `5e6d24efb55e890a1357aa420eb0fd9fa7dc532dbaea8067dd12ebc371c21387` |
+| `backend/app/seed/fixes_v2.py` | `19cc76e8b6c5e4f9a80671ecb85609e473df907c6cfb24afea768c10a1457ff2` |
+| `backend/app/seed/pack_loader.py` | `73383724b278f64004f6e0716f795991543c7dbafea8636930338e2a740cf847` |
+| `backend/app/seed/seeder.py` | `9149ee6d32b2ab57d26534bc3ae59393968ab0e916881e4f8a72ee4d9fbe1ae1` |
+| `backend/app/seed/sources.py` | `bfbaa3c3da9d2a28d1d7858f07d47e58c81cb8c0d2edb7ba27d60fa64bbf8fcb` |
+| `backend/app/services/evidence.py` | `bb83e905c62a4f4a139e180bfe915c4380e84d023e8e2b2df3bcc54482bb3fa5` |
+| `backend/app/services/graph.py` | `2a7ff55580ea3b30677d06e0981e79d7d9245e412dfab8998f48370e547d4d8c` |
+| `backend/app/services/hardware.py` | `96374d2ca3716a00114d3ecfe78a0a060a530436128ba90ee2baf839f5b18e54` |
+| `backend/app/services/planning.py` | `ee4a163aec945f9fca6880710be6e4d83835e42d8fcada163885831d885351b2` |
+| `backend/app/services/recommender.py` | `09cee3d43ff7ca7e153e2e70280045b812ef77b7818d7395a3511f11889a8981` |
+| `backend/app/services/serializers.py` | `805e4e91c4129591f6308fbd22c49e99b429ae94e98d94dc454812da3d8ef453` |
+| `backend/tests/test_combined_effects.py` | `48c424ea505b78d5ab3e8ad3fd8d6096e35eb65bfc8fcd170015d65f2b0700c2` |
+| `backend/tests/test_engine_versions.py` | `e5ccd33a8ad2a471f0fd7873ad11667fcd44c64f5df0e5f1e10a4cfc659a5f00` |
+| `backend/tests/test_evidence_api.py` | `6d2e124a4d3c20e4757a94445d550e21b71eedbdca9712efd094776b9df0cffb` |
+| `backend/tests/test_evidence_declarations.py` | `adf72c6e8fefcb5a1a36dbbc0809e6640ea240e73f8a39e6ccef3de7013be554` |
+| `backend/tests/test_evidence_publication.py` | `860ec97998d1b7062fc67d0819521980d1f22bb9edbabc416c7caf9b4067a006` |
+| `backend/tests/test_hardware_bottleneck.py` | `7138ed9378c2a4a802f337f59f5e615c7b121dbfb22b0341327d5802d741df37` |
+| `backend/tests/test_stage_integrity.py` | `0c7f646723e34a7a04bbadf48c2e1e1ec4dd3803fe0dad19fab609bc26ddd432` |
+| `frontend/src/App.tsx` | `e48f0b9dc303aafcfe5c36d9187b7475e18c2c22e0f481a73b82cfc2b9b1cc49` |
+| `frontend/src/api.ts` | `30abb8db410361a5ef0c0d22282f2e5ece8b88443ec1a7612daab122128b52ad` |
+| `frontend/src/components/Evidence.tsx` | `8eaad874484045300605b4756b24ad022ab309965a423e6f1d0b2e785a1a7da9` |
+| `frontend/src/screens/CasesScreen.tsx` | `e28be376ad6ace593c1018774acabe9a2029e6e30f3b898a4b72318a3e8d85eb` |
+| `frontend/src/screens/DependenciesScreen.tsx` | `44e1b6a95a0d273bafc3d5b1019a38626f7afe9184696496569c5d561f6a2978` |
+| `frontend/src/screens/EvidenceScreen.tsx` | `7406ee957c2035f7f9cc1c811c3d65222d3456c92cdbd67b4ed7f3095f10f6ea` |
+| `frontend/src/screens/HardwareScreen.tsx` | `46d55b15ac5933c26ae5057314469a8b595adfe0845f47f566b35d7ff3509ab7` |
+| `frontend/src/screens/LoadProfileScreen.tsx` | `2bb79bdaa5e3990417e407b4d1e75f5b36a5d533900dcf3a08330fcf6ac461d2` |
+| `frontend/src/screens/PlanScreen.tsx` | `e1a31bc1c738ebad6be415a4d1095368d55eee1ac18d35284b4f133cc9d39eef` |
+| `frontend/src/screens/RisksScreen.tsx` | `a6fe2b84b4b37c4268dde8016f6695f99b2026c56e8f6f364daff09a2825ac2e` |
+| `frontend/src/screens/ScheduleScreen.tsx` | `32fad2cb2f859466c5eb48c60e7b615c8ac51a1273d9c72db704913b1356eee8` |
+| `frontend/src/styles.css` | `192fa1604783d3fa1a7b6645cacc73de54bec104a7406e635f0c452ec7d91439` |
+| `frontend/src/types.ts` | `3c090be06c7a964a19cc56aae7640104072fbce49051fe76e71273f6cf7497ae` |
+| `output/pdf/category-verification.pdf` | `3fb893b309469ef8c01e373c190309e68363c2cda68047077a064f8c1c61679f` |
+| `output/pdf/game-development-dss-study.pdf` | `12f14681a82d1cea63c4e1c17a9c860324a369e23a99c0064a08aec330cd8312` |
+| `research/audit_evidence.json` | `6d2ae5b8788f7cc3dd1cc2f262ea4e20b11bd120921292117a86d7b21111f7ff` |
+| `research/catalog-coverage-matrix.md` | `820469a7378f45bec6d3a855ac5e3c420fc4cc89fc4c5ad89412835e136c253f` |
+| `research/category_verification.md` | `44134fd8e55101eda39c397cb965e6b1970f3534cc5f0ed096858362cc967e90` |
+| `research/game-development-dss-study.md` | `e4c34d043dcfad757f2191196fcfc7a48f4201ceb65c609acbeca929ce0f539e` |
+| `research/notes/catalog_functions.json` | `75d4f95fe1c13cf0138cbc4540c3740540e3de159dfb1d08fdeb176b54b83257` |
+| `research/packs/gen_pack_rendering.py` | `fda9eb0c3b35f8799bc5822c9f5261997a98edd8f506df07fc273c385c34de10` |
+| `research/packs/pack_ai_sim.json` | `a4b76f33a79c62eab7004863366f2cc833285703334a57fb5e78faf9da5d9fa0` |
+| `research/packs/pack_character_content.json` | `de7aa5bbfc5e48e2051eba055b2550289407668c17dd9d821b1598cf721da372` |
+| `research/packs/pack_derivations.json` | `0633908000a059bccd5650d657f222a20521d23a853aa3a9c09c7a7d5565841f` |
+| `research/packs/pack_engines_ue_unity.json` | `f21cb367d126005c4946d39c08ef32e071d27557e0589638842ae27de3cb73dd` |
+| `research/packs/pack_functions.json` | `917314c7bea03935d117fe7fc94db09971cc810841ec95af959c56347f835669` |
+| `research/packs/pack_method_proofs.json` | `5f4cd3b5056b247dc9f7018e01572dd935923bdee0f0815918f66b7f35eea61d` |
+| `research/packs/pack_method_proofs2.json` | `c8193f14bf32167e31faca4dac0d4cb37a65591622e2fbc82f5275c6f6f903c6` |
+| `research/packs/pack_netaudio.json` | `b99f0b852808198db20cae1641744f689d8a5d7c69ecaa6be3055266dc2b8d7f` |
+| `research/packs/pack_rendering.json` | `4473da3a0dd7e7ddb538725170cb472e81cb129c17eea4448201c2378e330961` |
+| `research/packs/pack_tech_nodes.json` | `49693d45b74b868c84cb3761a487445fa3c7839b214bed5c07ea0d9d11ce0f38` |
+| `research/packs/pack_tool_proofs.json` | `e7f64800420b68e221564b2bf2731288bcc0e1992f88496e8eac326a043abc98` |
+| `research/packs/pack_tools_godot_cry_source.json` | `6c2f5c661983bce98af6519a4a42f51b272adf0cb6c639f2bfaab4d917d59f64` |
+| `research/packs/pack_tools_heroengine.json` | `8fdd876638fae013c2c8459b6d79be54aa439557e30b96d5dc74a6240825020a` |
+| `research/packs/pack_world_streaming.json` | `f7f8b73802ff484bb7c6020df2312141f94577fd95de43ad2b50c2abdab273cc` |
+| `research/reliability-report.md` | `64e6c6526186f2c1aa9a811088a5bdb548cdce1f26f43ffecd792d5bb27f66b4` |
+| `research/session-report-2026-09-11.md` | `41b9e59155cd8b198c160915a91463264d68b2a1fa895c5ec00ada9535b3d2f5` |
+| `research/spec-compliance-matrix.md` | `3bfb1a3d3ffdfc1d92f91ab7d7fcf4a18935bf3e36406f9ee8e7959096805ad3` |
+| `research/verification_report.json` | `661d92e984d96d72d138f89868aefc2dae5c46563496f1023f78e158e8449425` |
+| `research/verification_report.md` | `a8b942ef77d7c7f4f9f37edfbb8129cbb08318660834045ef6b3fcc9189a2706` |
+| `research/workqueue/BRIEF.md` | `690cb2bf4068b6b42f0e1abce8f57e685f2ee636e57734df2bfc416751ce65cf` |
+| `research/workqueue/CATEGORY_VERIFICATION_PLAN.md` | `3bb291827d7e61bc31802edf248a41be1ae3ace6de24dc5c288cd9dde91eb3d1` |
+| `research/workqueue/HANDOFF.md` | `5f1411bbb5435f8915e1859d55ef392b7254754dfa9788eecb80522f848ebf85` |
+| `research/workqueue/SCHEMA.md` | `66007249c0fb221a8f2cfb112eb04528069c9ab5324d19084d998575dc03b22a` |
+| `research/workqueue/q_engines.json` | `87f514967a760a91368b6419076d435d1ae8cb66abdb6ba205475d3b494c1195` |
+| `research/workqueue/q_functions.json` | `1ebfd421e7eefdd3b71b50116e88425d5dbb4c9a75a2bee742526e076f7bb53e` |
+| `research/workqueue/q_graph.json` | `cab7e5355e6b0c7d4190d00c635aa5b6ecc0c6b582df41ceef8807aa5ef12201` |
+| `research/workqueue/q_method_proofs.json` | `dc6d0d005b9441ce3d852da6de9d19bf5cb2efb05fed85991e8919cd66763ec1` |
+| `research/workqueue/queues.json` | `416f9aefe51997b676f0ab0cb481a5d76a424ccc723afaaf84460a614c0215de` |
+| `tools/audit_evidence.py` | `aca35b76475a56f72d6f6df6f16bf67b1ce0780a791bc5231f93cf644dcdda1a` |
+| `tools/dump_digest.py` | `b5d985e7f9707118b12cadc53df1537a00177470e04dc0ca7bbc706eb749f561` |
+| `tools/extract_category_evidence.py` | `05399d248ff6fc1122697646a6e5f16f0969c0fd912c0e9dd37c9354f69694bc` |
+| `tools/gen_pack_method_proofs2.py` | `74a1005cc77c638e558a759c3136657d8de147a03d9be827be274bd22739d083` |
+| `tools/gen_pack_tech_nodes.py` | `a797e07894cec68a6ec16ff1a01a1e3f229717df53becf4fa8e491bec4d6b31e` |
+| `tools/gen_pack_tool_proofs.py` | `ed41bb2c320c5f98d9c480ba9b7b0ce2d9d6db7e6321677fb407803bfa5fee04` |
+| `tools/generate_research_report.py` | `4b867ba4aef6cb0eee6d2d9e603fb0289392bb6941c7cd2dd1a4b305aacc0cab` |
+| `tools/md_to_pdf.py` | `f4fdf14e7576861805bdf659ebd51cdb72a3286e238cdbb980a435a51c2232f3` |
+| `tools/repair_db.py` | `784714085bb521c664718a58b4495be6c5b3feaa9f9de07619a8ae1fa92eb659` |
+| `tools/repair_dead_links.py` | `05f6299d1ad2d6276915c36aa1ea64e2389804948946c5a8e3d5bb4972d97551` |
+| `tools/repair_packs.py` | `630bcccc40b6502e2d142a3b9dcf3310922f90623f2841002887be50bf8bfb22` |
+| `tools/repair_verification_findings.py` | `fb3b2b81c4dac1b747b224ccfb8be735cf351e7fadeacbc6bcf204e4b4c4fef9` |
+| `tools/verify_sources.py` | `b4fc9adc64880063569b7ee125959f0d131ab88ea4af1b1c0c0a6959ff4d49cf` |
+
+## 6. Явно задекларированные пробелы (честные)
+
+Проект следует принципу: «запись без обязательного источника не публикуется», а
+недостающие внешние подтверждения **декларируются явно**, а не замалчиваются.
+
+| Пробел | Как задекларирован | Кол-во |
+|---|---|---|
+| Связки `method`↔`engine` без внешнего URL | `evidence_status='user_defined'` | 111 |
+| Конфликты без внешнего URL | `source_url='user_defined:catalog_dependency'` | 30 |
+| Рёбра зависимостей без декларации | префикс `[expert_estimate:no_external_source]` | 24 |
+| Пустой `benchmark_raw_value` у железа | заполнено из источника `PASSMARK_2026_09` | 130 строк |
+| Derived-claims без `source_code` | self-justified: `formula` + `input_parameters` (spec стр. 412) | 3 |
+
+## 7. Проверка целостности
+
+```bash
+# 1. Сверить контрольные суммы файлов снимка
+sha256sum -c research/RESEARCH_SNAPSHOT.sha256
+
+# 2. Проверить целостность объектного хранилища git
+git fsck --connectivity-only        # ожидается: 0 ошибок целостности
+
+# 3. Убедиться, что рабочее дерево совпадает со снимком
+git status --porcelain              # ожидается: пусто
+git log --oneline -5
+```
+
+### Примечание о починке `.git`
+
+Объектное хранилище `.git` было повреждено (отсутствовали tree/commit-объекты, плюс
+сломанные ref-ы `refs/codex/turn-diffs/*`). Починка выполнена так:
+
+1. Объекты восстановлены из `origin` (remote `HEAD` совпадал с локальным `main` = `e04a4c33`).
+2. Сломанные ref-ы Codex (`refs/codex/turn-diffs/checkpoints/*`) вынесены в
+   `.git-safety-backup/git-20260911-110758/refs-backup/` (форензическая копия сохранена).
+3. `git fsck` после починки: 0 ошибок целостности.
+
+Форензическая копия исходного `.git` сохранена в `.git-safety-backup/` (в git не входит).
+
+---
+
+*Снимок создан автоматически; контрольные суммы соответствуют состоянию на дату снимка.*
