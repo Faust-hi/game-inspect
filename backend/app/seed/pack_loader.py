@@ -8,7 +8,7 @@ claims, кейсы и пакеты работ, не затирая сущест�
 from __future__ import annotations
 
 import json
-import os
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -17,9 +17,11 @@ from sqlalchemy.orm import Session
 
 from ..models.entities import (
     CaseEvidence, Conflict, EvidenceClaim, EvidenceSource, GameCase, Method,
-    TechnologyNode, WorkPackage,
+    WorkPackage,
 )
 from ..models.enums import Status
+
+logger = logging.getLogger("gamedev_dss.seed.pack_loader")
 
 #: Публикуются только утверждения с источником: спека прямо запрещает
 #: публикацию записи без обязательного источника. Утверждение без источника
@@ -140,16 +142,32 @@ def normalize_stage(raw: Any) -> tuple[str, str | None]:
     return "prototype", text
 
 
-def _load_packs() -> list[dict[str, Any]]:
-    packs = []
+def _load_packs() -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
+    """Загрузить пакеты и вернуть их вместе со списком сбоев.
+
+    Раньше исключение при чтении файла просто пропускало пак: база
+    заполнялась без него, а оператор не видел, что часть доказательной базы
+    не загружена. Молчаливая потеря данных противоречит принципу проекта
+    («пробел либо доказан, либо объявлен»), поэтому сбой возвращается
+    вызывающему коду и попадает в лог, а не исчезает бесследно.
+    """
+    packs: list[dict[str, Any]] = []
+    failures: list[dict[str, str]] = []
     if not PACK_DIR.exists():
-        return packs
-    for p in sorted(PACK_DIR.glob("pack_*.json")):
+        return packs, failures
+    for path in sorted(PACK_DIR.glob("pack_*.json")):
         try:
-            packs.append(json.loads(p.read_text(encoding="utf-8")))
-        except Exception:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            failures.append({"file": path.name, "error": str(exc)})
+            logger.warning("Пак %s не загружен: %s", path.name, exc)
             continue
-    return packs
+        if not isinstance(payload, dict):
+            failures.append({"file": path.name, "error": "ожидался объект JSON"})
+            logger.warning("Пак %s не загружен: ожидался объект JSON", path.name)
+            continue
+        packs.append(payload)
+    return packs, failures
 
 
 def _upsert_source(db: Session, payload: dict[str, Any]) -> EvidenceSource:
@@ -407,8 +425,14 @@ _ENTITY_SECTIONS: dict[str, tuple[str, str]] = {
 
 
 def sync_packs(db: Session) -> dict[str, int]:
-    packs = _load_packs()
-    stats = {"sources": 0, "claims": 0, "cases": 0, "case_evidence": 0, "work_packages": 0, "relations": 0}
+    packs, pack_failures = _load_packs()
+    stats = {
+        "sources": 0, "claims": 0, "cases": 0, "case_evidence": 0,
+        "work_packages": 0, "relations": 0,
+        # Число загруженных пакетов и число сбоев видны в статистике: по ней
+        # видно, что часть доказательной базы не попала в расчёт.
+        "packs_loaded": len(packs), "pack_load_failures": len(pack_failures),
+    }
     sources_map: dict[str, EvidenceSource] = {}
     known_methods = {code for (code,) in db.execute(select(Method.code)).all()}
     seen_relations: set[tuple[str, str, str]] = set()
