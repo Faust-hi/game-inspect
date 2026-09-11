@@ -92,3 +92,19 @@ def test_no_dangling_published_claim(db_session):
         if not self_justified and c.field != "adoption_evidence_gap":
             dangling.append(c.code)
     assert dangling == [], f"висячие утверждения: {dangling[:10]}"
+
+
+def test_cpu_notes_record_single_thread_provenance(db_session):
+    """Провенанс CPU покрывает оба индекса, а не только multi-thread.
+
+    `benchmark_raw_value` хранит одно значение (multi-thread), поэтому
+    происхождение single-thread индекса фиксируется в примечании. Без этого
+    собранные измеренные значения оставались бы невостребованными, а индекс —
+    без проверяемого источника.
+    """
+    cpus = db_session.scalars(select(HardwareCPU)).all()
+    assert cpus
+    missing = [
+        c.model for c in cpus if "Single-thread" not in (c.normalization_note or "")
+    ]
+    assert missing == [], f"CPU без провенанса single-thread: {missing[:10]}"

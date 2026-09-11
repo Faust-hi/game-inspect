@@ -6,13 +6,10 @@
 """
 from __future__ import annotations
 
-from typing import Any
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models.entities import Engine, EngineTool, EvidenceSource, HardwareCPU, HardwareGPU, Method, MethodEngineLink
-from . import sources
 
 
 # ── 1. Исправления title/URL, где URL уже обновлён, а заголовок остался старым ──
@@ -332,6 +329,32 @@ def _passmark_source(db: Session) -> EvidenceSource:
     return src
 
 
+def _cpu_single_thread_note(row: HardwareCPU, anchor_single: int) -> str:
+    """Провенанс single-thread индекса процессора.
+
+    Поле `benchmark_raw_value` хранит одно значение (multi-thread), поэтому
+    происхождение single-thread индекса иначе оставалось бы незаписанным, а
+    измеренные значения `_MEASURED_CPU_SINGLE` — невостребованными. Формула
+    та же, что у multi-thread: `normalized = raw / anchor` с округлением до
+    двух знаков; для записей без прямого замера raw выводится обратно из
+    нормализованного индекса.
+    """
+    anchor_model = _ANCHORS["cpu_single"]["model"]
+    measured = _MEASURED_CPU_SINGLE.get(row.model)
+    if measured is not None:
+        return (
+            f"Single-thread: измеренное значение {measured} "
+            f"(якорь {anchor_model} = {anchor_single}); "
+            f"normalized = raw / {anchor_single} (округление до 2 знаков)."
+        )
+    derived = round(row.single_thread_score * anchor_single)
+    return (
+        f"Single-thread: значение выведено: {derived} "
+        f"(формула raw = normalized × {anchor_single}, якорь {anchor_model}); "
+        "допуск ±5%."
+    )
+
+
 def apply_hardware_raw_values(db: Session) -> int:
     """Заполнить benchmark_raw_value, benchmark_context, normalization_note, evidence_basis."""
     src = _passmark_source(db)
@@ -342,7 +365,6 @@ def apply_hardware_raw_values(db: Session) -> int:
 
     for row in db.scalars(select(HardwareCPU)):
         raw_multi = _MEASURED_CPU_MULTI.get(row.model)
-        raw_single = _MEASURED_CPU_SINGLE.get(row.model)
         if raw_multi is not None:
             row.benchmark_raw_value = float(raw_multi)
             row.benchmark_name = "PassMark CPU Mark (multi-thread)"
@@ -351,7 +373,8 @@ def apply_hardware_raw_values(db: Session) -> int:
                 f"Исходное значение (multi-thread): {raw_multi}. "
                 f"Якорь нормализации: {_ANCHORS['cpu_multi']['model']} = {anchor_cpu_multi}. "
                 f"Формула: normalized = raw / {anchor_cpu_multi} (округление до 2 знаков). "
-                "Допуск ±2% из-за округления и дневного дрейфа базы."
+                "Допуск ±2% из-за округления и дневного дрейфа базы. "
+                + _cpu_single_thread_note(row, anchor_cpu_single)
             )
             row.evidence_basis = "measured"
             row.evidence_source_id = src.id
@@ -364,7 +387,8 @@ def apply_hardware_raw_values(db: Session) -> int:
             row.normalization_note = (
                 f"Исходное значение выведено: {derived}. "
                 f"Формула: raw = normalized_multi × {anchor_cpu_multi} (якорь {_ANCHORS['cpu_multi']['model']}). "
-                "Допуск ±5% из-за округления индекса и дрейфа базы; для точного значения сверить с PassMark."
+                "Допуск ±5% из-за округления индекса и дрейфа базы; для точного значения сверить с PassMark. "
+                + _cpu_single_thread_note(row, anchor_cpu_single)
             )
             row.evidence_basis = "derived"
             row.evidence_source_id = src.id
