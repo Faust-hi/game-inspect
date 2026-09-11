@@ -333,119 +333,166 @@
         "total": 375,
         "published": 375,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "conflicts": {
         "total": 456,
         "published": 456,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "dependency_edges": {
         "total": 930,
         "published": 930,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "engine_tools": {
         "total": 71,
         "published": 71,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "engines": {
         "total": 7,
         "published": 7,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "evidence_claims": {
         "total": 2564,
         "published": 2540,
         "invisible": 24,
+        "declared_invisible": 24,
+        "undeclared_invisible": 0,
         "declared_draft": true,
+        "declaration": "a claim without a source stays draft on purpose (declared gap), so draft is the declared state here",
         "ok": true
       },
       "evidence_sources": {
         "total": 936,
         "published": 936,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "game_cases": {
         "total": 155,
         "published": 155,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "game_functions": {
         "total": 40,
         "published": 40,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "hardware_cpu": {
         "total": 51,
         "published": 51,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "hardware_gpu": {
         "total": 79,
         "published": 79,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "method_engine_links": {
         "total": 475,
         "published": 475,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "methods": {
         "total": 124,
         "published": 124,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "team_scenarios": {
         "total": 5,
         "published": 5,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "technology_nodes": {
         "total": 222,
         "published": 222,
         "invisible": 0,
+        "declared_invisible": 0,
+        "undeclared_invisible": 0,
         "declared_draft": false,
+        "declaration": "",
         "ok": true
       },
       "work_packages": {
         "total": 1794,
         "published": 802,
         "invisible": 992,
+        "declared_invisible": 992,
+        "undeclared_invisible": 0,
         "declared_draft": false,
-        "ok": false
+        "declaration": "pack family (curated effort, no external source): decision N2 deferred",
+        "ok": true
       }
     },
-    "invisible_tables": [
-      "work_packages"
-    ],
-    "invisible_rows": 992
+    "invisible_tables": [],
+    "invisible_rows": 0,
+    "declared_invisible_rows": 1016
   },
   "sources": {
     "total": 936,
@@ -1402,25 +1449,25 @@
     "dangling": [],
     "dangling_count": 0,
     "by_basis": {
-      "unknown": 263,
-      "case_evidence": 244,
-      "expert_estimate": 164,
-      "documented": 1581,
+      "measured": 104,
       "derived": 208,
-      "measured": 104
+      "documented": 1581,
+      "unknown": 263,
+      "expert_estimate": 164,
+      "case_evidence": 244
     },
     "by_verification": {
-      "derived_from_input": 4,
-      "derived_from_formula": 2,
-      "derived_from_published_rate": 1,
-      "needs_review": 1,
       "verified": 1316,
+      "derived_from_formula": 2,
       "derived_with_context": 130,
+      "source_verified": 474,
       "unverified": 503,
+      "needs_review": 1,
       "scenario_only": 124,
-      "partially_verified": 8,
       "derived_from_dag": 1,
-      "source_verified": 474
+      "partially_verified": 8,
+      "derived_from_input": 4,
+      "derived_from_published_rate": 1
     },
     "numeric_without_source": 0
   },
