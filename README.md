@@ -236,7 +236,15 @@ cd .. && ./.dss-venv/Scripts/python.exe tools/audit_evidence.py
 # 6. Тесты
 cd backend && ../.dss-venv/Scripts/python.exe -m pytest tests/ -q
 cd ../frontend && npm test && npm run build
+
+# 7. Сверка чисел в исследованиях с движком (на временной БД, рабочую не трогает)
+cd .. && ./.dss-venv/Scripts/python.exe tools/check_research_invariants.py
 ```
+
+> Шаг 7 проверяет, что числа, записанные в `research/category_verification.md`
+> (§2.3, §2.8, §2.10), по-прежнему воспроизводятся движком. Тесты из шага 6
+> держат инварианты (направление и равенство), но не конкретные значения,
+> поэтому только эта проверка замечает устаревание документации.
 
 > Внимание: шаг 1 перезаписывает `research/verification_report.json` без сетевых
 > полей. Если он нужен для итоговых артефактов, после него выполните шаг 4.

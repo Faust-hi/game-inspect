@@ -1,7 +1,7 @@
 # Доказательное исследование и DSS для проектирования игр
 
 Дата генерации: 2026-09-11  
-Ревизия репозитория: `e04a4c3`  
+Ревизия репозитория: `7f6d016`  
 Снимок базы: `C:\Users\user\Desktop\game-inspect\backend\gamedev_dss.db` — полный локальный снимок
 
 > Принцип отчёта: ни одно число не публикуется как измерение, если у него нет
@@ -60,7 +60,7 @@ tick, сетевой latency/tick и storage задаются профилем. 
 | --- | --- |
 | official_documentation | 317 |
 | secondary | 311 |
-| hardware_benchmark | 129 |
+| hardware_benchmark | 130 |
 | conference_talk | 39 |
 | open_source | 33 |
 | book | 26 |
@@ -673,8 +673,9 @@ rework/late-risk note.
 
 | Тип | basis | Записей |
 | --- | --- | --- |
-| CPU | derived | 51 |
-| GPU | derived | 79 |
+| CPU | measured | 51 |
+| GPU | measured | 62 |
+| GPU | derived | 17 |
 
 | Тип | Класс | Записей |
 | --- | --- | --- |
@@ -699,35 +700,35 @@ evidence basis и source link. Если каталог не содержит у�
 
 | Модель | Single-thread | Multi-thread | Класс | Benchmark | Basis |
 | --- | --- | --- | --- | --- | --- |
-| Core i9-14900K | 1.00 | 0.94 | 5 | PassMark CPU Benchmarks — Intel Core i9-1490 | derived |
-| Core i9-13900K | 0.98 | 0.93 | 5 | PassMark CPU Benchmarks — Intel Core i9-1390 | derived |
-| Core i7-14700K | 0.95 | 0.84 | 5 | PassMark Intel Core i7-14700K Benchmark — CP | derived |
-| Ryzen 7 9800X3D | 0.94 | 0.64 | 5 | PassMark AMD Ryzen 7 9800X3D Benchmark — CPU | derived |
-| Core i7-13700K | 0.92 | 0.73 | 4 | PassMark CPU Benchmarks — Intel Core i7-1370 | derived |
-| Ryzen 9 7950X | 0.91 | 1.00 | 5 | PassMark CPU Benchmarks — AMD Ryzen 9 7950X | derived |
-| Core i5-14600K | 0.91 | 0.62 | 4 | PassMark Intel Core i5-14600K Benchmark — CP | derived |
-| Ryzen 9 7900X | 0.90 | 0.82 | 5 | PassMark CPU Benchmarks — AMD Ryzen 9 7900X | derived |
-| Ryzen 7 7700X | 0.89 | 0.57 | 4 | PassMark CPU Benchmarks — AMD Ryzen 7 7700X | derived |
-| Core i5-13600K | 0.88 | 0.60 | 4 | PassMark CPU Benchmarks — Intel Core i5-1360 | derived |
-| Core i9-12900K | 0.88 | 0.66 | 4 | PassMark CPU Benchmarks — Intel Core i9-1290 | derived |
-| Ryzen 5 7600X | 0.88 | 0.46 | 4 | PassMark CPU Benchmarks — AMD Ryzen 5 7600X | derived |
+| Core i9-14900K | 1.00 | 0.94 | 5 | PassMark CPU Mark (multi-thread) | measured |
+| Core i9-13900K | 0.98 | 0.93 | 5 | PassMark CPU Mark (multi-thread) | measured |
+| Core i7-14700K | 0.95 | 0.84 | 5 | PassMark CPU Mark (multi-thread) | measured |
+| Ryzen 7 9800X3D | 0.94 | 0.64 | 5 | PassMark CPU Mark (multi-thread) | measured |
+| Core i7-13700K | 0.92 | 0.73 | 4 | PassMark CPU Mark (multi-thread) | measured |
+| Ryzen 9 7950X | 0.91 | 1.00 | 5 | PassMark CPU Mark (multi-thread) | measured |
+| Core i5-14600K | 0.91 | 0.62 | 4 | PassMark CPU Mark (multi-thread) | measured |
+| Ryzen 9 7900X | 0.90 | 0.82 | 5 | PassMark CPU Mark (multi-thread) | measured |
+| Ryzen 7 7700X | 0.89 | 0.57 | 4 | PassMark CPU Mark (multi-thread) | measured |
+| Core i5-13600K | 0.88 | 0.60 | 4 | PassMark CPU Mark (multi-thread) | measured |
+| Core i9-12900K | 0.88 | 0.66 | 4 | PassMark CPU Mark (multi-thread) | measured |
+| Ryzen 5 7600X | 0.88 | 0.46 | 4 | PassMark CPU Mark (multi-thread) | measured |
 
 ### 15.3 GPU (верхняя часть по raster)
 
 | Модель | Raster | RT | VRAM, GB | Класс | Benchmark |
 | --- | --- | --- | --- | --- | --- |
-| GeForce RTX 4090 | 1.00 | 1.00 | 24 | 5 | PassMark Video Card Benchmarks — GeForce RTX |
-| GeForce RTX 5090 | 1.00 | 1.00 | 32 | 5 | PassMark Video Card Benchmarks — GeForce RTX |
-| GeForce RTX 5080 | 0.94 | 0.94 | 16 | 5 | PassMark Video Card Benchmarks — GeForce RTX |
-| GeForce RTX 4080 | 0.87 | 0.91 | 16 | 5 | PassMark Video Card Benchmarks — GeForce RTX |
-| Radeon RX 7900 XTX | 0.86 | 0.83 | 24 | 5 | PassMark Video Card Benchmarks — Radeon RX 7 |
-| GeForce RTX 5070 Ti | 0.85 | 0.85 | 16 | 4 | PassMark Video Card Benchmarks — GeForce RTX |
-| Radeon RX 7900 XT | 0.78 | 0.77 | 20 | 4 | PassMark Video Card Benchmarks — Radeon RX 7 |
-| GeForce RTX 5070 | 0.75 | 0.75 | 12 | 4 | PassMark Video Card Benchmarks — GeForce RTX |
-| Radeon RX 9070 XT | 0.71 | 0.71 | 16 | 4 | PassMark Video Card Benchmarks — Radeon RX 9 |
-| GeForce RTX 3090 | 0.70 | 0.70 | 24 | 4 | PassMark Video Card Benchmarks — GeForce RTX |
-| Radeon RX 6900 XT | 0.70 | 0.70 | 16 | 4 | PassMark Video Card Benchmarks — Radeon RX 6 |
-| GeForce RTX 3080 | 0.68 | 0.66 | 10 | 4 | PassMark Video Card Benchmarks — GeForce RTX |
+| GeForce RTX 4090 | 1.00 | 1.00 | 24 | 5 | PassMark G3D Mark (raster) |
+| GeForce RTX 5090 | 1.00 | 1.00 | 32 | 5 | PassMark G3D Mark (raster) |
+| GeForce RTX 5080 | 0.94 | 0.94 | 16 | 5 | PassMark G3D Mark (raster) |
+| GeForce RTX 4080 | 0.87 | 0.91 | 16 | 5 | PassMark G3D Mark (raster) |
+| Radeon RX 7900 XTX | 0.86 | 0.83 | 24 | 5 | PassMark G3D Mark (raster) |
+| GeForce RTX 5070 Ti | 0.85 | 0.85 | 16 | 4 | PassMark G3D Mark (raster) |
+| Radeon RX 7900 XT | 0.78 | 0.77 | 20 | 4 | PassMark G3D Mark (raster) |
+| GeForce RTX 5070 | 0.75 | 0.75 | 12 | 4 | PassMark G3D Mark (raster) |
+| Radeon RX 9070 XT | 0.71 | 0.71 | 16 | 4 | PassMark G3D Mark (raster) |
+| GeForce RTX 3090 | 0.70 | 0.70 | 24 | 4 | PassMark G3D Mark (raster) |
+| Radeon RX 6900 XT | 0.70 | 0.70 | 16 | 4 | PassMark G3D Mark (raster) |
+| GeForce RTX 3080 | 0.68 | 0.66 | 10 | 4 | PassMark G3D Mark (raster) |
 
 ## 16. Реальные игровые кейсы
 
@@ -1148,7 +1149,7 @@ derived, case_evidence, expert_estimate и unknown. Все открываемы�
 
 ## 20. Полный список источников
 
-Всего в реестре 935 источников; ниже — полный перечень с типом, датой
+Всего в реестре 936 источников; ниже — полный перечень с типом, датой
 проверки, версией, платформой, локатором и доступностью.
 
 | Код | Название | Автор / издатель | Тип | Дата | Проверен | Версия | Платформа | Локатор | Доступность |
@@ -1189,6 +1190,7 @@ derived, case_evidence, expert_estimate и unknown. Все открываемы�
 | NVIDIA_NTC | NVIDIA RTXNTC SDK |  | engineering_article | 2026-09-09 | 2026-09-10 |  |  | overview page | available |
 | NVIDIA_VOXEL_CONES | Interactive Indirect Illumination Using Voxel Cone Tracing — Crassin et al. |  | engineering_article | 2011-09 | 2026-09-10 |  |  | overview page | available |
 | ORCA_RVO | Optimal Reciprocal Collision Avoidance (van den Berg et al., UNC Gamma) |  | secondary | 2011-01-01 | 2026-09-10 |  |  | overview page | available |
+| PASSMARK_2026_09 | PassMark PerformanceTest V10 — CPU and GPU Benchmarks |  | hardware_benchmark | 2026-09-10 | 2026-09-10 |  |  | common_cpus / high_end_gpus / per-model pages | accessible |
 | RESEARCH_S23_PACKAGING | Unreal Engine: Packaging Your Project |  | official_documentation |  | 2026-09-10 |  | Windows/Linux PC | sections: Build, Cook, Stage, Package; Chunking | available |
 | RESEARCH_S24_HLOD | Unreal Engine: World Partition HLOD |  | official_documentation |  | 2026-09-10 |  | Windows/Linux PC | sections: HLOD layers and proxy mesh methods | available |
 | RESEARCH_S25_PCG | Using PCG with World Partition |  | official_documentation |  | 2026-09-10 |  | Windows/Linux PC | sections: PCG Data Layers and HLOD Layers | available |
@@ -2127,6 +2129,7 @@ derived, case_evidence, expert_estimate и unknown. Все открываемы�
 - `NVIDIA_NTC` — NVIDIA RTXNTC SDK — https://github.com/NVIDIA-RTX/Rtxntc
 - `NVIDIA_VOXEL_CONES` — Interactive Indirect Illumination Using Voxel Cone Tracing — Crassin et al. — https://research.nvidia.com/labs/rtr/publication/crassin2011givoxels/
 - `ORCA_RVO` — Optimal Reciprocal Collision Avoidance (van den Berg et al., UNC Gamma) — https://gamma.cs.unc.edu/ORCA/
+- `PASSMARK_2026_09` — PassMark PerformanceTest V10 — CPU and GPU Benchmarks — https://www.cpubenchmark.net/
 - `RESEARCH_S23_PACKAGING` — Unreal Engine: Packaging Your Project — https://dev.epicgames.com/documentation/en-us/unreal-engine/packaging-your-project
 - `RESEARCH_S24_HLOD` — Unreal Engine: World Partition HLOD — https://dev.epicgames.com/documentation/en-us/unreal-engine/world-partition---hierarchical-level-of-detail-in-unreal-engine
 - `RESEARCH_S25_PCG` — Using PCG with World Partition — https://dev.epicgames.com/documentation/en-us/unreal-engine/using-pcg-with-world-partition-in-unreal-engine?lang=en-US

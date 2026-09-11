@@ -1,6 +1,6 @@
 # Матрица покрытия каталога и provenance
 
-Снимок: `C:\Users\user\Desktop\game-inspect\backend\gamedev_dss.db`. Матрица создана генератором отчёта `e04a4c3`.
+Снимок: `C:\Users\user\Desktop\game-inspect\backend\gamedev_dss.db`. Матрица создана генератором отчёта `7f6d016`.
 
 Это аудит полноты полей, а не утверждение, что 124 метода уже прошли глубокую предметную рецензию. `yes` означает заполненное поле каталога; доказательность механизма/числа проверяется в EvidenceClaim.
 
@@ -708,7 +708,7 @@
 | animation_compression | normal_bake_retopology_pipeline | risk | 2 | yes | ACL's error is measured on a virtual vertex 3cm from each bone as a proxy for the real mesh; if the real mesh has long limbs or extreme proportions, that proxy is wrong and visible error appears where the metric reports none. |
 | animation_lod_budget | animation_compression | complement | 1 | yes | Compression lowers the per-character evaluation cost (smaller working set, faster sampling), which directly raises how many characters fit inside a fixed budget. |
 | animation_lod_budget | data_driven_ability_system | risk | 2 | yes | Abilities that drive montages or read animation state on tick inherit the throttled rate; a throttled character can activate an ability whose montage callback is delayed, which is a gameplay bug, not a visual one. |
-| animation_lod_budget | gpu_skinning_compute | dependency | 3 | gap | Метод «animation_lod_budget» требует предварительного метода «gpu_skinning_compute». |
+| animation_lod_budget | gpu_skinning_compute | dependency | 3 | yes | Метод «animation_lod_budget» требует предварительного метода «gpu_skinning_compute». |
 | animation_lod_budget | motion_matching | risk | 2 | yes | Motion matching searches the database on tick; throttling the tick rate throttles responsiveness, and root-motion locomotion blocks the parallel-update path entirely, which removes one of the two ways to pay for motion matching in a crowd. |
 | art_direction_stylization | ability_visual_effect_budget | dependency | 3 | yes | The VFX language is part of the style; a stylized game usually needs fewer, larger, more readable effects, which directly changes the particle/instance budget rather than just the look. |
 | art_direction_stylization | sprite_atlas_batching | complement | 1 | yes | 2D/vector and frame-by-frame styles put extreme pressure on sprite memory and atlas packing instead of on geometry and materials. |
@@ -760,7 +760,7 @@
 | chunked_procedural_terrain | heightmap_compression | complement | 1 | yes | Chunked storage is what makes it practical to compress and store only the chunks that were actually visited. |
 | chunked_procedural_terrain | terrain_generation_streaming_budget | complement | 1 | yes | Chunks define the unit; the budget defines how many can be produced per second. They must be designed together. |
 | client_prediction_reconciliation | deterministic_lockstep | alternative | 1 | yes | Lockstep removes misprediction entirely by never predicting - everyone waits. Overwatch explicitly declined full RTS-style determinism and relies on server correction instead. |
-| client_prediction_reconciliation | headless_dedicated_server | dependency | 3 | gap | Метод «client_prediction_reconciliation» требует предварительного метода «headless_dedicated_server». |
+| client_prediction_reconciliation | headless_dedicated_server | dependency | 3 | yes | Метод «client_prediction_reconciliation» требует предварительного метода «headless_dedicated_server». |
 | client_prediction_reconciliation | runtime_security_budget | risk | 2 | yes | Prediction means the client runs authoritative simulation code and knows more than it should; Riot's answer is server authority over the outcome, never trusting the client's view of the world. |
 | client_prediction_reconciliation | tickrate_budgeting | dependency | 3 | yes | The replay window is measured in command frames, so the tick rate directly sets how many frames of input must be stored and re-simulated. |
 | cloth_baked_animation | destruction_geometry_cache | overlap | 1 | yes | Same principle - pre-authored states played back instead of runtime simulation - applied to damage rather than cloth. |
@@ -791,7 +791,7 @@
 | delta_compression_state | client_prediction_reconciliation | overlap | 1 | yes | Both depend on the same acknowledgement bookkeeping; input windows and state deltas share an ack stream. |
 | delta_compression_state | deterministic_lockstep | alternative | 1 | yes | Lockstep compresses by sending commands instead of state - the extreme end of the same idea - and trades input delay for it. |
 | delta_compression_state | headless_dedicated_server | dependency | 3 | yes | The delta baseline state lives on the authoritative server, so server memory and CPU planning are part of this decision. |
-| delta_compression_state | network_relevancy_priority | dependency | 3 | gap | Метод «delta_compression_state» требует предварительного метода «network_relevancy_priority». |
+| delta_compression_state | network_relevancy_priority | dependency | 3 | yes | Метод «delta_compression_state» требует предварительного метода «network_relevancy_priority». |
 | delta_compression_state | tickrate_budgeting | risk | 2 | yes | Delta cost is per tick; doubling tick rate doubles delta production work even if bandwidth per packet halves. |
 | depth_prepass_early_z | deferred_forward_plus_choice | dependency | 3 | yes | The value of the prepass depends on whether the renderer is forward (high overdraw) or deferred. |
 | depth_prepass_early_z | hiz_software_occlusion | complement | 1 | yes | Both attack work that will not be visible; Hi-Z works at object level, early-Z at fragment level. |
@@ -816,7 +816,7 @@
 | directstorage_io | virtual_texturing | complement | 2 | yes | Очереди I/O могут подавать тайлы виртуальных текстур. |
 | distance_field_shadows | build_size_startup_budgets | complement | 1 | yes | Generated distance fields are cooked data: they add to install size and to the atlas memory budget in the same way compressed textures do. |
 | distance_field_shadows | gpu_instancing_vegetation | complement | 1 | yes | Instanced static meshes use instanced distance fields; the foliage tool's Affect Distance Field Lighting flag is what decides whether a foliage type participates, and getting it wrong overflows the tile culling buffer. |
-| distance_field_shadows | sdf_global_illumination | dependency | 3 | gap | Метод «distance_field_shadows» требует предварительного метода «sdf_global_illumination». |
+| distance_field_shadows | sdf_global_illumination | dependency | 3 | yes | Метод «distance_field_shadows» требует предварительного метода «sdf_global_illumination». |
 | distance_field_shadows | virtual_geometry_clusters | risk | 2 | yes | A virtualized-geometry pipeline already owns triangle-scale LOD and its own shadow approach; adding a second, offline-generated scene representation duplicates build time and memory. |
 | distance_field_shadows | world_partition_streaming | risk | 2 | yes | Fields are generated offline, so any world that streams actors in and out must ensure the streamed content has fields built and resident; a missing field is a missing shadow, not an error. |
 | dynamic_light_priority_budget | deferred_forward_plus_choice | complement | 1 | yes | Forward+ is the architecture that made huge light counts practical without a G-buffer. |
@@ -825,7 +825,7 @@
 | dynamic_light_priority_budget | tiled_clustered_light_culling | dependency | 3 | yes | Priority budgeting is a policy layered on top of the culling structure. |
 | dynamic_resolution_scaling | quality_tier_scalability | complement | 1 | yes | Static tiers set the range; DRS moves within it. |
 | dynamic_resolution_scaling | temporal_upscaling | complement | 1 | yes | DRS supplies a varying input resolution; the temporal upscaler reconstructs it. |
-| dynamic_resolution_scaling | temporal_upscaling | dependency | 3 | gap | Метод «dynamic_resolution_scaling» требует предварительного метода «temporal_upscaling». |
+| dynamic_resolution_scaling | temporal_upscaling | dependency | 3 | yes | Метод «dynamic_resolution_scaling» требует предварительного метода «temporal_upscaling». |
 | ecs_data_oriented_crowd | composition_bootstrap_architecture | complement | 1 | yes | ECS is the extreme form of composition; the Component pattern's caveats (communication, ordering) apply to both. |
 | ecs_data_oriented_crowd | multithreaded_physics_jobs | complement | 1 | yes | Both rely on a job system and on declaring read/write access for safe parallelism. |
 | fixed_timestep_physics | cloth_constraint_simulation | complement | 1 | yes | Spring-based cloth stretches and explodes under variable deltas; it needs a stable step. |
@@ -839,14 +839,14 @@
 | flow_field_pathing | navmesh_tiling_streaming | alternative | 1 | yes | Polygon navmesh + per-agent A* vs grid flow fields. Flow fields win when many agents share few goals; navmesh wins for few agents with individual long paths and for precise polygon-level movement. |
 | flow_field_pathing | rvo_local_avoidance | complement | 1 | yes | Flow fields give global direction; local avoidance handles agent-agent and agent-wall contact. The chapter explicitly relies on physics/steering once agents can move in any direction. |
 | froxel_volumetric_fog | async_compute_overlap | complement | 1 | yes | Wronski explicitly suggests running the pass on async compute once shadow maps are ready. |
-| froxel_volumetric_fog | deferred_forward_plus_choice | dependency | 3 | gap | Метод «froxel_volumetric_fog» требует предварительного метода «deferred_forward_plus_choice». |
+| froxel_volumetric_fog | deferred_forward_plus_choice | dependency | 3 | yes | Метод «froxel_volumetric_fog» требует предварительного метода «deferred_forward_plus_choice». |
 | froxel_volumetric_fog | temporal_upscaling | risk | 2 | yes | Epic notes TSR's flicker analysis can be triggered by fog/clouds ('TSR.Flickering.Luminance' pass). |
 | froxel_volumetric_fog | volumetric_half_resolution | complement | 1 | yes | The froxel grid already IS a reduced-resolution representation; the two are the same idea at different granularity. |
 | full_path_tracing_pipeline | hardware_raytraced_gi | alternative | 1 | yes | Cached-surface RT GI is the real-time compromise; PT is the reference. |
 | full_path_tracing_pipeline | ml_frame_generation | complement | 1 | yes | CDPR and Remedy both ship path tracing together with frame generation - the two are practically coupled in shipped titles. |
 | full_path_tracing_pipeline | path_tracing_sample_denoiser_budget | dependency | 3 | yes | Without a spp/denoiser budget the mode is not interactive. |
-| full_path_tracing_pipeline | selective_ray_traced_effects | dependency | 3 | gap | Метод «full_path_tracing_pipeline» требует предварительного метода «selective_ray_traced_effects». |
-| full_path_tracing_pipeline | temporal_upscaling | dependency | 3 | gap | Метод «full_path_tracing_pipeline» требует предварительного метода «temporal_upscaling». |
+| full_path_tracing_pipeline | selective_ray_traced_effects | dependency | 3 | yes | Метод «full_path_tracing_pipeline» требует предварительного метода «selective_ray_traced_effects». |
+| full_path_tracing_pipeline | temporal_upscaling | dependency | 3 | yes | Метод «full_path_tracing_pipeline» требует предварительного метода «temporal_upscaling». |
 | gerstner_fft_water | flipbook_particles | overlap | 1 | yes | Both are 'bake an expensive simulation into a texture' strategies, used for water displacement and for VFX respectively. |
 | gerstner_fft_water | gpu_particle_simulation | overlap | 1 | yes | Both push work onto the GPU and both end up bounded by bandwidth/overdraw rather than by raw ALU. |
 | gerstner_fft_water | planar_reflection_budget | complement | 1 | yes | Water is the main consumer of reflection budget; the two must be budgeted together. |
@@ -855,7 +855,7 @@
 | gpu_compute_culling | distance_field_shadows | risk | 2 | yes | Shadow cost in a GPU-driven pipeline scales with shadow pixels and lights per pixel, not scene complexity - so culling savings do not automatically translate to shadow passes. |
 | gpu_compute_culling | gpu_instancing_vegetation | complement | 1 | yes | Cluster culling is what lets an instanced-vegetation batch be culled at sub-instance granularity instead of culling the whole batch. |
 | gpu_compute_culling | mesh_index_optimization | complement | 1 | yes | Cluster/meshlet locality only pays if the index order within each cluster is cache-optimal; the two are built in the same preprocessing pass. |
-| gpu_compute_culling | mesh_index_optimization | dependency | 3 | gap | Метод «gpu_compute_culling» требует предварительного метода «mesh_index_optimization». |
+| gpu_compute_culling | mesh_index_optimization | dependency | 3 | yes | Метод «gpu_compute_culling» требует предварительного метода «mesh_index_optimization». |
 | gpu_compute_culling | virtual_geometry_clusters | overlap | 1 | yes | Nanite is GPU culling plus a cluster LOD DAG plus a software rasteriser; gpu_compute_culling is the shared foundation. |
 | gpu_instancing_vegetation | distance_field_shadows | risk | 2 | yes | Enabling 'Affect Distance Field Lighting' on dense foliage can overflow the tile culling buffer and cause artefacts, so it is off by default. |
 | gpu_instancing_vegetation | gpu_compute_culling | dependency | 3 | yes | Per-instance and per-cluster culling on the GPU is what makes large instance counts affordable. |
@@ -888,13 +888,13 @@
 | hair_strand_simulation | crowd_instancing_impostors | alternative | 1 | yes | For distant characters, an impostor/card proxy is a cheaper answer than a strand budget that scales with character count. |
 | hair_strand_simulation | fixed_timestep_physics | risk | 2 | yes | Strand physics is a spring system; variable timesteps produce jitter and stretching. |
 | hair_strand_simulation | hair_cards_lod | alternative | 2 | yes | Альтернативные представления одного LOD волос; разные LOD могут использовать разные представления. |
-| hardware_raytraced_gi | deferred_forward_plus_choice | dependency | 3 | gap | Метод «hardware_raytraced_gi» требует предварительного метода «deferred_forward_plus_choice». |
+| hardware_raytraced_gi | deferred_forward_plus_choice | dependency | 3 | yes | Метод «hardware_raytraced_gi» требует предварительного метода «deferred_forward_plus_choice». |
 | hardware_raytraced_gi | full_path_tracing_pipeline | risk | 2 | yes | Moving from cached-surface RT GI to full path tracing changes cost by an order of magnitude; CDPR gates it to top-tier GPUs and ships it off by default. |
 | hardware_raytraced_gi | screen_space_gi | overlap | 1 | yes | SSGI is a cheaper subset that is often combined with, rather than replacing, hardware RT GI. |
 | hardware_raytraced_gi | sdf_global_illumination | alternative | 1 | yes | Distance-field (software) tracing is Epic's documented fallback when hardware RT is unavailable. |
-| hardware_raytraced_gi | selective_ray_traced_effects | dependency | 3 | gap | Метод «hardware_raytraced_gi» требует предварительного метода «selective_ray_traced_effects». |
+| hardware_raytraced_gi | selective_ray_traced_effects | dependency | 3 | yes | Метод «hardware_raytraced_gi» требует предварительного метода «selective_ray_traced_effects». |
 | hardware_raytraced_gi | temporal_radiance_cache | complement | 1 | yes | Temporal accumulation of probe radiance is what makes the per-frame ray count affordable. |
-| hardware_raytraced_gi | temporal_upscaling | dependency | 3 | gap | Метод «hardware_raytraced_gi» требует предварительного метода «temporal_upscaling». |
+| hardware_raytraced_gi | temporal_upscaling | dependency | 3 | yes | Метод «hardware_raytraced_gi» требует предварительного метода «temporal_upscaling». |
 | hardware_raytraced_gi | voxel_cone_tracing | alternative | 1 | yes | Voxel cone tracing is an older, non-RT approach to the same one/two-bounce diffuse GI problem. |
 | headless_dedicated_server | deterministic_lockstep | alternative | 1 | yes | Lockstep peer-to-peer removes the dedicated server cost entirely - which is exactly why RTS games chose it - at the price of input delay and no host authority. |
 | headless_dedicated_server | managed_gc_alloc_budget | risk | 2 | yes | A headless server running hundreds of instances makes any per-frame allocation or GC pause visible as a hitch multiplied across every game on the host. |
@@ -915,16 +915,16 @@
 | impostors_billboards | vegetation_atlas_lod | dependency | 3 | yes | Impostor captures are stored in and sampled from an atlas; the two are one asset pipeline. |
 | irradiance_volume_probes | hardware_raytraced_gi | alternative | 1 | yes | Dynamic GI removes the bake but costs far more GPU. |
 | irradiance_volume_probes | lightmap_atlas_baking | complement | 1 | yes | Lightmaps handle static surfaces, probes handle dynamic objects - the classic shipped pairing. |
-| irradiance_volume_probes | lightmap_atlas_baking | dependency | 3 | gap | Метод «irradiance_volume_probes» требует предварительного метода «lightmap_atlas_baking». |
+| irradiance_volume_probes | lightmap_atlas_baking | dependency | 3 | yes | Метод «irradiance_volume_probes» требует предварительного метода «lightmap_atlas_baking». |
 | irradiance_volume_probes | temporal_radiance_cache | overlap | 1 | yes | Both are spatial caches of irradiance; a radiance cache is the dynamic, temporal version. |
 | lag_compensation_rewind | client_prediction_reconciliation | complement | 2 | yes | Серверная проверка и предсказание на клиенте могут сосуществовать. |
-| lag_compensation_rewind | client_prediction_reconciliation | dependency | 3 | gap | Метод «lag_compensation_rewind» требует предварительного метода «client_prediction_reconciliation». |
-| lag_compensation_rewind | network_relevancy_priority | dependency | 3 | gap | Метод «lag_compensation_rewind» требует предварительного метода «network_relevancy_priority». |
+| lag_compensation_rewind | client_prediction_reconciliation | dependency | 3 | yes | Метод «lag_compensation_rewind» требует предварительного метода «client_prediction_reconciliation». |
+| lag_compensation_rewind | network_relevancy_priority | dependency | 3 | yes | Метод «lag_compensation_rewind» требует предварительного метода «network_relevancy_priority». |
 | lag_compensation_rewind | runtime_security_budget | risk | 2 | yes | Rewind is the classic latency-abuse surface; Riot's documented answer is a tuned bound on how far the server will rewind. |
 | lag_compensation_rewind | subtick_networking | complement | 2 | yes | Метки могут уточнять историческую проверку; rewind работает и без sub-tick. |
 | lag_compensation_rewind | subtick_networking | dependency | 3 | yes | Evaluating an action at a sub-tick instant requires reconstructing that instant, which is rewind. Sub-tick is a consumer of this machinery, not a replacement. |
 | lag_compensation_rewind | tickrate_budgeting | risk | 2 | yes | History length in seconds times tick rate is the history buffer size, so raising tick rate raises rewind memory and rewind CPU linearly. |
-| light_range_attenuation_lod | dynamic_light_priority_budget | dependency | 3 | gap | Метод «light_range_attenuation_lod» требует предварительного метода «dynamic_light_priority_budget». |
+| light_range_attenuation_lod | dynamic_light_priority_budget | dependency | 3 | yes | Метод «light_range_attenuation_lod» требует предварительного метода «dynamic_light_priority_budget». |
 | light_range_attenuation_lod | quality_tier_scalability | complement | 1 | yes | LOD distances are a natural per-tier knob. |
 | light_range_attenuation_lod | shadow_caster_2d_limits | overlap | 1 | yes | Both are about limiting how many casters/sources participate. |
 | lightmap_2d_baking | dynamic_light_priority_budget | complement | 1 | yes | The hybrid variant is exactly a priority budget: baked = free, dynamic = limited count. |
@@ -936,7 +936,7 @@
 | lightmap_atlas_baking | static_shadow_caching | overlap | 1 | yes | Baked shadows are the extreme form of static shadow caching. |
 | lightmap_compression_streaming | lightmap_atlas_baking | complement | 1 | yes | Nothing to compress/stream without baked atlases. |
 | lightmap_compression_streaming | quality_tier_scalability | complement | 1 | yes | Lightmap resolution per tier is a standard memory knob. |
-| managed_gc_alloc_budget | tickrate_budgeting | dependency | 3 | gap | Метод «managed_gc_alloc_budget» требует предварительного метода «tickrate_budgeting». |
+| managed_gc_alloc_budget | tickrate_budgeting | dependency | 3 | yes | Метод «managed_gc_alloc_budget» требует предварительного метода «tickrate_budgeting». |
 | managed_gc_alloc_budget | tickrate_budgeting | risk | 2 | yes | A GC pause longer than one tick interval directly breaks the derived per-frame server budget (Riot's 2.34 ms target leaves no room for one). |
 | mesh_index_optimization | build_size_startup_budgets | complement | 1 | yes | Encoded buffers reduce both install size and the number of bytes the loader must read; whether that also reduces load time depends on the decode-vs-IO tradeoff. |
 | mesh_index_optimization | directstorage_io | risk | 2 | yes | On very fast storage, decoding compressed buffers on the CPU can cost more than the IO it saves; the tradeoff must be measured against the actual storage path. |
@@ -947,10 +947,10 @@
 | ml_frame_generation | client_prediction_reconciliation | risk | 2 | yes | Генерация кадров добавляет задержку и может давать визуальные артефакты при пересборке состояния. Генерация и предсказание не являются универсально несовместимыми алгоритмами. |
 | ml_frame_generation | dynamic_resolution_scaling | risk | 2 | yes | Varying render resolution changes the generator's input statistics; the two heuristics can fight. |
 | ml_frame_generation | quality_tier_scalability | complement | 1 | yes | Multiplier/mode selection should be exposed as a user-facing tier. |
-| ml_frame_generation | temporal_upscaling | dependency | 3 | gap | Метод «ml_frame_generation» требует предварительного метода «temporal_upscaling». |
+| ml_frame_generation | temporal_upscaling | dependency | 3 | yes | Метод «ml_frame_generation» требует предварительного метода «temporal_upscaling». |
 | motion_matching | animation_compression | complement | 1 | yes | Motion matching ships an order of magnitude more animation than a state machine; without compression the database is unshippable, and LMM exists because 'the memory usage of such methods generally scales linearly with the amount of data used'. |
 | motion_matching | animation_compression | risk | 2 | yes | Риск относится к конкретной степени сжатия: искажённые позы ухудшают точность поиска в базе движений. Универсальной несовместимости motion matching и сжатия анимаций нет. |
-| motion_matching | animation_lod_budget | dependency | 3 | gap | Метод «motion_matching» требует предварительного метода «animation_lod_budget». |
+| motion_matching | animation_lod_budget | dependency | 3 | yes | Метод «motion_matching» требует предварительного метода «animation_lod_budget». |
 | motion_matching | animation_lod_budget | hard_conflict | 3 | yes | Root motion is mandatory for UE motion matching but also blocks parallel animation update, removing the main thread-scaling lever; you are left with tick-rate throttling, which throttles responsiveness. |
 | motion_matching | data_driven_ability_system | complement | 1 | yes | A tag-driven ability system can swap Pose Search Normalization Sets on gameplay events (e.g. combat vs exploration databases), which is the natural integration point between the two systems. |
 | motion_matching | normal_bake_retopology_pipeline | overlap | 1 | yes | Both are 'capture more than you need, then reduce' pipelines; they differ in that one reduces geometry/texture offline and the other reduces animation at query time. |
@@ -1015,23 +1015,23 @@
 | runtime_security_budget | headless_dedicated_server | dependency | 3 | yes | Client-server anti-cheat mode requires a server interface, per-client registration on the dedicated server, and server-side event logging. |
 | rvo_local_avoidance | fixed_timestep_physics | risk | 2 | yes | Local avoidance is typically non-deterministic and client-authoritative; using it in a deterministic lockstep title creates divergence risk. A fixed physics/simulation timestep is a prerequisite for determinism but does not by itself make avoidance deterministic. |
 | rvo_local_avoidance | navmesh_tiling_streaming | complement | 1 | yes | DetourCrowd in the Recast family provides agent movement and collision avoidance alongside tiled navmesh queries. |
-| screen_space_contact_shadows | deferred_forward_plus_choice | dependency | 3 | gap | Метод «screen_space_contact_shadows» требует предварительного метода «deferred_forward_plus_choice». |
+| screen_space_contact_shadows | deferred_forward_plus_choice | dependency | 3 | yes | Метод «screen_space_contact_shadows» требует предварительного метода «deferred_forward_plus_choice». |
 | screen_space_contact_shadows | dynamic_light_priority_budget | complement | 1 | yes | Contact shadows let you drop expensive real shadow casters from the light budget. |
 | screen_space_contact_shadows | screen_space_gi | overlap | 1 | yes | Same screen-space family and artefact class. |
 | screen_space_contact_shadows | virtual_shadow_maps | alternative | 1 | yes | VSM's resolution makes contact shadows unnecessary on high tiers. |
-| screen_space_gi | deferred_forward_plus_choice | dependency | 3 | gap | Метод «screen_space_gi» требует предварительного метода «deferred_forward_plus_choice». |
+| screen_space_gi | deferred_forward_plus_choice | dependency | 3 | yes | Метод «screen_space_gi» требует предварительного метода «deferred_forward_plus_choice». |
 | screen_space_gi | hardware_raytraced_gi | complement | 1 | yes | Epic ships SSGI as an additional trace source inside Lumen rather than as a replacement for it. |
 | screen_space_gi | irradiance_volume_probes | alternative | 1 | yes | Probe volumes cover off-screen information that SSGI structurally cannot. |
 | screen_space_gi | quality_tier_scalability | complement | 1 | yes | SSGI is an obvious low-tier substitute for world-space GI. |
 | screen_space_gi | screen_space_contact_shadows | overlap | 1 | yes | Same screen-space-family technique and the same artefact class. |
-| screen_space_gi | temporal_upscaling | dependency | 3 | gap | Метод «screen_space_gi» требует предварительного метода «temporal_upscaling». |
+| screen_space_gi | temporal_upscaling | dependency | 3 | yes | Метод «screen_space_gi» требует предварительного метода «temporal_upscaling». |
 | screen_space_water_simple | crowd_instancing_impostors | overlap | 1 | yes | Same philosophy: a cheap proxy selected by distance/importance, judged entirely by whether the transition is noticeable. |
 | screen_space_water_simple | flipbook_particles | overlap | 1 | yes | Both replace a real simulation with a cheap, camera-facing approximation that holds up only under constrained viewing conditions. |
 | screenspace_light_shafts | froxel_volumetric_fog | complement | 1 | yes | If volumetrics exist, shafts should come from them rather than from a separate hack. |
 | screenspace_light_shafts | post_effect_selective | dependency | 3 | yes | Shafts are one of the passes to be tiered and down-res'd. |
 | screenspace_light_shafts | volumetric_half_resolution | complement | 1 | yes | Shafts tolerate low resolution well. |
 | sdf_global_illumination | distance_field_shadows | complement | 1 | yes | The same distance field serves both GI tracing and long-range shadows. |
-| sdf_global_illumination | hardware_raytraced_gi | dependency | 3 | gap | Метод «sdf_global_illumination» требует предварительного метода «hardware_raytraced_gi». |
+| sdf_global_illumination | hardware_raytraced_gi | dependency | 3 | yes | Метод «sdf_global_illumination» требует предварительного метода «hardware_raytraced_gi». |
 | sdf_global_illumination | meshlet_pipeline_adoption | risk | 2 | yes | Nanite-style virtualised geometry changes the SDF generation path; Epic ties SDF generation specifically to Static Meshes. |
 | sdf_global_illumination | voxel_cone_tracing | overlap | 1 | yes | Both are volumetric approximations; SDF avoids the voxelisation step but carries less material information. |
 | selective_ray_traced_effects | full_path_tracing_pipeline | alternative | 1 | yes | Selective RT is the incremental path; full PT is the all-in path. |
@@ -1065,13 +1065,13 @@
 | static_shadow_caching | quality_tier_scalability | complement | 1 | yes | Caching can be reduced or disabled on low tiers to save VRAM. |
 | static_shadow_caching | virtual_shadow_maps | dependency | 3 | yes | Static caching is a built-in VSM feature in UE5. |
 | subtick_networking | client_prediction_reconciliation | complement | 2 | yes | Время ввода и предсказание клиента — разные части протокола. |
-| subtick_networking | client_prediction_reconciliation | dependency | 3 | gap | Метод «subtick_networking» требует предварительного метода «client_prediction_reconciliation». |
+| subtick_networking | client_prediction_reconciliation | dependency | 3 | yes | Метод «subtick_networking» требует предварительного метода «client_prediction_reconciliation». |
 | subtick_networking | deterministic_lockstep | unknown | 2 | yes | No source found relating sub-tick timestamping to lockstep command scheduling, although both are about ordering inputs in time. Recorded as unknown rather than guessed. |
 | subtick_networking | lag_compensation_rewind | complement | 1 | yes | Evaluating an action at a past instant requires reconstructing that instant - the exact machinery of rewind, with the same abuse surface. |
 | subtick_networking | runtime_security_budget | risk | 2 | yes | Client-supplied timestamps are a new input the server must not trust; bounding them is a security decision, not a networking detail. |
 | subtick_networking | tickrate_budgeting | complement | 2 | yes | Метки ввода не отменяют выбор частоты симуляции. |
-| temporal_radiance_cache | deferred_forward_plus_choice | dependency | 3 | gap | Метод «temporal_radiance_cache» требует предварительного метода «deferred_forward_plus_choice». |
-| temporal_radiance_cache | hardware_raytraced_gi | dependency | 3 | gap | Метод «temporal_radiance_cache» требует предварительного метода «hardware_raytraced_gi». |
+| temporal_radiance_cache | deferred_forward_plus_choice | dependency | 3 | yes | Метод «temporal_radiance_cache» требует предварительного метода «deferred_forward_plus_choice». |
+| temporal_radiance_cache | hardware_raytraced_gi | dependency | 3 | yes | Метод «temporal_radiance_cache» требует предварительного метода «hardware_raytraced_gi». |
 | temporal_radiance_cache | quality_tier_scalability | complement | 1 | yes | Update speed is a natural scalability knob. |
 | temporal_radiance_cache | selective_ray_traced_effects | complement | 1 | yes | Sharing one trace across effects is the same amortisation idea at effect level. |
 | temporal_radiance_cache | temporal_upscaling | overlap | 1 | yes | Both rely on temporal history and both suffer from the same disocclusion/ghosting failure modes. |
@@ -1105,7 +1105,7 @@
 | tilemap_layer_culling | tilemap_chunk_streaming | complement | 1 | yes | Culling bounds what you draw; streaming bounds what you hold. Streaming without culling wastes memory, culling without streaming wastes load time; neither replaces the other. |
 | time_sliced_pathfinding | flow_field_pathing | alternative | 1 | yes | Sharing one flow field across many agents removes the per-agent query entirely, which can make slicing unnecessary for crowd-scale movement. |
 | time_sliced_pathfinding | multithreaded_physics_jobs | alternative | 1 | yes | Moving queries to worker threads is the alternative to slicing them within a frame; the two can also be combined. |
-| variable_rate_shading | deferred_forward_plus_choice | dependency | 3 | gap | Метод «variable_rate_shading» требует предварительного метода «deferred_forward_plus_choice». |
+| variable_rate_shading | deferred_forward_plus_choice | dependency | 3 | yes | Метод «variable_rate_shading» требует предварительного метода «deferred_forward_plus_choice». |
 | variable_rate_shading | dynamic_resolution_scaling | alternative | 1 | yes | DRS lowers resolution globally; VRS lowers shading rate locally. |
 | variable_rate_shading | meshlet_pipeline_adoption | complement | 1 | yes | Per-primitive VRS from a mesh shader is explicitly supported behind a cap. |
 | variable_rate_shading | temporal_upscaling | complement | 1 | yes | Different axes of the same saving; they compose. |
@@ -1122,7 +1122,7 @@
 | virtual_geometry_clusters | gpu_instancing_vegetation | hard_conflict | 3 | yes | Nanite is 'Not great with aggregates' such as grass, leaves and hair, so foliage still needs an instancing/atlasing path rather than virtualised geometry. |
 | virtual_geometry_clusters | hierarchical_lod | overlap | 1 | yes | Both give you far-field geometry cheaply; Nanite's per-cluster LOD removes much of the need for baked HLOD proxies on rigid opaque geometry. |
 | virtual_geometry_clusters | impostors_billboards | complement | 1 | yes | Nanite's own solution to tiny instances is 'Visibility buffer imposters' (12x12 directions, 40.5 KB per mesh, always resident) - impostors are the escape hatch when the DAG root is reached. |
-| virtual_geometry_clusters | mesh_index_optimization | dependency | 3 | gap | Метод «virtual_geometry_clusters» требует предварительного метода «mesh_index_optimization». |
+| virtual_geometry_clusters | mesh_index_optimization | dependency | 3 | yes | Метод «virtual_geometry_clusters» требует предварительного метода «mesh_index_optimization». |
 | virtual_shadow_maps | distance_field_shadows | complement | 1 | yes | 'Distance Field Shadows are not replaced and can be used in tandem with VSMs'. |
 | virtual_shadow_maps | froxel_volumetric_fog | risk | 2 | yes | Volumetric fog forces coarse pages, which Epic warns can hurt performance with non-Nanite dynamic geometry. |
 | virtual_shadow_maps | selective_ray_traced_effects | risk | 2 | yes | 'Ray-traced shadows still take precedence over VSMs' - enabling RT shadows removes the VSM cost but replaces it with an RT pass cost. |
@@ -1132,10 +1132,10 @@
 | virtual_texturing | neural_texture_compression | alternative | 1 | yes | NTC attacks the same VRAM/disk pressure by shrinking the texels rather than by virtualising the address space; the two can compose (compressed pages in a VT cache). |
 | virtual_texturing | terrain_clipmap | complement | 1 | yes | Clipmaps handle terrain geometry; VT handles terrain surfacing - a shipped terrain needs both. |
 | virtual_texturing | virtual_geometry_clusters | complement | 1 | yes | Nanite's author states geometry virtualisation is 'conceptually similar to virtual texturing' but harder, because geometry detail directly affects render cost and geometry is not trivially filterable. |
-| volumetric_half_resolution | froxel_volumetric_fog | dependency | 3 | gap | Метод «volumetric_half_resolution» требует предварительного метода «froxel_volumetric_fog». |
+| volumetric_half_resolution | froxel_volumetric_fog | dependency | 3 | yes | Метод «volumetric_half_resolution» требует предварительного метода «froxel_volumetric_fog». |
 | volumetric_half_resolution | post_effect_selective | overlap | 1 | yes | Both reduce per-effect cost; half-res is the finer-grained tool. |
 | volumetric_half_resolution | variable_rate_shading | alternative | 1 | yes | VRS reduces shading rate spatially instead of reducing buffer resolution - different artefact profile, similar goal. |
-| voxel_cone_tracing | deferred_forward_plus_choice | dependency | 3 | gap | Метод «voxel_cone_tracing» требует предварительного метода «deferred_forward_plus_choice». |
+| voxel_cone_tracing | deferred_forward_plus_choice | dependency | 3 | yes | Метод «voxel_cone_tracing» требует предварительного метода «deferred_forward_plus_choice». |
 | voxel_cone_tracing | froxel_volumetric_fog | overlap | 1 | yes | Both need a volumetric scene representation; sharing is possible but couples two systems' resolution budgets. |
 | voxel_cone_tracing | irradiance_volume_probes | alternative | 1 | yes | Probes are far cheaper and far lower frequency. |
 | voxel_cone_tracing | sdf_global_illumination | alternative | 1 | yes | SDF tracing avoids voxelisation and is Epic's documented non-RT path. |
