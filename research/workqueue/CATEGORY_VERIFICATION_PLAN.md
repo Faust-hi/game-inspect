@@ -6,7 +6,7 @@
 ничего не потерять.
 
 > Состояние БД на 2026-09-11 (после починки дефекта «невидимые доказательства»):
-> `evidence_claims` = 2562 (published 2539), `evidence_sources` = 935 (все
+> `evidence_claims` = 2562 (published 2539), `evidence_sources` = 936 (все
 > published), `game_cases` = 155, `case_evidence` = 375, граф: 0 mandatory-циклов.
 > Если числа другие — перезагрузить БД по циклу из HANDOFF §B.5.
 

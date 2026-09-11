@@ -181,7 +181,7 @@
 (`version_unknown` — отсутствие версии движка в анкете, штатная), 0 ошибок,
 0 mandatory-циклов.
 
-### B.1.4 Тесты бэкенда: 76 → 86 passed
+### B.1.4 Тесты бэкенда: 76 → 86 passed *(снимок сессии 2; актуально — 91, см. «СЕССИЯ 4» выше)*
 - 7 регрессионных падений от convergence-прохода **устранены** (defects №1–№3).
 - Ещё 5 падений оказались **предсуществующими на чистом baseline** (до моих
   правок) и вызваны *корректным* поведением гейтинга зависимостей, которое
@@ -203,7 +203,7 @@
     (объект), а не `source_id`; derived-утверждение валидно при
     `source OR (formula AND input_parameters)` — в точности по spec line 412.
 
-## B.2 ВЕРИФИЦИРОВАННОЕ ТЕКУЩЕЕ СОСТОЯНИЕ БД (production `backend/gamedev_dss.db`, пересобрана 2026-09-11)
+## B.2 ВЕРИФИЦИРОВАННОЕ ТЕКУЩЕЕ СОСТОЯНИЕ БД (production `backend/gamedev_dss.db`, пересобрана 2026-09-11) *(снимок сессии 2; актуальные числа — в разделе «СЕССИЯ 4» выше)*
 
 Получено прямым запросом к пересобранной БД (не из самоотчёта):
 
@@ -252,7 +252,7 @@ claims с заполненным `source`.
 > **ОБНОВЛЕНО 2026-09-11 (сессия 3).** Сводный документ создан:
 > `research/category_verification.md` (+ PDF
 > `output/pdf/category-verification.pdf`, 16 стр.). Фундамент данных
-> перепроверен по §B.5: 2539 published claims / 935 published sources,
+> перепроверен по §B.5: 2539 published claims / 936 published sources,
 > 0 mandatory-циклов, тесты green. Пройдены все 17 параметров
 > (Категория 1: 1.1–1.7; Категория 2: 2.1–2.10): **17/17 ВЫПОЛНЕНО**.
 > **Пробелы деклараций устранены** (были: 111 связок без URL, 30 конфликтов
@@ -359,7 +359,7 @@ from app.services.graph import graph_checks
 db=SessionLocal(); r=graph_checks(db)
 print([i['check'] for i in r['issues']])"
 
-# 6. Прогон тестов (ожидается 86 passed)
+# 6. Прогон тестов (ожидается 91 passed)
 cd backend && ../.dss-venv/Scripts/python.exe -m pytest -q
 
 # 7. Перегенерация отчёта (PDF — через .venv)
@@ -374,7 +374,7 @@ cd .. && ./.venv/Scripts/python.exe tools/generate_research_report.py
   `audit_evidence` и любой анализ «по БД» работали по ~1 % данных. Если новый чат
   видит мало claims — первым делом проверить `status='published'` в
   `evidence_claims` (ожидается 2539) и `status='published'` в `evidence_sources`
-  (ожидается 935). Если меньше — перезагрузить БД по циклу B.5.
+  (ожидается 936). Если меньше — перезагрузить БД по циклу B.5.
 - **Convergence-проход в `seed_all` хрупок**: вторая `sync_packs` нужна, чтобы
   паки, ссылающиеся на сущности из более поздних разделов, не терялись. Не
   удалять её без замены на идемпотентную догрузку по первому проходу.
@@ -389,7 +389,7 @@ cd .. && ./.venv/Scripts/python.exe tools/generate_research_report.py
 ## B.7 ЧТО ДЕЛАТЬ В НОВОМ ЧАТЕ (пошагово, чтобы ничего не потерять)
 1. Прочитать `ЧАСТЬ A` + `ЧАСТЬ B` этого файла целиком.
 2. Проверить состояние БД по B.5 шаг 0–5 (ожидается: 2539 published claims,
-   935 published sources, 0 mandatory-циклов, 86 тестов green). Если расходится —
+   936 published sources, 0 mandatory-циклов, 91 тест green). Если расходится —
    перезагрузить по B.5.
 3. Взять `research/workqueue/CATEGORY_VERIFICATION_PLAN.md` как чек-лист
    параметров. Для каждого: вытащить claims из БД (`GET /api/catalog/evidence`
