@@ -1,140 +1,158 @@
-"""Пакеты работ: правка пакета должна доходить до уже собранной базы.
+"""Пакеты работ: величина из пакета обязана доходить до уже собранной базы.
 
-Дефект: `_upsert_work_package` для существующей строки сверял только
-`stage_note`, поэтому исправление словаря ролей (`designer` → `design`) до
-прод-базы не дошло: 868 пакетов сохранили имена, которых нет в ёмкости команды,
-и планировщик молча брал для них ёмкость 1 — размер команды переставал влиять
-на план. Согласующий проход закрывает расхождение источника и результата.
+История у этого класса дефектов одна и та же. Сначала `_upsert_work_package` для
+существующей строки сверял только `stage_note`, поэтому исправление словаря
+ролей (`designer` → `design`) до прод-базы не дошло: 868 пакетов сохранили
+имена, которых нет в ёмкости команды, и планировщик молча брал для них ёмкость
+1. Теперь величина оценки приходит из пакета в строки формульной семьи, и
+согласующий проход обязан доводить её точно так же.
+
+Проверки построены по данным, а не по списку: если расхождение в пакетах
+исправят или появится новая роль без ёмкости, тест это заметит.
 """
 from __future__ import annotations
 
 from sqlalchemy import select
 
 
-def _package(code: str, **overrides):
+def _published_snapshot(db_session):
     from app.models.entities import WorkPackage
 
-    fields = {
-        "method_code": "test_reconcile",
-        "name": "старое имя",
-        "package_type": "design",
-        "role": "designer",
-        "min_days": 0.0,
-        "p50_days": 1.0,
-        "p80_days": 1.5,
-        "parallelizable": True,
-        "recommended_stage": "production",
-        "late_factor": 1.0,
-        "dependency_codes": [],
-        "basis": "expert_estimate",
+    rows = db_session.scalars(select(WorkPackage)).all()
+    return {
+        row.code: (
+            row.role, round(float(row.p50_days), 4), round(float(row.p80_days), 4),
+            round(float(row.min_days), 4), row.late_factor, row.parallelizable,
+            row.recommended_stage, row.stage_note, list(row.dependency_codes or []),
+            row.basis, row.status,
+        )
+        for row in rows
     }
-    fields.update(overrides)
-    return WorkPackage(code=code, **fields)
 
 
-def _payload(code: str, **overrides):
-    fields = {
-        "code": code,
-        "method_code": "test_reconcile",
-        "name": "новое имя",
-        "package_type": "design",
-        "role": "design",
-        "p50_days": 1.5,
-        "p80_days": 3.25,
-        "basis": "expert_estimate",
-        "recommended_stage": "prototype",
-    }
-    fields.update(overrides)
-    return fields
+def test_method_total_equals_curated_estimate(db_session):
+    """Сумма фаз метода равна курируемой оценке пакета.
 
-
-def test_pack_change_reaches_an_existing_package(db_session):
-    """Правка пакета обновляет уже созданную строку, а не только новую."""
-    from app.models.entities import WorkPackage
-    from app.seed import pack_loader
-
-    code = "test_reconcile.role"
-    db_session.add(_package(code))
-    db_session.flush()
-
-    pack_loader._upsert_work_package(db_session, _payload(code))
-    row = db_session.scalar(select(WorkPackage).where(WorkPackage.code == code))
-
-    assert row.role == "design"
-    assert row.name == "новое имя"
-    assert row.p50_days == 1.5
-    assert row.p80_days == 3.25
-    assert row.recommended_stage == "prototype"
-
-
-def test_reconciliation_is_idempotent(db_session):
-    """Повторная загрузка того же пакета ничего не меняет."""
-    from app.models.entities import WorkPackage
-    from app.seed import pack_loader
-
-    code = "test_reconcile.idempotent"
-    db_session.add(_package(code))
-    db_session.flush()
-
-    pack_loader._upsert_work_package(db_session, _payload(code))
-    db_session.flush()
-    row = db_session.scalar(select(WorkPackage).where(WorkPackage.code == code))
-    snapshot = (row.role, row.name, row.p50_days, row.p80_days, row.recommended_stage,
-                row.stage_note, row.min_days, row.parallelizable, row.late_factor,
-                list(row.dependency_codes or []))
-
-    pack_loader._upsert_work_package(db_session, _payload(code))
-    db_session.flush()
-    again = (row.role, row.name, row.p50_days, row.p80_days, row.recommended_stage,
-             row.stage_note, row.min_days, row.parallelizable, row.late_factor,
-             list(row.dependency_codes or []))
-
-    assert again == snapshot
-
-
-def test_reconciliation_keeps_fields_the_pack_does_not_own(db_session):
-    """Поля вне пакета (плановая стадия, предусловия, примечание) не затираются.
-
-    Пакет не описывает `min_days`, параллелизуемость, `late_factor` и
-    предусловия — они принадлежат планировщику, и согласующий проход не должен
-    подменять их значениями по умолчанию.
+    Величину задаёт пакет, распределение по фазам — формула. Если сумма
+    расходится с курируемой оценкой, значит в базе снова живёт вторая оценка
+    (1081,82 против 2435 чел.-дней), а не одна.
     """
     from app.models.entities import WorkPackage
     from app.seed import pack_loader
 
-    code = "test_reconcile.foreign"
-    db_session.add(_package(
-        code, min_days=3.0, parallelizable=False, late_factor=2.0,
-        dependency_codes=["other_method"], stage_note="курируемое примечание",
-    ))
+    curated = pack_loader.curated_effort()
+    assert curated, "курируемых оценок нет — нечего сверять"
+
+    totals: dict[str, float] = {}
+    for row in db_session.scalars(select(WorkPackage).where(WorkPackage.status == "published")):
+        totals[row.method_code] = totals.get(row.method_code, 0.0) + float(row.p50_days)
+
+    checked = 0
+    for code, total in sorted(totals.items()):
+        estimate = curated.get(code)
+        if estimate is None:
+            continue
+        assert abs(total - estimate["p50"]) <= 0.05, (
+            f"метод {code}: сумма фаз {round(total, 2)} чел.-дней не равна "
+            f"курируемой оценке {estimate['p50']}"
+        )
+        checked += 1
+    assert checked >= 100, f"сверено слишком мало методов: {checked}"
+
+
+def test_curated_effort_reaches_an_existing_package(db_session):
+    """Смена величины доходит до строки, которая уже есть в собранной базе.
+
+    Именно этот случай и был сломан с ролями: проход обновлял только новые
+    строки, а существующие оставались с прежними числами.
+    """
+    from app.models.entities import Method, WorkPackage
+    from app.seed import evidence_catalog, pack_loader
+
+    curated = pack_loader.curated_effort()
+    method = db_session.scalar(
+        select(Method).where(
+            Method.status == "published", Method.code.in_(list(curated))
+        ).order_by(Method.code)
+    )
+    assert method is not None, "нет опубликованного метода с курируемой оценкой"
+
+    rows = db_session.scalars(
+        select(WorkPackage).where(WorkPackage.method_code == method.code)
+    ).all()
+    assert rows, f"у метода {method.code} нет пакетов работ"
+
+    # Испортить величины: как будто база собрана до смены семьи.
+    for row in rows:
+        row.p50_days = 1.0
+        row.p80_days = 1.5
+        row.min_days = 0.5
     db_session.flush()
 
-    pack_loader._upsert_work_package(db_session, {
-        "code": code, "method_code": "test_reconcile", "name": "новое имя",
-        "package_type": "design", "role": "design", "p50_days": 1.5, "p80_days": 3.25,
-    })
-    row = db_session.scalar(select(WorkPackage).where(WorkPackage.code == code))
+    evidence_catalog.sync_work_packages(db_session)
 
-    assert row.min_days == 3.0
-    assert row.parallelizable is False
-    assert row.late_factor == 2.0
-    assert list(row.dependency_codes or []) == ["other_method"]
-    assert row.stage_note == "курируемое примечание"
+    again = db_session.scalars(
+        select(WorkPackage).where(WorkPackage.method_code == method.code)
+    ).all()
+    total = sum(float(row.p50_days) for row in again)
+    assert abs(total - curated[method.code]["p50"]) <= 0.05, (
+        f"метод {method.code}: после синхронизации {round(total, 2)} чел.-дней "
+        f"вместо {curated[method.code]['p50']}"
+    )
 
 
-def test_new_package_gets_pack_values(db_session):
-    """Новая строка создаётся со значениями пакета."""
+def test_reconciliation_is_idempotent(db_session):
+    """Повторная синхронизация не меняет уже согласованные строки."""
+    from app.seed import evidence_catalog
+
+    evidence_catalog.sync_work_packages(db_session)
+    db_session.flush()
+    before = _published_snapshot(db_session)
+
+    evidence_catalog.sync_work_packages(db_session)
+    db_session.flush()
+
+    assert _published_snapshot(db_session) == before
+
+
+def test_planner_fields_survive_the_new_magnitude(db_session):
+    """Поля, которые читает планировщик, не проседают до значений второй семьи.
+
+    Прежняя пакетная семья не несла `min_days`, `late_factor` и
+    `dependency_codes` и помечала гейтовые фазы параллелизуемыми. Публикация её
+    «как есть» вернула бы все четыре дефекта: нижняя граница оценки обнулялась
+    бы, надбавка за позднюю цену исчезала, а предусловия методов — терялись.
+    """
     from app.models.entities import WorkPackage
-    from app.seed import pack_loader
 
-    code = "test_reconcile.new"
-    created = pack_loader._upsert_work_package(db_session, _payload(code))
-    db_session.flush()
-    row = db_session.scalar(select(WorkPackage).where(WorkPackage.code == code))
+    published = db_session.scalars(
+        select(WorkPackage).where(WorkPackage.status == "published")
+    ).all()
+    assert published, "нет опубликованных пакетов работ"
 
-    assert created is not None
-    assert row.role == "design"
-    assert row.p50_days == 1.5
+    assert not [r.code for r in published if float(r.min_days or 0) <= 0], \
+        "нижняя граница оценки обнулилась"
+    assert not [r.code for r in published if float(r.late_factor or 0) <= 1.0], \
+        "надбавка за позднюю цену исчезла"
+    assert not [r.code for r in published
+                if r.parallelizable and r.package_type in {"integration", "qa", "release"}], \
+        "гейтовая фаза помечена параллелизуемой"
+
+
+def test_no_second_family_remains(db_session):
+    """Второй семьи нет: все строки пакетов работ опубликованы.
+
+    992 строки `WP_*` жили в базе как черновики — невидимые для планировщика,
+    но попадающие в счётчики и в аудит как объявленный пробел.
+    """
+    from app.models.entities import WorkPackage
+
+    rows = db_session.scalars(select(WorkPackage)).all()
+    assert rows, "ожидались пакеты работ"
+    assert not [r.code for r in rows if r.code.startswith("WP_")], \
+        "остались строки второй семьи"
+    assert not [r.code for r in rows if r.status != "published"], \
+        "остались невидимые пакеты работ"
 
 
 def test_every_package_role_is_a_team_capacity_key(db_session):

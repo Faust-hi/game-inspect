@@ -276,7 +276,7 @@ METHODS: list[dict] = [
       source_key="WIKI_MIPMAP"),
 
     M("virtual_geometry_clusters", "Виртуализированная геометрия (кластеризованный LOD)",
-      "large_scale_terrain",
+      "geometry_pipeline",
       summary="Геометрия разбивается на кластеры, LOD выбирается на GPU для каждого кластера отдельно.",
       description="Меши делятся на кластеры по ~128 треугольников; для каждого кластера строится "
                   "цепочка упрощений. Выбор уровня происходит на GPU по проекции на экран, "
@@ -2424,7 +2424,7 @@ EXTRA_METHODS: list[dict] = [
       level="architecture", recommended_stage="preproduction", late_cost="critical",
       impact_cpu=-2, impact_gpu=1,
       performance_gain=0.65, implementation_cost=5, complexity=5, confidence=0.6,
-      applicable_platforms=["pc_windows", "xbox_series"],
+      applicable_platforms=["pc_windows", "ps5", "xbox_series"],
       requires_features=["mesh_shaders"],
       requires_hw_features=["DirectX 12"],
       pros=["Радикально снижает нагрузку на подготовку кадра", "Даёт GPU-driven отсечение и LOD"],
@@ -2452,7 +2452,7 @@ EXTRA_METHODS: list[dict] = [
       level="algorithm", recommended_stage="production", late_cost="medium",
       impact_gpu=-2,
       performance_gain=0.5, implementation_cost=3, complexity=4, confidence=0.7,
-      applicable_platforms=["pc_windows", "xbox_series"],
+      applicable_platforms=["pc_windows", "ps5", "xbox_series"],
       requires_features=["mesh_shaders"],
       pros=["Стабилизирует стоимость геометрического прохода", "Хорошо параллелится"],
       cons=["Ошибки отсечения дают popping", "Требует подготовки иерархии мешлетов"],

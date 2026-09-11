@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from ..models.entities import (
     CaseEvidence, Conflict, DependencyEdge, EvidenceClaim, EvidenceSource,
-    GameCase, HardwareCPU, HardwareGPU, Method, MethodEngineLink,
+    GameCase, HardwareCPU, HardwareGPU, Method, MethodEngineLink, TechnologyNode,
 )
 from . import methods_data, sources
 
@@ -224,6 +224,81 @@ def correct_relation_types(db: Session) -> int:
     if updated:
         db.flush()
     return updated
+
+
+#: Связи, снятые как противоречащие другой связи той же пары (N6).
+#:
+#: Метод не может быть объявлен обязательным условием того, с чем он
+#: несовместим: движок применял обе связи, и корзина получала сразу два
+#: взаимоисключающих сообщения — «исключить оба метода» от `hard_conflict`
+#: и «сначала внедрить зависимость» от `dependency`. То же у `risk`: его
+#: решение предлагает оставить оба метода, тогда как `hard_conflict` той же
+#: пары требует оставить один.
+#:
+#: Удаляется только точная унаследованная запись — по паре, типу и тексту
+#: описания. Осознанная правка администратора с другим текстом не трогается.
+#: В каталоге и пакетах эти записи уже сняты; этот проход нужен потому, что
+#: сид не перетирает существующие строки, и по существующей базе правка
+#: каталога остаётся невидимой.
+CONTRADICTORY_RELATIONS: list[dict[str, str]] = [
+    {
+        "a_code": "motion_matching",
+        "b_code": "animation_lod_budget",
+        "conflict_type": "dependency",
+        "description": "Метод «motion_matching» требует предварительного метода «animation_lod_budget».",
+    },
+    {
+        "a_code": "sdf_global_illumination",
+        "b_code": "hardware_raytraced_gi",
+        "conflict_type": "dependency",
+        "description": "Метод «sdf_global_illumination» требует предварительного метода «hardware_raytraced_gi».",
+    },
+    {
+        "a_code": "full_path_tracing_pipeline",
+        "b_code": "selective_ray_traced_effects",
+        "conflict_type": "dependency",
+        "description": "Метод «full_path_tracing_pipeline» требует предварительного метода «selective_ray_traced_effects».",
+    },
+    {
+        "a_code": "animation_lod_budget",
+        "b_code": "motion_matching",
+        "conflict_type": "risk",
+        "description": "Motion matching searches the database on tick; throttling the tick rate "
+                       "throttles responsiveness, and root-motion locomotion blocks the "
+                       "parallel-update path entirely, which removes one of the two ways to pay "
+                       "for motion matching in a crowd.",
+    },
+]
+
+
+def correct_contradictory_relations(db: Session) -> int:
+    """Снять связи, противоречащие другой связи той же пары (N6).
+
+    Вместе со строкой `conflicts` снимается и ребро графа: `sync_dependency_graph`
+    только добавляет рёбра, поэтому без явного удаления ребро пережило бы
+    строку-основание и продолжало бы управлять порядком внедрения.
+    """
+    removed = 0
+    nodes = {n.code: n for n in db.scalars(select(TechnologyNode))}
+    for spec in CONTRADICTORY_RELATIONS:
+        row = db.scalar(select(Conflict).where(*[
+            getattr(Conflict, key) == value for key, value in spec.items()
+        ]))
+        if row is None:
+            continue
+        src = nodes.get(f"method:{spec['a_code']}")
+        dst = nodes.get(f"method:{spec['b_code']}")
+        if src is not None and dst is not None:
+            for edge in db.scalars(select(DependencyEdge).where(
+                    DependencyEdge.source_node_id == src.id,
+                    DependencyEdge.target_node_id == dst.id,
+                    DependencyEdge.dependency_type == spec["conflict_type"])):
+                db.delete(edge)
+        db.delete(row)
+        removed += 1
+    if removed:
+        db.flush()
+    return removed
 
 
 #: Источники карты, подобранные по названию, а не по механизму: ссылка

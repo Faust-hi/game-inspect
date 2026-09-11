@@ -9,7 +9,16 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models.entities import Engine, EngineTool, EvidenceSource, HardwareCPU, HardwareGPU, Method, MethodEngineLink
+from ..models.entities import (
+    Engine,
+    EngineTool,
+    EvidenceSource,
+    GameFunction,
+    HardwareCPU,
+    HardwareGPU,
+    Method,
+    MethodEngineLink,
+)
 
 
 # ── 1. Исправления title/URL, где URL уже обновлён, а заголовок остался старым ──
@@ -526,6 +535,63 @@ def normalize_link_evidence(db: Session) -> int:
     return updated
 
 
+# ── 7. Таксономия методов: платформы и подсистема ──
+# Каталог методов — источник истины для сборки с нуля, но полный сид
+# сохраняет уже существующие записи, чтобы не стереть административные правки.
+# Поэтому исправление классификации правкой каталога остаётся невидимым для
+# существующей базы: сид честно сообщает расхождение в `preserved` и не
+# применяет его. Точечные исправления обязаны идти отдельным проходом, который
+# срабатывает только на прежнем значении — иначе он затрёт осознанную правку.
+PLATFORM_CORRECTIONS: dict[str, tuple[list[str], list[str]]] = {
+    # Мешлеты — техника уровня API и GPU, а не платформы: Sony опубликовала
+    # mesh shaders для PS5 в одном поколении с Xbox Series. Отсутствие `ps5`
+    # исключало метод из подбора для профиля с PS5 при том, что профиль
+    # объявлял подсистему, которую метод и должен был закрывать.
+    "meshlet_pipeline_adoption": (["pc_windows", "xbox_series"],
+                                  ["pc_windows", "ps5", "xbox_series"]),
+    "gpu_meshlet_culling_budget": (["pc_windows", "xbox_series"],
+                                   ["pc_windows", "ps5", "xbox_series"]),
+}
+
+# Метод → (прежняя подсистема, новая подсистема). Перемещение применяется,
+# только если метод всё ещё числится в прежней подсистеме.
+FUNCTION_CORRECTIONS: dict[str, tuple[str, str]] = {
+    # Виртуализированная геометрия — проход конвейера геометрии, а не про
+    # ландшафт: подсистема `geometry_pipeline` в своём описании прямо называет
+    # геометрические кластеры. Под `large_scale_terrain` метод не попадал в
+    # корзину профилей S06/S07, хотя они объявляли `geometry_pipeline` и
+    # использовали виртуализированную геометрию.
+    "virtual_geometry_clusters": ("large_scale_terrain", "geometry_pipeline"),
+}
+
+
+def correct_method_taxonomy(db: Session) -> int:
+    """Применить курируемые исправления платформ и подсистемы к существующим методам."""
+    updated = 0
+    for code, (old, new) in PLATFORM_CORRECTIONS.items():
+        row = db.scalar(select(Method).where(Method.code == code))
+        if row is None:
+            continue
+        current = list(row.applicable_platforms or [])
+        if sorted(current) == sorted(old):
+            row.applicable_platforms = list(new)
+            updated += 1
+    for code, (old_fn, new_fn) in FUNCTION_CORRECTIONS.items():
+        row = db.scalar(select(Method).where(Method.code == code))
+        if row is None:
+            continue
+        old_function = db.scalar(select(GameFunction).where(GameFunction.code == old_fn))
+        new_function = db.scalar(select(GameFunction).where(GameFunction.code == new_fn))
+        if old_function is None or new_function is None:
+            continue
+        if row.function_id == old_function.id:
+            row.function_id = new_function.id
+            updated += 1
+    if updated:
+        db.flush()
+    return updated
+
+
 # ── 8. Публичный entrypoint ──
 
 def apply_all(db: Session) -> dict[str, int]:
@@ -536,4 +602,5 @@ def apply_all(db: Session) -> dict[str, int]:
         "confidence_upgraded": upgrade_low_confidence(db),
         "hardware_raw_applied": apply_hardware_raw_values(db),
         "links_evidence_normalized": normalize_link_evidence(db),
+        "method_taxonomy_corrected": correct_method_taxonomy(db),
     }

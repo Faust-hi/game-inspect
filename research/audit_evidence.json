@@ -1,5 +1,5 @@
 {
-  "db": "backend/gamedev_dss.db",
+  "db": "C:\\Users\\user\\Desktop\\game-inspect\\backend\\gamedev_dss.db",
   "thresholds": {
     "min_claims": 3,
     "min_located_sources": 2,
@@ -84,18 +84,18 @@
     },
     "conflicts": {
       "entity_class": "conflicts",
-      "total": 456,
-      "missing_url": 30,
-      "declared_user_defined": 30,
+      "total": 452,
+      "missing_url": 27,
+      "declared_user_defined": 27,
       "undeclared_missing_url": 0,
       "missing_resolution": 0,
       "missing_resolution_basis": 0
     },
     "dependency_edges": {
       "entity_class": "dependency_edges",
-      "total": 930,
-      "missing_source_id": 154,
-      "declared_expert_estimate": 154,
+      "total": 926,
+      "missing_source_id": 151,
+      "declared_expert_estimate": 151,
       "undeclared_missing_source": 0,
       "unknown_relation": 0,
       "missing_workaround": 0,
@@ -110,7 +110,7 @@
     },
     "work_packages": {
       "entity_class": "work_packages",
-      "total": 1794,
+      "total": 802,
       "missing_source_or_basis": 0,
       "p80_lt_p50": 0,
       "no_formula_basis": 0
@@ -340,8 +340,8 @@
         "ok": true
       },
       "conflicts": {
-        "total": 456,
-        "published": 456,
+        "total": 452,
+        "published": 452,
         "invisible": 0,
         "declared_invisible": 0,
         "undeclared_invisible": 0,
@@ -350,8 +350,8 @@
         "ok": true
       },
       "dependency_edges": {
-        "total": 930,
-        "published": 930,
+        "total": 926,
+        "published": 926,
         "invisible": 0,
         "declared_invisible": 0,
         "undeclared_invisible": 0,
@@ -480,19 +480,19 @@
         "ok": true
       },
       "work_packages": {
-        "total": 1794,
+        "total": 802,
         "published": 802,
-        "invisible": 992,
-        "declared_invisible": 992,
+        "invisible": 0,
+        "declared_invisible": 0,
         "undeclared_invisible": 0,
         "declared_draft": false,
-        "declaration": "pack family (curated effort, no external source): decision N2 deferred",
+        "declaration": "",
         "ok": true
       }
     },
     "invisible_tables": [],
     "invisible_rows": 0,
-    "declared_invisible_rows": 1016
+    "declared_invisible_rows": 24
   },
   "sources": {
     "total": 936,
@@ -1449,25 +1449,25 @@
     "dangling": [],
     "dangling_count": 0,
     "by_basis": {
-      "measured": 104,
-      "derived": 208,
-      "documented": 1581,
       "unknown": 263,
       "expert_estimate": 164,
-      "case_evidence": 244
+      "case_evidence": 244,
+      "derived": 208,
+      "documented": 1581,
+      "measured": 104
     },
     "by_verification": {
-      "verified": 1316,
+      "derived_from_published_rate": 1,
       "derived_from_formula": 2,
-      "derived_with_context": 130,
-      "source_verified": 474,
-      "unverified": 503,
-      "needs_review": 1,
-      "scenario_only": 124,
-      "derived_from_dag": 1,
       "partially_verified": 8,
+      "derived_from_dag": 1,
+      "unverified": 503,
+      "verified": 1316,
       "derived_from_input": 4,
-      "derived_from_published_rate": 1
+      "scenario_only": 124,
+      "needs_review": 1,
+      "derived_with_context": 130,
+      "source_verified": 474
     },
     "numeric_without_source": 0
   },

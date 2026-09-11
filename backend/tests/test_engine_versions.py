@@ -49,8 +49,14 @@ def test_version_cuts_builtin_tool_and_warns_in_basket(client):
     """Nanite недоступен в UE 4.27: карточка не выдаёт его за готовый, корзина — риск.
 
     Дефект: метод с отсутствующим в версии инструментом советуют как готовый.
+
+    Профиль объявляет `geometry_pipeline`, а не `large_scale_terrain`:
+    виртуализированная геометрия — приём конвейера геометрии, а не ландшафта.
+    До исправления таксономии метод числился под `large_scale_terrain`, и проект
+    с объявленным конвейером геометрии не получал его в рекомендациях вовсе.
     """
-    response = _post(client, "/api/recommend", engine_version="4.27")
+    response = _post(client, "/api/recommend", engine_version="4.27",
+                     functions=["geometry_pipeline"])
     assert response.status_code == 200, response.text
     cards = [
         row for row in response.json()["recommendations"]
@@ -63,7 +69,7 @@ def test_version_cuts_builtin_tool_and_warns_in_basket(client):
 
     basket_profile = {
         "engine": "unreal", "engine_version": "4.27",
-        "functions": ["large_scale_terrain"],
+        "functions": ["geometry_pipeline"],
         "platforms": ["pc_windows"],
     }
     basket = client.post(

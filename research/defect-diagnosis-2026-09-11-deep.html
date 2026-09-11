@@ -58,6 +58,11 @@
 <p>противоречивые пары, а не одна, — каждая даёт по два-три ребра графа. Остаток</p>
 <p>дрейфа — следствие повторной сборки и сам по себе дефектом не является.</p>
 
+<p>&gt; <strong>Состояние после закрытия N2, N6 и E5 (2026-09-11).</strong> Пакетов работ <strong>802</strong></p>
+<p>&gt; (вторая семья снята), конфликтов <strong>452</strong> (сняты четыре противоречивые</p>
+<p>&gt; связи), рёбер <strong>926</strong>. Сборка с нуля и база, обновлённая сидом, совпадают</p>
+<p>&gt; по всем 18 таблицам (<code>tools/check_seed_convergence.py</code>).</p>
+
 <p>---</p>
 
 <h2>Часть 1. Углубление причин известных дефектов</h2>
@@ -272,6 +277,16 @@
 <p>«сохранять оба». Каждая пара даёт по два-три ребра в <code>dependency_edges</code></p>
 <p>(проверено запросом), поэтому вклад этих пар виден и в снимке рёбер.</p>
 
+<p><strong>Закрыто 2026-09-11.</strong> Сняты все три пары и четвёртая связь того же класса</p>
+<p>(<code>risk</code> при <code>hard_conflict</code> той же пары: одно решение требует оставить оба</p>
+<p>метода, другое — оставить один). Правка внесена в пакеты <strong>и</strong> в</p>
+<p>существующую базу: сид не перетирает существующие строки, поэтому правка</p>
+<p>каталога сама по себе в неё не попадает — для этого добавлен проход</p>
+<p><code>correct_contradictory_relations</code>, снимающий и строку, и ребро. Страж —</p>
+<p><code>tests/test_method_dependencies.py</code>: обязательная зависимость не может вести к</p>
+<p>методу, с которым объявлена несовместимость, и у пары с <code>hard_conflict</code> не</p>
+<p>может быть второго, мягкого типа.</p>
+
 <h3>N7. <code>game_cases.world_type</code> / <code>network_mode</code> пусты у 134 из 155 (низкая)</h3>
 
 <p>В секции методов <code>pack_loader</code> жёстко пишет <code>world_type=&quot;&quot;</code>, <code>network_mode=&quot;&quot;</code></p>
@@ -360,7 +375,7 @@
 <tr><td><strong>E2</strong> нормализация кейсов</td><td><strong>верно, число уточняется</strong></td><td>Нормализация по <code>(название, год, движок)</code> даёт 155 → <strong>122</strong>, а не 107. Плюс слияние с 8 курируемыми.</td></tr>
 <tr><td><strong>E3</strong> привязка кейсов к функциям</td><td><strong>неполно</strong></td><td>Заполнение <code>function_code</code> (282 строки) и поиск по функции — правильны, но <strong>не решают главного</strong>: пока кейсы не опубликованы (N1), практика пуста независимо от привязки. E3 имеет смысл только <strong>после</strong> N1.</td></tr>
 <tr><td><strong>E4</strong> наполнение <code>storage_streaming</code> и 8 «тонких» функций</td><td><strong>верно, но это не дефект</strong></td><td>Отсутствие методов — объявленный пробел, а не баг. Это исследовательская задача; в списке исправлений её место ниже, чем N1/N2/N3.</td></tr>
-<tr><td><strong>E5</strong> данные: противоречия и таксономия</td><td><strong>неполно</strong></td><td>Противоречивых пар <strong>три</strong>, а не одна (N6). Пункты про <code>ps5</code> и таксономию Nanite подтверждены (<code>meshlet_pipeline_adoption</code>, <code>gpu_meshlet_culling_budget</code> без <code>ps5</code>; <code>virtual_geometry_clusters</code> под <code>large_scale_terrain</code>).</td></tr>
+<tr><td><strong>E5</strong> данные: противоречия и таксономия</td><td><strong>неполно; закрыто 2026-09-11</strong></td><td>Противоречивых пар <strong>три</strong>, а не одна (N6). Пункты про <code>ps5</code> и таксономию Nanite подтверждены (<code>meshlet_pipeline_adoption</code>, <code>gpu_meshlet_culling_budget</code> без <code>ps5</code>; <code>virtual_geometry_clusters</code> под <code>large_scale_terrain</code>) — всё исправлено и доведено до существующей базы проходом <code>correct_method_taxonomy</code>.</td></tr>
 <tr><td><strong>E6</strong> пересмотр накладных расходов</td><td><strong>верно</strong></td><td>Требует источников, порядок не меняется.</td></tr>
 <tr><td>—</td><td><strong>пропущено: N1, N2, N9, N10</strong></td><td>В плане E1–E6 нет ни публикации кейсов, ни разбора двух семей пакетов работ, ни проверки видимости в аудите. Это самые тяжёлые пропуски.</td></tr>
 </table>
@@ -383,8 +398,9 @@
 <tr><td>1–3 (волна 1: N1, N9, N7)</td><td>выполнено</td></tr>
 <tr><td>4 (волна 2: N3, E1, N4 — замыкание зависимостей)</td><td>выполнено</td></tr>
 <tr><td>6 (волна 2: N8 — аппаратные сообщения)</td><td>выполнено</td></tr>
-<tr><td>5 (N2 — две семьи пакетов работ)</td><td><strong>отложено решением</strong>: формульная семья остаётся основной, пакетная объявлена пробелом; исправлены устаревшие роли 868 пакетов и объявлено расхождение оценок → <code>n2-decision-2026-09-11.md</code>. Разбор «как делать» с замерами → <code>n2-recommendation-2026-09-11.md</code></td></tr>
-<tr><td>7–11 (волна 3: N6, E5, N5, N10, N11, N12, E2–E4)</td><td><strong>открыто</strong></td></tr>
+<tr><td>5 (N2 — две семьи пакетов работ)</td><td><strong>выполнено (вариант C1)</strong>: пакетная семья снята (992 строки <code>WP_*</code>), величина оценки — из паков, структура фаз — формульная; итог P50 1081,82 → 2435,0. §2.10 и отчёты пересчитаны → <code>n2-recommendation-2026-09-11.md</code>, <code>n2-decision-2026-09-11.md</code></td></tr>
+<tr><td>7 (N6 + E5)</td><td><strong>выполнено</strong>: сняты все три противоречивые пары связей (и четвёртая, <code>risk</code> при <code>hard_conflict</code>), мешлетам добавлен <code>ps5</code>, <code>virtual_geometry_clusters</code> переведён в <code>geometry_pipeline</code>. Обе правки проведены и по существующей базе отдельными проходами: правка каталога сама по себе в неё не попадает</td></tr>
+<tr><td>8–11 (N5, N10, N11, N12, E2–E4)</td><td><strong>открыто</strong></td></tr>
 </table>
 
 <p><strong>Волна 1 — видимость (без изменения расчётных формул).</strong></p>
@@ -413,7 +429,8 @@
 <p>   *Риск:* меняются нагрузка и железо на профилях с зависимостями →</p>
 <p>   перегенерация <code>research/*.md</code>, сверка <code>check_research_invariants.py</code> (§2.3,</p>
 <p>   §2.8, §2.10), <code>check_seed_convergence.py</code>.</p>
-<p>5. <strong>N2 — выбрать авторитетную семью пакетов работ.</strong> Решить: пакетная</p>
+<p>5. <strong>N2 — выбрать авторитетную семью пакетов работ.</strong> ✅ выполнено (вариант</p>
+<p>   C1: курируемая величина из паков, формульная структура фаз). Решить: пакетная</p>
 <p>   (<code>effort_person_days</code>, с формулой) — основная, формульная — fallback.</p>
 <p>   Публиковать только одну; вторую удалить либо перевести в <code>draft</code> <strong>без</strong></p>
 <p>   попадания в публичный счётчик. Ожидаемый эффект: трудоёмкость плана</p>
@@ -427,8 +444,11 @@
 
 <p><strong>Волна 3 — данные и гигиена.</strong></p>
 
-<p>7. <strong>N6 + E5</strong> — убрать все <strong>три</strong> противоречивые пары; добавить <code>ps5</code> мешлетам;</p>
-<p>   решить таксономию <code>virtual_geometry_clusters</code>.</p>
+<p>7. <strong>N6 + E5</strong> — ✅ выполнено: убраны все <strong>три</strong> противоречивые пары (и</p>
+<p>   четвёртая связь того же класса), <code>ps5</code> мешлетам добавлен, таксономия</p>
+<p>   <code>virtual_geometry_clusters</code> решена (<code>geometry_pipeline</code>). Обе правки</p>
+<p>   доведены до существующей базы отдельными проходами, потому что сид её не</p>
+<p>   перетирает.</p>
 <p>8. <strong>N5</strong> — нормализовать <code>match_level</code> (словарь + перенос исходного текста в</p>
 <p>   <code>transfer_limits</code>/<code>fact</code>), по образцу <code>normalize_stage</code>.</p>
 <p>9. <strong>N10</strong> — <code>apply_hardware_raw_values</code>: заполнять только пустое, считать</p>

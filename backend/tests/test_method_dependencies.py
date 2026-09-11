@@ -121,6 +121,64 @@ def test_closure_covers_every_mandatory_method_edge(db_session):
         assert target_code in closure.codes, f"{source_code} не достраивает {target_code}"
 
 
+def test_no_mandatory_dependency_contradicts_an_exclusion(db_session):
+    """Метод не может требовать того, с чем он несовместим (N6).
+
+    Проверка по данным, а не по списку: если в каталоге или паке появится
+    обязательная зависимость, противоречащая запрету той же пары, тест обязан
+    упасть. Без него движок честно применял обе связи и выдавал корзине два
+    взаимоисключающих сообщения: «исключить оба метода» от `hard_conflict` и
+    «сначала внедрить зависимость» от `dependency`.
+    """
+    nodes = {node.id: node for node in repositories.technology_nodes(db_session)}
+    prefix = method_dependencies.METHOD_NODE_PREFIX
+
+    exclusions: set[frozenset[str]] = set()
+    for relation in repositories.conflicts(db_session):
+        if relation.conflict_type in ("hard_conflict", "alternative"):
+            exclusions.add(frozenset((relation.a_code, relation.b_code)))
+
+    contradictions = []
+    for edge in repositories.dependency_edges(db_session):
+        if not edge.mandatory:
+            continue
+        source, target = nodes.get(edge.source_node_id), nodes.get(edge.target_node_id)
+        if source is None or target is None:
+            continue
+        if source.node_type != "method" or target.node_type != "method":
+            continue
+        pair = frozenset((source.code.removeprefix(prefix), target.code.removeprefix(prefix)))
+        if pair in exclusions:
+            contradictions.append(sorted(pair))
+
+    assert contradictions == [], (
+        "обязательная зависимость между несовместимыми методами: "
+        + "; ".join(" ↔ ".join(pair) for pair in contradictions)
+    )
+
+
+def test_excluded_pair_has_no_second_type(db_session):
+    """У пары с запретом совместного применения нет второго, мягкого типа.
+
+    `hard_conflict` требует оставить один метод, `risk` предлагает оставить оба
+    и снять риск замером. Обе связи в одной паре — это два разных ответа на
+    один вопрос, и пользователь видит тот, который выбрал порядок обхода.
+    """
+    by_pair: dict[frozenset[str], set[str]] = {}
+    for relation in repositories.conflicts(db_session):
+        by_pair.setdefault(frozenset((relation.a_code, relation.b_code)), set()).add(
+            relation.conflict_type
+        )
+
+    contradictory = sorted(
+        " ↔ ".join(sorted(pair)) + ": " + ", ".join(sorted(types))
+        for pair, types in by_pair.items()
+        if "hard_conflict" in types and (types & {"risk", "dependency"})
+    )
+
+    assert contradictory == [], "противоречивые типы в одной паре: " + "; ".join(contradictory)
+
+
 # --- применение правила ---------------------------------------------------
 
 

@@ -975,7 +975,23 @@ def sync_nodes_and_edges(db: Session, sources: dict[str, EvidenceSource]) -> dic
 
 
 def sync_work_packages(db: Session) -> int:
-    """Создать пакеты работ и обновить их предусловия.
+    """Создать пакеты работ, задать их величину и обновить предусловия.
+
+    **Величину** оценки задаёт курируемая трудоёмкость пакета
+    (`pack_loader.curated_effort`): только она различает конвейер
+    виртуализированной геометрии (260 чел.-дней) и правку куллинга тайлмапа
+    (3 чел.-дня) — 28 различных значений в размахе 86,7×. **Распределение**
+    итога по фазам задаёт формула из `implementation_cost` и `complexity`: её
+    собственный размах — 3,02×, и как итог она не различает почти ничего, но как
+    профиль фаз она содержательна (29,3 % работы в интеграции против 12,5 % при
+    делении поровну).
+
+    Раньше публиковались обе семьи: формульная `{method}.{kind}` (802 строки) и
+    пакетная `WP_{method}_{kind}` (992 строки, итог / 8 на фазу). Они давали
+    1081,82 против 2435 чел.-дней, коррелировали всего на 0,45, а пакетная не
+    несла полей, которые читает планировщик (`min_days`, `late_factor`,
+    `parallelizable`, `dependency_codes`). Теперь семья одна: структура
+    формульной, величина курируемая.
 
     `dependency_codes` пересчитываются и у уже существующих пакетов. Раньше
     проход только вставлял новые строки и пропускал существующие, а связи
@@ -988,6 +1004,8 @@ def sync_work_packages(db: Session) -> int:
     refreshed = 0
     relation_dependencies: dict[str, list[str]] = {}
     from ..models.entities import Conflict
+    from .pack_loader import curated_effort
+    curated = curated_effort()
     for relation in db.scalars(select(Conflict).where(
         Conflict.conflict_type == "dependency", Conflict.status == "published"
     )):
@@ -1005,23 +1023,67 @@ def sync_work_packages(db: Session) -> int:
             ("qa", "QA и регрессия", "qa", 0.45 + x * 0.22, False),
             ("release", "Стабилизация и документация", "production", 0.25 + c * 0.12, False),
         ]
-        for kind, name, role, p50, parallelizable in packages:
-            if p50 <= 0:
+        estimate = curated.get(method.code)
+        # Сумма весов формулы — знаменатель долей: курируемый итог
+        # раскладывается по фазам без остатка.
+        shape_total = sum(item[3] for item in packages if item[3] > 0) or 1.0
+        for kind, name, role, shape, parallelizable in packages:
+            if shape <= 0:
                 continue
+            share = shape / shape_total
+            if estimate is not None:
+                p50 = estimate["p50"] * share
+                p80 = estimate["p80"] * share
+                basis = estimate.get("basis", "expert_estimate")
+                stage = estimate.get("recommended_stage") or method.recommended_stage
+                stage_note = estimate.get("stage_note") or ""
+            else:
+                # Метод без курируемой оценки: формульный итог остаётся
+                # fallback, иначе работа метода пропала бы из календаря вовсе.
+                p50 = shape
+                p80 = shape * 1.5
+                basis = "expert_estimate"
+                stage = method.recommended_stage
+                stage_note = ""
+            p50 = round(p50, 4)
+            p80 = round(p80, 4)
+            min_days = round(p50 * 0.65, 4)
             code = f"{method.code}.{kind}"
             existing = db.scalar(select(WorkPackage).where(WorkPackage.code == code))
             if existing is not None:
+                # Согласующий проход: величина оценки приходит из пакета, а
+                # строка уже существует в собранной базе. Без него смена семьи не
+                # доходила бы до базы — как раньше не доходил словарь ролей.
+                changed = False
+                for field, value in (
+                    ("p50_days", p50), ("p80_days", p80), ("min_days", min_days),
+                    ("role", role), ("parallelizable", parallelizable),
+                    ("late_factor", factor), ("basis", basis),
+                ):
+                    if getattr(existing, field) != value:
+                        setattr(existing, field, value)
+                        changed = True
                 if list(existing.dependency_codes or []) != dependencies:
                     existing.dependency_codes = dependencies
+                    changed = True
+                # Курируемая стадия перекрывает каталожную только когда она
+                # есть; обоснование (`stage_note`) не затирается.
+                if estimate is not None and stage and existing.recommended_stage != stage:
+                    existing.recommended_stage = stage
+                    changed = True
+                if stage_note and not (existing.stage_note or "").strip():
+                    existing.stage_note = stage_note
+                    changed = True
+                if changed:
                     refreshed += 1
                 continue
             db.add(WorkPackage(
                 code=code, method_code=method.code, name=f"{method.name}: {name}",
-                package_type=kind, role=role, min_days=round(p50 * 0.65, 2),
-                p50_days=round(p50, 2), p80_days=round(p50 * 1.5, 2),
-                parallelizable=parallelizable, recommended_stage=method.recommended_stage,
-                late_factor=factor, dependency_codes=dependencies,
-                basis="expert_estimate", status="published",
+                package_type=kind, role=role, min_days=min_days,
+                p50_days=p50, p80_days=p80,
+                parallelizable=parallelizable, recommended_stage=stage,
+                stage_note=stage_note, late_factor=factor, dependency_codes=dependencies,
+                basis=basis, status="published",
             )); created += 1
     for payload in TEAM_RECORDS:
         if not db.scalar(select(TeamScenario.id).where(TeamScenario.code == payload["code"])):

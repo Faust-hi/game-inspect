@@ -946,9 +946,7 @@
     "basis": "expert_estimate",
     "formula": "p50 = 10d SDF generation/integration + 10d cone-trace GI pass + 10d tuning voxel density vs memory; assumes an engine that already has a GI slot to fill (e.g. UE Lumen)"
    },
-   "dependencies": [
-    "hardware_raytraced_gi"
-   ],
+   "dependencies": [],
    "relations": [
     {
      "code": "hardware_raytraced_gi",
@@ -2334,13 +2332,6 @@
    },
    "quality_impact": "Medium: convincing large-scale shadowing, insufficient for contact detail.",
    "concept_impact": "Lets a project extend the perceived shadow distance well past the CSM range.",
-   "recommended_stage": "production tuning; it is added once the base shadow system and its distance budget exist.",
-   "effort_person_days": {
-    "p50": 10,
-    "p80": 16,
-    "basis": "expert_estimate",
-    "formula": "p50 = 3d enabling + 3d march/quality tuning + 4d memory/density budget work"
-   },
    "dependencies": [
     "sdf_global_illumination"
    ],
@@ -4040,7 +4031,6 @@
     "formula": "p50 = 20d PT kernel + 15d material/asset compatibility pass (Epic documents many 'experimental' feature statuses) + 20d denoiser/spp/quality tuning + 15d hardware tiering and validation; excludes the cost of re-authoring content albedo"
    },
    "dependencies": [
-    "selective_ray_traced_effects",
     "temporal_upscaling"
    ],
    "relations": [

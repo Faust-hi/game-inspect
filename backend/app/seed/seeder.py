@@ -26,7 +26,8 @@ from ..models.entities import (
 from ..models.enums import DevStage, Status
 from . import engines_data, functions_data, methods_data
 from .corrections import (
-    correct_effect_scopes, correct_engine_tool_independence, correct_legacy_conflict_types,
+    correct_contradictory_relations, correct_effect_scopes, correct_engine_tool_independence,
+    correct_legacy_conflict_types,
     correct_method_sources, correct_placeholder_source_dates, correct_relation_types,
     correct_shadow_relation, correct_source_publication, correct_splitscreen_dependency,
     declare_evidence_gaps,
@@ -219,6 +220,7 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
         "effect_scopes_corrected": correct_effect_scopes(db),
         "splitscreen_dependency_corrected": correct_splitscreen_dependency(db),
         "relation_types_corrected": correct_relation_types(db),
+        "contradictory_relations_removed": correct_contradictory_relations(db),
         "method_sources_corrected": correct_method_sources(db),
         "source_dates_corrected": correct_placeholder_source_dates(db),
         "verified_fields_corrected": correct_existing(db),
@@ -659,6 +661,10 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     # Типы связей меняют расчёт целиком, поэтому приводятся к актуальному
     # смыслу каталога и в уже существующих базах.
     relations_corrected = correct_relation_types(db)
+    # Связи, противоречащие другой связи той же пары, снимаются и в уже
+    # существующих базах: иначе база, собранная с нуля, и база, обновлённая
+    # сидом, расходятся по составу корзины.
+    contradictory_relations_removed = correct_contradictory_relations(db)
     # Источники, подобранные по названию, а не по механизму, заменяются и в
     # уже существующих базах: ссылка — часть обоснования карточки.
     sources_corrected = correct_method_sources(db)
@@ -755,6 +761,7 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
         "splitscreen_dependency_corrected": splitscreen_corrected,
         "legacy_conflict_types_corrected": legacy_conflicts,
         "relation_types_corrected": relations_corrected,
+        "contradictory_relations_removed": contradictory_relations_removed,
         "method_sources_corrected": sources_corrected,
         "sources_published": sources_published,
         "source_dates_corrected": source_dates_corrected,

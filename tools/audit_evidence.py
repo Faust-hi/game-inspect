@@ -300,18 +300,15 @@ def main() -> int:
     DECLARED_DRAFT_TABLES = {"evidence_claims"}
     #
     # Row-level declarations: the invisibility of these rows is a DECISION with a
-    # recorded reason, not an unexplained hole. The pack family of work packages
-    # (`WP_*`, 992 rows) carries per-method effort with a curated formula but no
-    # external source, and the planner uses the formula family instead; the
-    # choice of the authoritative family (N2) is deferred, so those rows stay
-    # draft on purpose. The declaration is scoped to the family: a work package
-    # that goes invisible for any other reason is still reported.
-    DECLARED_DRAFT_ROWS: dict[str, tuple[str, str]] = {
-        "work_packages": (
-            "code like 'WP\\_%' escape '\\'",
-            "pack family (curated effort, no external source): decision N2 deferred",
-        ),
-    }
+    # recorded reason, not an unexplained hole.
+    #
+    # This registry is empty as of 2026-09-11. It used to declare the second
+    # family of work packages (`WP_*`, 992 rows: curated effort split evenly
+    # across eight phases, never run through the planner). N2 is resolved: the
+    # magnitude now comes from the packs and the phase structure from the
+    # formula, so there is exactly one family and nothing left to declare.
+    # See research/n2-recommendation-2026-09-11.md.
+    DECLARED_DRAFT_ROWS: dict[str, tuple[str, str]] = {}
     visibility: dict[str, dict] = {}
     for row in q(conn, "select name from sqlite_master where type='table' order by name"):
         name = row["name"]

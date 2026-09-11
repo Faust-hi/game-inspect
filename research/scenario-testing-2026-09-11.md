@@ -157,7 +157,7 @@
 - Учтено в расчёте: 4 из 4 выбранных техник.
 - Первое место по каждой функции: `advanced_npc_ai` → `npc_perception_budget`; `ai_pathfinding` → `rvo_local_avoidance`; `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `crowd_simulation` → `agent_update_budget`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `baked_occlusion_culling`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.25 (класс 2, ориентир Core i3-10100), GPU-индекс 0.16 (класс 2, ориентир Radeon RX 580), RAM 11.1 ГБ, VRAM 5.9 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 34.23 чел.-дн., P80 51.32; срок P50 21.31 дн., P80 31.93.
+- Календарь (команда `small_2_5`): трудоёмкость P50 33.0 чел.-дн., P80 73.0; срок P50 20.61 дн., P80 45.63.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -186,7 +186,7 @@
 - Учтено в расчёте: 4 из 4 выбранных техник, плюс 2 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `geometry_pipeline` → `mesh_index_optimization`; `multiplayer_netcode` → `headless_dedicated_server`; `open_world_streaming` → `baked_occlusion_culling`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 1.09 (класс 5, ориентир None), GPU-индекс 0.48 (класс 3, ориентир GeForce RTX 3060 Ti), RAM 9.7 ГБ, VRAM 4.6 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 64.45 чел.-дн., P80 96.73; срок P50 41.75 дн., P80 62.68.
+- Календарь (команда `small_2_5`): трудоёмкость P50 122.0 чел.-дн., P80 215.0; срок P50 79.76 дн., P80 139.86.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -217,7 +217,7 @@
 - Учтено в расчёте: 2 из 2 выбранных техник, плюс 1 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `baked_occlusion_culling`; `portal_rendering` → `portal_scene_capture_budget`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `upscaling_frame_generation` → `ml_frame_generation`; `water_simulation` → `screen_space_water_simple`.
 - Оборудование: CPU-индекс 0.3 (класс 1, ориентир Core i3-8100), GPU-индекс 0.25 (класс 2, ориентир GeForce GTX 1660 Super), RAM 10.1 ГБ, VRAM 5.7 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 24.45 чел.-дн., P80 36.69; срок P50 17.62 дн., P80 26.44.
+- Календарь (команда `small_2_5`): трудоёмкость P50 52.0 чел.-дн., P80 89.0; срок P50 36.47 дн., P80 62.45.
 - Объявленных пробелов модели: 6.
 
 **Эталонное поведение игры.**
@@ -244,7 +244,7 @@
 - Учтено в расчёте: 3 из 3 выбранных техник, плюс 2 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `baked_occlusion_culling`; `post_processing` → `temporal_upscaling`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `split_screen_rendering` → `splitscreen_render_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.5 (класс 3, ориентир Core i7-8700K), GPU-индекс 0.26 (класс 2, ориентир GeForce RTX 3050), RAM 11.4 ГБ, VRAM 7.0 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 32.26 чел.-дн., P80 48.33; срок P50 20.61 дн., P80 30.86.
+- Календарь (команда `small_2_5`): трудоёмкость P50 78.0 чел.-дн., P80 125.0; срок P50 50.03 дн., P80 80.25.
 - Объявленных пробелов модели: 7.
 
 **Эталонное поведение игры.**
@@ -272,7 +272,7 @@
 - Учтено в расчёте: 3 из 4 выбранных техник, плюс 6 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `dynamic_global_illumination` → `screen_space_gi`; `geometry_pipeline` → `mesh_index_optimization`; `multiplayer_netcode` → `headless_dedicated_server`; `open_world_streaming` → `baked_occlusion_culling`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `split_screen_rendering` → `splitscreen_render_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.54 (класс 3, ориентир Core i7-9700K), GPU-индекс 0.43 (класс 3, ориентир GeForce RTX 5060 Ti), RAM 13.5 ГБ, VRAM 10.7 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 117.23 чел.-дн., P80 175.86; срок P50 70.07 дн., P80 105.12.
+- Календарь (команда `small_2_5`): трудоёмкость P50 288.0 чел.-дн., P80 476.0; срок P50 171.72 дн., P80 283.7.
 - Объявленных пробелов модели: 6.
 
 **Эталонное поведение игры.**
@@ -297,11 +297,11 @@
 
 **Результат проекта.**
 
-- Кандидатов: 46, рекомендовано: 35, исключено: 11.
+- Кандидатов: 47, рекомендовано: 36, исключено: 11.
 - Учтено в расчёте: 6 из 7 выбранных техник, плюс 5 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `crowd_simulation` → `agent_update_budget`; `dynamic_global_illumination` → `screen_space_gi`; `dynamic_shadows` → `screen_space_contact_shadows`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `gpu_compute_culling`; `procedural_terrain` → `terrain_generation_streaming_budget`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.18 (класс 1, ориентир Core i3-8100), GPU-индекс 0.37 (класс 3, ориентир Arc A770), RAM 17.7 ГБ, VRAM 14.7 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
-- Календарь (команда `small_2_5`): трудоёмкость P50 151.87 чел.-дн., P80 227.84; срок P50 88.76 дн., P80 133.15.
+- Календарь (команда `small_2_5`): трудоёмкость P50 649.0 чел.-дн., P80 1180.0; срок P50 415.35 дн., P80 770.69.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -314,7 +314,7 @@
 **Выявленные отличия.**
 
 - **Расхождение ранга:** игра применяет `world_partition_streaming`, а движок ставит его на 4-е место из 5 в группе `open_world_streaming`; первым идёт `gpu_compute_culling`. Причина — критерии TOPSIS: у `world_partition_streaming` экспертный балл эффекта 0.75, стоимость внедрения 4, сложность 4, штраф за позднее внедрение `critical`.
-- **Не предложено:** техника игры `virtual_geometry_clusters` даже не попала в кандидаты: её функция не выбрана в профиле, а сама она не помечена как сквозная.
+- **Расхождение ранга:** игра применяет `virtual_geometry_clusters`, а движок ставит его на 2-е место из 2 в группе `geometry_pipeline`; первым идёт `mesh_index_optimization`. Причина — критерии TOPSIS: у `virtual_geometry_clusters` экспертный балл эффекта 0.8, стоимость внедрения 5, сложность 5, штраф за позднее внедрение `critical`.
 - **Расхождение ранга:** игра применяет `hierarchical_lod`, а движок ставит его на 2-е место из 5 в группе `open_world_streaming`; первым идёт `gpu_compute_culling`. Причина — критерии TOPSIS: у `hierarchical_lod` экспертный балл эффекта 0.75, стоимость внедрения 3, сложность 3, штраф за позднее внедрение `medium`.
 - **Не учтено в расчёте нагрузки:** 1 из 7 выбранных техник (`hardware_raytraced_gi`) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.
 - **Выход за область применимости модели:** Число NPC (35 000) выше верхней границы модели (10 000): оценка не различает значения внутри этой области, результат является нижней границей диапазона.; Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps5, xbox_series) совместимый аппаратный прогноз не обещается.
@@ -330,11 +330,11 @@
 
 **Результат проекта.**
 
-- Кандидатов: 40, рекомендовано: 32, исключено: 8.
+- Кандидатов: 41, рекомендовано: 32, исключено: 9.
 - Учтено в расчёте: 5 из 6 выбранных техник, плюс 5 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `dynamic_shadows` → `screen_space_contact_shadows`; `geometry_pipeline` → `mesh_index_optimization`; `multiplayer_netcode` → `delta_compression_state`; `open_world_streaming` → `gpu_compute_culling`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.36 (класс 2, ориентир Core i3-10100), GPU-индекс 0.26 (класс 3, ориентир GeForce RTX 3060), RAM 15.0 ГБ, VRAM 9.6 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 110.67 чел.-дн., P80 166.09; срок P50 66.41 дн., P80 99.66.
+- Календарь (команда `small_2_5`): трудоёмкость P50 491.0 чел.-дн., P80 915.0; срок P50 339.63 дн., P80 640.49.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -365,7 +365,7 @@
 - Учтено в расчёте: 4 из 4 выбранных техник, плюс 3 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `geometry_pipeline` → `mesh_index_optimization`; `multiplayer_netcode` → `delta_compression_state`; `open_world_streaming` → `baked_occlusion_culling`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `runtime_security` → `runtime_security_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.65 (класс 3, ориентир Core i5-12400F), GPU-индекс 0.29 (класс 2, ориентир GeForce GTX 1660), RAM 9.7 ГБ, VRAM 4.6 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 75.89 чел.-дн., P80 113.89; срок P50 47.99 дн., P80 72.03.
+- Календарь (команда `small_2_5`): трудоёмкость P50 142.0 чел.-дн., P80 250.0; срок P50 90.67 дн., P80 158.95.
 - Объявленных пробелов модели: 11.
 
 **Эталонное поведение игры.**
@@ -394,7 +394,7 @@
 - Учтено в расчёте: 4 из 6 выбранных техник.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `destruction_simulation` → `runtime_fracture_budget`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `baked_occlusion_culling`; `particle_systems` → `particle_pooling`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.35 (класс 1, ориентир Core i3-8100), GPU-индекс 0.35 (класс 2, ориентир Arc A750), RAM 12.1 ГБ, VRAM 7.0 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
-- Календарь (команда `small_2_5`): трудоёмкость P50 73.44 чел.-дн., P80 110.2; срок P50 44.97 дн., P80 67.49.
+- Календарь (команда `small_2_5`): трудоёмкость P50 152.0 чел.-дн., P80 260.0; срок P50 96.78 дн., P80 164.02.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -426,7 +426,7 @@
 - Учтено в расчёте: 4 из 6 выбранных техник, плюс 3 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `dynamic_global_illumination` → `screen_space_gi`; `dynamic_shadows` → `screen_space_contact_shadows`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `gpu_compute_culling`; `project_architecture` → `composition_bootstrap_architecture`; `ray_traced_effects` → `rt_effect_resolution_budget`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.33 (класс 1, ориентир Core i3-8100), GPU-индекс 0.57 (класс 3, ориентир GeForce RTX 5060 Ti), RAM 17.3 ГБ, VRAM 14.7 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
-- Календарь (команда `small_2_5`): трудоёмкость P50 104.98 чел.-дн., P80 157.46; срок P50 62.24 дн., P80 93.33.
+- Календарь (команда `small_2_5`): трудоёмкость P50 273.0 чел.-дн., P80 447.0; срок P50 162.25 дн., P80 267.03.
 - Объявленных пробелов модели: 7.
 
 **Эталонное поведение игры.**
@@ -457,7 +457,7 @@
 - Учтено в расчёте: 5 из 5 выбранных техник.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `gpu_compute_culling`; `procedural_terrain` → `terrain_generation_streaming_budget`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `save_system` → `snapshot_slot_saves`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.34 (класс 2, ориентир Core i5-10400F), GPU-индекс 0.2 (класс 3, ориентир GeForce RTX 3060), RAM 16.2 ГБ, VRAM 10.4 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 46.45 чел.-дн., P80 69.72; срок P50 29.4 дн., P80 44.12.
+- Календарь (команда `small_2_5`): трудоёмкость P50 118.0 чел.-дн., P80 220.0; срок P50 69.5 дн., P80 128.21.
 - Объявленных пробелов модели: 7.
 
 **Эталонное поведение игры.**
@@ -483,11 +483,11 @@
 
 **Результат проекта.**
 
-- Кандидатов: 38, рекомендовано: 29, исключено: 9.
+- Кандидатов: 37, рекомендовано: 28, исключено: 9.
 - Учтено в расчёте: 4 из 5 выбранных техник, плюс 2 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `geometry_pipeline` → `mesh_index_optimization`; `large_scale_terrain` → `neural_texture_compression`; `open_world_streaming` → `gpu_compute_culling`; `procedural_vegetation` → `vegetation_atlas_lod`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.28 (класс 2, ориентир Core i3-10100), GPU-индекс 0.34 (класс 3, ориентир GeForce RTX 3060), RAM 15.0 ГБ, VRAM 9.3 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
-- Календарь (команда `small_2_5`): трудоёмкость P50 100.79 чел.-дн., P80 151.18; срок P50 60.48 дн., P80 90.71.
+- Календарь (команда `small_2_5`): трудоёмкость P50 303.0 чел.-дн., P80 558.0; срок P50 180.94 дн., P80 329.95.
 - Объявленных пробелов модели: 7.
 
 **Эталонное поведение игры.**
@@ -498,8 +498,8 @@
 
 **Выявленные отличия.**
 
-- **Расхождение ранга:** игра применяет `terrain_clipmap`, а движок ставит его на 3-е место из 5 в группе `large_scale_terrain`; первым идёт `neural_texture_compression`. Причина — критерии TOPSIS: у `terrain_clipmap` экспертный балл эффекта 0.7, стоимость внедрения 4, сложность 4, штраф за позднее внедрение `high`.
-- **Расхождение ранга:** игра применяет `virtual_texturing`, а движок ставит его на 5-е место из 5 в группе `large_scale_terrain`; первым идёт `neural_texture_compression`. Причина — критерии TOPSIS: у `virtual_texturing` экспертный балл эффекта 0.6, стоимость внедрения 5, сложность 5, штраф за позднее внедрение `critical`.
+- **Расхождение ранга:** игра применяет `terrain_clipmap`, а движок ставит его на 3-е место из 4 в группе `large_scale_terrain`; первым идёт `neural_texture_compression`. Причина — критерии TOPSIS: у `terrain_clipmap` экспертный балл эффекта 0.7, стоимость внедрения 4, сложность 4, штраф за позднее внедрение `high`.
+- **Расхождение ранга:** игра применяет `virtual_texturing`, а движок ставит его на 4-е место из 4 в группе `large_scale_terrain`; первым идёт `neural_texture_compression`. Причина — критерии TOPSIS: у `virtual_texturing` экспертный балл эффекта 0.6, стоимость внедрения 5, сложность 5, штраф за позднее внедрение `critical`.
 - **Не учтено в расчёте нагрузки:** 1 из 5 выбранных техник (`terrain_clipmap`) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.
 - **Выход за область применимости модели:** Количественный прогноз доступен только для Windows/Linux ПК: для платформ (xbox_series) совместимый аппаратный прогноз не обещается.
 - **FPS не моделируется:** целевые 60.0 FPS остаются статусом `not_modeled`; сравнить с фактической частотой кадров игры нельзя по устройству модели.
@@ -514,11 +514,11 @@
 
 **Результат проекта.**
 
-- Кандидатов: 29, рекомендовано: 24, исключено: 5.
+- Кандидатов: 30, рекомендовано: 25, исключено: 5.
 - Учтено в расчёте: 4 из 4 выбранных техник, плюс 2 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `destruction_simulation` → `runtime_fracture_budget`; `geometry_pipeline` → `mesh_index_optimization`; `physics_simulation` → `collision_layer_matrix`; `project_architecture` → `composition_bootstrap_architecture`; `ray_traced_effects` → `rt_effect_resolution_budget`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.25 (класс 2, ориентир Core i3-10100), GPU-индекс 0.44 (класс 2, ориентир Radeon RX 6600), RAM 12.8 ГБ, VRAM 6.8 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
-- Календарь (команда `small_2_5`): трудоёмкость P50 55.11 чел.-дн., P80 82.66; срок P50 34.48 дн., P80 51.72.
+- Календарь (команда `small_2_5`): трудоёмкость P50 112.0 чел.-дн., P80 226.0; срок P50 73.42 дн., P80 144.99.
 - Объявленных пробелов модели: 9.
 
 **Эталонное поведение игры.**
@@ -547,7 +547,7 @@
 - Учтено в расчёте: 4 из 4 выбранных техник, плюс 1 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `destruction_simulation` → `runtime_fracture_budget`; `geometry_pipeline` → `mesh_index_optimization`; `physics_simulation` → `collision_layer_matrix`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`; `vehicle_simulation` → `vehicle_simulation_lod`.
 - Оборудование: CPU-индекс 0.24 (класс 2, ориентир Core i3-10100), GPU-индекс 0.19 (класс 2, ориентир Radeon RX 580), RAM 12.1 ГБ, VRAM 6.8 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 42.78 чел.-дн., P80 64.18; срок P50 26.72 дн., P80 40.07.
+- Календарь (команда `small_2_5`): трудоёмкость P50 45.0 чел.-дн., P80 106.0; срок P50 28.63 дн., P80 67.49.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -576,7 +576,7 @@
 - Учтено в расчёте: 4 из 5 выбранных техник.
 - Первое место по каждой функции: `ai_pathfinding` → `rvo_local_avoidance`; `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `crowd_simulation` → `agent_update_budget`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `baked_occlusion_culling`; `particle_systems` → `particle_pooling`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.36 (класс 2, ориентир Core i3-10100), GPU-индекс 0.29 (класс 3, ориентир GeForce RTX 3060), RAM 14.4 ГБ, VRAM 8.9 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 64.89 чел.-дн., P80 97.35; срок P50 38.36 дн., P80 57.51.
+- Календарь (команда `small_2_5`): трудоёмкость P50 77.0 чел.-дн., P80 172.0; срок P50 44.78 дн., P80 100.0.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -602,11 +602,11 @@
 
 **Результат проекта.**
 
-- Кандидатов: 45, рекомендовано: 32, исключено: 13.
+- Кандидатов: 44, рекомендовано: 32, исключено: 12.
 - Учтено в расчёте: 3 из 6 выбранных техник, плюс 5 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `character_animation` → `animation_lod_budget`; `geometry_pipeline` → `mesh_index_optimization`; `large_scale_terrain` → `neural_texture_compression`; `open_world_streaming` → `gpu_compute_culling`; `procedural_vegetation` → `vegetation_atlas_lod`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.13 (класс 1, ориентир Core i3-8100), GPU-индекс 0.11 (класс 3, ориентир GeForce RTX 3060), RAM 13.8 ГБ, VRAM 8.1 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 125.27 чел.-дн., P80 187.82; срок P50 75.0 дн., P80 112.45.
+- Календарь (команда `small_2_5`): трудоёмкость P50 304.0 чел.-дн., P80 596.0; срок P50 181.97 дн., P80 353.21.
 - Объявленных пробелов модели: 7.
 
 **Эталонное поведение игры.**
@@ -634,11 +634,11 @@
 
 **Результат проекта.**
 
-- Кандидатов: 36, рекомендовано: 29, исключено: 7.
-- Учтено в расчёте: 2 из 5 выбранных техник, плюс 2 достроенных обязательных зависимостей.
-- Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `dynamic_global_illumination` → `screen_space_gi`; `geometry_pipeline` → `mesh_index_optimization`; `hair_rendering` → `hair_cards_lod`; `open_world_streaming` → `baked_occlusion_culling`; `path_tracing` → `path_tracing_sample_denoiser_budget`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`; `volumetric_effects` → `volumetric_half_resolution`.
-- Оборудование: CPU-индекс 0.36 (класс 1, ориентир Core i3-8100), GPU-индекс 0.81 (класс 4, ориентир GeForce RTX 4070), RAM 12.6 ГБ, VRAM 9.6 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
-- Календарь (команда `small_2_5`): трудоёмкость P50 104.76 чел.-дн., P80 157.17; срок P50 63.37 дн., P80 95.08.
+- Кандидатов: 36, рекомендовано: 31, исключено: 5.
+- Учтено в расчёте: 4 из 5 выбранных техник, плюс 2 достроенных обязательных зависимостей.
+- Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `dynamic_global_illumination` → `screen_space_gi`; `geometry_pipeline` → `mesh_index_optimization`; `hair_rendering` → `hair_cards_lod`; `mesh_shaders` → `gpu_meshlet_culling_budget`; `open_world_streaming` → `baked_occlusion_culling`; `path_tracing` → `path_tracing_sample_denoiser_budget`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`; `volumetric_effects` → `volumetric_half_resolution`.
+- Оборудование: CPU-индекс 0.28 (класс 1, ориентир Core i3-8100), GPU-индекс 0.79 (класс 3, ориентир GeForce RTX 5060 Ti), RAM 12.7 ГБ, VRAM 9.9 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
+- Календарь (команда `small_2_5`): трудоёмкость P50 276.0 чел.-дн., P80 450.0; срок P50 169.81 дн., P80 277.44.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -650,9 +650,9 @@
 **Выявленные отличия.**
 
 - **Расхождение ранга:** игра применяет `full_path_tracing_pipeline`, а движок ставит его на 2-е место из 2 в группе `path_tracing`; первым идёт `path_tracing_sample_denoiser_budget`. Причина — критерии TOPSIS: у `full_path_tracing_pipeline` экспертный балл эффекта 0.1, стоимость внедрения 5, сложность 5, штраф за позднее внедрение `critical`.
-- **Исключение:** техника игры `meshlet_pipeline_adoption` исключена — Метод не поддерживается на целевых платформах: ps5..
+- **Расхождение ранга:** игра применяет `meshlet_pipeline_adoption`, а движок ставит его на 2-е место из 2 в группе `mesh_shaders`; первым идёт `gpu_meshlet_culling_budget`. Причина — критерии TOPSIS: у `meshlet_pipeline_adoption` экспертный балл эффекта 0.65, стоимость внедрения 5, сложность 5, штраф за позднее внедрение `critical`.
 - **Расхождение ранга:** игра применяет `hair_strand_simulation`, а движок ставит его на 2-е место из 2 в группе `hair_rendering`; первым идёт `hair_cards_lod`. Причина — критерии TOPSIS: у `hair_strand_simulation` экспертный балл эффекта 0.5, стоимость внедрения 4, сложность 4, штраф за позднее внедрение `medium`.
-- **Не учтено в расчёте нагрузки:** 3 из 5 выбранных техник (`full_path_tracing_pipeline`, `meshlet_pipeline_adoption`, `froxel_volumetric_fog`) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.
+- **Не учтено в расчёте нагрузки:** 1 из 5 выбранных техник (`froxel_volumetric_fog`) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.
 - **Выход за область применимости модели:** Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps5, xbox_series) совместимый аппаратный прогноз не обещается.
 - **FPS не моделируется:** целевые 60.0 FPS остаются статусом `not_modeled`; сравнить с фактической частотой кадров игры нельзя по устройству модели.
 
@@ -670,7 +670,7 @@
 - Учтено в расчёте: 3 из 4 выбранных техник.
 - Первое место по каждой функции: `advanced_npc_ai` → `npc_perception_budget`; `ai_pathfinding` → `rvo_local_avoidance`; `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `dynamic_shadows` → `screen_space_contact_shadows`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `baked_occlusion_culling`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.26 (класс 1, ориентир Core i3-8100), GPU-индекс 0.11 (класс 1, ориентир GeForce GTX 1050 Ti), RAM 9.6 ГБ, VRAM 3.9 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 35.0 чел.-дн., P80 52.49; срок P50 22.15 дн., P80 33.21.
+- Календарь (команда `small_2_5`): трудоёмкость P50 31.0 чел.-дн., P80 69.0; срок P50 19.31 дн., P80 42.97.
 - Объявленных пробелов модели: 7.
 
 **Эталонное поведение игры.**
@@ -700,7 +700,7 @@
 - Учтено в расчёте: 1 из 5 выбранных техник, плюс 2 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `character_animation` → `animation_lod_budget`; `dynamic_shadows` → `screen_space_contact_shadows`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `baked_occlusion_culling`; `post_processing` → `screenspace_light_shafts`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.14 (класс 1, ориентир Core i3-8100), GPU-индекс 0.1 (класс 2, ориентир Radeon RX 580), RAM 11.3 ГБ, VRAM 6.4 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 77.13 чел.-дн., P80 115.63; срок P50 47.77 дн., P80 71.64.
+- Календарь (команда `small_2_5`): трудоёмкость P50 166.0 чел.-дн., P80 316.0; срок P50 105.69 дн., P80 197.06.
 - Объявленных пробелов модели: 6.
 
 **Эталонное поведение игры.**
@@ -731,7 +731,7 @@
 - Учтено в расчёте: 5 из 5 выбранных техник, плюс 4 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `destruction_simulation` → `runtime_fracture_budget`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `gpu_compute_culling`; `physics_simulation` → `collision_layer_matrix`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`; `vehicle_simulation` → `vehicle_simulation_lod`.
 - Оборудование: CPU-индекс 0.29 (класс 2, ориентир Ryzen 5 1600), GPU-индекс 0.23 (класс 3, ориентир GeForce RTX 3060), RAM 15.7 ГБ, VRAM 9.4 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 85.77 чел.-дн., P80 128.71; срок P50 50.71 дн., P80 76.06.
+- Календарь (команда `small_2_5`): трудоёмкость P50 126.0 чел.-дн., P80 260.0; срок P50 78.39 дн., P80 159.01.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -761,7 +761,7 @@
 - Учтено в расчёте: 3 из 4 выбранных техник, плюс 1 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `geometry_pipeline` → `mesh_index_optimization`; `procedural_terrain` → `terrain_generation_streaming_budget`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `runtime_memory` → `managed_gc_alloc_budget`; `save_system` → `snapshot_slot_saves`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.35 (класс 2, ориентир Core i3-10100), GPU-индекс 0.16 (класс 3, ориентир GeForce RTX 3060), RAM 15.2 ГБ, VRAM 8.3 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 47.79 чел.-дн., P80 71.72; срок P50 29.37 дн., P80 44.08.
+- Календарь (команда `small_2_5`): трудоёмкость P50 134.0 чел.-дн., P80 247.0; срок P50 80.17 дн., P80 145.21.
 - Объявленных пробелов модели: 7.
 
 **Эталонное поведение игры.**
@@ -791,7 +791,7 @@
 - Учтено в расчёте: 4 из 4 выбранных техник, плюс 1 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `geometry_pipeline` → `mesh_index_optimization`; `open_world_streaming` → `gpu_compute_culling`; `procedural_vegetation` → `vegetation_atlas_lod`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.29 (класс 2, ориентир Core i5-8400), GPU-индекс 0.29 (класс 3, ориентир GeForce RTX 3060), RAM 12.9 ГБ, VRAM 9.0 ГБ; узкое место — GPU (растеризация и трассировка суммарно).
-- Календарь (команда `small_2_5`): трудоёмкость P50 40.77 чел.-дн., P80 61.18; срок P50 26.34 дн., P80 39.51.
+- Календарь (команда `small_2_5`): трудоёмкость P50 107.0 чел.-дн., P80 186.0; срок P50 68.29 дн., P80 119.16.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -820,7 +820,7 @@
 - Учтено в расчёте: 3 из 4 выбранных техник.
 - Первое место по каждой функции: `ai_pathfinding` → `rvo_local_avoidance`; `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `character_animation` → `animation_lod_budget`; `crowd_simulation` → `agent_update_budget`; `geometry_pipeline` → `mesh_index_optimization`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `srp_batcher_discipline`; `runtime_memory` → `managed_gc_alloc_budget`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.28 (класс 2, ориентир Core i5-10400F), GPU-индекс 0.16 (класс 2, ориентир Radeon RX 580), RAM 11.9 ГБ, VRAM 6.8 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 41.25 чел.-дн., P80 61.88; срок P50 25.64 дн., P80 38.47.
+- Календарь (команда `small_2_5`): трудоёмкость P50 68.0 чел.-дн., P80 141.0; срок P50 42.99 дн., P80 87.6.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -850,7 +850,7 @@
 - Учтено в расчёте: 3 из 4 выбранных техник, плюс 1 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `art_direction_stylization`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `character_animation` → `sprite_sheet_compression`; `crowd_simulation` → `crowd_2d_instancing`; `particle_systems` → `sprite_particle_atlas`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `pso_precaching_warmup`; `save_system` → `snapshot_slot_saves`.
 - Оборудование: CPU-индекс 0.26 (класс 2, ориентир Core i3-10100), GPU-индекс 0.21 (класс 2, ориентир GeForce GTX 1060 6GB), RAM 10.5 ГБ, VRAM 4.8 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 36.71 чел.-дн., P80 55.04; срок P50 22.69 дн., P80 34.01.
+- Календарь (команда `small_2_5`): трудоёмкость P50 46.0 чел.-дн., P80 97.0; срок P50 27.59 дн., P80 57.42.
 - Объявленных пробелов модели: 6.
 
 **Эталонное поведение игры.**
@@ -882,7 +882,7 @@
 - Учтено в расчёте: 4 из 4 выбранных техник, плюс 2 достроенных обязательных зависимостей.
 - Первое место по каждой функции: `art_pipeline` → `normal_bake_retopology_pipeline`; `audio_system` → `audio_streaming_compression`; `build_delivery` → `differential_patch_pipeline`; `character_animation` → `animation_lod_budget`; `geometry_pipeline` → `mesh_index_optimization`; `multiplayer_netcode` → `delta_compression_state`; `open_world_streaming` → `gpu_compute_culling`; `project_architecture` → `composition_bootstrap_architecture`; `render_scalability` → `quality_tier_scalability`; `rendering_architecture` → `tiled_clustered_light_culling`; `save_system` → `snapshot_slot_saves`; `upscaling_frame_generation` → `ml_frame_generation`.
 - Оборудование: CPU-индекс 0.38 (класс 2, ориентир Ryzen 5 1600), GPU-индекс 0.15 (класс 2, ориентир Radeon RX 580), RAM 14.0 ГБ, VRAM 7.8 ГБ; узкое место — CPU (главный поток).
-- Календарь (команда `small_2_5`): трудоёмкость P50 56.01 чел.-дн., P80 84.1; срок P50 35.38 дн., P80 53.13.
+- Календарь (команда `small_2_5`): трудоёмкость P50 99.0 чел.-дн., P80 181.0; срок P50 62.44 дн., P80 114.14.
 - Объявленных пробелов модели: 8.
 
 **Эталонное поведение игры.**
@@ -901,7 +901,7 @@
 ## Часть III. Сводка расхождений
 
 - **Совпадение с реальностью:** хотя бы одна ключевая техника игры стоит на 1-м месте в своей группе в **21 из 25** сценариев.
-- **Полнота учёта:** из **114** выбранных техник в расчёт нагрузки и оборудования дошли **91** (80%). Дополнительно автоматически достроено **50** обязательных зависимостей (всего в расчёте 141). Недошедшие выбранные техники отброшены проверкой применимости — причина названа по каждой в пояснениях сценария.
+- **Полнота учёта:** из **114** выбранных техник в расчёт нагрузки и оборудования дошли **93** (82%). Дополнительно автоматически достроено **50** обязательных зависимостей (всего в расчёте 143). Недошедшие выбранные техники отброшены проверкой применимости — причина названа по каждой в пояснениях сценария.
 - **«Сверка с практикой» пуста** в **0 из 25** сценариев.
 - **FPS не моделируется нигде:** целевая частота кадров всегда остаётся статусом `not_modeled`, поэтому прямое сравнение с фактической производительностью оригинала по построению невозможно.
 
@@ -911,7 +911,7 @@
 
 **Сквозные методы попадают в функции, которых нет в профиле.** 20 методов всегда входят в кандидаты. Для CS2 (мир — арена, функция — только сеть) движок всё равно выдаёт рекомендацию по `open_world_streaming`.
 
-**Половина выбранных техник не доходит до расчёта нагрузки.** -27 из 114 техник отброшены обязательными зависимостями. В сценариях Horizon Zero Dawn и Uncharted 4 не учтена ни одна техника: профиль нагрузки остаётся нейтральным 50/50, что читается как «решения не влияют», а не «решения не посчитаны».
+**Половина выбранных техник не доходит до расчёта нагрузки.** -29 из 114 техник отброшены обязательными зависимостями. В сценариях Horizon Zero Dawn и Uncharted 4 не учтена ни одна техника: профиль нагрузки остаётся нейтральным 50/50, что читается как «решения не влияют», а не «решения не посчитаны».
 
 **Каскадный обрыв из-за одной отсутствующей зависимости.** Отсутствие `gpu_skinning_compute` обнуляет всю цепочку `animation_lod_budget` → `motion_matching` → `animation_compression`.
 

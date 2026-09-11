@@ -85,12 +85,21 @@ PLAN_BASKET = [
 # от которого он зависит. До 2026-09-11 это поле оставалось пустым, и путь
 # укорачивался (7 задач, меньший календарь) — зависимость между
 # `world_partition_streaming` и `async_loading_pipeline` в плане не проявлялась.
+# Величина оценки — курируемая (`effort_person_days` из research/packs/pack_*.json),
+# структура по фазам — формульная (доли `implementation_cost` и `complexity`).
+# До 2026-09-11 величину задавала только формула: 12 различных итогов на 124
+# метода и разброс 3,02×, из-за чего конвейер не отличался от точечной правки.
+# Подробнее — research/n2-recommendation-2026-09-11.md.
 PLAN_EXPECTED_CALENDAR = {
-    "solo": 190.45, "small_2_5": 121.78, "mid_6_15": 55.87, "large_16_plus": 27.80,
+    "solo": 678.33, "small_2_5": 453.54, "mid_6_15": 222.69, "large_16_plus": 116.31,
 }
-PLAN_EXPECTED_EFFORT = 208.99
-PLAN_EXPECTED_METHODS = 21
-PLAN_EXPECTED_TASKS = 139
+PLAN_EXPECTED_EFFORT = 702.00
+# Корзина разрастается обязательными предусловиями: 10 методов запроса дают 19
+# с учётом зависимостей. До 2026-09-11 их было 21: `motion_matching` требовал
+# `animation_lod_budget`, с которым у него объявлен `hard_conflict`, — снятая
+# пара убрала из плана сам метод и его собственную зависимость.
+PLAN_EXPECTED_METHODS = 19
+PLAN_EXPECTED_TASKS = 126
 PLAN_EXPECTED_CRITICAL = 9
 
 

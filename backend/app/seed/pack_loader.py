@@ -332,62 +332,6 @@ def _upsert_case(db: Session, payload: dict[str, Any], sources_map: dict[str, Ev
     return case
 
 
-def _upsert_work_package(db: Session, payload: dict[str, Any]) -> WorkPackage | None:
-    code = payload["code"]
-    stage_code, stage_note = normalize_stage(payload.get("recommended_stage"))
-    # Поля, которые ведёт загрузчик пакетов: пакет — их источник.
-    owned = {
-        "name": payload.get("name", "")[:220],
-        "package_type": payload.get("package_type", "integration"),
-        "role": payload.get("role", "engineering"),
-        "p50_days": payload.get("p50_days", 1.0),
-        "p80_days": payload.get("p80_days", 1.5),
-        "basis": payload.get("basis", "expert_estimate"),
-    }
-    existing = db.scalar(select(WorkPackage).where(WorkPackage.code == code))
-    if existing:
-        # Согласующий проход: «заполняется только пустое» не лечит уже собранные
-        # базы. Раньше так сверялся только `stage_note`, поэтому правка словаря
-        # ролей (`designer` → `design`) до собранной базы не доходила: 868
-        # пакетов сохранили имена, которых нет в ёмкости команды, а
-        # планировщик молча брал для них ёмкость 1 — размер команды переставал
-        # влиять на план. Правка пакета должна доходить до базы, иначе источник
-        # и результат расходятся молча.
-        changed = False
-        for field, value in owned.items():
-            if getattr(existing, field) != value:
-                setattr(existing, field, value)
-                changed = True
-        if stage_code and existing.recommended_stage != stage_code:
-            existing.recommended_stage = stage_code
-            changed = True
-        if stage_note and not (existing.stage_note or "").strip():
-            existing.stage_note = stage_note
-            changed = True
-        if changed:
-            db.flush()
-        return existing
-    wp = WorkPackage(
-        code=code,
-        method_code=payload.get("method_code", "")[:64],
-        name=payload.get("name", "")[:220],
-        package_type=payload.get("package_type", "integration"),
-        role=payload.get("role", "engineering"),
-        min_days=payload.get("min_days", 0.0),
-        p50_days=payload.get("p50_days", 1.0),
-        p80_days=payload.get("p80_days", 1.5),
-        parallelizable=payload.get("parallelizable", True),
-        recommended_stage=stage_code,
-        stage_note=stage_note or "",
-        late_factor=payload.get("late_factor", 1.0),
-        dependency_codes=payload.get("dependency_codes", []),
-        basis=payload.get("basis", "expert_estimate"),
-    )
-    db.add(wp)
-    db.flush()
-    return wp
-
-
 def _build_claim_code(source_code: str, entity: str, entity_code: str, field: str, idx: int) -> str:
     # A declared-absence row carries source=None on purpose (see gap_claim in
     # tools/gen_pack_tool_proofs.py). Formatting None would produce the literal
@@ -605,6 +549,47 @@ def _sequence(pack: dict[str, Any], key: str) -> list[Any]:
     return value if isinstance(value, list) else []
 
 
+def curated_effort() -> dict[str, dict[str, Any]]:
+    """Курируемая трудоёмкость методов из пакетов: код → величина и стадия.
+
+    Это единственный источник **величины** оценки. Формула в
+    `evidence_catalog.sync_work_packages` задаёт не итог, а **распределение**
+    итога по фазам: пакет отвечает на вопрос «сколько всего», формула — «на что
+    эта работа раскладывается». Раньше обе семьи публиковались как независимые
+    оценки одного и того же, и расхождение между ними (корреляция 0,45,
+    отношение от 0,49 до 19,3 по методам) растворялось в порядке загрузки.
+
+    Если метод описан в нескольких пакетах, величина берётся из последнего по
+    алфавиту файла — как и раньше. Совпадающие дубли безвредны; расходящиеся
+    считает `sync_packs` в `pack_effort_conflicts`, чтобы расхождение было
+    объявлено, а не выбрано молча.
+    """
+    packs, _failures = _load_packs()
+    out: dict[str, dict[str, Any]] = {}
+    for pack in packs:
+        for mcode, mdata in _mapping(pack, "methods").items():
+            if not isinstance(mdata, dict):
+                continue
+            effort = mdata.get("effort_person_days") or {}
+            if not isinstance(effort, dict) or effort.get("p50") is None:
+                continue
+            p50 = float(effort["p50"])
+            raw_p80 = effort.get("p80")
+            p80 = float(raw_p80) if raw_p80 is not None else p50 * 1.5
+            # Модель требует p80 >= p50: диапазон не может быть вывернут.
+            if p80 < p50:
+                p80 = p50
+            stage_code, stage_note = normalize_stage(mdata.get("recommended_stage"))
+            out[mcode] = {
+                "p50": p50,
+                "p80": p80,
+                "basis": effort.get("basis", "expert_estimate"),
+                "recommended_stage": stage_code,
+                "stage_note": stage_note or "",
+            }
+    return out
+
+
 def sync_packs(db: Session) -> dict[str, int]:
     packs, pack_failures = _load_packs()
     stats = {
@@ -616,6 +601,9 @@ def sync_packs(db: Session) -> dict[str, int]:
         # Оценка трудоёмкости, описанная дважды с разными значениями: это
         # расхождение источников, а не молчаливый выбор победителя.
         "pack_effort_conflicts": 0,
+        # Снятые строки прежней второй семьи: счётчик виден в статистике сида,
+        # чтобы удаление не выглядело молчаливым.
+        "work_packages_retired": 0,
     }
     sources_map: dict[str, EvidenceSource] = {}
     method_rows = {m.code: m for m in db.scalars(select(Method))}
@@ -732,50 +720,16 @@ def sync_packs(db: Session) -> dict[str, int]:
                     )
                     stats["pack_effort_conflicts"] += 1
                 effort_seen[mcode] = (method_p50, method_p80, pack.get("pack", ""))
-                # Роли — из словаря сценариев команды (`team_scenarios.role_capacity`:
-                # design / engineering / technical_art / qa / production) и те же,
-                # что у пакетов из `evidence_catalog.sync_work_packages` и
-                # `planning._fallback_packages`. Прежние названия (designer,
-                # engineer, artist, writer) не совпадали ни с одним ключом
-                # ёмкости: планировщик молча брал ёмкость 1, и размер команды
-                # переставал влиять на 868 пакетов из 1794. Согласующий проход в
-                # `_upsert_work_package` доводит это исправление до уже собранных баз.
-                for pkg_type, role in {
-                    "design": "design",
-                    "feasibility": "engineering",
-                    "integration": "engineering",
-                    "content": "technical_art",
-                    "optimization": "engineering",
-                    "qa": "qa",
-                    "release": "production",
-                    "documentation": "production",
-                }.items():
-                    # Simplified: one WP per method per type, P50/P80 split.
-                    # `p80` не обязателен в пакете, но обязателен в модели
-                    # (`p80_days >= p50_days`). Раньше прямое обращение к ключу
-                    # обрывало весь `sync_packs` на пакете без `p80`; теперь
-                    # диапазон достраивается тем же отношением, что и в
-                    # `planning._fallback_packages` (P80 = 1,5 × P50), и не
-                    # может опуститься ниже P50.
-                    p50 = float(effort["p50"]) / 8.0
-                    raw_p80 = effort.get("p80")
-                    p80 = float(raw_p80) / 8.0 if raw_p80 is not None else p50 * 1.5
-                    if p80 < p50:
-                        p80 = p50
-                    _upsert_work_package(db, {
-                        "code": f"WP_{mcode}_{pkg_type}"[:180],
-                        "method_code": mcode,
-                        "name": f"{pkg_type}: {mcode}",
-                        "package_type": pkg_type,
-                        "role": role,
-                        "p50_days": p50,
-                        "p80_days": p80,
-                        "basis": effort.get("basis", "expert_estimate"),
-                        # Сырое значение: нормализацию и сохранение примечания
-                        # выполняет `_upsert_work_package` в одной точке.
-                        "recommended_stage": mdata.get("recommended_stage"),
-                    })
-                    stats["work_packages"] += 1
+                # Строки пакетов работ здесь больше не создаются. Семья была
+                # второй, независимой оценкой того же самого: она не проходила
+                # через планировщик и не несла полей, которые тот читает
+                # (`min_days`, `late_factor`, `parallelizable`, `dependency_codes`),
+                # а итог делила по фазам поровну — «проектирование» и
+                # «стабилизация» метода стоили одинаково. Величину отсюда теперь
+                # берёт `evidence_catalog.sync_work_packages` через
+                # `curated_effort()`, а распределение по фазам задаёт формула.
+                # Здесь остаётся только объявление расхождения: оно не должно
+                # снова раствориться в порядке загрузки файлов.
 
             # relations → типизированные рёбра «метод-метод»
             for rel in mdata.get("relations", []):
@@ -910,6 +864,22 @@ def sync_packs(db: Session) -> dict[str, int]:
                             "context": ex.get("relevance", ""),
                         }, sources_map)
                         stats["claims"] += 1
+
+    # Строки второй семьи (`WP_{method}_{phase}`) больше не создаются: величина
+    # оценки переехала в формульную семью, распределение по фазам задаёт формула.
+    # Уже собранные базы хранят их как черновики — невидимые для планировщика, но
+    # попадающие в счётчики. Их нужно снять: иначе объявленный пробел
+    # превращается в мусор, а после снятия объявления в аудите они снова стали бы
+    # «невидимыми без объявления».
+    retired = list(db.scalars(select(WorkPackage).where(WorkPackage.code.startswith("WP_"))))
+    if retired:
+        for row in retired:
+            db.delete(row)
+        stats["work_packages_retired"] = len(retired)
+        logger.warning(
+            "Снято %d строк второй семьи пакетов работ (WP_*): оценка переехала "
+            "в формульную семью, см. `curated_effort`", len(retired),
+        )
 
     db.flush()
     return stats

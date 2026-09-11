@@ -1292,12 +1292,6 @@
      "source": "SRC-CHC-014"
     },
     {
-     "code": "motion_matching",
-     "type": "risk",
-     "note": "Motion matching searches the database on tick; throttling the tick rate throttles responsiveness, and root-motion locomotion blocks the parallel-update path entirely, which removes one of the two ways to pay for motion matching in a crowd.",
-     "source": "SRC-CHC-002"
-    },
-    {
      "code": "animation_compression",
      "type": "complement",
      "note": "Compression lowers the per-character evaluation cost (smaller working set, faster sampling), which directly raises how many characters fit inside a fixed budget.",
@@ -1557,8 +1551,7 @@
     "formula": "p50 = 10d capture/clean/mark-up a locomotion mocap set with root motion + 5d schema + database authoring on UE Pose Search + 8d movement model + trajectory prediction (spring damper, wall/ledge stop prediction) + 8d blend/jump-threshold/notify-filter tuning + 6d animation warping (slope, orientation, spine pitch) + 8d tooling and debugging harness. p80 adds 50d for building the capture pipeline if you do not already have mocap, for distance/culling integration with the animation budget allocator, and for the sliding/toe-lock polish pass. This is one of the largest single-line items in this pack."
    },
    "dependencies": [
-    "animation_compression",
-    "animation_lod_budget"
+    "animation_compression"
    ],
    "relations": [
     {

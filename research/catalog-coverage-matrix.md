@@ -1,6 +1,6 @@
 # Матрица покрытия каталога и provenance
 
-Снимок: `C:\Users\user\Desktop\game-inspect\backend\gamedev_dss.db`. Матрица создана генератором отчёта `c7478a4`.
+Снимок: `C:\Users\user\Desktop\game-inspect\backend\gamedev_dss.db`. Матрица создана генератором отчёта `efa8962`.
 
 Это аудит полноты полей, а не утверждение, что 124 метода уже прошли глубокую предметную рецензию. `yes` означает заполненное поле каталога; доказательность механизма/числа проверяется в EvidenceClaim.
 
@@ -58,12 +58,12 @@
 | ability_visual_effect_budget: Бюджет визуальных эффектов способностей | gameplay_ability_system | implementation | [Unreal Engine: Niagara Visual Effects](https://dev.epicgames.com/documentation/en-us/unreal-engine/niagara-visual-effects-in-unreal-engine) | 0.80 | yes | gap | gap | gap | Замер GPU и CPU в сцене с максимальным числом одновременных способностей. |
 | data_driven_ability_system: Данные-ориентированная система способностей | gameplay_ability_system | implementation | [Game Programming Patterns: State](https://gameprogrammingpatterns.com/state.html) | 0.70 | yes | gap | gap | gap | Стресс-сцена с максимальным числом активных способностей: замер CPU. |
 | mesh_index_optimization: Оптимизация индексов меша (vertex cache / overdraw) | geometry_pipeline | optimization | [meshoptimizer: mesh optimization library](https://github.com/zeux/meshoptimizer) | 0.80 | yes | gap | gap | gap | Метрики ACMR/ATVR через meshopt_analyze и замер времени кадра. |
+| virtual_geometry_clusters: Виртуализированная геометрия (кластеризованный LOD) | geometry_pipeline | implementation | [Unreal Engine: Nanite Virtualized Geometry](https://dev.epicgames.com/documentation/en-us/unreal-engine/nanite-virtualized-geometry-in-unreal-engine) | 0.65 | yes | gap | yes | yes | Замер числа треугольников и времени рендера на эталонных кадрах. |
 | hair_cards_lod: Карточки волос и уровни детализации | hair_rendering | implementation | [Epic: Hair Rendering and Simulation](https://dev.epicgames.com/documentation/unreal-engine/hair-rendering-and-simulation-in-unreal-engine?lang=en-US) | 0.70 | yes | gap | gap | gap | Сравнить силуэт, overdraw и память с прядями. |
 | hair_strand_simulation: Волосы из прядей с симуляцией | hair_rendering | implementation | [Epic: Hair Rendering and Simulation](https://dev.epicgames.com/documentation/unreal-engine/hair-rendering-and-simulation-in-unreal-engine?lang=en-US) | 0.70 | yes | gap | gap | gap | Замерить крупный план и группу персонажей. |
 | heightmap_compression: Сжатие карт высот и материалов ландшафта | large_scale_terrain | optimization | [Mipmap](https://en.wikipedia.org/wiki/Mipmap) | 0.85 | yes | gap | gap | gap | Сравнение размера сборки и визуальное сравнение рельефа на контрольных участках. |
 | neural_texture_compression: Нейросжатие текстур | large_scale_terrain | optimization | [NVIDIA RTX Neural Texture Compression (RTXNTC)](https://github.com/NVIDIA-RTX/Rtxntc) | 0.60 | yes | gap | gap | gap | Замер занятой видеопамяти и времени кадра на пилотном наборе. |
 | terrain_clipmap: Клипмап / CDLOD ландшафта | large_scale_terrain | implementation | [Level of detail (computer graphics)](https://en.wikipedia.org/wiki/Level_of_detail_(computer_graphics)) | 0.75 | yes | gap | gap | gap | Замер времени рендера ландшафта при максимальной дальности обзора. |
-| virtual_geometry_clusters: Виртуализированная геометрия (кластеризованный LOD) | large_scale_terrain | implementation | [Unreal Engine: Nanite Virtualized Geometry](https://dev.epicgames.com/documentation/en-us/unreal-engine/nanite-virtualized-geometry-in-unreal-engine) | 0.65 | yes | gap | yes | yes | Замер числа треугольников и времени рендера на эталонных кадрах. |
 | virtual_texturing: Виртуальное текстурирование | large_scale_terrain | implementation | [Unreal Engine: Virtual Texturing](https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-texturing-in-unreal-engine) | 0.70 | yes | gap | gap | gap | Контроль объёма VRAM и отсутствия «замыленных» текстур при движении. |
 | gpu_meshlet_culling_budget: Бюджет отсечения мешлетов на GPU | mesh_shaders | implementation | [DirectX mesh shader specification](https://microsoft.github.io/DirectX-Specs/d3d/MeshShader.html) | 0.70 | yes | gap | yes | gap | Замер числа выживших примитивов и времени геометрического прохода. |
 | meshlet_pipeline_adoption: Конвейер мешлетов на меш-шейдерах | mesh_shaders | implementation | [DirectX mesh shader specification](https://microsoft.github.io/DirectX-Specs/d3d/MeshShader.html) | 0.60 | yes | gap | yes | yes | Замер времени подготовки кадра и геометрического прохода до и после. |
@@ -712,7 +712,6 @@
 | animation_lod_budget | animation_compression | complement | 1 | yes | Compression lowers the per-character evaluation cost (smaller working set, faster sampling), which directly raises how many characters fit inside a fixed budget. |
 | animation_lod_budget | data_driven_ability_system | risk | 2 | yes | Abilities that drive montages or read animation state on tick inherit the throttled rate; a throttled character can activate an ability whose montage callback is delayed, which is a gameplay bug, not a visual one. |
 | animation_lod_budget | gpu_skinning_compute | dependency | 3 | yes | Метод «animation_lod_budget» требует предварительного метода «gpu_skinning_compute». |
-| animation_lod_budget | motion_matching | risk | 2 | yes | Motion matching searches the database on tick; throttling the tick rate throttles responsiveness, and root-motion locomotion blocks the parallel-update path entirely, which removes one of the two ways to pay for motion matching in a crowd. |
 | art_direction_stylization | ability_visual_effect_budget | dependency | 3 | yes | The VFX language is part of the style; a stylized game usually needs fewer, larger, more readable effects, which directly changes the particle/instance budget rather than just the look. |
 | art_direction_stylization | sprite_atlas_batching | complement | 1 | yes | 2D/vector and frame-by-frame styles put extreme pressure on sprite memory and atlas packing instead of on geometry and materials. |
 | art_direction_stylization | sprite_sheet_compression | risk | 2 | yes | Flat-colour and hard-edged stylized art is exactly the content that block-compression artefacts damage most; compression choice is an art-direction decision in a 2D game. |
@@ -848,7 +847,6 @@
 | full_path_tracing_pipeline | hardware_raytraced_gi | alternative | 1 | yes | Cached-surface RT GI is the real-time compromise; PT is the reference. |
 | full_path_tracing_pipeline | ml_frame_generation | complement | 1 | yes | CDPR and Remedy both ship path tracing together with frame generation - the two are practically coupled in shipped titles. |
 | full_path_tracing_pipeline | path_tracing_sample_denoiser_budget | dependency | 3 | yes | Without a spp/denoiser budget the mode is not interactive. |
-| full_path_tracing_pipeline | selective_ray_traced_effects | dependency | 3 | yes | Метод «full_path_tracing_pipeline» требует предварительного метода «selective_ray_traced_effects». |
 | full_path_tracing_pipeline | temporal_upscaling | dependency | 3 | yes | Метод «full_path_tracing_pipeline» требует предварительного метода «temporal_upscaling». |
 | gerstner_fft_water | flipbook_particles | overlap | 1 | yes | Both are 'bake an expensive simulation into a texture' strategies, used for water displacement and for VFX respectively. |
 | gerstner_fft_water | gpu_particle_simulation | overlap | 1 | yes | Both push work onto the GPU and both end up bounded by bandwidth/overdraw rather than by raw ALU. |
@@ -953,7 +951,6 @@
 | ml_frame_generation | temporal_upscaling | dependency | 3 | yes | Метод «ml_frame_generation» требует предварительного метода «temporal_upscaling». |
 | motion_matching | animation_compression | complement | 1 | yes | Motion matching ships an order of magnitude more animation than a state machine; without compression the database is unshippable, and LMM exists because 'the memory usage of such methods generally scales linearly with the amount of data used'. |
 | motion_matching | animation_compression | risk | 2 | yes | Риск относится к конкретной степени сжатия: искажённые позы ухудшают точность поиска в базе движений. Универсальной несовместимости motion matching и сжатия анимаций нет. |
-| motion_matching | animation_lod_budget | dependency | 3 | yes | Метод «motion_matching» требует предварительного метода «animation_lod_budget». |
 | motion_matching | animation_lod_budget | hard_conflict | 3 | yes | Root motion is mandatory for UE motion matching but also blocks parallel animation update, removing the main thread-scaling lever; you are left with tick-rate throttling, which throttles responsiveness. |
 | motion_matching | data_driven_ability_system | complement | 1 | yes | A tag-driven ability system can swap Pose Search Normalization Sets on gameplay events (e.g. combat vs exploration databases), which is the natural integration point between the two systems. |
 | motion_matching | normal_bake_retopology_pipeline | overlap | 1 | yes | Both are 'capture more than you need, then reduce' pipelines; they differ in that one reduces geometry/texture offline and the other reduces animation at query time. |
@@ -1034,7 +1031,6 @@
 | screenspace_light_shafts | post_effect_selective | dependency | 3 | yes | Shafts are one of the passes to be tiered and down-res'd. |
 | screenspace_light_shafts | volumetric_half_resolution | complement | 1 | yes | Shafts tolerate low resolution well. |
 | sdf_global_illumination | distance_field_shadows | complement | 1 | yes | The same distance field serves both GI tracing and long-range shadows. |
-| sdf_global_illumination | hardware_raytraced_gi | dependency | 3 | yes | Метод «sdf_global_illumination» требует предварительного метода «hardware_raytraced_gi». |
 | sdf_global_illumination | meshlet_pipeline_adoption | risk | 2 | yes | Nanite-style virtualised geometry changes the SDF generation path; Epic ties SDF generation specifically to Static Meshes. |
 | sdf_global_illumination | voxel_cone_tracing | overlap | 1 | yes | Both are volumetric approximations; SDF avoids the voxelisation step but carries less material information. |
 | selective_ray_traced_effects | full_path_tracing_pipeline | alternative | 1 | yes | Selective RT is the incremental path; full PT is the all-in path. |

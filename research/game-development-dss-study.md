@@ -1,7 +1,7 @@
 # Доказательное исследование и DSS для проектирования игр
 
 Дата генерации: 2026-09-11  
-Ревизия репозитория: `c7478a4`  
+Ревизия репозитория: `efa8962`  
 Снимок базы: `C:\Users\user\Desktop\game-inspect\backend\gamedev_dss.db` — полный локальный снимок
 
 > Принцип отчёта: ни одно число не публикуется как измерение, если у него нет
@@ -241,8 +241,8 @@ claims не означает автоматически более высоку�
 | Категория | Implementation | Optimization | Всего |
 | --- | --- | --- | --- |
 | Освещение | 15 | 7 | 22 |
-| Мир и загрузка | 11 | 9 | 20 |
-| Рендер | 5 | 14 | 19 |
+| Рендер | 6 | 14 | 20 |
+| Мир и загрузка | 10 | 9 | 19 |
 | Симуляция | 10 | 6 | 16 |
 | Персонажи | 6 | 5 | 11 |
 | Визуальные эффекты | 4 | 5 | 9 |
@@ -306,8 +306,8 @@ package/plugin, target platform/API, scope (`runtime`, `editor`, `build`, `serve
 | Тип связи | Записей |
 | --- | --- |
 | complement | 181 |
-| dependency | 80 |
-| risk | 75 |
+| dependency | 77 |
+| risk | 74 |
 | overlap | 67 |
 | alternative | 41 |
 | unknown | 8 |
@@ -339,7 +339,6 @@ package/plugin, target platform/API, scope (`runtime`, `editor`, `build`, `serve
 | method:vehicle_simulation_lod | method:physics_lod_sleeping | dependency | обязательная | — | — | 3 | Godot Engine - RigidBody3D class reference |
 | method:animation_compression | method:motion_matching | dependency | обязательная | — | — | 3 | Learned Motion Matching (project page + abstract) |
 | method:animation_lod_budget | method:gpu_skinning_compute | dependency | обязательная | — | — | 3 | нет публичного источника |
-| method:motion_matching | method:animation_lod_budget | dependency | обязательная | — | — | 3 | нет публичного источника |
 | method:normal_bake_retopology_pipeline | method:gpu_skinning_compute | dependency | обязательная | — | — | 3 | Skeletal Mesh Rendering Paths in Unreal Engine (Unreal Engine 5.8 Documentation) |
 | method:art_direction_stylization | method:ability_visual_effect_budget | dependency | обязательная | — | — | 3 | Scalability and Best Practices for Niagara (Unreal Engine 5.8 Documentation) |
 | method:tilemap_chunk_streaming | method:tilemap_layer_culling | dependency | обязательная | — | — | 3 | Unity Manual - Tilemap Renderer component reference |
@@ -362,7 +361,6 @@ package/plugin, target platform/API, scope (`runtime`, `editor`, `build`, `serve
 | method:hardware_raytraced_gi | method:deferred_forward_plus_choice | dependency | обязательная | — | — | 3 | нет публичного источника |
 | method:hardware_raytraced_gi | method:temporal_upscaling | dependency | обязательная | — | — | 3 | нет публичного источника |
 | method:hardware_raytraced_gi | method:selective_ray_traced_effects | dependency | обязательная | — | — | 3 | нет публичного источника |
-| method:sdf_global_illumination | method:hardware_raytraced_gi | dependency | обязательная | — | — | 3 | нет публичного источника |
 | method:screen_space_gi | method:deferred_forward_plus_choice | dependency | обязательная | — | — | 3 | нет публичного источника |
 | method:screen_space_gi | method:temporal_upscaling | dependency | обязательная | — | — | 3 | нет публичного источника |
 | method:irradiance_volume_probes | method:lightmap_atlas_baking | dependency | обязательная | — | — | 3 | нет публичного источника |
@@ -380,7 +378,6 @@ package/plugin, target platform/API, scope (`runtime`, `editor`, `build`, `serve
 | method:volumetric_half_resolution | method:froxel_volumetric_fog | dependency | обязательная | — | — | 3 | нет публичного источника |
 | method:rt_effect_resolution_budget | method:selective_ray_traced_effects | dependency | обязательная | — | — | 3 | Exploring Ray Traced Future in Metro Exodus (GTC 2019) |
 | method:full_path_tracing_pipeline | method:path_tracing_sample_denoiser_budget | dependency | обязательная | — | — | 3 | Path Tracer (Unreal Engine 5.8 Documentation) |
-| method:full_path_tracing_pipeline | method:selective_ray_traced_effects | dependency | обязательная | — | — | 3 | нет публичного источника |
 | method:full_path_tracing_pipeline | method:temporal_upscaling | dependency | обязательная | — | — | 3 | нет публичного источника |
 | method:deferred_forward_plus_choice | method:dynamic_light_priority_budget | dependency | обязательная | — | — | 3 | Rendering the Hellscape of Doom Eternal |
 | method:depth_prepass_early_z | method:deferred_forward_plus_choice | dependency | обязательная | — | — | 3 | Real-Time Rendering, 4th edition |
@@ -449,9 +446,12 @@ package/plugin, target platform/API, scope (`runtime`, `editor`, `build`, `serve
 | tool:u_srp | engine:unity | engine | обязательная | — | — | 1 | Unity Manual: Optimizing Graphics Performance |
 | tool:u_instancing | engine:unity | engine | обязательная | — | — | 1 | Introduction to GPU instancing |
 | tool:u_occlusion | engine:unity | engine | обязательная | — | — | 1 | Occlusion Culling (Unity official documentation) |
+| tool:u_lightmapper | engine:unity | engine | обязательная | — | — | 1 | Progressive Lightmapper (Unity Manual) |
+| tool:u_light_probes | engine:unity | engine | обязательная | — | — | 1 | Light Probes (Unity official documentation) |
+| tool:u_vfxgraph | engine:unity | engine | обязательная | — | — | 1 | Unity Manual: Optimizing Graphics Performance |
 
 В выборке обязательных рёбер: 120; с публичным источником:
-89. Рёбра без публичного источника несут явную пометку «нет
+92. Рёбра без публичного источника несут явную пометку «нет
 публичного источника», а не молчаливую совместимость.
 
 ### 7.4 Проверки графа
@@ -586,14 +586,13 @@ latency, save time, network latency, server tick и traffic не создаёт�
 
 | Тип пакета | Пакетов | Мин. P50 | Сред. P50 | Сред. P80 | Основание |
 | --- | --- | --- | --- | --- | --- |
-| content | 248 | 0.38 | 1.87 | 3.23 | expert_estimate |
-| design | 248 | 0.38 | 1.77 | 3.08 | expert_estimate |
-| documentation | 124 | 0.38 | 2.45 | 4.54 | expert_estimate |
-| feasibility | 182 | 0.38 | 2.31 | 4.05 | expert_estimate |
-| integration | 248 | 0.38 | 2.47 | 4.14 | expert_estimate |
-| optimization | 248 | 0.38 | 1.82 | 3.15 | expert_estimate |
-| qa | 248 | 0.38 | 1.79 | 3.12 | expert_estimate |
-| release | 248 | 0.37 | 1.52 | 2.71 | expert_estimate |
+| content | 124 | 0.47 | 2.87 | 5.32 | expert_estimate |
+| design | 124 | 0.44 | 2.41 | 4.48 | expert_estimate |
+| feasibility | 58 | 0.7 | 5.04 | 9.24 | expert_estimate |
+| integration | 124 | 0.98 | 5.55 | 10.31 | expert_estimate |
+| optimization | 124 | 0.44 | 2.62 | 4.86 | expert_estimate |
+| qa | 124 | 0.44 | 2.51 | 4.66 | expert_estimate |
+| release | 124 | 0.24 | 1.32 | 2.46 | expert_estimate |
 
 План строится из work packages: design, feasibility/prototype, integration,
 content/assets, optimization, QA/regression, release stabilization,
@@ -961,7 +960,7 @@ network metrics, а также правило train/test split.
 | methods: no engine/platform/HW filter | 122 / 114 / 111 | transferability gap |
 | method-tool links without own source_url | 111 / 475 | relationship provenance gap |
 | engines/tools without docs_url | 1 / 7 | version/tooling gap |
-| relations: alternative/complement/risk/unknown | 41 / 181 / 75 / 8 | conflict graph |
+| relations: alternative/complement/risk/unknown | 41 / 181 / 74 / 8 | conflict graph |
 | distinct method source URLs | 91 | source reuse is not claim coverage |
 
 ### 19.4 Глубокие исследовательские карточки
