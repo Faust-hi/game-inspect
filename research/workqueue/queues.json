@@ -1,0 +1,4132 @@
+{
+ "functions": [
+  {
+   "code": "advanced_npc_ai",
+   "name": "Поведенческий ИИ NPC",
+   "category": "Симуляция"
+  },
+  {
+   "code": "ai_pathfinding",
+   "name": "ИИ и поиск пути",
+   "category": "Симуляция"
+  },
+  {
+   "code": "art_pipeline",
+   "name": "Арт-пайплайн",
+   "category": "Производство контента"
+  },
+  {
+   "code": "audio_system",
+   "name": "Аудиосистема",
+   "category": "Звук"
+  },
+  {
+   "code": "baked_lighting",
+   "name": "Запечённое освещение",
+   "category": "Освещение"
+  },
+  {
+   "code": "build_delivery",
+   "name": "Сборка и доставка контента",
+   "category": "Производство"
+  },
+  {
+   "code": "character_animation",
+   "name": "Анимация персонажей",
+   "category": "Персонажи"
+  },
+  {
+   "code": "cloth_simulation",
+   "name": "Симуляция ткани",
+   "category": "Технические подсистемы"
+  },
+  {
+   "code": "crowd_simulation",
+   "name": "Толпы NPC",
+   "category": "Персонажи"
+  },
+  {
+   "code": "destruction_simulation",
+   "name": "Разрушения и геометрические кэши",
+   "category": "Симуляция"
+  },
+  {
+   "code": "dynamic_global_illumination",
+   "name": "Динамическое глобальное освещение",
+   "category": "Освещение"
+  },
+  {
+   "code": "dynamic_lighting",
+   "name": "Множественные динамические источники света",
+   "category": "Освещение"
+  },
+  {
+   "code": "dynamic_shadows",
+   "name": "Динамические тени",
+   "category": "Освещение"
+  },
+  {
+   "code": "gameplay_ability_system",
+   "name": "Геймплейные способности и модификаторы",
+   "category": "Геймплей"
+  },
+  {
+   "code": "geometry_pipeline",
+   "name": "Конвейер геометрии",
+   "category": "Рендер"
+  },
+  {
+   "code": "hair_rendering",
+   "name": "Волосы: пряди или карточки",
+   "category": "Технические подсистемы"
+  },
+  {
+   "code": "large_scale_terrain",
+   "name": "Крупномасштабный ландшафт",
+   "category": "Мир и загрузка"
+  },
+  {
+   "code": "mesh_shaders",
+   "name": "Меш-шейдеры и генерация геометрии на GPU",
+   "category": "Рендер"
+  },
+  {
+   "code": "multiplayer_netcode",
+   "name": "Сетевой код мультиплеера",
+   "category": "Сеть"
+  },
+  {
+   "code": "open_world_streaming",
+   "name": "Потоковая загрузка открытого мира",
+   "category": "Мир и загрузка"
+  },
+  {
+   "code": "particle_systems",
+   "name": "Системы частиц",
+   "category": "Визуальные эффекты"
+  },
+  {
+   "code": "path_tracing",
+   "name": "Трассировка пути",
+   "category": "Освещение"
+  },
+  {
+   "code": "physics_simulation",
+   "name": "Физическая симуляция",
+   "category": "Симуляция"
+  },
+  {
+   "code": "portal_rendering",
+   "name": "Дополнительные виды и порталы",
+   "category": "Технические подсистемы"
+  },
+  {
+   "code": "post_processing",
+   "name": "Постобработка изображения",
+   "category": "Рендер"
+  },
+  {
+   "code": "procedural_terrain",
+   "name": "Процедурная генерация ландшафта и мира",
+   "category": "Мир и загрузка"
+  },
+  {
+   "code": "procedural_vegetation",
+   "name": "Растительность и объекты окружения",
+   "category": "Мир и загрузка"
+  },
+  {
+   "code": "project_architecture",
+   "name": "Архитектура проекта",
+   "category": "Производство"
+  },
+  {
+   "code": "ray_traced_effects",
+   "name": "Трассировочные эффекты (тени, отражения, AO)",
+   "category": "Освещение"
+  },
+  {
+   "code": "render_scalability",
+   "name": "Масштабирование качества",
+   "category": "Рендер"
+  },
+  {
+   "code": "rendering_architecture",
+   "name": "Архитектура рендера",
+   "category": "Рендер"
+  },
+  {
+   "code": "runtime_memory",
+   "name": "Память и сборка мусора",
+   "category": "Производительность"
+  },
+  {
+   "code": "runtime_security",
+   "name": "Проверки целостности и античит",
+   "category": "Технические подсистемы"
+  },
+  {
+   "code": "save_system",
+   "name": "Система сохранений",
+   "category": "Прогресс и данные"
+  },
+  {
+   "code": "split_screen_rendering",
+   "name": "Split-screen рендеринг",
+   "category": "Рендер"
+  },
+  {
+   "code": "storage_streaming",
+   "name": "Потоковая работа с накопителем",
+   "category": "Мир и загрузка"
+  },
+  {
+   "code": "upscaling_frame_generation",
+   "name": "Масштабирование и генерация кадров",
+   "category": "Рендер"
+  },
+  {
+   "code": "vehicle_simulation",
+   "name": "Транспорт и физика движения",
+   "category": "Симуляция"
+  },
+  {
+   "code": "volumetric_effects",
+   "name": "Объёмные эффекты (туман, облака, дымка)",
+   "category": "Визуальные эффекты"
+  },
+  {
+   "code": "water_simulation",
+   "name": "Водные поверхности",
+   "category": "Визуальные эффекты"
+  }
+ ],
+ "engines": [
+  {
+   "code": "unreal",
+   "name": "Unreal Engine",
+   "vendor": "Epic Games",
+   "versions": "[\"4.27\", \"5.0\", \"5.1\", \"5.2\", \"5.3\", \"5.4\", \"5.5\"]"
+  },
+  {
+   "code": "unity",
+   "name": "Unity",
+   "vendor": "Unity Technologies",
+   "versions": "[\"2021 LTS\", \"2022 LTS\", \"2023\", \"6 (6000.x)\"]"
+  },
+  {
+   "code": "godot",
+   "name": "Godot",
+   "vendor": "Godot Foundation",
+   "versions": "[\"3.5\", \"3.6\", \"4.0\", \"4.1\", \"4.2\", \"4.3\", \"4.4\"]"
+  },
+  {
+   "code": "custom",
+   "name": "Собственный движок",
+   "vendor": "In-house",
+   "versions": "[\"\\u043b\\u044e\\u0431\\u0430\\u044f\"]"
+  },
+  {
+   "code": "cryengine",
+   "name": "CryEngine",
+   "vendor": "Crytek",
+   "versions": "[\"3.x\", \"V (5.x)\"]"
+  },
+  {
+   "code": "source",
+   "name": "Source / Source 2",
+   "vendor": "Valve",
+   "versions": "[\"Source 2004\", \"Source 2007 (OB)\", \"Source 2013\", \"Source 2\"]"
+  },
+  {
+   "code": "heroengine",
+   "name": "HeroEngine",
+   "vendor": "Idea Fabrik / Laniatus",
+   "versions": "[\"1.x\", \"2.x\"]"
+  }
+ ],
+ "engine_tools": [
+  {
+   "code": "c_ecs",
+   "name": "Собственный ECS",
+   "subsystem": "архитектура",
+   "engine_id": 4,
+   "min_version": null,
+   "user_defined": 1
+  },
+  {
+   "code": "c_job_system",
+   "name": "Система задач (job system)",
+   "subsystem": "многопоточность",
+   "engine_id": 4,
+   "min_version": null,
+   "user_defined": 1
+  },
+  {
+   "code": "c_manual",
+   "name": "Реализация вручную",
+   "subsystem": "общее",
+   "engine_id": 4,
+   "min_version": null,
+   "user_defined": 1
+  },
+  {
+   "code": "c_memory",
+   "name": "Аллокатор и пулинг памяти",
+   "subsystem": "память",
+   "engine_id": 4,
+   "min_version": null,
+   "user_defined": 1
+  },
+  {
+   "code": "c_profiler",
+   "name": "Встроенный профилировщик / Tracy",
+   "subsystem": "профилирование",
+   "engine_id": 4,
+   "min_version": null,
+   "user_defined": 1
+  },
+  {
+   "code": "c_render_graph",
+   "name": "Граф рендера",
+   "subsystem": "рендер",
+   "engine_id": 4,
+   "min_version": null,
+   "user_defined": 1
+  },
+  {
+   "code": "c_streaming",
+   "name": "Подсистема стриминга",
+   "subsystem": "мир",
+   "engine_id": 4,
+   "min_version": null,
+   "user_defined": 1
+  },
+  {
+   "code": "ce_audio",
+   "name": "CryAudio + окклюзия",
+   "subsystem": "аудио",
+   "engine_id": 5,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ce_fog",
+   "name": "Volumetric Fog / Clouds",
+   "subsystem": "атмосфера",
+   "engine_id": 5,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ce_merged",
+   "name": "Merged Meshes / HLOD",
+   "subsystem": "мир",
+   "engine_id": 5,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ce_svogi",
+   "name": "SVOGI / SVOTI",
+   "subsystem": "освещение",
+   "engine_id": 5,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ce_vegetation",
+   "name": "Vegetation + Touch Bending",
+   "subsystem": "рендер",
+   "engine_id": 5,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_bg_loading",
+   "name": "ResourceLoader (фоновое загрузка)",
+   "subsystem": "мир",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_gi",
+   "name": "VoxelGI / LightmapGI / SDFGI",
+   "subsystem": "освещение",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_gpu_particles",
+   "name": "GPUParticles3D",
+   "subsystem": "частицы",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_mesh_lod",
+   "name": "Automatic Mesh LOD",
+   "subsystem": "рендер",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_multimesh",
+   "name": "MultiMeshInstance3D",
+   "subsystem": "рендер",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_multiplayer",
+   "name": "MultiplayerAPI",
+   "subsystem": "сеть",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_navigation",
+   "name": "NavigationServer3D",
+   "subsystem": "ИИ",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_occluder",
+   "name": "OccluderInstance3D",
+   "subsystem": "отсечение",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_physics_server",
+   "name": "PhysicsServer3D",
+   "subsystem": "физика",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_profiler",
+   "name": "Профилировщик Godot",
+   "subsystem": "профилирование",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_shadows",
+   "name": "DirectionalLight3D Shadows",
+   "subsystem": "тени",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_threads",
+   "name": "Thread / WorkerThreadPool",
+   "subsystem": "многопоточность",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "g_visibility",
+   "name": "Ручное управление видимостью",
+   "subsystem": "отсечение",
+   "engine_id": 3,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "h_blade",
+   "name": "HeroBlade",
+   "subsystem": "мир",
+   "engine_id": 7,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "h_cloud",
+   "name": "HeroCloud",
+   "subsystem": "сеть",
+   "engine_id": 7,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "h_hsl",
+   "name": "HeroScript (HSL)",
+   "subsystem": "скрипты",
+   "engine_id": 7,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "h_instancing",
+   "name": "Инстансинг планет / шардинг",
+   "subsystem": "сеть",
+   "engine_id": 7,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "s_netcode",
+   "name": "Tick / Interp / Lagcomp",
+   "subsystem": "сеть",
+   "engine_id": 6,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "s_portal",
+   "name": "Stencil-порталы / BSP",
+   "subsystem": "рендер",
+   "engine_id": 6,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "s_vphysics",
+   "name": "VPhysics / Rubikon",
+   "subsystem": "физика",
+   "engine_id": 6,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "s_vprof",
+   "name": "VProf / net_graph",
+   "subsystem": "профилирование",
+   "engine_id": 6,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "s_vulkan",
+   "name": "Source 2 Vulkan-рендер",
+   "subsystem": "рендер",
+   "engine_id": 6,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_addressables",
+   "name": "Addressables",
+   "subsystem": "ассеты",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_dots",
+   "name": "Entities / DOTS",
+   "subsystem": "архитектура",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_instancing",
+   "name": "GPU Instancing",
+   "subsystem": "рендер",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_jobs",
+   "name": "C# Job System",
+   "subsystem": "многопоточность",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_light_probes",
+   "name": "Light Probes",
+   "subsystem": "освещение",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_lightmapper",
+   "name": "Progressive Lightmapper",
+   "subsystem": "освещение",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_lod_group",
+   "name": "LOD Group",
+   "subsystem": "рендер",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_navmesh",
+   "name": "NavMesh",
+   "subsystem": "ИИ",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_netcode",
+   "name": "Netcode for Entities",
+   "subsystem": "сеть",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_occlusion",
+   "name": "Occlusion Culling",
+   "subsystem": "отсечение",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_profiler",
+   "name": "Profiler",
+   "subsystem": "профилирование",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_quality",
+   "name": "Quality Settings",
+   "subsystem": "настройки",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_srp",
+   "name": "URP / HDRP",
+   "subsystem": "рендер",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_srp_batcher",
+   "name": "SRP Batcher",
+   "subsystem": "рендер",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_texture_streaming",
+   "name": "Mipmap Streaming",
+   "subsystem": "текстуры",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "u_vfxgraph",
+   "name": "Visual Effect Graph",
+   "subsystem": "частицы",
+   "engine_id": 2,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_anim_budget",
+   "name": "Animation Budget Allocator",
+   "subsystem": "анимация",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_behavior_tree",
+   "name": "Behavior Tree",
+   "subsystem": "ИИ",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_chaos",
+   "name": "Chaos Physics",
+   "subsystem": "физика",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_gas",
+   "name": "Gameplay Ability System",
+   "subsystem": "геймплей",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_hlod",
+   "name": "HLOD",
+   "subsystem": "мир",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_insights",
+   "name": "Unreal Insights",
+   "subsystem": "профилирование",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_ism",
+   "name": "Instanced / Hierarchical Static Mesh",
+   "subsystem": "рендер",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_lod",
+   "name": "Static Mesh LOD",
+   "subsystem": "рендер",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_lumen",
+   "name": "Lumen",
+   "subsystem": "освещение",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_lwc",
+   "name": "Large World Coordinates",
+   "subsystem": "мир",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_mass",
+   "name": "Mass Entity",
+   "subsystem": "ИИ",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_nanite",
+   "name": "Nanite",
+   "subsystem": "рендер",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_navmesh",
+   "name": "Navigation Mesh",
+   "subsystem": "ИИ",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_niagara",
+   "name": "Niagara",
+   "subsystem": "частицы",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_replication_graph",
+   "name": "Replication Graph",
+   "subsystem": "сеть",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_significance",
+   "name": "Significance Manager",
+   "subsystem": "производительность",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_vehicles",
+   "name": "Chaos Vehicles",
+   "subsystem": "физика",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_virtual_texturing",
+   "name": "Virtual Texturing",
+   "subsystem": "текстуры",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_vsm",
+   "name": "Virtual Shadow Maps",
+   "subsystem": "тени",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  },
+  {
+   "code": "ue_world_partition",
+   "name": "World Partition",
+   "subsystem": "мир",
+   "engine_id": 1,
+   "min_version": null,
+   "user_defined": 0
+  }
+ ],
+ "methods_need_proofs": [
+  {
+   "code": "ai_director_pacing",
+   "name": "Контроллер популяции NPC по интенсивности событий",
+   "kind": "implementation",
+   "function": "advanced_npc_ai",
+   "current_proofs": 1
+  },
+  {
+   "code": "async_compute_overlap",
+   "name": "Перекрытие графики и асинхронных вычислений GPU",
+   "kind": "implementation",
+   "function": "rendering_architecture",
+   "current_proofs": 1
+  },
+  {
+   "code": "async_incremental_saves",
+   "name": "Асинхронные инкрементальные автосейвы",
+   "kind": "implementation",
+   "function": "save_system",
+   "current_proofs": 1
+  },
+  {
+   "code": "async_loading_pipeline",
+   "name": "Асинхронная загрузка без блокировки кадра",
+   "kind": "optimization",
+   "function": "open_world_streaming",
+   "current_proofs": 1
+  },
+  {
+   "code": "audio_streaming_compression",
+   "name": "Потоковое сжатие аудио",
+   "kind": "optimization",
+   "function": "audio_system",
+   "current_proofs": 1
+  },
+  {
+   "code": "baked_occlusion_culling",
+   "name": "Запечённое отсечение по окклюзии",
+   "kind": "optimization",
+   "function": "open_world_streaming",
+   "current_proofs": 1
+  },
+  {
+   "code": "broadphase_spatial_partitioning",
+   "name": "Оптимизация широкой фазы (BVH / spatial hash)",
+   "kind": "optimization",
+   "function": "physics_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "build_size_startup_budgets",
+   "name": "Бюджеты размера сборки и старта",
+   "kind": "optimization",
+   "function": "build_delivery",
+   "current_proofs": 1
+  },
+  {
+   "code": "cascaded_shadow_maps",
+   "name": "Каскадные карты теней",
+   "kind": "implementation",
+   "function": "dynamic_shadows",
+   "current_proofs": 0
+  },
+  {
+   "code": "cloth_baked_animation",
+   "name": "Подготовленное движение ткани",
+   "kind": "implementation",
+   "function": "cloth_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "cloth_constraint_simulation",
+   "name": "Ткань с ограничениями и коллизиями",
+   "kind": "implementation",
+   "function": "cloth_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "collision_layer_matrix",
+   "name": "Матрица слоёв коллизий",
+   "kind": "optimization",
+   "function": "physics_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "composition_bootstrap_architecture",
+   "name": "Композиционный каркас проекта",
+   "kind": "optimization",
+   "function": "project_architecture",
+   "current_proofs": 1
+  },
+  {
+   "code": "crowd_2d_instancing",
+   "name": "Массовая отрисовка 2D-агентов одним батчем",
+   "kind": "implementation",
+   "function": "crowd_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "data_driven_ability_system",
+   "name": "Данные-ориентированная система способностей",
+   "kind": "implementation",
+   "function": "gameplay_ability_system",
+   "current_proofs": 1
+  },
+  {
+   "code": "deferred_forward_plus_choice",
+   "name": "Выбор архитектуры рендера (deferred / forward+)",
+   "kind": "implementation",
+   "function": "post_processing",
+   "current_proofs": 1
+  },
+  {
+   "code": "depth_prepass_early_z",
+   "name": "Предварительный проход глубины (early-Z)",
+   "kind": "optimization",
+   "function": "post_processing",
+   "current_proofs": 1
+  },
+  {
+   "code": "differential_patch_pipeline",
+   "name": "Дифференциальные патчи",
+   "kind": "optimization",
+   "function": "build_delivery",
+   "current_proofs": 1
+  },
+  {
+   "code": "directstorage_io",
+   "name": "DirectStorage: очереди I/O и выбор декомпрессии",
+   "kind": "implementation",
+   "function": "open_world_streaming",
+   "current_proofs": 1
+  },
+  {
+   "code": "distance_field_shadows",
+   "name": "Тени на дистанционных полях (SDF)",
+   "kind": "implementation",
+   "function": "dynamic_shadows",
+   "current_proofs": 1
+  },
+  {
+   "code": "dynamic_light_priority_budget",
+   "name": "Приоритезация и бюджет динамических источников",
+   "kind": "implementation",
+   "function": "dynamic_lighting",
+   "current_proofs": 0
+  },
+  {
+   "code": "dynamic_resolution_scaling",
+   "name": "Динамическое разрешение рендера",
+   "kind": "optimization",
+   "function": "post_processing",
+   "current_proofs": 0
+  },
+  {
+   "code": "fixed_timestep_physics",
+   "name": "Фиксированный шаг физики с интерполяцией",
+   "kind": "implementation",
+   "function": "physics_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "flipbook_particles",
+   "name": "Flipbook-текстуры вместо симуляции",
+   "kind": "optimization",
+   "function": "particle_systems",
+   "current_proofs": 1
+  },
+  {
+   "code": "froxel_volumetric_fog",
+   "name": "Объёмный туман на froxel-сетке",
+   "kind": "implementation",
+   "function": "volumetric_effects",
+   "current_proofs": 1
+  },
+  {
+   "code": "gerstner_fft_water",
+   "name": "Волны Герстнера и FFT на GPU",
+   "kind": "implementation",
+   "function": "water_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "gpu_instancing_vegetation",
+   "name": "GPU-инстансинг растительности",
+   "kind": "implementation",
+   "function": "procedural_vegetation",
+   "current_proofs": 1
+  },
+  {
+   "code": "gpu_lightmap_baking",
+   "name": "GPU-ускоренный пересчёт освещения",
+   "kind": "optimization",
+   "function": "baked_lighting",
+   "current_proofs": 0
+  },
+  {
+   "code": "gpu_meshlet_culling_budget",
+   "name": "Бюджет отсечения мешлетов на GPU",
+   "kind": "implementation",
+   "function": "mesh_shaders",
+   "current_proofs": 1
+  },
+  {
+   "code": "gpu_particle_simulation",
+   "name": "Симуляция частиц на GPU",
+   "kind": "implementation",
+   "function": "particle_systems",
+   "current_proofs": 1
+  },
+  {
+   "code": "hair_cards_lod",
+   "name": "Карточки волос и уровни детализации",
+   "kind": "implementation",
+   "function": "hair_rendering",
+   "current_proofs": 1
+  },
+  {
+   "code": "hierarchical_lod",
+   "name": "Иерархические LOD (HLOD)",
+   "kind": "optimization",
+   "function": "open_world_streaming",
+   "current_proofs": 1
+  },
+  {
+   "code": "hiz_software_occlusion",
+   "name": "Программное отсечение по Hi-Z",
+   "kind": "optimization",
+   "function": "rendering_architecture",
+   "current_proofs": 1
+  },
+  {
+   "code": "impostors_billboards",
+   "name": "Импосторы и билборды для дальнего плана",
+   "kind": "optimization",
+   "function": "procedural_vegetation",
+   "current_proofs": 1
+  },
+  {
+   "code": "irradiance_volume_probes",
+   "name": "Зонды освещённости (irradiance volume)",
+   "kind": "implementation",
+   "function": "dynamic_global_illumination",
+   "current_proofs": 0
+  },
+  {
+   "code": "light_range_attenuation_lod",
+   "name": "Упрощение затухания источников по дистанции",
+   "kind": "implementation",
+   "function": "dynamic_lighting",
+   "current_proofs": 0
+  },
+  {
+   "code": "lightmap_2d_baking",
+   "name": "Запекание 2D-освещения в текстуры",
+   "kind": "implementation",
+   "function": "baked_lighting",
+   "current_proofs": 0
+  },
+  {
+   "code": "lightmap_atlas_baking",
+   "name": "Запекание освещения в лайтмапы",
+   "kind": "implementation",
+   "function": "baked_lighting",
+   "current_proofs": 0
+  },
+  {
+   "code": "lightmap_compression_streaming",
+   "name": "Сжатие и потоковая подкачка лайтмапов",
+   "kind": "optimization",
+   "function": "baked_lighting",
+   "current_proofs": 0
+  },
+  {
+   "code": "meshlet_pipeline_adoption",
+   "name": "Конвейер мешлетов на меш-шейдерах",
+   "kind": "implementation",
+   "function": "mesh_shaders",
+   "current_proofs": 1
+  },
+  {
+   "code": "ml_frame_generation",
+   "name": "ML-генерация кадров",
+   "kind": "optimization",
+   "function": "upscaling_frame_generation",
+   "current_proofs": 1
+  },
+  {
+   "code": "motion_matching",
+   "name": "Motion matching",
+   "kind": "implementation",
+   "function": "character_animation",
+   "current_proofs": 1
+  },
+  {
+   "code": "multithreaded_physics_jobs",
+   "name": "Многопоточная физика на системе задач",
+   "kind": "optimization",
+   "function": "physics_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "neural_texture_compression",
+   "name": "Нейросжатие текстур",
+   "kind": "optimization",
+   "function": "large_scale_terrain",
+   "current_proofs": 1
+  },
+  {
+   "code": "normal_bake_retopology_pipeline",
+   "name": "Запекание нормалей и ретопология",
+   "kind": "optimization",
+   "function": "art_pipeline",
+   "current_proofs": 1
+  },
+  {
+   "code": "particle_pooling",
+   "name": "Пулинг систем частиц",
+   "kind": "optimization",
+   "function": "particle_systems",
+   "current_proofs": 1
+  },
+  {
+   "code": "physics_lod_sleeping",
+   "name": "LOD физики и спящие тела",
+   "kind": "optimization",
+   "function": "physics_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "planar_reflection_budget",
+   "name": "Бюджет плоских отражений",
+   "kind": "optimization",
+   "function": "water_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "portal_scene_capture_budget",
+   "name": "Порталы через рендер в текстуру",
+   "kind": "implementation",
+   "function": "portal_rendering",
+   "current_proofs": 0
+  },
+  {
+   "code": "post_effect_selective",
+   "name": "Выборочное применение экранных эффектов",
+   "kind": "optimization",
+   "function": "post_processing",
+   "current_proofs": 0
+  },
+  {
+   "code": "pso_precaching_warmup",
+   "name": "Предкомпиляция и прогрев PSO",
+   "kind": "optimization",
+   "function": "rendering_architecture",
+   "current_proofs": 0
+  },
+  {
+   "code": "quality_tier_scalability",
+   "name": "Тиры качества и scalability-группы",
+   "kind": "optimization",
+   "function": "render_scalability",
+   "current_proofs": 0
+  },
+  {
+   "code": "rt_effect_resolution_budget",
+   "name": "Половинное разрешение и кэш трассировочных эффектов",
+   "kind": "implementation",
+   "function": "ray_traced_effects",
+   "current_proofs": 1
+  },
+  {
+   "code": "runtime_fracture_budget",
+   "name": "Разрушение с бюджетом активных обломков",
+   "kind": "implementation",
+   "function": "destruction_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "screen_space_contact_shadows",
+   "name": "Контактные тени в экранном пространстве",
+   "kind": "optimization",
+   "function": "dynamic_shadows",
+   "current_proofs": 0
+  },
+  {
+   "code": "screen_space_gi",
+   "name": "Экранное глобальное освещение (SSGI)",
+   "kind": "optimization",
+   "function": "dynamic_global_illumination",
+   "current_proofs": 1
+  },
+  {
+   "code": "screen_space_water_simple",
+   "name": "Упрощённая вода в экранном пространстве",
+   "kind": "implementation",
+   "function": "water_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "screenspace_light_shafts",
+   "name": "Экранные световые валы (пост-процесс)",
+   "kind": "implementation",
+   "function": "post_processing",
+   "current_proofs": 0
+  },
+  {
+   "code": "sdf_global_illumination",
+   "name": "Глобальное освещение на дистанционных полях (SDF)",
+   "kind": "implementation",
+   "function": "dynamic_global_illumination",
+   "current_proofs": 0
+  },
+  {
+   "code": "shadow_caster_2d_limits",
+   "name": "Ограничение 2D-отбрасывателей теней",
+   "kind": "optimization",
+   "function": "dynamic_shadows",
+   "current_proofs": 0
+  },
+  {
+   "code": "snapshot_slot_saves",
+   "name": "Слотовые снапшоты мира (синхронная запись)",
+   "kind": "implementation",
+   "function": "save_system",
+   "current_proofs": 1
+  },
+  {
+   "code": "sprite_atlas_batching",
+   "name": "Атласы спрайтов и пакетная отрисовка",
+   "kind": "implementation",
+   "function": "character_animation",
+   "current_proofs": 1
+  },
+  {
+   "code": "sprite_particle_atlas",
+   "name": "Атласные частицы со сниженной точностью",
+   "kind": "optimization",
+   "function": "particle_systems",
+   "current_proofs": 1
+  },
+  {
+   "code": "sprite_sheet_compression",
+   "name": "Сжатие листов спрайтов и мип-уровни",
+   "kind": "optimization",
+   "function": "character_animation",
+   "current_proofs": 1
+  },
+  {
+   "code": "srp_batcher_discipline",
+   "name": "SRP Batcher и дисциплина материалов (URP/HDRP)",
+   "kind": "optimization",
+   "function": "rendering_architecture",
+   "current_proofs": 0
+  },
+  {
+   "code": "static_shadow_caching",
+   "name": "Кэширование теней от статических объектов",
+   "kind": "optimization",
+   "function": "dynamic_shadows",
+   "current_proofs": 0
+  },
+  {
+   "code": "temporal_radiance_cache",
+   "name": "Кэш излучения с временным накоплением",
+   "kind": "optimization",
+   "function": "dynamic_global_illumination",
+   "current_proofs": 0
+  },
+  {
+   "code": "temporal_upscaling",
+   "name": "Временное масштабирование изображения",
+   "kind": "optimization",
+   "function": "post_processing",
+   "current_proofs": 1
+  },
+  {
+   "code": "tiled_clustered_light_culling",
+   "name": "Тайловое и кластерное отсечение источников света",
+   "kind": "optimization",
+   "function": "rendering_architecture",
+   "current_proofs": 1
+  },
+  {
+   "code": "tilemap_chunk_streaming",
+   "name": "Чанковая подгрузка тайловой карты",
+   "kind": "implementation",
+   "function": "open_world_streaming",
+   "current_proofs": 1
+  },
+  {
+   "code": "tilemap_layer_culling",
+   "name": "Отсечение слоёв и чанков тайловой карты",
+   "kind": "optimization",
+   "function": "procedural_vegetation",
+   "current_proofs": 1
+  },
+  {
+   "code": "time_sliced_pathfinding",
+   "name": "Поиск пути с распределением по кадрам",
+   "kind": "optimization",
+   "function": "ai_pathfinding",
+   "current_proofs": 1
+  },
+  {
+   "code": "variable_rate_shading",
+   "name": "Переменная частота затенения (VRS)",
+   "kind": "optimization",
+   "function": "post_processing",
+   "current_proofs": 0
+  },
+  {
+   "code": "vegetation_atlas_lod",
+   "name": "Атласы и запечённые LOD растительности",
+   "kind": "optimization",
+   "function": "procedural_vegetation",
+   "current_proofs": 1
+  },
+  {
+   "code": "vehicle_simulation_lod",
+   "name": "Уровни детализации симуляции транспорта",
+   "kind": "implementation",
+   "function": "vehicle_simulation",
+   "current_proofs": 1
+  },
+  {
+   "code": "virtual_shadow_maps",
+   "name": "Виртуальные карты теней (VSM)",
+   "kind": "implementation",
+   "function": "dynamic_shadows",
+   "current_proofs": 0
+  },
+  {
+   "code": "volumetric_half_resolution",
+   "name": "Расчёт объёмов в пониженном разрешении",
+   "kind": "optimization",
+   "function": "volumetric_effects",
+   "current_proofs": 1
+  },
+  {
+   "code": "voxel_cone_tracing",
+   "name": "Воксельный конусный трейсинг",
+   "kind": "implementation",
+   "function": "dynamic_global_illumination",
+   "current_proofs": 0
+  }
+ ],
+ "nodes_no_source": [
+  {
+   "code": "api:dxr",
+   "name": "DirectX Raytracing (DXR)",
+   "node_type": "api",
+   "version": "",
+   "platform": "pc_windows"
+  },
+  {
+   "code": "engine:cryengine",
+   "name": "CryEngine",
+   "node_type": "engine",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "engine:custom",
+   "name": "Собственный движок",
+   "node_type": "engine",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "engine:godot",
+   "name": "Godot",
+   "node_type": "engine",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "engine:heroengine",
+   "name": "HeroEngine",
+   "node_type": "engine",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "engine:source",
+   "name": "Source / Source 2",
+   "node_type": "engine",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "engine:unity",
+   "name": "Unity",
+   "node_type": "engine",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "engine:unreal",
+   "name": "Unreal Engine",
+   "node_type": "engine",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "lib:acl",
+   "name": "Animation Compression Library (ACL)",
+   "node_type": "lib",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "lib:meshoptimizer",
+   "name": "meshoptimizer",
+   "node_type": "lib",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "lib:opus",
+   "name": "Opus / Ogg audio codec",
+   "node_type": "lib",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "lib:physx",
+   "name": "NVIDIA PhysX",
+   "node_type": "lib",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "lib:rvo2",
+   "name": "RVO2 / ORCA library",
+   "node_type": "lib",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "lib:tracy",
+   "name": "Tracy Profiler",
+   "node_type": "lib",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "plugin:ue.replication_graph",
+   "name": "Unreal Replication Graph",
+   "node_type": "plugin",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "plugin:ue.world_partition",
+   "name": "Unreal World Partition / OFPA",
+   "node_type": "plugin",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "plugin:unity.addressables",
+   "name": "Unity Addressables package",
+   "node_type": "plugin",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "plugin:unity.burst",
+   "name": "Unity Burst compiler",
+   "node_type": "plugin",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "plugin:unity.entities",
+   "name": "Unity Entities (DOTS) package",
+   "node_type": "plugin",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "plugin:unity.netcode",
+   "name": "Unity Netcode for Entities",
+   "node_type": "plugin",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "plugin:unity.srp",
+   "name": "Unity Scriptable Render Pipeline",
+   "node_type": "plugin",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "plugin:unity.transport",
+   "name": "Unity Transport package",
+   "node_type": "plugin",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "sdk:directstorage",
+   "name": "Microsoft DirectStorage",
+   "node_type": "sdk",
+   "version": "",
+   "platform": "pc_windows"
+  },
+  {
+   "code": "sdk:steamworks",
+   "name": "Steamworks SDK",
+   "node_type": "sdk",
+   "version": "",
+   "platform": "pc_windows,pc_linux"
+  },
+  {
+   "code": "tool:c_ecs",
+   "name": "Собственный ECS",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:c_job_system",
+   "name": "Система задач (job system)",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:c_manual",
+   "name": "Реализация вручную",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:c_memory",
+   "name": "Аллокатор и пулинг памяти",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:c_profiler",
+   "name": "Встроенный профилировщик / Tracy",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:c_render_graph",
+   "name": "Граф рендера",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:c_streaming",
+   "name": "Подсистема стриминга",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:ce_audio",
+   "name": "CryAudio + окклюзия",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:ce_fog",
+   "name": "Volumetric Fog / Clouds",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:ce_merged",
+   "name": "Merged Meshes / HLOD",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:ce_svogi",
+   "name": "SVOGI / SVOTI",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:ce_vegetation",
+   "name": "Vegetation + Touch Bending",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:h_blade",
+   "name": "HeroBlade",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:h_cloud",
+   "name": "HeroCloud",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:h_hsl",
+   "name": "HeroScript (HSL)",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:h_instancing",
+   "name": "Инстансинг планет / шардинг",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:s_netcode",
+   "name": "Tick / Interp / Lagcomp",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:s_portal",
+   "name": "Stencil-порталы / BSP",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:s_vphysics",
+   "name": "VPhysics / Rubikon",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:s_vprof",
+   "name": "VProf / net_graph",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:s_vulkan",
+   "name": "Source 2 Vulkan-рендер",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:ue_behavior_tree",
+   "name": "Behavior Tree",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:ue_gas",
+   "name": "Gameplay Ability System",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  },
+  {
+   "code": "tool:ue_vehicles",
+   "name": "Chaos Vehicles",
+   "node_type": "tool",
+   "version": "",
+   "platform": ""
+  }
+ ],
+ "edges_no_source": [
+  {
+   "id": 4,
+   "src": 1,
+   "dst": 197,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 6,
+   "src": 2,
+   "dst": 182,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 10,
+   "src": 3,
+   "dst": 188,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 14,
+   "src": 4,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 21,
+   "src": 6,
+   "dst": 188,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 22,
+   "src": 6,
+   "dst": 197,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 26,
+   "src": 7,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 36,
+   "src": 11,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 37,
+   "src": 11,
+   "dst": 185,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 50,
+   "src": 15,
+   "dst": 186,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 60,
+   "src": 18,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 66,
+   "src": 20,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 79,
+   "src": 24,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 80,
+   "src": 24,
+   "dst": 186,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 82,
+   "src": 25,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 89,
+   "src": 27,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 93,
+   "src": 28,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 100,
+   "src": 30,
+   "dst": 181,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 107,
+   "src": 32,
+   "dst": 178,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 108,
+   "src": 32,
+   "dst": 190,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 112,
+   "src": 33,
+   "dst": 178,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 113,
+   "src": 33,
+   "dst": 190,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 117,
+   "src": 34,
+   "dst": 178,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 121,
+   "src": 35,
+   "dst": 179,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 122,
+   "src": 35,
+   "dst": 190,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 125,
+   "src": 36,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 132,
+   "src": 38,
+   "dst": 178,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 137,
+   "src": 40,
+   "dst": 179,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 141,
+   "src": 41,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 145,
+   "src": 42,
+   "dst": 178,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 152,
+   "src": 44,
+   "dst": 178,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 156,
+   "src": 45,
+   "dst": 179,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 160,
+   "src": 46,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 164,
+   "src": 47,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 168,
+   "src": 48,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 172,
+   "src": 49,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 173,
+   "src": 49,
+   "dst": 187,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 180,
+   "src": 51,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 184,
+   "src": 52,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 190,
+   "src": 54,
+   "dst": 192,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 191,
+   "src": 54,
+   "dst": 197,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 194,
+   "src": 55,
+   "dst": 192,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 195,
+   "src": 55,
+   "dst": 196,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 199,
+   "src": 56,
+   "dst": 192,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 202,
+   "src": 57,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 203,
+   "src": 57,
+   "dst": 192,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 204,
+   "src": 57,
+   "dst": 196,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 208,
+   "src": 58,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 218,
+   "src": 62,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 229,
+   "src": 66,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 235,
+   "src": 68,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 239,
+   "src": 69,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 243,
+   "src": 81,
+   "dst": 181,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 246,
+   "src": 82,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 250,
+   "src": 83,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 254,
+   "src": 84,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 258,
+   "src": 85,
+   "dst": 182,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 262,
+   "src": 86,
+   "dst": 182,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 266,
+   "src": 87,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 270,
+   "src": 88,
+   "dst": 179,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 273,
+   "src": 89,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 275,
+   "src": 90,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 278,
+   "src": 91,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 280,
+   "src": 72,
+   "dst": 183,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "profiler"
+  },
+  {
+   "id": 281,
+   "src": 92,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 285,
+   "src": 93,
+   "dst": 183,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "profiler"
+  },
+  {
+   "id": 287,
+   "src": 94,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 291,
+   "src": 95,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 295,
+   "src": 70,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 299,
+   "src": 71,
+   "dst": 183,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "profiler"
+  },
+  {
+   "id": 300,
+   "src": 71,
+   "dst": 194,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 301,
+   "src": 73,
+   "dst": 189,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 305,
+   "src": 74,
+   "dst": 182,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 306,
+   "src": 75,
+   "dst": 192,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 309,
+   "src": 75,
+   "dst": 196,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 314,
+   "src": 77,
+   "dst": 183,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "profiler"
+  },
+  {
+   "id": 315,
+   "src": 77,
+   "dst": 194,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 319,
+   "src": 78,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 320,
+   "src": 79,
+   "dst": 192,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 323,
+   "src": 79,
+   "dst": 196,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 324,
+   "src": 80,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 327,
+   "src": 80,
+   "dst": 193,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 330,
+   "src": 96,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 333,
+   "src": 97,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 336,
+   "src": 98,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 339,
+   "src": 99,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 343,
+   "src": 100,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 347,
+   "src": 101,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 349,
+   "src": 102,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 352,
+   "src": 103,
+   "dst": 180,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 356,
+   "src": 104,
+   "dst": 182,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 360,
+   "src": 105,
+   "dst": 178,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 363,
+   "src": 106,
+   "dst": 179,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 367,
+   "src": 107,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 368,
+   "src": 108,
+   "dst": 201,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 370,
+   "src": 108,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 371,
+   "src": 109,
+   "dst": 201,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 374,
+   "src": 109,
+   "dst": 178,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 375,
+   "src": 110,
+   "dst": 200,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 378,
+   "src": 110,
+   "dst": 179,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 379,
+   "src": 111,
+   "dst": 200,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 381,
+   "src": 111,
+   "dst": 184,
+   "type": "engine_tool",
+   "mandatory": 0,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 428,
+   "src": 178,
+   "dst": 128,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 429,
+   "src": 179,
+   "dst": 128,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 430,
+   "src": 180,
+   "dst": 128,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 431,
+   "src": 181,
+   "dst": 128,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 432,
+   "src": 182,
+   "dst": 128,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 433,
+   "src": 183,
+   "dst": 128,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "profiler"
+  },
+  {
+   "id": 434,
+   "src": 184,
+   "dst": 128,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 435,
+   "src": 185,
+   "dst": 129,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 436,
+   "src": 186,
+   "dst": 129,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 437,
+   "src": 187,
+   "dst": 129,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 438,
+   "src": 188,
+   "dst": 129,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 439,
+   "src": 189,
+   "dst": 129,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 440,
+   "src": 190,
+   "dst": 130,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 441,
+   "src": 191,
+   "dst": 130,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 442,
+   "src": 192,
+   "dst": 130,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 443,
+   "src": 193,
+   "dst": 130,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 444,
+   "src": 194,
+   "dst": 130,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 445,
+   "src": 195,
+   "dst": 131,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 446,
+   "src": 196,
+   "dst": 131,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 447,
+   "src": 197,
+   "dst": 131,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 448,
+   "src": 198,
+   "dst": 131,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 450,
+   "src": 200,
+   "dst": 125,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 451,
+   "src": 201,
+   "dst": 125,
+   "type": "engine",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 466,
+   "src": 184,
+   "dst": 216,
+   "type": "library",
+   "mandatory": 0,
+   "platform": "pc_windows,pc_linux",
+   "scope": "build"
+  },
+  {
+   "id": 467,
+   "src": 183,
+   "dst": 218,
+   "type": "library",
+   "mandatory": 0,
+   "platform": "pc_windows,pc_linux",
+   "scope": "development"
+  },
+  {
+   "id": 640,
+   "src": 38,
+   "dst": 36,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 646,
+   "src": 39,
+   "dst": 38,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 690,
+   "src": 55,
+   "dst": 57,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 696,
+   "src": 56,
+   "dst": 54,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 717,
+   "src": 121,
+   "dst": 55,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 722,
+   "src": 122,
+   "dst": 55,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 723,
+   "src": 122,
+   "dst": 54,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 746,
+   "src": 72,
+   "dst": 79,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 753,
+   "src": 20,
+   "dst": 52,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 754,
+   "src": 20,
+   "dst": 50,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 755,
+   "src": 20,
+   "dst": 98,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 760,
+   "src": 15,
+   "dst": 20,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 765,
+   "src": 18,
+   "dst": 52,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 766,
+   "src": 18,
+   "dst": 50,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 771,
+   "src": 16,
+   "dst": 21,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 776,
+   "src": 19,
+   "dst": 20,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 777,
+   "src": 19,
+   "dst": 52,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 782,
+   "src": 17,
+   "dst": 52,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 790,
+   "src": 101,
+   "dst": 100,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 802,
+   "src": 26,
+   "dst": 15,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 806,
+   "src": 27,
+   "dst": 52,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 827,
+   "src": 48,
+   "dst": 52,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 831,
+   "src": 49,
+   "dst": 48,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 843,
+   "src": 96,
+   "dst": 98,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 844,
+   "src": 96,
+   "dst": 50,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 857,
+   "src": 51,
+   "dst": 50,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 874,
+   "src": 53,
+   "dst": 52,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 879,
+   "src": 77,
+   "dst": 50,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 948,
+   "src": 4,
+   "dst": 81,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  },
+  {
+   "id": 977,
+   "src": 10,
+   "dst": 81,
+   "type": "dependency",
+   "mandatory": 1,
+   "platform": "",
+   "scope": "runtime"
+  }
+ ],
+ "conflicts_no_url": [
+  {
+   "id": 186,
+   "a": "animation_lod_budget",
+   "b": "gpu_skinning_compute",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «animation_lod_budget» требует предварительного метода «gpu_skinning_compute»."
+  },
+  {
+   "id": 192,
+   "a": "motion_matching",
+   "b": "animation_lod_budget",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «motion_matching» требует предварительного метода «animation_lod_budget»."
+  },
+  {
+   "id": 237,
+   "a": "client_prediction_reconciliation",
+   "b": "headless_dedicated_server",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «client_prediction_reconciliation» требует предварительного метода «headless_dedicated_server»."
+  },
+  {
+   "id": 243,
+   "a": "delta_compression_state",
+   "b": "network_relevancy_priority",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «delta_compression_state» требует предварительного метода «network_relevancy_priority»."
+  },
+  {
+   "id": 264,
+   "a": "subtick_networking",
+   "b": "client_prediction_reconciliation",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «subtick_networking» требует предварительного метода «client_prediction_reconciliation»."
+  },
+  {
+   "id": 269,
+   "a": "lag_compensation_rewind",
+   "b": "client_prediction_reconciliation",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «lag_compensation_rewind» требует предварительного метода «client_prediction_reconciliation»."
+  },
+  {
+   "id": 270,
+   "a": "lag_compensation_rewind",
+   "b": "network_relevancy_priority",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «lag_compensation_rewind» требует предварительного метода «network_relevancy_priority»."
+  },
+  {
+   "id": 293,
+   "a": "managed_gc_alloc_budget",
+   "b": "tickrate_budgeting",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «managed_gc_alloc_budget» требует предварительного метода «tickrate_budgeting»."
+  },
+  {
+   "id": 300,
+   "a": "hardware_raytraced_gi",
+   "b": "deferred_forward_plus_choice",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «hardware_raytraced_gi» требует предварительного метода «deferred_forward_plus_choice»."
+  },
+  {
+   "id": 301,
+   "a": "hardware_raytraced_gi",
+   "b": "temporal_upscaling",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «hardware_raytraced_gi» требует предварительного метода «temporal_upscaling»."
+  },
+  {
+   "id": 302,
+   "a": "hardware_raytraced_gi",
+   "b": "selective_ray_traced_effects",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «hardware_raytraced_gi» требует предварительного метода «selective_ray_traced_effects»."
+  },
+  {
+   "id": 307,
+   "a": "sdf_global_illumination",
+   "b": "hardware_raytraced_gi",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «sdf_global_illumination» требует предварительного метода «hardware_raytraced_gi»."
+  },
+  {
+   "id": 312,
+   "a": "screen_space_gi",
+   "b": "deferred_forward_plus_choice",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «screen_space_gi» требует предварительного метода «deferred_forward_plus_choice»."
+  },
+  {
+   "id": 313,
+   "a": "screen_space_gi",
+   "b": "temporal_upscaling",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «screen_space_gi» требует предварительного метода «temporal_upscaling»."
+  },
+  {
+   "id": 318,
+   "a": "irradiance_volume_probes",
+   "b": "lightmap_atlas_baking",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «irradiance_volume_probes» требует предварительного метода «lightmap_atlas_baking»."
+  },
+  {
+   "id": 323,
+   "a": "temporal_radiance_cache",
+   "b": "hardware_raytraced_gi",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «temporal_radiance_cache» требует предварительного метода «hardware_raytraced_gi»."
+  },
+  {
+   "id": 324,
+   "a": "temporal_radiance_cache",
+   "b": "deferred_forward_plus_choice",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «temporal_radiance_cache» требует предварительного метода «deferred_forward_plus_choice»."
+  },
+  {
+   "id": 329,
+   "a": "voxel_cone_tracing",
+   "b": "deferred_forward_plus_choice",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «voxel_cone_tracing» требует предварительного метода «deferred_forward_plus_choice»."
+  },
+  {
+   "id": 337,
+   "a": "light_range_attenuation_lod",
+   "b": "dynamic_light_priority_budget",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «light_range_attenuation_lod» требует предварительного метода «dynamic_light_priority_budget»."
+  },
+  {
+   "id": 349,
+   "a": "distance_field_shadows",
+   "b": "sdf_global_illumination",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «distance_field_shadows» требует предварительного метода «sdf_global_illumination»."
+  },
+  {
+   "id": 353,
+   "a": "screen_space_contact_shadows",
+   "b": "deferred_forward_plus_choice",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «screen_space_contact_shadows» требует предварительного метода «deferred_forward_plus_choice»."
+  },
+  {
+   "id": 374,
+   "a": "froxel_volumetric_fog",
+   "b": "deferred_forward_plus_choice",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «froxel_volumetric_fog» требует предварительного метода «deferred_forward_plus_choice»."
+  },
+  {
+   "id": 378,
+   "a": "volumetric_half_resolution",
+   "b": "froxel_volumetric_fog",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «volumetric_half_resolution» требует предварительного метода «froxel_volumetric_fog»."
+  },
+  {
+   "id": 390,
+   "a": "full_path_tracing_pipeline",
+   "b": "selective_ray_traced_effects",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «full_path_tracing_pipeline» требует предварительного метода «selective_ray_traced_effects»."
+  },
+  {
+   "id": 391,
+   "a": "full_path_tracing_pipeline",
+   "b": "temporal_upscaling",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «full_path_tracing_pipeline» требует предварительного метода «temporal_upscaling»."
+  },
+  {
+   "id": 404,
+   "a": "dynamic_resolution_scaling",
+   "b": "temporal_upscaling",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «dynamic_resolution_scaling» требует предварительного метода «temporal_upscaling»."
+  },
+  {
+   "id": 421,
+   "a": "variable_rate_shading",
+   "b": "deferred_forward_plus_choice",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «variable_rate_shading» требует предварительного метода «deferred_forward_plus_choice»."
+  },
+  {
+   "id": 426,
+   "a": "ml_frame_generation",
+   "b": "temporal_upscaling",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «ml_frame_generation» требует предварительного метода «temporal_upscaling»."
+  },
+  {
+   "id": 495,
+   "a": "gpu_compute_culling",
+   "b": "mesh_index_optimization",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «gpu_compute_culling» требует предварительного метода «mesh_index_optimization»."
+  },
+  {
+   "id": 524,
+   "a": "virtual_geometry_clusters",
+   "b": "mesh_index_optimization",
+   "type": "dependency",
+   "severity": 3,
+   "desc": "Метод «virtual_geometry_clusters» требует предварительного метода «mesh_index_optimization»."
+  }
+ ],
+ "links_no_url": [
+  {
+   "id": 4,
+   "method_id": 1,
+   "tool_id": 51,
+   "relation": "missing",
+   "note": "Подсистему стриминга необходимо реализовать самостоятельно."
+  },
+  {
+   "id": 9,
+   "method_id": 2,
+   "tool_id": 51,
+   "relation": "alternative",
+   "note": "Реализуется вместе с подсистемой стриминга."
+  },
+  {
+   "id": 13,
+   "method_id": 3,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 18,
+   "method_id": 4,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Реализуется как проход собственного графа рендера."
+  },
+  {
+   "id": 23,
+   "method_id": 5,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 27,
+   "method_id": 6,
+   "tool_id": 51,
+   "relation": "missing",
+   "note": "Требуется собственный конвейер загрузки."
+  },
+  {
+   "id": 34,
+   "method_id": 7,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Собственный проход ландшафта в графе рендера."
+  },
+  {
+   "id": 38,
+   "method_id": 8,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 42,
+   "method_id": 9,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 46,
+   "method_id": 10,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 50,
+   "method_id": 11,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Инстансинг реализуется в собственном графе рендера."
+  },
+  {
+   "id": 55,
+   "method_id": 12,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 59,
+   "method_id": 13,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 63,
+   "method_id": 14,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 67,
+   "method_id": 15,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 72,
+   "method_id": 16,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 76,
+   "method_id": 17,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 80,
+   "method_id": 18,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Проход в собственном графе рендера."
+  },
+  {
+   "id": 84,
+   "method_id": 19,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 88,
+   "method_id": 20,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Требуется собственная интеграция RT API."
+  },
+  {
+   "id": 92,
+   "method_id": 21,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 96,
+   "method_id": 22,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 100,
+   "method_id": 23,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 104,
+   "method_id": 24,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Проход теней в собственном графе рендера."
+  },
+  {
+   "id": 109,
+   "method_id": 25,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Реализуется как виртуализированный конвейер страниц теней в графе рендера."
+  },
+  {
+   "id": 113,
+   "method_id": 26,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 117,
+   "method_id": 27,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Проход в собственном графе рендера."
+  },
+  {
+   "id": 121,
+   "method_id": 28,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Реализуется в графе рендера."
+  },
+  {
+   "id": 125,
+   "method_id": 29,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 129,
+   "method_id": 30,
+   "tool_id": 50,
+   "relation": "alternative",
+   "note": "Собственные пулы объектов."
+  },
+  {
+   "id": 133,
+   "method_id": 31,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 137,
+   "method_id": 32,
+   "tool_id": 47,
+   "relation": "alternative",
+   "note": "Собственный планировщик с фиксированным шагом."
+  },
+  {
+   "id": 143,
+   "method_id": 33,
+   "tool_id": 47,
+   "relation": "alternative",
+   "note": "Собственная логика LOD."
+  },
+  {
+   "id": 148,
+   "method_id": 34,
+   "tool_id": 47,
+   "relation": "alternative",
+   "note": "Собственная система задач."
+  },
+  {
+   "id": 152,
+   "method_id": 35,
+   "tool_id": 48,
+   "relation": "alternative",
+   "note": "Собственная структура в ECS."
+  },
+  {
+   "id": 157,
+   "method_id": 36,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Проход скиннинга в графе рендера."
+  },
+  {
+   "id": 161,
+   "method_id": 37,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 165,
+   "method_id": 38,
+   "tool_id": 47,
+   "relation": "alternative",
+   "note": "Собственное распределение бюджета."
+  },
+  {
+   "id": 169,
+   "method_id": 39,
+   "tool_id": 48,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 173,
+   "method_id": 40,
+   "tool_id": 48,
+   "relation": "alternative",
+   "note": "Собственный ECS."
+  },
+  {
+   "id": 177,
+   "method_id": 41,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Инстансинг в собственном графе рендера."
+  },
+  {
+   "id": 181,
+   "method_id": 42,
+   "tool_id": 47,
+   "relation": "alternative",
+   "note": "Собственный планировщик приоритетов."
+  },
+  {
+   "id": 185,
+   "method_id": 43,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 189,
+   "method_id": 44,
+   "tool_id": 47,
+   "relation": "alternative",
+   "note": "Собственная очередь запросов."
+  },
+  {
+   "id": 193,
+   "method_id": 45,
+   "tool_id": 48,
+   "relation": "alternative",
+   "note": "Собственная реализация в ECS."
+  },
+  {
+   "id": 197,
+   "method_id": 46,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Проход воды в графе рендера."
+  },
+  {
+   "id": 201,
+   "method_id": 47,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Проход воды в графе рендера."
+  },
+  {
+   "id": 205,
+   "method_id": 48,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Проход объёмов в графе рендера."
+  },
+  {
+   "id": 209,
+   "method_id": 49,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Проход в пониженном разрешении."
+  },
+  {
+   "id": 214,
+   "method_id": 50,
+   "tool_id": 49,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 220,
+   "method_id": 51,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Собственное управление разрешением."
+  },
+  {
+   "id": 224,
+   "method_id": 52,
+   "tool_id": 49,
+   "relation": "direct",
+   "note": "Архитектура определяется графом рендера."
+  },
+  {
+   "id": 228,
+   "method_id": 53,
+   "tool_id": 49,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 232,
+   "method_id": 54,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 238,
+   "method_id": 55,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 244,
+   "method_id": 56,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 248,
+   "method_id": 57,
+   "tool_id": 53,
+   "relation": "direct",
+   "note": "Собственная серверная сборка."
+  },
+  {
+   "id": 254,
+   "method_id": 58,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Реализуется как проход собственного графа рендера."
+  },
+  {
+   "id": 258,
+   "method_id": 59,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 262,
+   "method_id": 60,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 266,
+   "method_id": 61,
+   "tool_id": 51,
+   "relation": "missing",
+   "note": "Требуется собственный конвейер загрузки."
+  },
+  {
+   "id": 270,
+   "method_id": 62,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Отсечение реализуется в графе рендера."
+  },
+  {
+   "id": 274,
+   "method_id": 63,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 278,
+   "method_id": 64,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 282,
+   "method_id": 65,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 286,
+   "method_id": 66,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Реализуется в собственном графе рендера."
+  },
+  {
+   "id": 290,
+   "method_id": 67,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Реализуется полностью самостоятельно."
+  },
+  {
+   "id": 294,
+   "method_id": 68,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Проходы эффектов в собственном графе рендера."
+  },
+  {
+   "id": 298,
+   "method_id": 69,
+   "tool_id": 49,
+   "relation": "direct",
+   "note": "Проход глубины в собственном графе рендера."
+  },
+  {
+   "id": 302,
+   "method_id": 81,
+   "tool_id": 50,
+   "relation": "partial",
+   "note": "meshoptimizer подключается как библиотека ассет-пайплайна."
+  },
+  {
+   "id": 306,
+   "method_id": 82,
+   "tool_id": 53,
+   "relation": "partial",
+   "note": "Подключается через нейроускорение самостоятельно."
+  },
+  {
+   "id": 310,
+   "method_id": 83,
+   "tool_id": 53,
+   "relation": "partial",
+   "note": "Проход отражения пишется в графе рендера."
+  },
+  {
+   "id": 314,
+   "method_id": 84,
+   "tool_id": 53,
+   "relation": "partial",
+   "note": "Ретопология и бейк во внешнем DCC."
+  },
+  {
+   "id": 318,
+   "method_id": 85,
+   "tool_id": 51,
+   "relation": "partial",
+   "note": "Бюджеты размера в собственном стриминге."
+  },
+  {
+   "id": 322,
+   "method_id": 86,
+   "tool_id": 51,
+   "relation": "partial",
+   "note": "Дифф-патчи поверх собственного стриминга."
+  },
+  {
+   "id": 326,
+   "method_id": 87,
+   "tool_id": 53,
+   "relation": "partial",
+   "note": "Ogg/Opus-стриминг пишется самостоятельно."
+  },
+  {
+   "id": 330,
+   "method_id": 88,
+   "tool_id": 48,
+   "relation": "direct",
+   "note": "Собственный ECS и DI-контейнер."
+  },
+  {
+   "id": 334,
+   "method_id": 89,
+   "tool_id": 53,
+   "relation": "partial",
+   "note": "Стиль полностью в руках команды."
+  },
+  {
+   "id": 338,
+   "method_id": 90,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Персистентные буферы в собственном графе."
+  },
+  {
+   "id": 342,
+   "method_id": 91,
+   "tool_id": 49,
+   "relation": "direct",
+   "note": "Тайловая классификация и сетка источников в собственном графе."
+  },
+  {
+   "id": 344,
+   "method_id": 72,
+   "tool_id": 52,
+   "relation": "diagnostic",
+   "note": "Маркеры аллокаций горячего цикла в Tracy."
+  },
+  {
+   "id": 347,
+   "method_id": 92,
+   "tool_id": 53,
+   "relation": "direct",
+   "note": "Сериализация, слоты и миграции пишутся под проект."
+  },
+  {
+   "id": 351,
+   "method_id": 93,
+   "tool_id": 52,
+   "relation": "diagnostic",
+   "note": "Замер фриза автосейва через Tracy."
+  },
+  {
+   "id": 355,
+   "method_id": 94,
+   "tool_id": 49,
+   "relation": "direct",
+   "note": "Радиальный блур-проход в собственном графе рендера."
+  },
+  {
+   "id": 359,
+   "method_id": 95,
+   "tool_id": 53,
+   "relation": "partial",
+   "note": "Открытая RVO2/ORCA-библиотека подключается кодом."
+  },
+  {
+   "id": 363,
+   "method_id": 70,
+   "tool_id": 49,
+   "relation": "direct",
+   "note": "Hi-Z проход в собственном графе рендера."
+  },
+  {
+   "id": 370,
+   "method_id": 71,
+   "tool_id": 52,
+   "relation": "direct",
+   "note": "Tracy-маркеры прогревов и CLI-захват."
+  },
+  {
+   "id": 374,
+   "method_id": 73,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Аудио-трассировка пишется самостоятельно."
+  },
+  {
+   "id": 381,
+   "method_id": 74,
+   "tool_id": 51,
+   "relation": "partial",
+   "note": "Кэши идут общим конвейером стриминга."
+  },
+  {
+   "id": 385,
+   "method_id": 75,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Фикс-точка и RNG пишутся самостоятельно."
+  },
+  {
+   "id": 390,
+   "method_id": 76,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Тиры и адаптивный cap пишутся самостоятельно."
+  },
+  {
+   "id": 394,
+   "method_id": 77,
+   "tool_id": 52,
+   "relation": "diagnostic",
+   "note": "Замер latency через Tracy."
+  },
+  {
+   "id": 399,
+   "method_id": 78,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Два вью в собственном графе."
+  },
+  {
+   "id": 403,
+   "method_id": 79,
+   "tool_id": 53,
+   "relation": "missing",
+   "note": "Тик и bandwidth считаются самостоятельно."
+  },
+  {
+   "id": 405,
+   "method_id": 80,
+   "tool_id": 49,
+   "relation": "direct",
+   "note": "Bindless-дескрипторы в собственном графе."
+  },
+  {
+   "id": 413,
+   "method_id": 96,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Собственный проход трассировки пути в графе рендера."
+  },
+  {
+   "id": 417,
+   "method_id": 97,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Денойзер и бюджет выборок пишутся в собственном проходе."
+  },
+  {
+   "id": 421,
+   "method_id": 98,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Отдельные RT-проходы в собственном графе рендера."
+  },
+  {
+   "id": 425,
+   "method_id": 99,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Масштаб буферов и накопление задаются в собственном проходе."
+  },
+  {
+   "id": 429,
+   "method_id": 100,
+   "tool_id": 53,
+   "relation": "alternative",
+   "note": "Приоритезация источников реализуется кодом проекта."
+  },
+  {
+   "id": 433,
+   "method_id": 101,
+   "tool_id": 53,
+   "relation": "alternative",
+   "note": "Пороги и упрощённая кривая задаются кодом проекта."
+  },
+  {
+   "id": 437,
+   "method_id": 102,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Task/mesh-стадии подключаются в собственном графе рендера."
+  },
+  {
+   "id": 441,
+   "method_id": 103,
+   "tool_id": 49,
+   "relation": "alternative",
+   "note": "Отсечение мешлетов реализуется в compute-проходе."
+  },
+  {
+   "id": 445,
+   "method_id": 104,
+   "tool_id": 51,
+   "relation": "alternative",
+   "note": "Собственная подсистема стриминга и генерации чанков."
+  },
+  {
+   "id": 449,
+   "method_id": 105,
+   "tool_id": 47,
+   "relation": "direct",
+   "note": "Собственная система задач с бюджетом на кадр."
+  },
+  {
+   "id": 453,
+   "method_id": 106,
+   "tool_id": 48,
+   "relation": "alternative",
+   "note": "Система способностей поверх собственного ECS."
+  },
+  {
+   "id": 457,
+   "method_id": 107,
+   "tool_id": 53,
+   "relation": "alternative",
+   "note": "Бюджет эффектов реализуется кодом проекта."
+  },
+  {
+   "id": 461,
+   "method_id": 108,
+   "tool_id": 53,
+   "relation": "alternative",
+   "note": "Модель подвески и сцепления пишется кодом."
+  },
+  {
+   "id": 465,
+   "method_id": 109,
+   "tool_id": 47,
+   "relation": "alternative",
+   "note": "Уровни симуляции задаются в собственной системе задач."
+  },
+  {
+   "id": 469,
+   "method_id": 110,
+   "tool_id": 48,
+   "relation": "alternative",
+   "note": "Деревья или автоматы поверх собственного ECS."
+  },
+  {
+   "id": 473,
+   "method_id": 111,
+   "tool_id": 53,
+   "relation": "alternative",
+   "note": "Очередь запросов восприятия реализуется кодом проекта."
+  }
+ ]
+}

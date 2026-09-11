@@ -1,0 +1,1509 @@
+{
+ "pack": "pack_tool_proofs",
+ "generated": "2026-09-11",
+ "agent_scope": "additional distinct-game proofs and second located sources for the engine_tools that had not reached the evidence bar; reuses already-registered sources only",
+ "sources": [],
+ "engine_tools": {
+  "ue_anim_budget": {
+   "game_examples": [
+    {
+     "game": "Fortnite",
+     "studio": "Epic Games",
+     "year": 2017,
+     "engine": "Unreal Engine 4/5",
+     "fact": "A shipped title with very large numbers of simultaneously animated characters, which is the workload an animation budget allocator exists to bound.",
+     "source": "SRC-ENG-069",
+     "locator": "Battle-testing Unreal Engine 5.1's new systems in Fortnite",
+     "relevance": "Shows the operating condition: many animated actors, fixed frame budget.",
+     "non_transferable": "Epic develops the plugin alongside the engine; a licensee's integration and tuning cost is not represented by this example.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Senua's Saga: Hellblade II",
+     "studio": "Ninja Theory",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "fact": "A cinematic-fidelity title with a small number of highly detailed characters, i.e. the opposite budget profile: quality per character rather than character count.",
+     "source": "SRC-ENG-070",
+     "locator": "The making of Senua's Saga: Hellblade II",
+     "relevance": "Second shipped example showing the tool's budget axis being traded the other way.",
+     "non_transferable": "No animation-budget numbers are published; this shows the trade-off exists, not where the optimum is.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    }
+   ],
+   "direct_examples": 2,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "The Animation Budget Allocator is documented in the Unreal Engine documentation as a plugin that dynamically throttles skeletal mesh component animation update rates to stay inside a per-frame animation budget.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-ENG-019",
+     "locator": "Documentation page: overview and budget configuration section",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source for this tool. Confirms the tool is engine-documented; no throttling figures are quoted."
+    }
+   ]
+  },
+  "ue_behavior_tree": {
+   "game_examples": [
+    {
+     "game": "F.E.A.R.",
+     "studio": "Monolith Productions",
+     "year": 2005,
+     "engine": "LithTech Jupiter EX",
+     "fact": "A shipped title whose AI is a standard reference for planning-based squad behaviour, the problem space Unreal's Behaviour Tree addresses.",
+     "source": "SRC-FUNC-052",
+     "locator": "Three States and a Plan: The A.I. of F.E.A.R. (GDC)",
+     "relevance": "A shipped, widely cited AI architecture showing the behaviour-selection problem that a behaviour tree formalises.",
+     "non_transferable": "F.E.A.R. predates Unreal's Behaviour Tree and uses its own planner; this evidences the problem, not the tool.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Left 4 Dead",
+     "studio": "Valve Corporation",
+     "year": 2008,
+     "engine": "Source",
+     "fact": "A shipped co-operative shooter whose AI Director paces and places enemies dynamically.",
+     "source": "SRC-AIS-001",
+     "locator": "The AI Systems of Left 4 Dead (GDC)",
+     "relevance": "Second shipped example of runtime behaviour selection driven by game state.",
+     "non_transferable": "Valve's AI Director is a bespoke system on a different engine.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `ue_behavior_tree` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "ue_chaos": {
+   "game_examples": [
+    {
+     "game": "Fortnite",
+     "studio": "Epic Games",
+     "year": 2017,
+     "engine": "Unreal Engine 4/5",
+     "fact": "A shipped title with destructible environment elements at very large scale.",
+     "source": "SRC-ENG-069",
+     "locator": "Battle-testing Unreal Engine 5.1's new systems in Fortnite",
+     "relevance": "Shows Chaos-driven destruction in a live, high-player-count shipped game.",
+     "non_transferable": "Epic controls the engine and the game; licensee integration cost is not shown.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Tom Clancy's Rainbow Six Siege",
+     "studio": "Ubisoft Montreal",
+     "year": 2015,
+     "engine": "AnvilNext + RealBlast",
+     "fact": "A shipped competitive title whose core mechanic is structural destruction.",
+     "source": "SRC-AIS-019",
+     "locator": "The Art of Destruction in Rainbow Six: Siege (GDC)",
+     "relevance": "Contrast case: destruction delivered by a bespoke system on a different engine, separating the requirement from the Chaos implementation.",
+     "non_transferable": "RealBlast is proprietary and pre-dates Chaos; not evidence of Chaos being used.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 1
+  },
+  "ue_gas": {
+   "game_examples": [
+    {
+     "game": "Fortnite",
+     "studio": "Epic Games",
+     "year": 2017,
+     "engine": "Unreal Engine 4/5",
+     "fact": "A shipped title with a large catalogue of abilities, effects and cooldowns that must be data-driven and replicated.",
+     "source": "SRC-ENG-069",
+     "locator": "Battle-testing Unreal Engine 5.1's new systems in Fortnite",
+     "relevance": "Shows the ability-system problem at live-service scale.",
+     "non_transferable": "Epic's implementation is co-developed with the engine; not representative of a licensee's authoring cost.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Overwatch",
+     "studio": "Blizzard Entertainment",
+     "year": 2016,
+     "engine": "Blizzard in-house",
+     "fact": "A hero shooter where every hero has a distinct, replicated ability set with independent cooldowns, stacking and status effects.",
+     "source": "SRC-AIS-030",
+     "locator": "'Overwatch' Gameplay Architecture and Netcode (GDC)",
+     "relevance": "Second shipped example of a data-driven ability architecture, on a different engine.",
+     "non_transferable": "Blizzard's ECS-based ability system is bespoke and predates similar engine features.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 1
+  },
+  "ue_hlod": {
+   "game_examples": [
+    {
+     "game": "No Man's Sky",
+     "studio": "Hello Games",
+     "year": 2016,
+     "engine": "Hello Games in-house",
+     "fact": "Planetary-scale view distances force distant geometry to be merged and simplified across many levels of detail.",
+     "source": "SRC-WRS-040",
+     "locator": "Continuous World Generation in 'No Man's Sky' (GDC)",
+     "relevance": "Extreme-range HLOD: the hierarchy depth is set by planetary scale.",
+     "non_transferable": "Procedural generation produces HLODs differently from authored meshes.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Horizon Zero Dawn",
+     "studio": "Guerrilla Games",
+     "year": 2017,
+     "engine": "Decima",
+     "fact": "A large open world with long view distances and dense vegetation requiring distance-based merging.",
+     "source": "SRC-FUNC-055",
+     "locator": "Streaming the World of Horizon Zero Dawn (GDC)",
+     "relevance": "A shipped open-world HLOD example on authored content.",
+     "non_transferable": "Decima's pipeline is bespoke and its HLOD build times are not published.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `ue_hlod` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "ue_insights": {
+   "game_examples": [
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "fact": "Profiling is a development-time activity; this shipped title is included only because its performance work was publicly documented.",
+     "source": "SRC-RND-023",
+     "locator": "How Northlight makes Alan Wake 2 shine (Remedy technology article)",
+     "relevance": "Illustrates the class of performance problem a tracing profiler is used on.",
+     "non_transferable": "This is NOT evidence that Unreal Insights was used: Remedy uses its own engine. The example shows the problem class, not the tool.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "fact": "A shipped UE5 title whose PC performance characteristics were widely analysed, including CPU-side frame-time behaviour.",
+     "source": "SRC-ENG-073",
+     "locator": "Black Myth: Wukong - the PC tech review",
+     "relevance": "Second illustration of UE5 performance profiling at retail scale.",
+     "non_transferable": "Again, not evidence that Unreal Insights specifically was used; the tool has no shipped-runtime footprint by design.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    }
+   ],
+   "direct_examples": 1,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "Unreal Insights is documented in the Unreal Engine documentation as the engine's standalone tracing/profiling tool for capturing and inspecting timing data.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-ENG-020",
+     "locator": "Documentation page: overview",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source. A development-time tool; it has no shipped-runtime presence."
+    }
+   ]
+  },
+  "ue_ism": {
+   "game_examples": [
+    {
+     "game": "Horizon Zero Dawn",
+     "studio": "Guerrilla Games",
+     "year": 2017,
+     "engine": "Decima",
+     "fact": "Large-scale vegetation and prop placement rendered as instanced batches.",
+     "source": "SRC-FUNC-055",
+     "locator": "Streaming the World of Horizon Zero Dawn (GDC)",
+     "relevance": "A shipped open-world example of instancing carrying the environment budget.",
+     "non_transferable": "Decima's instancing is engine-specific; instance counts are not published.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "No Man's Sky",
+     "studio": "Hello Games",
+     "year": 2016,
+     "engine": "Hello Games in-house",
+     "fact": "Procedurally placed flora and rocks across entire planets rely on instanced rendering.",
+     "source": "SRC-WRS-040",
+     "locator": "Continuous World Generation in 'No Man's Sky' (GDC)",
+     "relevance": "Second shipped example where instancing is what makes the content volume renderable.",
+     "non_transferable": "Procedural placement differs from authored placement in batching behaviour.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `ue_ism` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "ue_lod": {
+   "game_examples": [
+    {
+     "game": "Horizon Zero Dawn",
+     "studio": "Guerrilla Games",
+     "year": 2017,
+     "engine": "Decima",
+     "fact": "Long draw distances across a large open world require automatic and authored LOD chains on environment meshes.",
+     "source": "SRC-FUNC-055",
+     "locator": "Streaming the World of Horizon Zero Dawn (GDC)",
+     "relevance": "A shipped example of LOD generation as a pipeline step at open-world scale.",
+     "non_transferable": "Decima's LOD generation pipeline is bespoke.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "fact": "A shipped UE5 title with high-density meshes requiring LOD chains for performance.",
+     "source": "SRC-ENG-073",
+     "locator": "Black Myth: Wukong - the PC tech review",
+     "relevance": "Second shipped example, showing LOD work on UE5 retail content.",
+     "non_transferable": "The review does not document LOD settings or generation cost.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    }
+   ],
+   "direct_examples": 1
+  },
+  "ue_lwc": {
+   "game_examples": [
+    {
+     "game": "No Man's Sky",
+     "studio": "Hello Games",
+     "year": 2016,
+     "engine": "Hello Games in-house",
+     "fact": "A universe-scale coordinate range is the classic precision problem that large-world coordinates address.",
+     "source": "SRC-WRS-040",
+     "locator": "Continuous World Generation in 'No Man's Sky' (GDC)",
+     "relevance": "Extreme-range coordinate precision: the motivating condition for the feature.",
+     "non_transferable": "Hello Games solves it with its own origin/coordinate scheme, not with UE's LWC.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Minecraft",
+     "studio": "Mojang Studios",
+     "year": 2011,
+     "engine": "Java Edition (in-house)",
+     "fact": "An effectively unbounded world extent, where floating-point precision degrades visibly far from the origin.",
+     "source": "SRC-WRS-041",
+     "locator": "Chunk format / world coordinate behaviour",
+     "relevance": "Second shipped example of the coordinate-precision problem at very large distances.",
+     "non_transferable": "Minecraft uses a different representation (chunk-local coordinates); not evidence of UE LWC.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `ue_lwc` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "ue_mass": {
+   "game_examples": [
+    {
+     "game": "Fortnite",
+     "studio": "Epic Games",
+     "year": 2017,
+     "engine": "Unreal Engine 4/5",
+     "fact": "Very large numbers of entities (players, AI, projectiles, pickups) updated per frame.",
+     "source": "SRC-ENG-069",
+     "locator": "Battle-testing Unreal Engine 5.1's new systems in Fortnite",
+     "relevance": "Shows the entity-count condition that a data-oriented entity framework targets.",
+     "non_transferable": "Epic's usage is co-developed with the engine; licensee results will differ.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Assassin's Creed Unity",
+     "studio": "Ubisoft Montreal",
+     "year": 2014,
+     "engine": "AnvilNext",
+     "fact": "A shipped title rendering and simulating crowd densities in the thousands on 2014-era hardware.",
+     "source": "SRC-AIS-018",
+     "locator": "Massive Crowd on Assassin's Creed Unity (GDC)",
+     "relevance": "Second shipped example of extreme entity counts, from a different engine and era.",
+     "non_transferable": "AnvilNext's crowd system predates UE Mass and is bespoke; not evidence of UE Mass.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 1
+  },
+  "ue_navmesh": {
+   "game_examples": [
+    {
+     "game": "Left 4 Dead",
+     "studio": "Valve Corporation",
+     "year": 2008,
+     "engine": "Source",
+     "fact": "Enemies navigate complex multi-level environments and pursue players dynamically.",
+     "source": "SRC-AIS-001",
+     "locator": "The AI Systems of Left 4 Dead (GDC)",
+     "relevance": "A shipped example of navigation-mesh driven AI in a commercial shooter.",
+     "non_transferable": "Source's navigation is bespoke and predates Unreal's NavMesh tooling.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "F.E.A.R.",
+     "studio": "Monolith Productions",
+     "year": 2005,
+     "engine": "LithTech Jupiter EX",
+     "fact": "Squad AI navigating interiors with flanking and path planning.",
+     "source": "SRC-FUNC-052",
+     "locator": "Three States and a Plan: The A.I. of F.E.A.R. (GDC)",
+     "relevance": "Second shipped navigation example, different studio and engine.",
+     "non_transferable": "Not evidence of Unreal NavMesh being used.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `ue_navmesh` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "ue_niagara": {
+   "game_examples": [
+    {
+     "game": "Returnal",
+     "studio": "Housemarque",
+     "year": 2021,
+     "engine": "Unreal Engine 4",
+     "fact": "Extremely dense VFX in a fast action game, shipped on a licensed engine.",
+     "source": "SRC-FUNC-067",
+     "locator": "Visual Effects Summit: Can We Do It without Particles? - Returnal VFX",
+     "relevance": "A shipped UE4 VFX example at very high effect density.",
+     "non_transferable": "Housemarque has deep in-house VFX expertise; the result is not representative of an average team using Niagara.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Lords of the Fallen",
+     "studio": "Hexworks",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "fact": "A shipped UE5 title with heavy environmental and combat VFX.",
+     "source": "SRC-ENG-075",
+     "locator": "Lords of the Fallen is a stunning UE5 showcase",
+     "relevance": "Second shipped Niagara-scale example from a different studio.",
+     "non_transferable": "No effect-count or GPU cost figures are published.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    }
+   ],
+   "direct_examples": 2
+  },
+  "ue_replication_graph": {
+   "game_examples": [
+    {
+     "game": "Fortnite",
+     "studio": "Epic Games",
+     "year": 2017,
+     "engine": "Unreal Engine 4/5",
+     "fact": "Large simultaneous player counts with a large replicated actor set - the workload the Replication Graph was created for.",
+     "source": "SRC-ENG-069",
+     "locator": "Battle-testing Unreal Engine 5.1's new systems in Fortnite",
+     "relevance": "The canonical shipped example: relevancy scaling at battle-royale player counts.",
+     "non_transferable": "Epic co-developed the feature with this title and owns the engine source.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Counter-Strike 2",
+     "studio": "Valve Corporation",
+     "year": 2023,
+     "engine": "Source 2",
+     "fact": "A competitive multiplayer title solving the same per-connection relevancy problem on a different engine.",
+     "source": "SRC-NTA-012",
+     "locator": "Counter-Strike 2 official feature page / networking",
+     "relevance": "Contrast case separating the requirement from the Unreal implementation.",
+     "non_transferable": "Not evidence of the Replication Graph being used.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 1,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "The Replication Graph is documented in the Unreal Engine documentation as a plugin that replaces per-actor relevancy checks with an explicit graph of nodes.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-ENG-017",
+     "locator": "Documentation page: overview and node classes",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source for this tool."
+    }
+   ]
+  },
+  "ue_significance": {
+   "game_examples": [
+    {
+     "game": "Assassin's Creed Unity",
+     "studio": "Ubisoft Montreal",
+     "year": 2014,
+     "engine": "AnvilNext",
+     "fact": "Thousands of crowd agents whose update cost must be scaled by visibility and importance.",
+     "source": "SRC-AIS-018",
+     "locator": "Massive Crowd on Assassin's Creed Unity (GDC)",
+     "relevance": "A shipped example of significance-driven update scaling as a hard requirement.",
+     "non_transferable": "AnvilNext's crowd LOD system is bespoke; not evidence of UE Significance Manager.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Fortnite",
+     "studio": "Epic Games",
+     "year": 2017,
+     "engine": "Unreal Engine 4/5",
+     "fact": "A live title where thousands of actors must be prioritised per frame and per connection.",
+     "source": "SRC-ENG-069",
+     "locator": "Battle-testing Unreal Engine 5.1's new systems in Fortnite",
+     "relevance": "Second shipped example of per-actor priority scaling at scale.",
+     "non_transferable": "Epic's integration is co-developed with the engine.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    }
+   ],
+   "direct_examples": 1,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "The Significance Manager is documented in the Unreal Engine documentation as a framework for assigning a significance value to objects so systems can scale work by importance.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-ENG-018",
+     "locator": "Documentation page: overview and significance calculation",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source for this tool."
+    }
+   ]
+  },
+  "ue_vehicles": {
+   "game_examples": [
+    {
+     "game": "Just Cause 4",
+     "studio": "Avalanche Studios",
+     "year": 2018,
+     "engine": "Avalanche engine",
+     "fact": "A shipped open-world title with a wide variety of drivable vehicles and aircraft.",
+     "source": "SRC-FUNC-071",
+     "locator": "Vehicle Physics and Tire Dynamics in 'Just Cause 4' (GDC)",
+     "relevance": "A shipped vehicle-simulation example at open-world scale.",
+     "non_transferable": "Avalanche's vehicle physics is bespoke; not evidence of Chaos Vehicles.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "BeamNG.drive",
+     "studio": "BeamNG GmbH",
+     "year": 2015,
+     "engine": "In-house (Torque 3D-derived)",
+     "fact": "Soft-body vehicle simulation, i.e. the high-fidelity end of the vehicle simulation range.",
+     "source": "SRC-AIS-037",
+     "locator": "Soft-body Physics - BeamNG.drive",
+     "relevance": "Second shipped vehicle example, showing how far vehicle simulation fidelity can go.",
+     "non_transferable": "BeamNG is a simulation product, not an action game; its fidelity is not a target for a typical project.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "Chaos Vehicles is documented in the Unreal Engine documentation as the Chaos-based vehicle simulation component replacing the legacy PhysX vehicle model.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-ENG-012",
+     "locator": "Documentation page: overview and setup",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source; also records the PhysX-to-Chaos migration, which is a real version-migration risk for projects on older UE4 vehicle code."
+    },
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `ue_vehicles` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "ue_virtual_texturing": {
+   "game_examples": [
+    {
+     "game": "Doom Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "fact": "A shipped title from the studio that popularised virtual texturing in real-time rendering, using very large unique textures without traditional atlas packing.",
+     "source": "SRC-AIS-008",
+     "locator": "Rendering the Hellscape of Doom Eternal (SIGGRAPH Advances)",
+     "relevance": "A shipped example of virtual texturing carrying a very large unique-texture set.",
+     "non_transferable": "id Tech 7's virtual texturing is bespoke; not evidence of Unreal's implementation.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "fact": "A shipped UE5 title with very high texture density across large environments.",
+     "source": "SRC-ENG-073",
+     "locator": "Black Myth: Wukong - the PC tech review",
+     "relevance": "A shipped UE5 example where texture memory pressure is a primary constraint.",
+     "non_transferable": "The review does not state whether virtual texturing is enabled.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    }
+   ],
+   "direct_examples": 1,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "Streaming Virtual Texturing is documented in the Unreal Engine documentation as a way to use very large textures by keeping only the required tiles resident.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-WRS-009",
+     "locator": "Documentation page: overview and memory pool configuration",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source. Note this covers the streaming variant; runtime virtual texturing is a separate page with different cost characteristics."
+    }
+   ]
+  },
+  "ue_world_partition": {
+   "game_examples": [
+    {
+     "game": "Fortnite",
+     "studio": "Epic Games",
+     "year": 2017,
+     "engine": "Unreal Engine 4/5",
+     "fact": "A large, continuously updated world streamed automatically rather than through hand-authored level streaming volumes.",
+     "source": "SRC-ENG-069",
+     "locator": "Battle-testing Unreal Engine 5.1's new systems in Fortnite",
+     "relevance": "The canonical shipped example of automatic world partitioning at live scale.",
+     "non_transferable": "Epic develops the system with the game; licensee tuning cost is not represented.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "fact": "A shipped UE5 title with large, linearly progressed environments built on the engine's world partitioning system.",
+     "source": "SRC-ENG-073",
+     "locator": "Black Myth: Wukong - the PC tech review",
+     "relevance": "Second shipped UE5 example by a licensee rather than the engine vendor.",
+     "non_transferable": "The review does not document partitioning configuration or streaming cell sizes.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    }
+   ],
+   "direct_examples": 2
+  },
+  "u_addressables": {
+   "game_examples": [
+    {
+     "game": "V Rising",
+     "studio": "Stunlock Studios",
+     "year": 2022,
+     "engine": "Unity",
+     "fact": "A shipped Unity title with a persistent world and ongoing content updates organised through an address-based asset pipeline.",
+     "source": "SRC-ENG-045",
+     "locator": "V Rising: Behind the vampire realm building (Unity case study)",
+     "relevance": "A shipped Unity example of address-based content organisation at retail.",
+     "non_transferable": "The studio's grouping and labelling strategy is not published.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Cuphead",
+     "studio": "Studio MDHR",
+     "year": 2017,
+     "engine": "Unity",
+     "fact": "A shipped Unity title with a very large hand-drawn asset set that must be loaded selectively per scene.",
+     "source": "SRC-CHC-046",
+     "locator": "Cuphead - A Game | Made with Unity (Unity case study)",
+     "relevance": "Second shipped Unity example where asset volume drives the need for addressable loading.",
+     "non_transferable": "Cuphead predates modern Addressables releases; this evidences the requirement, not the package.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    }
+   ],
+   "direct_examples": 2
+  },
+  "u_instancing": {
+   "game_examples": [
+    {
+     "game": "V Rising",
+     "studio": "Stunlock Studios",
+     "year": 2022,
+     "engine": "Unity",
+     "fact": "A shipped Unity title rendering large numbers of world objects and entities using instanced drawing.",
+     "source": "SRC-ENG-045",
+     "locator": "V Rising: Behind the vampire realm building (Unity case study)",
+     "relevance": "A shipped Unity example where instancing is a precondition for the target entity count.",
+     "non_transferable": "Instance counts and batching figures are not published.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Assassin's Creed Unity",
+     "studio": "Ubisoft Montreal",
+     "year": 2014,
+     "engine": "AnvilNext",
+     "fact": "Crowds of thousands rendered as instanced characters.",
+     "source": "SRC-AIS-018",
+     "locator": "Massive Crowd on Assassin's Creed Unity (GDC)",
+     "relevance": "Cross-engine illustration of instancing at extreme counts.",
+     "non_transferable": "Different engine; illustrates the technique class, not Unity's implementation.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 1,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "GPU instancing is documented in the Unity manual as a way to draw many copies of the same mesh in a single draw call, with per-instance property overrides.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-ENG-028",
+     "locator": "Unity Manual: Introduction to GPU instancing",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source."
+    }
+   ]
+  },
+  "u_light_probes": {
+   "game_examples": [
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine",
+     "fact": "Dynamic characters are lit by precomputed indirect lighting sampled from probes placed through large levels.",
+     "source": "SRC-RND-026",
+     "locator": "Global Illumination in Metro Exodus: A Deep Dive (GDC)",
+     "relevance": "A shipped example of probe-based indirect lighting for dynamic objects.",
+     "non_transferable": "4A's probe system is bespoke; not evidence of Unity Light Probes.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "fact": "Practical-lit scenes where dynamic objects must still receive plausible indirect light.",
+     "source": "SRC-RND-023",
+     "locator": "How Northlight makes Alan Wake 2 shine (Remedy technology article)",
+     "relevance": "Second shipped example of probe/volume-based indirect lighting.",
+     "non_transferable": "Northlight's lighting is bespoke and no probe density is published.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "Light Probes are documented in the Unity manual as a method of precalculating indirect light at points in space so dynamic objects can be lit by baked lighting.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-ENG-031",
+     "locator": "Unity Manual: precalculating indirect light with Light Probes",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source."
+    },
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `u_light_probes` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "u_lightmapper": {
+   "game_examples": [
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine",
+     "fact": "Large levels with baked global illumination requiring a production bake step.",
+     "source": "SRC-RND-026",
+     "locator": "Global Illumination in Metro Exodus: A Deep Dive (GDC)",
+     "relevance": "A shipped example of a baked-lighting production pipeline in a shipping schedule.",
+     "non_transferable": "Bake durations and hardware are not published.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Lords of the Fallen",
+     "studio": "Hexworks",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "fact": "A shipped title with large detailed interiors requiring baked lighting on a licensed engine.",
+     "source": "SRC-ENG-075",
+     "locator": "Lords of the Fallen is a stunning UE5 showcase",
+     "relevance": "Second shipped example of a bake-based lighting pipeline.",
+     "non_transferable": "Different engine (UE5, not Unity); illustrates the pipeline class, not Unity's Progressive Lightmapper.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "The Unity manual documents a choice of light baking backends, of which the Progressive Lightmapper is one, so backend selection is a project-level setting rather than a fixed pipeline.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-ENG-032",
+     "locator": "Unity Manual: choose a light baking backend",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source. Relevant because backend choice affects bake time and hardware requirements."
+    },
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `u_lightmapper` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "u_lod_group": {
+   "game_examples": [
+    {
+     "game": "Horizon Zero Dawn",
+     "studio": "Guerrilla Games",
+     "year": 2017,
+     "engine": "Decima",
+     "fact": "Open-world props and machines carry authored LOD chains to survive long view distances.",
+     "source": "SRC-FUNC-055",
+     "locator": "Streaming the World of Horizon Zero Dawn (GDC)",
+     "relevance": "A shipped open-world example of per-object LOD groups as a pipeline requirement.",
+     "non_transferable": "Decima's LOD pipeline is bespoke; not evidence of Unity's LOD Group component.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "No Man's Sky",
+     "studio": "Hello Games",
+     "year": 2016,
+     "engine": "Hello Games in-house",
+     "fact": "Procedural flora and terrain objects switch representation aggressively with distance.",
+     "source": "SRC-WRS-040",
+     "locator": "Continuous World Generation in 'No Man's Sky' (GDC)",
+     "relevance": "Second shipped example of distance-driven LOD switching.",
+     "non_transferable": "Procedural LOD generation differs from authored LOD groups.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `u_lod_group` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "u_navmesh": {
+   "game_examples": [
+    {
+     "game": "Left 4 Dead",
+     "studio": "Valve Corporation",
+     "year": 2008,
+     "engine": "Source",
+     "fact": "Enemies path through multi-level environments to reach players.",
+     "source": "SRC-AIS-001",
+     "locator": "The AI Systems of Left 4 Dead (GDC)",
+     "relevance": "A shipped example of navigation-mesh AI in a commercial shooter.",
+     "non_transferable": "Source's navigation is bespoke; not evidence of Unity NavMesh.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "F.E.A.R.",
+     "studio": "Monolith Productions",
+     "year": 2005,
+     "engine": "LithTech Jupiter EX",
+     "fact": "Squad path planning and flanking through interiors.",
+     "source": "SRC-FUNC-052",
+     "locator": "Three States and a Plan: The A.I. of F.E.A.R. (GDC)",
+     "relevance": "Second shipped navigation example, different studio and engine.",
+     "non_transferable": "Not evidence of Unity NavMesh being used.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `u_navmesh` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "u_netcode": {
+   "game_examples": [
+    {
+     "game": "V Rising",
+     "studio": "Stunlock Studios",
+     "year": 2022,
+     "engine": "Unity",
+     "fact": "A shipped Unity multiplayer title built on the DOTS networking stack.",
+     "source": "SRC-ENG-045",
+     "locator": "V Rising: Behind the vampire realm building (Unity case study)",
+     "relevance": "A shipped Unity example of DOTS-based networking in a commercial release.",
+     "non_transferable": "The studio had prior DOTS experience; a mid-project migration cost is not represented.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Counter-Strike 2",
+     "studio": "Valve Corporation",
+     "year": 2023,
+     "engine": "Source 2",
+     "fact": "A competitive title delivering sub-tick responsiveness with rollback-based netcode on a different engine.",
+     "source": "SRC-NTA-012",
+     "locator": "Counter-Strike 2 official feature page / sub-tick networking",
+     "relevance": "Contrast case separating the networking technique from the Unity implementation.",
+     "non_transferable": "Not evidence of Unity Netcode for Entities being used.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 1
+  },
+  "u_occlusion": {
+   "game_examples": [
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine",
+     "fact": "Dense interiors and tunnels where visibility is heavily occluded and culling has outsized value.",
+     "source": "SRC-RND-026",
+     "locator": "Global Illumination in Metro Exodus: A Deep Dive (GDC)",
+     "relevance": "A shipped example of an occlusion-heavy environment type.",
+     "non_transferable": "4A's culling is bespoke; not evidence of Unity's baked occlusion data.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Lords of the Fallen",
+     "studio": "Hexworks",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "fact": "Interconnected interior spaces where culling determines the frame budget.",
+     "source": "SRC-ENG-075",
+     "locator": "Lords of the Fallen is a stunning UE5 showcase",
+     "relevance": "Second shipped example of occlusion-bound environments.",
+     "non_transferable": "Different engine; illustrates the environment class, not the Unity tool.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "Occlusion culling is documented in the Unity manual as a baked visibility solution using precomputed cell/portal data rather than a runtime-only test.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-ENG-030",
+     "locator": "Unity Manual: Occlusion Culling",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source. Establishes the bake step, which is the main workflow cost."
+    },
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `u_occlusion` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "u_profiler": {
+   "game_examples": [
+    {
+     "game": "V Rising",
+     "studio": "Stunlock Studios",
+     "year": 2022,
+     "engine": "Unity",
+     "fact": "A shipped Unity title whose development required profiling a simulation-heavy DOTS workload.",
+     "source": "SRC-ENG-045",
+     "locator": "V Rising: Behind the vampire realm building (Unity case study)",
+     "relevance": "A shipped Unity project where profiling was a development requirement.",
+     "non_transferable": "This does not evidence that the Unity Profiler specifically was used, nor does it publish any measured result.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Cuphead",
+     "studio": "Studio MDHR",
+     "year": 2017,
+     "engine": "Unity",
+     "fact": "A shipped Unity title developed by a very small team, where profiling effort had to be spent selectively.",
+     "source": "SRC-CHC-046",
+     "locator": "Cuphead - A Game | Made with Unity (Unity case study)",
+     "relevance": "Second shipped Unity example; shows profiling prioritisation under team-size constraints.",
+     "non_transferable": "Same limitation: evidences the need for profiling, not the tool.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    }
+   ],
+   "direct_examples": 2
+  },
+  "u_quality": {
+   "game_examples": [
+    {
+     "game": "Cyberpunk 2077",
+     "studio": "CD Projekt Red",
+     "year": 2020,
+     "engine": "REDengine 4",
+     "fact": "A shipped title with extensive, tiered graphics quality presets scaling across a very wide hardware range.",
+     "source": "SRC-RND-024",
+     "locator": "Path Tracing & Overdrive Mode - requirements and presets",
+     "relevance": "A shipped example of quality-tier scalability as a shipping requirement.",
+     "non_transferable": "REDengine presets are engine-specific; not evidence of Unity Quality Settings.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "fact": "A shipped title with demanding minimum requirements and multiple scalable quality tiers.",
+     "source": "SRC-ENG-073",
+     "locator": "Black Myth: Wukong - the PC tech review",
+     "relevance": "Second shipped example of tiered quality scaling at retail.",
+     "non_transferable": "Different engine; illustrates the scalability requirement, not the Unity tool.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "The Unity manual documents a project-level quality settings reference covering per-platform tiers for rendering, shadows, textures and anti-aliasing.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-ENG-039",
+     "locator": "Unity Manual: quality project settings reference",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source; grounds the quality-tier scalability method."
+    },
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `u_quality` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "u_srp_batcher": {
+   "game_examples": [
+    {
+     "game": "V Rising",
+     "studio": "Stunlock Studios",
+     "year": 2022,
+     "engine": "Unity",
+     "fact": "A shipped Unity title with a very large number of rendered entities, where draw-call reduction is a primary constraint.",
+     "source": "SRC-ENG-045",
+     "locator": "V Rising: Behind the vampire realm building (Unity case study)",
+     "relevance": "A shipped Unity example of the draw-call pressure the SRP Batcher addresses.",
+     "non_transferable": "The source does not state that the SRP Batcher was used or how it was configured.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    },
+    {
+     "game": "Cuphead",
+     "studio": "Studio MDHR",
+     "year": 2017,
+     "engine": "Unity",
+     "fact": "A shipped Unity 2D title whose hand-drawn pipeline depends on keeping draw calls low.",
+     "source": "SRC-CHC-046",
+     "locator": "Cuphead - A Game | Made with Unity (Unity case study)",
+     "relevance": "Second Unity example of draw-call discipline as a shipping requirement.",
+     "non_transferable": "Cuphead predates URP/SRP Batcher; it evidences the requirement, not the feature.",
+     "evidence_level": "medium",
+     "role": "direct",
+     "proves": "capability_shipped_on_target_engine"
+    }
+   ],
+   "direct_examples": 2
+  },
+  "u_texture_streaming": {
+   "game_examples": [
+    {
+     "game": "Horizon Zero Dawn",
+     "studio": "Guerrilla Games",
+     "year": 2017,
+     "engine": "Decima",
+     "fact": "A streaming open world where texture memory must be bounded by loading only needed mip levels.",
+     "source": "SRC-FUNC-055",
+     "locator": "Streaming the World of Horizon Zero Dawn (GDC)",
+     "relevance": "A shipped open-world example of mip-level streaming as a memory control.",
+     "non_transferable": "Decima's streaming is bespoke; not evidence of Unity's mipmap streaming.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Cyberpunk 2077",
+     "studio": "CD Projekt Red",
+     "year": 2020,
+     "engine": "REDengine 4",
+     "fact": "A dense open city where texture memory pressure is a headline constraint.",
+     "source": "SRC-RND-024",
+     "locator": "Path Tracing & Overdrive Mode - requirements and memory",
+     "relevance": "Second shipped example of texture-memory-bound open-world content.",
+     "non_transferable": "Different engine; no streaming budget figures are published.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "documentation",
+     "statement": "The Unity manual documents mipmap streaming as a way to limit GPU texture memory by loading only the mip levels currently needed.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-ENG-035",
+     "locator": "Unity Manual: optimizing GPU texture memory with mipmap streaming",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Second located source."
+    },
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `u_texture_streaming` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "u_vfxgraph": {
+   "game_examples": [
+    {
+     "game": "Returnal",
+     "studio": "Housemarque",
+     "year": 2021,
+     "engine": "Unreal Engine 4",
+     "fact": "Extremely dense, GPU-driven visual effects in a fast action game.",
+     "source": "SRC-FUNC-067",
+     "locator": "Visual Effects Summit: Can We Do It without Particles? - Returnal VFX",
+     "relevance": "A shipped example of GPU-driven VFX at very high density.",
+     "non_transferable": "Different VFX system (Niagara); illustrates the VFX-graph technique class, not Unity's Visual Effect Graph.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    },
+    {
+     "game": "Lords of the Fallen",
+     "studio": "Hexworks",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "fact": "A shipped title with heavy environmental and combat VFX built with a node-driven system.",
+     "source": "SRC-ENG-075",
+     "locator": "Lords of the Fallen is a stunning UE5 showcase",
+     "relevance": "Second shipped example of node-graph-authored VFX.",
+     "non_transferable": "Same limitation: different engine and tool.",
+     "evidence_level": "medium",
+     "role": "cross_engine",
+     "proves": "capability_shipped_on_other_engine"
+    }
+   ],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `u_vfxgraph` explicitly. The evidence available is vendor documentation plus shipped-title evidence for the underlying capability, in some cases only from other engines. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
+    }
+   ]
+  },
+  "c_job_system": {
+   "game_examples": [],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No shipped commercial title was located as evidence for `c_job_system`. The examples on record are open-source reference implementations (Godot 4.x WorkerThreadPool, Bevy bevy_tasks), which show how the technique is built but not that it shipped in a retail game at scale. Treat this tool as documented-by-reference only.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence: reference implementations are not shipped-title evidence."
+    }
+   ]
+  },
+  "c_ecs": {
+   "game_examples": [],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No shipped commercial title was located as evidence for `c_ecs`. The examples on record are open-source reference implementations (EnTT (ECS library), Bevy bevy_ecs), which show how the technique is built but not that it shipped in a retail game at scale. Treat this tool as documented-by-reference only.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence: reference implementations are not shipped-title evidence."
+    }
+   ]
+  },
+  "c_render_graph": {
+   "game_examples": [],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No shipped commercial title was located as evidence for `c_render_graph`. The examples on record are open-source reference implementations (FrameGraph reference implementation, The Forge framework), which show how the technique is built but not that it shipped in a retail game at scale. Treat this tool as documented-by-reference only.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence: reference implementations are not shipped-title evidence."
+    }
+   ]
+  },
+  "c_memory": {
+   "game_examples": [],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No shipped commercial title was located as evidence for `c_memory`. The examples on record are open-source reference implementations (mimalloc allocator, The Forge framework), which show how the technique is built but not that it shipped in a retail game at scale. Treat this tool as documented-by-reference only.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence: reference implementations are not shipped-title evidence."
+    }
+   ]
+  },
+  "c_streaming": {
+   "game_examples": [],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No shipped commercial title was located as evidence for `c_streaming`. The examples on record are open-source reference implementations (Godot 4.x ResourceLoader, The Forge framework), which show how the technique is built but not that it shipped in a retail game at scale. Treat this tool as documented-by-reference only.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence: reference implementations are not shipped-title evidence."
+    }
+   ]
+  },
+  "c_profiler": {
+   "game_examples": [],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No shipped commercial title was located as evidence for `c_profiler`. The examples on record are open-source reference implementations (Godot 4.x built-in profiler, VProf lineage), which show how the technique is built but not that it shipped in a retail game at scale. Treat this tool as documented-by-reference only.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence: reference implementations are not shipped-title evidence."
+    }
+   ]
+  },
+  "c_manual": {
+   "game_examples": [],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No shipped commercial title was located as evidence for `c_manual`. The examples on record are open-source reference implementations (Godot 4.x server APIs, The Forge, Hazel engine), which show how the technique is built but not that it shipped in a retail game at scale. Treat this tool as documented-by-reference only.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence: reference implementations are not shipped-title evidence."
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,824 @@
+{
+ "advanced_npc_ai": [
+  {
+   "code": "ai_director_pacing",
+   "name": "Контроллер популяции NPC по интенсивности событий",
+   "kind": "implementation",
+   "confidence": 0.5
+  },
+  {
+   "code": "behaviour_tree_update_budget",
+   "name": "Деревья поведений с бюджетом обновления",
+   "kind": "implementation",
+   "confidence": 0.75
+  },
+  {
+   "code": "npc_perception_budget",
+   "name": "Бюджет восприятия NPC",
+   "kind": "implementation",
+   "confidence": 0.8
+  }
+ ],
+ "ai_pathfinding": [
+  {
+   "code": "flow_field_pathing",
+   "name": "Поле направлений (flow field)",
+   "kind": "implementation",
+   "confidence": 0.7
+  },
+  {
+   "code": "navmesh_tiling_streaming",
+   "name": "Тайловая навмеш со стримингом",
+   "kind": "implementation",
+   "confidence": 0.75
+  },
+  {
+   "code": "rvo_local_avoidance",
+   "name": "Локальное избегание агентов (RVO/ORCA)",
+   "kind": "implementation",
+   "confidence": 0.85
+  },
+  {
+   "code": "time_sliced_pathfinding",
+   "name": "Поиск пути с распределением по кадрам",
+   "kind": "optimization",
+   "confidence": 0.85
+  }
+ ],
+ "art_pipeline": [
+  {
+   "code": "art_direction_stylization",
+   "name": "Стилизация вместо фотореализма",
+   "kind": "optimization",
+   "confidence": 0.7
+  },
+  {
+   "code": "normal_bake_retopology_pipeline",
+   "name": "Запекание нормалей и ретопология",
+   "kind": "optimization",
+   "confidence": 0.85
+  }
+ ],
+ "audio_system": [
+  {
+   "code": "audio_convolution_reverb",
+   "name": "Свёрточная реверберация",
+   "kind": "implementation",
+   "confidence": 0.5
+  },
+  {
+   "code": "audio_occlusion_propagation",
+   "name": "Аудио-окклюзия лучами и HRTF",
+   "kind": "optimization",
+   "confidence": 0.8
+  },
+  {
+   "code": "audio_streaming_compression",
+   "name": "Потоковое сжатие аудио",
+   "kind": "optimization",
+   "confidence": 0.8
+  }
+ ],
+ "baked_lighting": [
+  {
+   "code": "gpu_lightmap_baking",
+   "name": "GPU-ускоренный пересчёт освещения",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "lightmap_2d_baking",
+   "name": "Запекание 2D-освещения в текстуры",
+   "kind": "implementation",
+   "confidence": 0.85
+  },
+  {
+   "code": "lightmap_atlas_baking",
+   "name": "Запекание освещения в лайтмапы",
+   "kind": "implementation",
+   "confidence": 0.9
+  },
+  {
+   "code": "lightmap_compression_streaming",
+   "name": "Сжатие и потоковая подкачка лайтмапов",
+   "kind": "optimization",
+   "confidence": 0.8
+  }
+ ],
+ "build_delivery": [
+  {
+   "code": "build_size_startup_budgets",
+   "name": "Бюджеты размера сборки и старта",
+   "kind": "optimization",
+   "confidence": 0.8
+  },
+  {
+   "code": "differential_patch_pipeline",
+   "name": "Дифференциальные патчи",
+   "kind": "optimization",
+   "confidence": 0.75
+  }
+ ],
+ "character_animation": [
+  {
+   "code": "animation_compression",
+   "name": "Сжатие анимационных данных",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "animation_lod_budget",
+   "name": "LOD анимации и бюджет обновлений",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "gpu_skinning_compute",
+   "name": "Скиннинг на GPU",
+   "kind": "implementation",
+   "confidence": 0.75
+  },
+  {
+   "code": "motion_matching",
+   "name": "Motion matching",
+   "kind": "implementation",
+   "confidence": 0.6
+  },
+  {
+   "code": "skeletal_2d_deform",
+   "name": "Скелетная 2D-анимация вместо покадровой",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "sprite_atlas_batching",
+   "name": "Атласы спрайтов и пакетная отрисовка",
+   "kind": "implementation",
+   "confidence": 0.9
+  },
+  {
+   "code": "sprite_sheet_compression",
+   "name": "Сжатие листов спрайтов и мип-уровни",
+   "kind": "optimization",
+   "confidence": 0.85
+  }
+ ],
+ "cloth_simulation": [
+  {
+   "code": "cloth_baked_animation",
+   "name": "Подготовленное движение ткани",
+   "kind": "implementation",
+   "confidence": 0.5
+  },
+  {
+   "code": "cloth_constraint_simulation",
+   "name": "Ткань с ограничениями и коллизиями",
+   "kind": "implementation",
+   "confidence": 0.5
+  }
+ ],
+ "crowd_simulation": [
+  {
+   "code": "agent_update_budget",
+   "name": "Распределение бюджета обновлений агентов",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "crowd_2d_instancing",
+   "name": "Массовая отрисовка 2D-агентов одним батчем",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "crowd_instancing_impostors",
+   "name": "Инстансинг и импосторы для толпы",
+   "kind": "optimization",
+   "confidence": 0.8
+  },
+  {
+   "code": "ecs_data_oriented_crowd",
+   "name": "Толпа на ECS / Data-Oriented архитектуре",
+   "kind": "implementation",
+   "confidence": 0.7
+  }
+ ],
+ "destruction_simulation": [
+  {
+   "code": "destruction_geometry_cache",
+   "name": "Запечённые кэши разрушений",
+   "kind": "optimization",
+   "confidence": 0.7
+  },
+  {
+   "code": "runtime_fracture_budget",
+   "name": "Разрушение с бюджетом активных обломков",
+   "kind": "implementation",
+   "confidence": 0.5
+  }
+ ],
+ "dynamic_global_illumination": [
+  {
+   "code": "hardware_raytraced_gi",
+   "name": "Глобальное освещение на аппаратной трассировке лучей",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "irradiance_volume_probes",
+   "name": "Зонды освещённости (irradiance volume)",
+   "kind": "implementation",
+   "confidence": 0.85
+  },
+  {
+   "code": "screen_space_gi",
+   "name": "Экранное глобальное освещение (SSGI)",
+   "kind": "optimization",
+   "confidence": 0.8
+  },
+  {
+   "code": "sdf_global_illumination",
+   "name": "Глобальное освещение на дистанционных полях (SDF)",
+   "kind": "implementation",
+   "confidence": 0.7
+  },
+  {
+   "code": "temporal_radiance_cache",
+   "name": "Кэш излучения с временным накоплением",
+   "kind": "optimization",
+   "confidence": 0.65
+  },
+  {
+   "code": "voxel_cone_tracing",
+   "name": "Воксельный конусный трейсинг",
+   "kind": "implementation",
+   "confidence": 0.6
+  }
+ ],
+ "dynamic_lighting": [
+  {
+   "code": "dynamic_light_priority_budget",
+   "name": "Приоритезация и бюджет динамических источников",
+   "kind": "implementation",
+   "confidence": 0.85
+  },
+  {
+   "code": "light_range_attenuation_lod",
+   "name": "Упрощение затухания источников по дистанции",
+   "kind": "implementation",
+   "confidence": 0.8
+  }
+ ],
+ "dynamic_shadows": [
+  {
+   "code": "cascaded_shadow_maps",
+   "name": "Каскадные карты теней",
+   "kind": "implementation",
+   "confidence": 0.9
+  },
+  {
+   "code": "distance_field_shadows",
+   "name": "Тени на дистанционных полях (SDF)",
+   "kind": "implementation",
+   "confidence": 0.7
+  },
+  {
+   "code": "screen_space_contact_shadows",
+   "name": "Контактные тени в экранном пространстве",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "shadow_caster_2d_limits",
+   "name": "Ограничение 2D-отбрасывателей теней",
+   "kind": "optimization",
+   "confidence": 0.8
+  },
+  {
+   "code": "static_shadow_caching",
+   "name": "Кэширование теней от статических объектов",
+   "kind": "optimization",
+   "confidence": 0.8
+  },
+  {
+   "code": "virtual_shadow_maps",
+   "name": "Виртуальные карты теней (VSM)",
+   "kind": "implementation",
+   "confidence": 0.85
+  }
+ ],
+ "gameplay_ability_system": [
+  {
+   "code": "ability_visual_effect_budget",
+   "name": "Бюджет визуальных эффектов способностей",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "data_driven_ability_system",
+   "name": "Данные-ориентированная система способностей",
+   "kind": "implementation",
+   "confidence": 0.7
+  }
+ ],
+ "geometry_pipeline": [
+  {
+   "code": "mesh_index_optimization",
+   "name": "Оптимизация индексов меша (vertex cache / overdraw)",
+   "kind": "optimization",
+   "confidence": 0.8
+  }
+ ],
+ "hair_rendering": [
+  {
+   "code": "hair_cards_lod",
+   "name": "Карточки волос и уровни детализации",
+   "kind": "implementation",
+   "confidence": 0.5
+  },
+  {
+   "code": "hair_strand_simulation",
+   "name": "Волосы из прядей с симуляцией",
+   "kind": "implementation",
+   "confidence": 0.5
+  }
+ ],
+ "large_scale_terrain": [
+  {
+   "code": "heightmap_compression",
+   "name": "Сжатие карт высот и материалов ландшафта",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "neural_texture_compression",
+   "name": "Нейросжатие текстур",
+   "kind": "optimization",
+   "confidence": 0.6
+  },
+  {
+   "code": "terrain_clipmap",
+   "name": "Клипмап / CDLOD ландшафта",
+   "kind": "implementation",
+   "confidence": 0.75
+  },
+  {
+   "code": "virtual_geometry_clusters",
+   "name": "Виртуализированная геометрия (кластеризованный LOD)",
+   "kind": "implementation",
+   "confidence": 0.65
+  },
+  {
+   "code": "virtual_texturing",
+   "name": "Виртуальное текстурирование",
+   "kind": "implementation",
+   "confidence": 0.7
+  }
+ ],
+ "mesh_shaders": [
+  {
+   "code": "gpu_meshlet_culling_budget",
+   "name": "Бюджет отсечения мешлетов на GPU",
+   "kind": "implementation",
+   "confidence": 0.7
+  },
+  {
+   "code": "meshlet_pipeline_adoption",
+   "name": "Конвейер мешлетов на меш-шейдерах",
+   "kind": "implementation",
+   "confidence": 0.6
+  }
+ ],
+ "multiplayer_netcode": [
+  {
+   "code": "client_prediction_reconciliation",
+   "name": "Предсказание на клиенте и реконсиляция",
+   "kind": "implementation",
+   "confidence": 0.75
+  },
+  {
+   "code": "delta_compression_state",
+   "name": "Дельта-компрессия сетевого состояния",
+   "kind": "optimization",
+   "confidence": 0.75
+  },
+  {
+   "code": "deterministic_lockstep",
+   "name": "Детерминированный lockstep",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "headless_dedicated_server",
+   "name": "Выделенный сервер без графики",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "lag_compensation_rewind",
+   "name": "Серверная проверка попаданий по истории состояния",
+   "kind": "implementation",
+   "confidence": 0.5
+  },
+  {
+   "code": "network_relevancy_priority",
+   "name": "Сетевая релевантность и приоритизация",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "subtick_networking",
+   "name": "Временные метки ввода внутри сетевого такта",
+   "kind": "implementation",
+   "confidence": 0.5
+  },
+  {
+   "code": "tickrate_budgeting",
+   "name": "Бюджетирование серверного тикрейта",
+   "kind": "optimization",
+   "confidence": 0.85
+  }
+ ],
+ "open_world_streaming": [
+  {
+   "code": "async_loading_pipeline",
+   "name": "Асинхронная загрузка без блокировки кадра",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "baked_occlusion_culling",
+   "name": "Запечённое отсечение по окклюзии",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "directstorage_io",
+   "name": "DirectStorage: очереди I/O и выбор декомпрессии",
+   "kind": "implementation",
+   "confidence": 0.5
+  },
+  {
+   "code": "gpu_compute_culling",
+   "name": "Отсечение объектов на GPU (compute)",
+   "kind": "optimization",
+   "confidence": 0.75
+  },
+  {
+   "code": "hierarchical_lod",
+   "name": "Иерархические LOD (HLOD)",
+   "kind": "optimization",
+   "confidence": 0.8
+  },
+  {
+   "code": "tilemap_chunk_streaming",
+   "name": "Чанковая подгрузка тайловой карты",
+   "kind": "implementation",
+   "confidence": 0.85
+  },
+  {
+   "code": "world_origin_shifting",
+   "name": "Сдвиг начала координат (origin rebasing)",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "world_partition_streaming",
+   "name": "Разбиение мира на ячейки с потоковой загрузкой",
+   "kind": "implementation",
+   "confidence": 0.85
+  }
+ ],
+ "particle_systems": [
+  {
+   "code": "flipbook_particles",
+   "name": "Flipbook-текстуры вместо симуляции",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "gpu_particle_simulation",
+   "name": "Симуляция частиц на GPU",
+   "kind": "implementation",
+   "confidence": 0.85
+  },
+  {
+   "code": "particle_pooling",
+   "name": "Пулинг систем частиц",
+   "kind": "optimization",
+   "confidence": 0.9
+  },
+  {
+   "code": "sprite_particle_atlas",
+   "name": "Атласные частицы со сниженной точностью",
+   "kind": "optimization",
+   "confidence": 0.8
+  }
+ ],
+ "path_tracing": [
+  {
+   "code": "full_path_tracing_pipeline",
+   "name": "Трассировка пути как основное освещение",
+   "kind": "implementation",
+   "confidence": 0.7
+  },
+  {
+   "code": "path_tracing_sample_denoiser_budget",
+   "name": "Бюджет выборок и денойзинг трассировки пути",
+   "kind": "implementation",
+   "confidence": 0.75
+  }
+ ],
+ "physics_simulation": [
+  {
+   "code": "broadphase_spatial_partitioning",
+   "name": "Оптимизация широкой фазы (BVH / spatial hash)",
+   "kind": "optimization",
+   "confidence": 0.8
+  },
+  {
+   "code": "collision_layer_matrix",
+   "name": "Матрица слоёв коллизий",
+   "kind": "optimization",
+   "confidence": 0.9
+  },
+  {
+   "code": "fixed_timestep_physics",
+   "name": "Фиксированный шаг физики с интерполяцией",
+   "kind": "implementation",
+   "confidence": 0.9
+  },
+  {
+   "code": "multithreaded_physics_jobs",
+   "name": "Многопоточная физика на системе задач",
+   "kind": "optimization",
+   "confidence": 0.7
+  },
+  {
+   "code": "physics_lod_sleeping",
+   "name": "LOD физики и спящие тела",
+   "kind": "optimization",
+   "confidence": 0.9
+  }
+ ],
+ "portal_rendering": [
+  {
+   "code": "portal_scene_capture_budget",
+   "name": "Порталы через рендер в текстуру",
+   "kind": "implementation",
+   "confidence": 0.5
+  }
+ ],
+ "post_processing": [
+  {
+   "code": "deferred_forward_plus_choice",
+   "name": "Выбор архитектуры рендера (deferred / forward+)",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "depth_prepass_early_z",
+   "name": "Предварительный проход глубины (early-Z)",
+   "kind": "optimization",
+   "confidence": 0.75
+  },
+  {
+   "code": "dynamic_resolution_scaling",
+   "name": "Динамическое разрешение рендера",
+   "kind": "optimization",
+   "confidence": 0.9
+  },
+  {
+   "code": "post_effect_selective",
+   "name": "Выборочное применение экранных эффектов",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "screenspace_light_shafts",
+   "name": "Экранные световые валы (пост-процесс)",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "temporal_upscaling",
+   "name": "Временное масштабирование изображения",
+   "kind": "optimization",
+   "confidence": 0.9
+  },
+  {
+   "code": "variable_rate_shading",
+   "name": "Переменная частота затенения (VRS)",
+   "kind": "optimization",
+   "confidence": 0.65
+  }
+ ],
+ "procedural_terrain": [
+  {
+   "code": "chunked_procedural_terrain",
+   "name": "Чанковая генерация процедурного ландшафта",
+   "kind": "implementation",
+   "confidence": 0.85
+  },
+  {
+   "code": "terrain_generation_streaming_budget",
+   "name": "Бюджет генерации и кэш чанков",
+   "kind": "implementation",
+   "confidence": 0.8
+  }
+ ],
+ "procedural_vegetation": [
+  {
+   "code": "gpu_instancing_vegetation",
+   "name": "GPU-инстансинг растительности",
+   "kind": "implementation",
+   "confidence": 0.9
+  },
+  {
+   "code": "gpu_procedural_placement",
+   "name": "Процедурное размещение на GPU",
+   "kind": "implementation",
+   "confidence": 0.7
+  },
+  {
+   "code": "impostors_billboards",
+   "name": "Импосторы и билборды для дальнего плана",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "tilemap_layer_culling",
+   "name": "Отсечение слоёв и чанков тайловой карты",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "vegetation_atlas_lod",
+   "name": "Атласы и запечённые LOD растительности",
+   "kind": "optimization",
+   "confidence": 0.85
+  }
+ ],
+ "project_architecture": [
+  {
+   "code": "composition_bootstrap_architecture",
+   "name": "Композиционный каркас проекта",
+   "kind": "optimization",
+   "confidence": 0.7
+  }
+ ],
+ "ray_traced_effects": [
+  {
+   "code": "rt_effect_resolution_budget",
+   "name": "Половинное разрешение и кэш трассировочных эффектов",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "selective_ray_traced_effects",
+   "name": "Выборочная трассировка отдельных эффектов",
+   "kind": "implementation",
+   "confidence": 0.8
+  }
+ ],
+ "render_scalability": [
+  {
+   "code": "quality_tier_scalability",
+   "name": "Тиры качества и scalability-группы",
+   "kind": "optimization",
+   "confidence": 0.9
+  }
+ ],
+ "rendering_architecture": [
+  {
+   "code": "async_compute_overlap",
+   "name": "Перекрытие графики и асинхронных вычислений GPU",
+   "kind": "implementation",
+   "confidence": 0.5
+  },
+  {
+   "code": "bindless_uber_shaders",
+   "name": "Bindless-ресурсы и uber-шейдеры",
+   "kind": "optimization",
+   "confidence": 0.7
+  },
+  {
+   "code": "hiz_software_occlusion",
+   "name": "Программное отсечение по Hi-Z",
+   "kind": "optimization",
+   "confidence": 0.75
+  },
+  {
+   "code": "pso_precaching_warmup",
+   "name": "Предкомпиляция и прогрев PSO",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "srp_batcher_discipline",
+   "name": "SRP Batcher и дисциплина материалов (URP/HDRP)",
+   "kind": "optimization",
+   "confidence": 0.85
+  },
+  {
+   "code": "tiled_clustered_light_culling",
+   "name": "Тайловое и кластерное отсечение источников света",
+   "kind": "optimization",
+   "confidence": 0.8
+  }
+ ],
+ "runtime_memory": [
+  {
+   "code": "managed_gc_alloc_budget",
+   "name": "Нулевой бюджет аллокаций в горячем цикле",
+   "kind": "optimization",
+   "confidence": 0.8
+  }
+ ],
+ "runtime_security": [
+  {
+   "code": "runtime_security_budget",
+   "name": "Интеграция проверок с отдельным бюджетом",
+   "kind": "implementation",
+   "confidence": 0.5
+  }
+ ],
+ "save_system": [
+  {
+   "code": "async_incremental_saves",
+   "name": "Асинхронные инкрементальные автосейвы",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "snapshot_slot_saves",
+   "name": "Слотовые снапшоты мира (синхронная запись)",
+   "kind": "implementation",
+   "confidence": 0.85
+  }
+ ],
+ "split_screen_rendering": [
+  {
+   "code": "splitscreen_render_budget",
+   "name": "Бюджетирование split-screen",
+   "kind": "optimization",
+   "confidence": 0.8
+  }
+ ],
+ "upscaling_frame_generation": [
+  {
+   "code": "ml_frame_generation",
+   "name": "ML-генерация кадров",
+   "kind": "optimization",
+   "confidence": 0.75
+  }
+ ],
+ "vehicle_simulation": [
+  {
+   "code": "raycast_vehicle_physics",
+   "name": "Физика транспорта на рейкастах подвески",
+   "kind": "implementation",
+   "confidence": 0.8
+  },
+  {
+   "code": "vehicle_simulation_lod",
+   "name": "Уровни детализации симуляции транспорта",
+   "kind": "implementation",
+   "confidence": 0.8
+  }
+ ],
+ "volumetric_effects": [
+  {
+   "code": "froxel_volumetric_fog",
+   "name": "Объёмный туман на froxel-сетке",
+   "kind": "implementation",
+   "confidence": 0.75
+  },
+  {
+   "code": "volumetric_half_resolution",
+   "name": "Расчёт объёмов в пониженном разрешении",
+   "kind": "optimization",
+   "confidence": 0.9
+  }
+ ],
+ "water_simulation": [
+  {
+   "code": "gerstner_fft_water",
+   "name": "Волны Герстнера и FFT на GPU",
+   "kind": "implementation",
+   "confidence": 0.75
+  },
+  {
+   "code": "planar_reflection_budget",
+   "name": "Бюджет плоских отражений",
+   "kind": "optimization",
+   "confidence": 0.8
+  },
+  {
+   "code": "screen_space_water_simple",
+   "name": "Упрощённая вода в экранном пространстве",
+   "kind": "implementation",
+   "confidence": 0.85
+  }
+ ]
+}

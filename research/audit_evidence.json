@@ -1,0 +1,1141 @@
+{
+  "db": "C:\\Users\\user\\Desktop\\game-inspect\\backend\\gamedev_dss.db",
+  "thresholds": {
+    "min_claims": 3,
+    "min_located_sources": 2,
+    "min_game_proofs": 2
+  },
+  "classes": {
+    "game_functions": {
+      "entity_class": "game_functions",
+      "total": 40,
+      "pct_claims>=3": 100.0,
+      "pct_located_sources>=2": 100.0,
+      "pct_game_proofs>=2": 100.0,
+      "pct_fully_ok": 100.0,
+      "total_derived_missing_formula": 0,
+      "total_dangling_claims": 0,
+      "entities_declaring_gap": 0
+    },
+    "methods": {
+      "entity_class": "methods",
+      "total": 124,
+      "pct_claims>=3": 100.0,
+      "pct_located_sources>=2": 100.0,
+      "pct_game_proofs>=2": 98.4,
+      "pct_fully_ok": 98.4,
+      "total_derived_missing_formula": 0,
+      "total_dangling_claims": 0,
+      "entities_declaring_gap": 2
+    },
+    "engines": {
+      "entity_class": "engines",
+      "total": 7,
+      "pct_claims>=3": 100.0,
+      "pct_located_sources>=2": 100.0,
+      "pct_game_proofs>=2": 100.0,
+      "pct_fully_ok": 100.0,
+      "total_derived_missing_formula": 0,
+      "total_dangling_claims": 0,
+      "entities_declaring_gap": 0
+    },
+    "engine_tools": {
+      "entity_class": "engine_tools",
+      "total": 70,
+      "pct_claims>=3": 100.0,
+      "pct_located_sources>=2": 100.0,
+      "pct_game_proofs>=2": 100.0,
+      "pct_fully_ok": 100.0,
+      "total_derived_missing_formula": 0,
+      "total_dangling_claims": 0,
+      "entities_declaring_gap": 21,
+      "direct_game_proofs_total": 100,
+      "entities_with_direct_proof": 52,
+      "entities_unproven_and_undeclared": 0,
+      "note": "pct_game_proofs counts shipped-title evidence for the capability, cross-engine included. entities_with_direct_proof is the stricter count: shipped titles on the SAME engine as the tool."
+    },
+    "technology_nodes": {
+      "entity_class": "technology_nodes",
+      "total": 221,
+      "inherited_from_catalog": 201,
+      "standalone": 20,
+      "pct_fully_ok": 97.3,
+      "standalone_pct_fully_ok": 80.0,
+      "standalone_without_evidence": 0,
+      "standalone_declared_no_shipped_title_proof": 4,
+      "standalone_documented_but_unproven": 4
+    },
+    "game_cases": {
+      "entity_class": "game_cases",
+      "total": 155,
+      "pct_fully_ok": 100.0,
+      "without_any_case_evidence": 0
+    },
+    "method_engine_links": {
+      "entity_class": "method_engine_links",
+      "total": 473,
+      "with_url_or_declared_user_defined": 473,
+      "pct_ok": 100.0,
+      "missing_url": 111,
+      "declared_user_defined": 111,
+      "undeclared_missing_url": 0,
+      "missing_locator": 0,
+      "missing_basis": 0
+    },
+    "conflicts": {
+      "entity_class": "conflicts",
+      "total": 458,
+      "missing_url": 0,
+      "undeclared_missing_url": 0
+    },
+    "dependency_edges": {
+      "entity_class": "dependency_edges",
+      "total": 929,
+      "missing_source_id": 154,
+      "declared_expert_estimate": 154,
+      "undeclared_missing_source": 0,
+      "unknown_relation": 0
+    },
+    "work_packages": {
+      "entity_class": "work_packages",
+      "total": 1794,
+      "missing_source_or_basis": 0,
+      "p80_lt_p50": 0,
+      "no_formula_basis": 0
+    },
+    "hardware_cpu": {
+      "entity_class": "hardware_cpu",
+      "total": 51,
+      "missing_benchmark_raw_value": 0,
+      "missing_benchmark_context": 0,
+      "missing_evidence_basis": 0,
+      "missing_normalization_note": 0,
+      "missing_source_url": 0
+    },
+    "hardware_gpu": {
+      "entity_class": "hardware_gpu",
+      "total": 79,
+      "missing_benchmark_raw_value": 0,
+      "missing_benchmark_context": 0,
+      "missing_evidence_basis": 0,
+      "missing_normalization_note": 0,
+      "missing_source_url": 0
+    }
+  },
+  "gaps": {
+    "game_functions": [],
+    "methods": [
+      {
+        "code": "temporal_radiance_cache",
+        "name": "Кэш излучения с временным накоплением",
+        "claims": 9,
+        "direct_game_proofs": 0,
+        "declared_gap": true,
+        "sources": 5,
+        "located_sources": 5,
+        "fields": [
+          "adoption_evidence_gap",
+          "implementation",
+          "implementation_variants",
+          "mechanism",
+          "performance_gain"
+        ],
+        "bases": [
+          "case_evidence",
+          "documented",
+          "expert_estimate",
+          "unknown"
+        ],
+        "numeric_claims": 1,
+        "derived_no_formula": 0,
+        "dangling": 0,
+        "game_proofs": 0,
+        "ok_claims": true,
+        "ok_sources": true,
+        "ok_proofs": false
+      },
+      {
+        "code": "neural_texture_compression",
+        "name": "Нейросжатие текстур",
+        "claims": 13,
+        "direct_game_proofs": 0,
+        "declared_gap": true,
+        "sources": 5,
+        "located_sources": 5,
+        "fields": [
+          "abstract_claim",
+          "adoption_evidence_gap",
+          "implementation",
+          "mechanism",
+          "memory_reduction",
+          "no_published_decode_cost",
+          "no_shipped_title",
+          "per_material_joint_compression",
+          "per_texel_rate_reduction",
+          "performance_gain",
+          "random_access_property",
+          "resolution_gain_at_lower_memory",
+          "training_speed"
+        ],
+        "bases": [
+          "derived",
+          "documented",
+          "expert_estimate",
+          "measured",
+          "unknown"
+        ],
+        "numeric_claims": 6,
+        "derived_no_formula": 0,
+        "dangling": 0,
+        "game_proofs": 1,
+        "ok_claims": true,
+        "ok_sources": true,
+        "ok_proofs": false
+      }
+    ],
+    "engines": [],
+    "engine_tools": [],
+    "technology_nodes": [
+      {
+        "code": "method:temporal_radiance_cache",
+        "name": "Кэш излучения с временным накоплением",
+        "node_type": "method",
+        "origin": "inherited:method:temporal_radiance_cache",
+        "claims": 9,
+        "located_sources": 5,
+        "game_proofs": 0,
+        "ok_claims": true,
+        "ok_sources": true,
+        "ok_proofs": false,
+        "declared_gap": false
+      },
+      {
+        "code": "method:neural_texture_compression",
+        "name": "Нейросжатие текстур",
+        "node_type": "method",
+        "origin": "inherited:method:neural_texture_compression",
+        "claims": 13,
+        "located_sources": 5,
+        "game_proofs": 1,
+        "ok_claims": true,
+        "ok_sources": true,
+        "ok_proofs": false,
+        "declared_gap": false
+      },
+      {
+        "code": "lib:acl",
+        "name": "Animation Compression Library (ACL)",
+        "node_type": "lib",
+        "origin": "own",
+        "claims": 4,
+        "located_sources": 2,
+        "game_proofs": 0,
+        "ok_claims": true,
+        "ok_sources": true,
+        "ok_proofs": false,
+        "declared_gap": true
+      },
+      {
+        "code": "lib:meshoptimizer",
+        "name": "meshoptimizer",
+        "node_type": "lib",
+        "origin": "own",
+        "claims": 4,
+        "located_sources": 2,
+        "game_proofs": 0,
+        "ok_claims": true,
+        "ok_sources": true,
+        "ok_proofs": false,
+        "declared_gap": true
+      },
+      {
+        "code": "lib:rvo2",
+        "name": "RVO2 / ORCA library",
+        "node_type": "lib",
+        "origin": "own",
+        "claims": 4,
+        "located_sources": 2,
+        "game_proofs": 0,
+        "ok_claims": true,
+        "ok_sources": true,
+        "ok_proofs": false,
+        "declared_gap": true
+      },
+      {
+        "code": "lib:tracy",
+        "name": "Tracy Profiler",
+        "node_type": "lib",
+        "origin": "own",
+        "claims": 4,
+        "located_sources": 2,
+        "game_proofs": 0,
+        "ok_claims": true,
+        "ok_sources": true,
+        "ok_proofs": false,
+        "declared_gap": true
+      }
+    ],
+    "game_cases": []
+  },
+  "sources": {
+    "total": 936,
+    "unused": [
+      "BOOK_GAME_ENGINE_ARCHITECTURE",
+      "BOOK_GAME_PROGRAMMING_PATTERNS",
+      "BOOK_GPU_GEMS_3",
+      "BOOK_REAL_TIME_RENDERING",
+      "GODOT_DECALS",
+      "GODOT_MESHLOD",
+      "GODOT_MULTIMESH",
+      "GODOT_MULTIPLAYER",
+      "GODOT_OCCLUSION",
+      "GODOT_PARTICLES",
+      "GPP_DATALOCALITY",
+      "GPP_OBJECTPOOL",
+      "HUNT_AUDIO_2025",
+      "L4D_AI_DIRECTOR",
+      "PASSMARK_2026_09",
+      "RESEARCH_S25_PCG",
+      "RESEARCH_S27_RELEVANCY",
+      "RESEARCH_S28_CRY_STREAMING",
+      "RESEARCH_S31_UNITY_JOB_OVERVIEW",
+      "RESEARCH_S33_ISO_25010",
+      "RESEARCH_S34_ISO_20741",
+      "RESEARCH_S39_D3D_CHECK_FEATURE",
+      "RESEARCH_S40_D3D_RT_TIER",
+      "RESEARCH_S41_UE_SPECS",
+      "RESEARCH_S42_RIOT_SCALABILITY",
+      "RESEARCH_S43_HAMMER",
+      "RESEARCH_S45_HEROENGINE_VIDEOS",
+      "RESEARCH_S46_UNITY_JOB_DEPENDENCIES",
+      "RESEARCH_S49_PASSMARK_SINGLE",
+      "RESEARCH_S51_3DMARK",
+      "RESEARCH_S55_UE_TEXTURE_CONFIG",
+      "RESEARCH_S57_NASA_GLOSSARY",
+      "RIOT_NETCODE",
+      "SHADOWGAMBIT_SAVE",
+      "SRC-AIS-020",
+      "SRC-AIS-022",
+      "SRC-AIS-023",
+      "SRC-AIS-029",
+      "SRC-AIS-033",
+      "SRC-CHC-004",
+      "SRC-CHC-013",
+      "SRC-CHC-016",
+      "SRC-CHC-030",
+      "SRC-CHC-035",
+      "SRC-CHC-037",
+      "SRC-CHC-042",
+      "SRC-CHC-043",
+      "SRC-CHC-044",
+      "SRC-CHC-045",
+      "SRC-ENG-011",
+      "SRC-ENG-022",
+      "SRC-ENG-024",
+      "SRC-ENG-050",
+      "SRC-ENG-058",
+      "SRC-ENG-064",
+      "SRC-ENG-066",
+      "SRC-ENG-071",
+      "SRC-FUNC-020",
+      "SRC-FUNC-031",
+      "SRC-FUNC-036",
+      "SRC-FUNC-037",
+      "SRC-FUNC-043",
+      "SRC-FUNC-045",
+      "SRC-FUNC-048",
+      "SRC-FUNC-050",
+      "SRC-FUNC-068",
+      "SRC-MPR-005",
+      "SRC-MPR-006",
+      "SRC-MPR-008",
+      "SRC-MPR-009",
+      "SRC-MPR-010",
+      "SRC-MPR-020",
+      "SRC-MPR-028",
+      "SRC-MPR-031",
+      "SRC-MPR-035",
+      "SRC-MPR-037",
+      "SRC-MPR-048",
+      "SRC-MPR-065",
+      "SRC-NTA-003",
+      "SRC-NTA-004",
+      "SRC-NTA-005",
+      "SRC-NTA-009",
+      "SRC-NTA-010",
+      "SRC-NTA-011",
+      "SRC-NTA-017",
+      "SRC-NTA-018",
+      "SRC-NTA-019",
+      "SRC-NTA-022",
+      "SRC-NTA-025",
+      "SRC-NTA-028",
+      "SRC-NTA-029",
+      "SRC-NTA-031",
+      "SRC-NTA-033",
+      "SRC-NTA-036",
+      "SRC-NTA-037",
+      "SRC-NTA-038",
+      "SRC-NTA-039",
+      "SRC-NTA-040",
+      "SRC-NTA-041",
+      "SRC-NTA-042",
+      "SRC-NTA-043",
+      "SRC-NTA-047",
+      "SRC-NTA-049",
+      "SRC-RND-005",
+      "SRC-RND-021",
+      "SRC-RND-028",
+      "SRC-RND-030",
+      "SRC-RND-036",
+      "SRC-RND-038",
+      "SRC-TN-056",
+      "SRC-WRS-002",
+      "SRC-WRS-010",
+      "SRC-WRS-012",
+      "SRC-WRS-016",
+      "SRC-WRS-020",
+      "SRC-WRS-022",
+      "SRC-WRS-033",
+      "SRC-WRS-035",
+      "SRC-WRS-038",
+      "SRC-WRS-050",
+      "SRC-WRS-051",
+      "SRC-WRS-055",
+      "STANDARD_VULKAN_SPEC",
+      "UE_CITY_SAMPLE",
+      "UE_CITY_SAMPLE_PCG",
+      "UE_LOD",
+      "UE_NAVMESH",
+      "UNITY_DOTS_PRODUCTION",
+      "UNITY_DRAW_CALLS",
+      "UNITY_ENTITIES",
+      "UNITY_LIGHTMAPUV",
+      "UNITY_NETCODE",
+      "UNITY_PROFILER",
+      "VALVE_SUBTICK",
+      "WIKI_FFT",
+      "WIKI_FSM",
+      "WIKI_IK",
+      "WIKI_RAGDOLL",
+      "WIKI_RIGID_BODY",
+      "WIKI_SVO"
+    ],
+    "issue_counts": {
+      "missing_published_date": 28,
+      "declared_undated_living_doc": 1
+    },
+    "issue_examples": [
+      {
+        "code": "KHRONOS_ASYNC_COMPUTE",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "MS_DIRECTSTORAGE_GUIDANCE",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S23_PACKAGING",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S24_HLOD",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S25_PCG",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S27_RELEVANCY",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S28_CRY_STREAMING",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S29_CRY_AUDIO",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S31_UNITY_JOB_OVERVIEW",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S35_PMI_PERT",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S38_D3D_FEATURE_LEVELS",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S39_D3D_CHECK_FEATURE",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S40_D3D_RT_TIER",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S41_UE_SPECS",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S42_RIOT_SCALABILITY",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S43_HAMMER",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S44_HEROENGINE_LEGACY",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S45_HEROENGINE_VIDEOS",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S46_UNITY_JOB_DEPENDENCIES",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S49_PASSMARK_SINGLE",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S50_PASSMARK_FAQ",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S51_3DMARK",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S54_UE_TEXTURE_METRICS",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S55_UE_TEXTURE_CONFIG",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S57_NASA_GLOSSARY",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "RESEARCH_S58_UNITY_JOB_TROUBLESHOOTING",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "UNITY_GPU_BUDGETS",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "VALVE_REWIND",
+        "issue": "missing_published_date"
+      },
+      {
+        "code": "SRC-RND-030",
+        "issue": "declared_undated_living_doc"
+      }
+    ],
+    "title_url_contradictions": [],
+    "duplicate_urls": {
+      "https://gameprogrammingpatterns.com/": [
+        "BOOK_GAME_PROGRAMMING_PATTERNS",
+        "SRC-CHC-043"
+      ],
+      "https://www.realtimerendering.com/": [
+        "BOOK_REAL_TIME_RENDERING",
+        "SRC-RND-031"
+      ],
+      "https://www.cse.chalmers.se/~uffe/clustered_shading_preprint.pdf": [
+        "CLUSTERED_SHADING",
+        "SRC-RND-020"
+      ],
+      "https://www.simoncoenen.com/blog/programming/graphics/doometernalstudy": [
+        "COENEN_DOOM",
+        "SRC-RND-045"
+      ],
+      "https://www.counter-strike.net/cs2": [
+        "CS2_SUBTICK",
+        "VALVE_SUBTICK"
+      ],
+      "https://advances.realtimerendering.com/s2020/renderingdoometernal.pdf": [
+        "DOOM_ETERNAL",
+        "SRC-AIS-008",
+        "SRC-FUNC-054",
+        "SRC-MPR-001",
+        "SRC-RND-022"
+      ],
+      "https://gafferongames.com/post/fix_your_timestep/": [
+        "GAFFER_TIMESTEP",
+        "SRC-AIS-021"
+      ],
+      "https://www.gameaipro.com/gameaipro/gameaipro_chapter23_crowd_pathfinding_and_steering_using_flow_field_tiles.pdf": [
+        "GAME_AI_FLOW_FIELDS",
+        "SRC-AIS-002",
+        "SRC-FUNC-053",
+        "SRC-MPR-013"
+      ],
+      "https://docs.godotengine.org/en/stable/tutorials/3d/lights_and_shadows.html": [
+        "GODOT_LIGHTS",
+        "SRC-MPR-065",
+        "SRC-GCS-014"
+      ],
+      "https://docs.godotengine.org/en/stable/tutorials/3d/mesh_lod.html": [
+        "GODOT_MESHLOD",
+        "SRC-MPR-054",
+        "SRC-GCS-010"
+      ],
+      "https://docs.godotengine.org/en/stable/classes/class_multimeshinstance3d.html": [
+        "GODOT_MULTIMESH",
+        "SRC-GCS-019"
+      ],
+      "https://docs.godotengine.org/en/stable/tutorials/networking/high_level_multiplayer.html": [
+        "GODOT_MULTIPLAYER",
+        "SRC-GCS-008"
+      ],
+      "https://docs.godotengine.org/en/stable/tutorials/3d/occlusion_culling.html": [
+        "GODOT_OCCLUSION",
+        "SRC-MPR-053",
+        "SRC-GCS-009"
+      ],
+      "https://docs.godotengine.org/en/stable/tutorials/3d/particles/index.html": [
+        "GODOT_PARTICLES",
+        "SRC-GCS-006"
+      ],
+      "https://docs.godotengine.org/en/stable/tutorials/physics/physics_introduction.html": [
+        "GODOT_PHYSICS",
+        "SRC-AIS-013"
+      ],
+      "https://docs.godotengine.org/en/stable/tutorials/performance/using_multiple_threads.html": [
+        "GODOT_THREADS",
+        "SRC-GCS-016"
+      ],
+      "https://gameprogrammingpatterns.com/object-pool.html": [
+        "GPP_OBJECTPOOL",
+        "SRC-AIS-005",
+        "SRC-FUNC-074"
+      ],
+      "https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-13-volumetric-light-scattering-post-process": [
+        "GPU_GEMS_SHAFTS",
+        "SRC-MPR-019"
+      ],
+      "https://docs.vulkan.org/samples/latest/samples/performance/async_compute/readme.html": [
+        "KHRONOS_ASYNC_COMPUTE",
+        "SRC-RND-046"
+      ],
+      "https://steamcdn-a.akamaihd.net/apps/valve/2009/ai_systems_of_l4d_mike_booth.pdf": [
+        "L4D_AI_DIRECTOR",
+        "SRC-FUNC-051"
+      ],
+      "https://github.com/zeux/meshoptimizer": [
+        "MESHOPT",
+        "SRC-TN-011",
+        "SRC-WRS-044"
+      ],
+      "https://microsoft.github.io/directx-specs/d3d/meshshader.html": [
+        "MS_MESH_SHADER",
+        "SRC-RND-044"
+      ],
+      "https://github.com/nvidia-rtx/rtxntc": [
+        "NVIDIA_NTC",
+        "SRC-WRS-047"
+      ],
+      "https://research.nvidia.com/labs/rtr/publication/crassin2011givoxels/": [
+        "NVIDIA_VOXEL_CONES",
+        "SRC-MPR-018",
+        "SRC-RND-018"
+      ],
+      "https://gamma.cs.unc.edu/orca/": [
+        "ORCA_RVO",
+        "SRC-AIS-003"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/world-partition---hierarchical-level-of-detail-in-unreal-engine": [
+        "RESEARCH_S24_HLOD",
+        "SRC-WRS-004"
+      ],
+      "https://www.cryengine.com/docs/static/engines/cryengine-5/categories/23756816/pages/44964914": [
+        "RESEARCH_S29_CRY_AUDIO",
+        "SRC-GCS-038"
+      ],
+      "https://www.riotgames.com/en/news/valorants-128-tick-servers": [
+        "RIOT_TICK",
+        "SRC-DER-033",
+        "SRC-NTA-006"
+      ],
+      "https://docs.unity3d.com/6000.0/documentation/manual/class-cloth.html": [
+        "TECH_CLOTH",
+        "SRC-AIS-033"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-budget-allocator-in-unreal-engine": [
+        "UE_ANIMBUDGET",
+        "SRC-CHC-001",
+        "SRC-ENG-019"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/hierarchical-level-of-detail-in-unreal-engine": [
+        "UE_HLOD",
+        "SRC-ENG-006",
+        "SRC-MPR-029"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-insights-in-unreal-engine": [
+        "UE_INSIGHTS",
+        "SRC-ENG-020",
+        "SRC-FUNC-031"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/instanced-static-mesh-in-unreal-engine": [
+        "UE_ISM",
+        "SRC-WRS-022"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/lumen-global-illumination-and-reflections-in-unreal-engine": [
+        "UE_LUMEN",
+        "SRC-ENG-002",
+        "SRC-FUNC-001",
+        "SRC-RND-001"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/mass-entity-in-unreal-engine": [
+        "UE_MASS",
+        "SRC-AIS-016"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/motion-matching-in-unreal-engine": [
+        "UE_MOTION_MATCHING",
+        "SRC-CHC-010",
+        "SRC-MPR-064"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/nanite-virtualized-geometry-in-unreal-engine": [
+        "UE_NANITE",
+        "SRC-ENG-001",
+        "SRC-FUNC-005",
+        "SRC-RND-003",
+        "SRC-WRS-007"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/replication-graph-in-unreal-engine": [
+        "UE_REPGRAPH",
+        "SRC-ENG-017",
+        "SRC-TN-029"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/scalability-in-unreal-engine": [
+        "UE_SCALABILITY",
+        "SRC-MPR-027",
+        "SRC-RND-008"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/significance-manager-in-unreal-engine": [
+        "UE_SIGNIFICANCE",
+        "SRC-AIS-015",
+        "SRC-ENG-018"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-texturing-in-unreal-engine": [
+        "UE_VIRTUALTEXTURING",
+        "SRC-ENG-004",
+        "SRC-WRS-008"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine": [
+        "UE_VSM",
+        "SRC-ENG-003",
+        "SRC-FUNC-006",
+        "SRC-MPR-023",
+        "SRC-RND-002"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/world-partition-in-unreal-engine": [
+        "UE_WORLDPARTITION",
+        "SRC-ENG-005",
+        "SRC-FUNC-004",
+        "SRC-TN-028",
+        "SRC-WRS-001"
+      ],
+      "https://unity.com/dots": [
+        "UNITY_DOTS_PRODUCTION",
+        "SRC-AIS-038",
+        "SRC-ENG-043",
+        "SRC-TN-021"
+      ],
+      "https://docs.unity3d.com/packages/com.unity.entities@1.0/manual/index.html": [
+        "UNITY_ENTITIES",
+        "SRC-ENG-040",
+        "SRC-TN-022"
+      ],
+      "https://docs.unity3d.com/manual/gpuinstancing.html": [
+        "UNITY_INSTANCING",
+        "SRC-AIS-039",
+        "SRC-ENG-028"
+      ],
+      "https://docs.unity3d.com/manual/jobsystem.html": [
+        "UNITY_JOBS",
+        "SRC-AIS-035"
+      ],
+      "https://docs.unity3d.com/manual/progressive-lightmapper.html": [
+        "UNITY_LIGHTMAPPER",
+        "SRC-ENG-032",
+        "SRC-MPR-035",
+        "SRC-RND-035"
+      ],
+      "https://docs.unity3d.com/manual/lightprobes.html": [
+        "UNITY_LIGHTPROBES",
+        "SRC-ENG-031",
+        "SRC-MPR-036"
+      ],
+      "https://docs.unity3d.com/packages/com.unity.netcode@1.0/manual/index.html": [
+        "UNITY_NETCODE",
+        "SRC-ENG-041",
+        "SRC-NTA-017",
+        "SRC-TN-023"
+      ],
+      "https://docs.unity3d.com/manual/occlusionculling.html": [
+        "UNITY_OCCLUSION",
+        "SRC-ENG-030",
+        "SRC-MPR-052"
+      ],
+      "https://docs.unity3d.com/manual/profiler.html": [
+        "UNITY_PROFILER",
+        "SRC-ENG-038"
+      ],
+      "https://docs.unity3d.com/manual/class-qualitysettings.html": [
+        "UNITY_QUALITY",
+        "SRC-DER-029",
+        "SRC-ENG-039",
+        "SRC-FUNC-034",
+        "SRC-MPR-033"
+      ],
+      "https://docs.unity3d.com/manual/srpbatcher.html": [
+        "UNITY_SRP_BATCHER",
+        "SRC-ENG-027",
+        "SRC-MPR-032",
+        "SRC-RND-036"
+      ],
+      "https://docs.unity3d.com/manual/texturestreaming.html": [
+        "UNITY_TEXTURE_STREAMING",
+        "SRC-ENG-035"
+      ],
+      "https://cdn.akamai.steamstatic.com/apps/valve/2009/ai_systems_of_l4d_mike_booth.pdf": [
+        "VALVE_DIRECTOR",
+        "SRC-AIS-001",
+        "SRC-MPR-011"
+      ],
+      "https://en.wikipedia.org/wiki/ambient_occlusion": [
+        "WIKI_AO",
+        "SRC-RND-033"
+      ],
+      "https://en.wikipedia.org/wiki/gerstner_wave": [
+        "WIKI_GERSTNER",
+        "SRC-AIS-007"
+      ],
+      "https://en.wikipedia.org/wiki/lightmap": [
+        "WIKI_LIGHTMAP",
+        "SRC-RND-034"
+      ],
+      "https://en.wikipedia.org/wiki/shadow_mapping": [
+        "WIKI_SHADOWMAP",
+        "SRC-RND-032"
+      ],
+      "https://gamma.cs.unc.edu/rvo2/": [
+        "SRC-AIS-004",
+        "SRC-TN-014"
+      ],
+      "https://gameprogrammingpatterns.com/component.html": [
+        "SRC-AIS-006",
+        "SRC-FUNC-073"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/hair-rendering-and-simulation-in-unreal-engine": [
+        "SRC-AIS-009",
+        "SRC-FUNC-025",
+        "SRC-MPR-030"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/saving-and-loading-your-game-in-unreal-engine": [
+        "SRC-AIS-014",
+        "SRC-DER-018",
+        "SRC-FUNC-021",
+        "SRC-MPR-045"
+      ],
+      "https://media.gdcvault.com/gdc2016/presentations/lheureux_julien_art_of_destruction.pdf": [
+        "SRC-AIS-019",
+        "SRC-MPR-014"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/chaos-destruction-in-unreal-engine": [
+        "SRC-AIS-024",
+        "SRC-ENG-024",
+        "SRC-FUNC-032"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/chaos-vehicles": [
+        "SRC-AIS-026",
+        "SRC-ENG-012"
+      ],
+      "https://docs.unity3d.com/manual/class-wheelcollider.html": [
+        "SRC-AIS-034",
+        "SRC-FUNC-040"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/physics-in-unreal-engine": [
+        "SRC-AIS-041",
+        "SRC-ENG-023"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/water-system-in-unreal-engine": [
+        "SRC-AIS-042",
+        "SRC-FUNC-026",
+        "SRC-MPR-031"
+      ],
+      "https://docs.godotengine.org/en/stable/classes/class_gpuparticles3d.html": [
+        "SRC-AIS-045",
+        "SRC-GCS-018"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/skeletal-mesh-lods-in-unreal-engine": [
+        "SRC-CHC-003",
+        "SRC-FUNC-015"
+      ],
+      "https://github.com/nfrechette/acl": [
+        "SRC-CHC-004",
+        "SRC-TN-009"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-compression-library-in-unreal-engine": [
+        "SRC-CHC-008",
+        "SRC-TN-010"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-ability-system-for-unreal-engine": [
+        "SRC-CHC-032",
+        "SRC-ENG-013",
+        "SRC-FUNC-028",
+        "SRC-MPR-047"
+      ],
+      "https://developer.valvesoftware.com/wiki/source_multiplayer_networking": [
+        "SRC-DER-003",
+        "SRC-NTA-001"
+      ],
+      "https://learn.microsoft.com/en-us/windows/win32/direct3d12/directx-12-programming-guide": [
+        "SRC-DER-006",
+        "SRC-TN-001"
+      ],
+      "https://learn.microsoft.com/en-us/windows/win32/direct3d12/command-queues-and-command-lists": [
+        "SRC-DER-008",
+        "SRC-TN-002"
+      ],
+      "https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay": [
+        "SRC-DER-025",
+        "SRC-NTA-028"
+      ],
+      "https://www.riotgames.com/en/news/peeking-valorants-netcode": [
+        "SRC-DER-034",
+        "SRC-NTA-007"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-build-tool-in-unreal-engine": [
+        "SRC-DER-037",
+        "SRC-FUNC-022"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/large-world-coordinates-in-unreal-engine-5": [
+        "SRC-ENG-007",
+        "SRC-FUNC-020",
+        "SRC-WRS-005"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-niagara-effects-for-unreal-engine": [
+        "SRC-ENG-010",
+        "SRC-MPR-057"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-mass-entity-in-unreal-engine": [
+        "SRC-ENG-014",
+        "SRC-FUNC-027"
+      ],
+      "https://docs.unity3d.com/packages/com.unity.render-pipelines.universal@14.0/manual/index.html": [
+        "SRC-ENG-025",
+        "SRC-TN-027"
+      ],
+      "https://docs.unity3d.com/manual/class-lodgroup.html": [
+        "SRC-ENG-029",
+        "SRC-FUNC-043"
+      ],
+      "https://docs.unity3d.com/manual/jobsystemoverview.html": [
+        "SRC-ENG-033",
+        "SRC-MPR-059"
+      ],
+      "https://docs.unity3d.com/packages/com.unity.addressables@1.21/manual/index.html": [
+        "SRC-ENG-034",
+        "SRC-TN-025"
+      ],
+      "https://unity.com/resources/stunlock-studios-v-rising": [
+        "SRC-ENG-045",
+        "SRC-MPR-037"
+      ],
+      "https://en.wikipedia.org/wiki/cryengine": [
+        "SRC-ENG-059",
+        "SRC-GCS-043"
+      ],
+      "https://en.wikipedia.org/wiki/source_2": [
+        "SRC-ENG-061",
+        "SRC-GCS-057"
+      ],
+      "https://www.heroengine.com/": [
+        "SRC-ENG-062",
+        "SRC-HE-001"
+      ],
+      "https://en.wikipedia.org/wiki/heroengine": [
+        "SRC-ENG-063",
+        "SRC-HE-002"
+      ],
+      "https://www.digitalfoundry.net/articles/digitalfoundry-2024-black-myth-wukong-the-pc-tech-review": [
+        "SRC-ENG-073",
+        "SRC-MPR-007"
+      ],
+      "https://www.digitalfoundry.net/articles/digitalfoundry-2023-brilliant-visuals-and-growing-pains-analysing-unreal-engine-5-first-generation-games": [
+        "SRC-ENG-074",
+        "SRC-MPR-006"
+      ],
+      "https://www.digitalfoundry.net/articles/digitalfoundry-2023-lords-of-the-fallen-is-a-stunning-ue5-soulslike-with-ongoing-tech-issues": [
+        "SRC-ENG-075",
+        "SRC-MPR-008"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/lumen-technical-details-in-unreal-engine": [
+        "SRC-FUNC-002",
+        "SRC-MPR-024"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/render-dependency-graph-in-unreal-engine": [
+        "SRC-FUNC-007",
+        "SRC-RND-005"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/temporal-super-resolution-in-unreal-engine": [
+        "SRC-FUNC-008",
+        "SRC-RND-004"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/dynamic-resolution-in-unreal-engine": [
+        "SRC-FUNC-009",
+        "SRC-MPR-028",
+        "SRC-RND-006"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/path-tracer-in-unreal-engine": [
+        "SRC-FUNC-010",
+        "SRC-RND-007"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/lightmass-basics-in-unreal-engine": [
+        "SRC-FUNC-011",
+        "SRC-MPR-025"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/foliage-mode-in-unreal-engine": [
+        "SRC-FUNC-012",
+        "SRC-WRS-021"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-technical-guide-in-unreal-engine": [
+        "SRC-FUNC-013",
+        "SRC-WRS-017"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/audio-mixer-overview-in-unreal-engine": [
+        "SRC-FUNC-017",
+        "SRC-MPR-046"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/volumetric-fog-in-unreal-engine": [
+        "SRC-FUNC-019",
+        "SRC-MPR-050"
+      ],
+      "https://docs.unity3d.com/manual/class-cloth.html": [
+        "SRC-FUNC-035",
+        "SRC-MPR-058"
+      ],
+      "https://docs.unity3d.com/manual/lightmapping.html": [
+        "SRC-FUNC-037",
+        "SRC-MPR-034"
+      ],
+      "https://www.gamedevs.org/uploads/three-states-plan-ai-of-fear.pdf": [
+        "SRC-FUNC-052",
+        "SRC-MPR-012"
+      ],
+      "https://www.guerrilla-games.com/read/streaming-the-world-of-horizon-zero-dawn": [
+        "SRC-FUNC-055",
+        "SRC-MPR-021"
+      ],
+      "https://www.gdcvault.com/play/1022411/massive-crowd-on-assassin-s": [
+        "SRC-FUNC-056",
+        "SRC-MPR-015"
+      ],
+      "https://www.gdcvault.com/play/1024265/continuous-world-generation-in-no": [
+        "SRC-FUNC-057",
+        "SRC-MPR-016"
+      ],
+      "https://learn.microsoft.com/en-us/gaming/gdk/docs/features/console/storage/directstorage/directstorage-overview?view=gdk-2604": [
+        "SRC-FUNC-060",
+        "SRC-MPR-042"
+      ],
+      "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine": [
+        "SRC-FUNC-064",
+        "SRC-MPR-003",
+        "SRC-RND-023"
+      ],
+      "https://developer.nvidia.com/physx-sdk": [
+        "SRC-FUNC-072",
+        "SRC-TN-020"
+      ],
+      "https://www.unrealengine.com/developer-interviews/sci-fi-and-fantasy-worlds-collide-in-ue5-powered-co-op-adventure-split-fiction": [
+        "SRC-FUNC-084",
+        "SRC-RND-042"
+      ],
+      "https://developer.download.nvidia.com/video/gputechconf/gtc/2019/presentation/s9985-exploring-ray-traced-future-in-metro-exodus.pdf": [
+        "SRC-MPR-002",
+        "SRC-RND-027"
+      ],
+      "https://www.guerrilla-games.com/read/decima-engine-advances-in-lighting-and-aa": [
+        "SRC-MPR-020",
+        "SRC-RND-028"
+      ],
+      "https://www.guerrilla-games.com/read/gpu-based-procedural-placement-in-horizon-zero-dawn": [
+        "SRC-MPR-022",
+        "SRC-WRS-039"
+      ],
+      "https://dev.epicgames.com/documentation/unreal-engine/optimizing-rendering-with-pso-caches-in-unreal-engine?lang=en-us": [
+        "SRC-MPR-026",
+        "SRC-RND-009"
+      ],
+      "https://docs.godotengine.org/en/stable/tutorials/3d/global_illumination/using_sdfgi.html": [
+        "SRC-MPR-038",
+        "SRC-GCS-004"
+      ],
+      "https://docs.godotengine.org/en/stable/tutorials/2d/2d_lights_and_shadows.html": [
+        "SRC-MPR-039",
+        "SRC-RND-029"
+      ],
+      "https://docs.godotengine.org/en/stable/tutorials/3d/global_illumination/using_lightmap_gi.html": [
+        "SRC-MPR-040",
+        "SRC-GCS-005"
+      ],
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/distance-field-soft-shadows-in-unreal-engine": [
+        "SRC-MPR-044",
+        "SRC-WRS-014"
+      ],
+      "https://docs.godotengine.org/en/stable/tutorials/physics/interpolation/using_physics_interpolation.html": [
+        "SRC-MPR-055",
+        "SRC-GCS-024"
+      ]
+    }
+  },
+  "claims": {
+    "total": 2562,
+    "dangling": [],
+    "dangling_count": 0,
+    "by_basis": {
+      "documented": 1580,
+      "expert_estimate": 164,
+      "measured": 104,
+      "case_evidence": 244,
+      "unknown": 262,
+      "derived": 208
+    },
+    "by_verification": {
+      "derived_from_dag": 1,
+      "derived_from_input": 4,
+      "derived_with_context": 130,
+      "scenario_only": 124,
+      "derived_from_formula": 2,
+      "verified": 1315,
+      "source_verified": 474,
+      "unverified": 502,
+      "derived_from_published_rate": 1,
+      "partially_verified": 8,
+      "needs_review": 1
+    },
+    "numeric_without_source": 0
+  },
+  "case_evidence": {
+    "total": 375,
+    "orphan_case_evidence": [],
+    "orphan_count": 0,
+    "missing_source": 0,
+    "missing_locator": 0
+  }
+}

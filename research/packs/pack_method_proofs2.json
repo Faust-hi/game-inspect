@@ -1,0 +1,883 @@
+{
+ "pack": "pack_method_proofs2",
+ "generated": "2026-09-11",
+ "agent_scope": "additional distinct-game proofs for methods that had fewer than two; reuses already-registered sources, declares gaps where no shipped evidence exists",
+ "sources": [
+  {
+   "code": "SRC-TN-056",
+   "title": "Portal 2 (Wikipedia)",
+   "author_or_publisher": "Wikipedia contributors",
+   "source_type": "reference_work",
+   "published_date": "2026",
+   "verified_date": "2026-09-11",
+   "url": "https://en.wikipedia.org/wiki/Portal_2",
+   "engine_or_api_version": "",
+   "platform": "Windows PC / macOS / Linux / consoles",
+   "locator": "Game article: release, developer, engine and portal gameplay sections",
+   "availability": "verified_fetched",
+   "applicability_note": "Secondary encyclopedic source used only to establish that the shipped title exists and is built around recursive portal rendering. Not used for any performance figure."
+  }
+ ],
+ "methods": {
+  "async_incremental_saves": {
+   "game_examples": [
+    {
+     "game": "Minecraft",
+     "studio": "Mojang Studios",
+     "year": 2011,
+     "engine": "Java Edition (in-house)",
+     "fact": "The world is persisted per region/chunk rather than as one monolithic save file, so saving an arbitrarily large world only rewrites the regions that actually changed.",
+     "source": "SRC-WRS-041",
+     "locator": "Chunk format / region file layout",
+     "relevance": "A shipped example of incremental, region-granular persistence: the save cost scales with what changed, not with world size.",
+     "non_transferable": "Minecraft's chunk format is a bespoke, simple record layout. It does not model Unity/Unreal serialized objects, and its write amplification behaviour will not match a GameObject or UObject save graph.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "No Man's Sky",
+     "studio": "Hello Games",
+     "year": 2016,
+     "engine": "Hello Games in-house",
+     "fact": "A procedurally generated universe is persisted as the player modifies it, so the save cannot be a full snapshot of generated content and must record only player-made deltas.",
+     "source": "SRC-WRS-040",
+     "locator": "Continuous World Generation talk: persistence of procedural content",
+     "relevance": "Shows the extreme case that forces incremental saving: content too large to ever write out in full, so only deltas can be stored.",
+     "non_transferable": "No Man's Sky's delta format is tied to its deterministic generation seeds; a project without deterministic regeneration cannot copy this approach.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "audio_streaming_compression": {
+   "game_examples": [
+    {
+     "game": "Overwatch",
+     "studio": "Blizzard Entertainment",
+     "year": 2016,
+     "engine": "Blizzard in-house",
+     "fact": "A fast multiplayer shooter with many simultaneous positional sound sources plus voice chat, so the audio system must stream and mix under a fixed memory and latency budget.",
+     "source": "SRC-NTA-004",
+     "locator": "'Overwatch' Gameplay Architecture and Netcode (GDC): audio/voice handling",
+     "relevance": "Demonstrates the constraint that makes audio streaming a budget item rather than a convenience: many concurrent emitters under a hard frame budget.",
+     "non_transferable": "The source describes architecture, not codec settings; no bitrate or CPU figure is published, so no numeric audio budget can be derived from it.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "bindless_uber_shaders": {
+   "game_examples": [
+    {
+     "game": "Cyberpunk 2077",
+     "studio": "CD Projekt Red",
+     "year": 2020,
+     "engine": "REDengine 4",
+     "fact": "A shipped open-city title with a very large and heterogeneous material set, and a later path-traced mode that stresses shader variety across the whole scene.",
+     "source": "SRC-RND-024",
+     "locator": "Path Tracing & Overdrive Mode - requirements and implementation notes",
+     "relevance": "Provides the scale condition under which bindless resources and uber-shader consolidation become worth their complexity: material count and shader permutation count.",
+     "non_transferable": "REDengine 4 is a bespoke engine; its material system and permutation strategy are not transferable, and this source does not state that bindless binding is used.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "broadphase_spatial_partitioning": {
+   "game_examples": [
+    {
+     "game": "BeamNG.drive",
+     "studio": "BeamNG GmbH",
+     "year": 2015,
+     "engine": "In-house (Torque 3D-derived)",
+     "fact": "Soft-body vehicle simulation in which each vehicle is a mass-spring network producing many interacting bodies, so broadphase cost is driven by deformable-node count rather than by vehicle count alone.",
+     "source": "SRC-AIS-037",
+     "locator": "Soft-body Physics - BeamNG.drive (GDC/technical presentation)",
+     "relevance": "A shipped case where the broadphase input is an order of magnitude larger than the visible object count, which is exactly the condition broadphase partitioning addresses.",
+     "non_transferable": "BeamNG is a simulation-first title running on desktop CPUs; its body counts and solver settings do not represent an action game's physics load.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Teardown",
+     "studio": "Tuxedo Labs",
+     "year": 2020,
+     "engine": "In-house voxel engine",
+     "fact": "A fully destructible voxel world in which destroying a structure turns one object into a very large number of bodies, so the broadphase must absorb a sudden, localised spike.",
+     "source": "SRC-AIS-020",
+     "locator": "Year summary (Voxagon Blog) - Teardown destruction and physics",
+     "relevance": "Demonstrates the worst case for broadphase: destruction events create dense bursts of bodies rather than a steady-state distribution.",
+     "non_transferable": "Teardown's voxel representation makes its body distribution unlike a mesh-based game; the absolute counts are not transferable.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "build_size_startup_budgets": {
+   "game_examples": [
+    {
+     "game": "Minecraft",
+     "studio": "Mojang Studios",
+     "year": 2011,
+     "engine": "Java Edition (in-house)",
+     "fact": "A shipped title with a very small install footprint and fast startup, showing the low end of the build-size and cold-start range.",
+     "source": "SRC-WRS-041",
+     "locator": "Game article / technical reference: distribution size and startup",
+     "relevance": "Anchors the low end of the build-size and startup budget range with a real, widely distributed shipping product.",
+     "non_transferable": "Minecraft's asset footprint is dominated by procedural content and simple textures; a photoreal title cannot reach comparable install sizes regardless of pipeline quality.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Cyberpunk 2077",
+     "studio": "CD Projekt Red",
+     "year": 2020,
+     "engine": "REDengine 4",
+     "fact": "A shipped title with a very large install footprint, representing the high end of the same range.",
+     "source": "SRC-FUNC-077",
+     "locator": "Cyberpunk 2077: Technology Preview of Path Tracing - asset and streaming scale",
+     "relevance": "Anchors the high end of the build-size range, giving the budget model a real observed spread rather than an assumption.",
+     "non_transferable": "Install size here reflects a specific content scope and audio localisation set; it is an anchor point, not a target.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "collision_layer_matrix": {
+   "game_examples": [
+    {
+     "game": "Overwatch",
+     "studio": "Blizzard Entertainment",
+     "year": 2016,
+     "engine": "Blizzard in-house",
+     "fact": "A hero shooter whose abilities require separate collision queries for hitscan, projectiles, area effects, movement and line-of-sight, each with different targets.",
+     "source": "SRC-AIS-030",
+     "locator": "'Overwatch' Gameplay Architecture and Netcode (GDC)",
+     "relevance": "Shows why a collision layer matrix is a gameplay requirement and not an optimisation: different systems must see different subsets of the world.",
+     "non_transferable": "The talk does not publish the layer table, so this evidences the requirement, not a particular matrix design.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Tom Clancy's Rainbow Six Siege",
+     "studio": "Ubisoft Montreal",
+     "year": 2015,
+     "engine": "AnvilNext + RealBlast",
+     "fact": "Destructible environments combined with ballistic penetration mean the same geometry must answer different queries for bullets, movement and destruction propagation.",
+     "source": "SRC-AIS-019",
+     "locator": "The Art of Destruction in Rainbow Six: Siege (GDC)",
+     "relevance": "A shipped example where destruction forces the collision configuration to distinguish between structural, ballistic and navigational queries.",
+     "non_transferable": "RealBlast is a bespoke destruction system; its query categories do not generalise to an engine without destructible geometry.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "differential_patch_pipeline": {
+   "game_examples": [
+    {
+     "game": "Fortnite",
+     "studio": "Epic Games",
+     "year": 2017,
+     "engine": "Unreal Engine 4/5",
+     "fact": "A live game updated very frequently, so the cost of shipping a full client for every change is unacceptable and chunked, differential updates are required.",
+     "source": "SRC-ENG-068",
+     "locator": "Drop into the Next Generation of Fortnite - content delivery and update cadence",
+     "relevance": "Establishes the operating condition that makes differential patching mandatory: high update frequency at very large player counts.",
+     "non_transferable": "Epic controls both the client and the CDN; a small team's patch economics differ and are not described by this source.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Counter-Strike 2",
+     "studio": "Valve Corporation",
+     "year": 2023,
+     "engine": "Source 2",
+     "fact": "A competitive title receiving frequent, small client updates where download size directly affects how quickly the player base can join a match.",
+     "source": "SRC-NTA-012",
+     "locator": "Counter-Strike 2 official feature page / update delivery",
+     "relevance": "Second shipped example of frequent small-patch delivery, from a different studio and genre.",
+     "non_transferable": "No patch-size or delta-ratio figures are published, so this does not quantify patch efficiency.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "directstorage_io": {
+   "game_examples": [
+    {
+     "game": "Ratchet & Clank: Rift Apart",
+     "studio": "Insomniac Games / Nixxes Software",
+     "year": 2023,
+     "engine": "Insomniac Engine",
+     "fact": "The Windows port of a title built around instantaneous world transitions, delivered on PC with an SSD-oriented streaming path.",
+     "source": "SRC-TN-054",
+     "locator": "Game article: PC port technology section",
+     "relevance": "Shows the design pattern that motivates the API - transitions that assume very high storage throughput - validated in a shipped PC release.",
+     "non_transferable": "The specific IO API used by the port is not documented in this source; this evidences the pattern, not the API call.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "fixed_timestep_physics": {
+   "game_examples": [
+    {
+     "game": "BeamNG.drive",
+     "studio": "BeamNG GmbH",
+     "year": 2015,
+     "engine": "In-house (Torque 3D-derived)",
+     "fact": "Soft-body vehicle simulation whose stability depends on a fixed, small integration step; variable steps would change suspension and deformation behaviour.",
+     "source": "SRC-AIS-037",
+     "locator": "Soft-body Physics - BeamNG.drive",
+     "relevance": "A shipped case where the fixed step is a correctness requirement for the simulation, not a performance choice.",
+     "non_transferable": "BeamNG runs a far heavier solver than a typical action game; its step size is not a usable default elsewhere.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "flipbook_particles": {
+   "game_examples": [
+    {
+     "game": "Returnal",
+     "studio": "Housemarque",
+     "year": 2021,
+     "engine": "Unreal Engine 4",
+     "fact": "A bullet-hell shooter with extremely dense particle effects, where the number of simultaneous emitters makes per-frame simulation of every effect unaffordable.",
+     "source": "SRC-FUNC-067",
+     "locator": "Visual Effects Summit: Can We Do It without Particles? - Returnal VFX",
+     "relevance": "Shows the pressure that makes baked/flipbook effects attractive: emitter density in a 60 fps action game.",
+     "non_transferable": "The talk covers Housemarque's own VFX pipeline; it does not state which effects are flipbooks versus simulated.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Cuphead",
+     "studio": "Studio MDHR",
+     "year": 2017,
+     "engine": "Unity",
+     "fact": "Hand-drawn, frame-by-frame animation throughout, i.e. a shipped game whose entire visual language is pre-baked frame sequences rather than runtime simulation.",
+     "source": "SRC-CHC-046",
+     "locator": "Cuphead - A Game | Made with Unity (Unity case study)",
+     "relevance": "An extreme shipped example of the flipbook principle applied at game-wide scale.",
+     "non_transferable": "Cuphead's animation is authored art, not simulated VFX baked to textures; the pipeline constraints are completely different.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "gpu_lightmap_baking": {
+   "game_examples": [
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine",
+     "fact": "A linear, lighting-driven shooter with large interior/exterior spaces and both baked and ray-traced lighting paths.",
+     "source": "SRC-RND-026",
+     "locator": "Global Illumination in Metro Exodus: A Deep Dive (GDC)",
+     "relevance": "A shipped example of a team investing in GI authoring where the baked path remains necessary for platforms without RT hardware.",
+     "non_transferable": "4A's lighting solution is bespoke and tied to its linear level structure; it does not transfer to open-world streaming.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Lords of the Fallen",
+     "studio": "Hexworks",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "fact": "A shipped UE5 title with large, detailed interiors and heavy lighting, exercising the engine's lighting build pipeline on retail content.",
+     "source": "SRC-ENG-075",
+     "locator": "Lords of the Fallen is a stunning UE5 showcase (technical coverage)",
+     "relevance": "Shows a licensed-engine team delivering a shipping lighting build on UE5.",
+     "non_transferable": "The source does not state which bake backend or how long the bake takes, so no build-time figure can be derived.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "hierarchical_lod": {
+   "game_examples": [
+    {
+     "game": "No Man's Sky",
+     "studio": "Hello Games",
+     "year": 2016,
+     "engine": "Hello Games in-house",
+     "fact": "Planetary-scale rendering where an entire planet must be representable from orbit down to surface detail, forcing many levels of distance-based reduction.",
+     "source": "SRC-WRS-040",
+     "locator": "Continuous World Generation in 'No Man's Sky' (GDC)",
+     "relevance": "Extreme-range LOD: the depth of the LOD hierarchy is dictated by planetary scale rather than by art direction.",
+     "non_transferable": "Procedural planets generate LODs differently from authored meshes; the HLOD tooling is not transferable.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Horizon Zero Dawn",
+     "studio": "Guerrilla Games",
+     "year": 2017,
+     "engine": "Decima",
+     "fact": "A large open world with dense vegetation and long view distances, requiring distant objects to be merged and simplified to stay within the draw budget.",
+     "source": "SRC-FUNC-055",
+     "locator": "Streaming the World of Horizon Zero Dawn (GDC)",
+     "relevance": "A shipped open-world example where HLOD is what makes long draw distances affordable.",
+     "non_transferable": "Decima's streaming and LOD pipeline is bespoke; the具体实现 is not documented in enough detail to copy.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "light_range_attenuation_lod": {
+   "game_examples": [
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine",
+     "fact": "Lighting-driven gameplay with many practical light sources in large spaces, making light range and attenuation a direct runtime cost.",
+     "source": "SRC-RND-026",
+     "locator": "Global Illumination in Metro Exodus: A Deep Dive (GDC)",
+     "relevance": "A shipped case where the number and range of lights is a primary performance lever rather than an incidental setting.",
+     "non_transferable": "No per-light cost figures are published; the example establishes the cost driver, not its magnitude.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "fact": "A horror title whose reading of space depends on practical lights and shadows, so light count and range are gameplay-critical and must be budgeted.",
+     "source": "SRC-RND-023",
+     "locator": "How Northlight makes Alan Wake 2 shine (Remedy technology article)",
+     "relevance": "Second shipped example from a different studio where light attenuation is central to both look and cost.",
+     "non_transferable": "Northlight's lighting model is bespoke; ranges and counts do not transfer.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "lightmap_2d_baking": {
+   "game_examples": [
+    {
+     "game": "Rayman Legends",
+     "studio": "Ubisoft Montpellier",
+     "year": 2013,
+     "engine": "UbiArt Framework",
+     "fact": "A 2D title with painted, pre-lit backgrounds, i.e. lighting resolved at authoring time rather than at runtime.",
+     "source": "SRC-CHC-041",
+     "locator": "Rayman Legends: The Design Process (UbiArt pipeline)",
+     "relevance": "A shipped 2D example of baked lighting as the primary lighting solution.",
+     "non_transferable": "UbiArt's baked lighting is art-directed painting, not a physical bake; it does not generalise to dynamically lit 2D scenes.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Cuphead",
+     "studio": "Studio MDHR",
+     "year": 2017,
+     "engine": "Unity",
+     "fact": "A 2D Unity title whose hand-drawn assets bake all shading into the artwork.",
+     "source": "SRC-CHC-046",
+     "locator": "Cuphead - A Game | Made with Unity (Unity case study)",
+     "relevance": "Second shipped 2D example, from a different studio and pipeline.",
+     "non_transferable": "No runtime lighting at all; this is the degenerate case of a 2D lightmap bake.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "lightmap_atlas_baking": {
+   "game_examples": [
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine",
+     "fact": "Large linear levels with baked lighting, requiring surface UV atlasing across a wide area.",
+     "source": "SRC-RND-026",
+     "locator": "Global Illumination in Metro Exodus: A Deep Dive (GDC)",
+     "relevance": "Shows atlas-scale baking in shipped, large-scale levels rather than in a demo scene.",
+     "non_transferable": "The atlas packing strategy and resolution are not published.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "fact": "A shipped UE5 title with large, highly detailed environments that must be lit within console and PC memory limits.",
+     "source": "SRC-ENG-073",
+     "locator": "Black Myth: Wukong - the PC tech review",
+     "relevance": "A recent shipped example of a licensed-engine team solving lighting at retail scale.",
+     "non_transferable": "The review does not document the lightmap atlas configuration, so no bake setting can be inferred.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "lightmap_compression_streaming": {
+   "game_examples": [
+    {
+     "game": "Horizon Zero Dawn",
+     "studio": "Guerrilla Games",
+     "year": 2017,
+     "engine": "Decima",
+     "fact": "A streaming open world in which lighting data must be paged in with the terrain, making lightmap size a streaming-bandwidth concern.",
+     "source": "SRC-FUNC-055",
+     "locator": "Streaming the World of Horizon Zero Dawn (GDC)",
+     "relevance": "Establishes the coupling that forces lightmap compression: lighting data competes for streaming budget with geometry and textures.",
+     "non_transferable": "Decima's streaming format is proprietary; compression ratios are not published.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine",
+     "fact": "A shipped title combining baked lighting with a separately shipped ray-traced path, so both lighting representations coexist in the same build.",
+     "source": "SRC-RND-026",
+     "locator": "Global Illumination in Metro Exodus: A Deep Dive (GDC)",
+     "relevance": "Shows a project carrying two lighting solutions, which increases the pressure on lightmap memory.",
+     "non_transferable": "No memory or compression figures are published for either path.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "normal_bake_retopology_pipeline": {
+   "game_examples": [
+    {
+     "game": "Senua's Saga: Hellblade II",
+     "studio": "Ninja Theory",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "fact": "Character fidelity is a primary deliverable, requiring high-detail source sculpts reduced to a shippable real-time mesh.",
+     "source": "SRC-ENG-070",
+     "locator": "The making of Senua's Saga: Hellblade II (technical coverage)",
+     "relevance": "A shipped example of a cinematic-fidelity character pipeline delivered by a mid-sized team.",
+     "non_transferable": "Ninja Theory used photogrammetry and bespoke tooling; the pipeline cost is not transferable and no mesh budgets are published.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "fact": "Highly detailed character and environment assets delivered on UE5 at retail quality.",
+     "source": "SRC-ENG-073",
+     "locator": "Black Myth: Wukong - the PC tech review",
+     "relevance": "Second shipped example of high-density assets requiring normal-map based reduction.",
+     "non_transferable": "The review does not describe the baking pipeline; the example demonstrates the requirement, not the method.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "physics_lod_sleeping": {
+   "game_examples": [
+    {
+     "game": "BeamNG.drive",
+     "studio": "BeamNG GmbH",
+     "year": 2015,
+     "engine": "In-house (Torque 3D-derived)",
+     "fact": "Vehicles and debris that come to rest must stop consuming solver time, otherwise a large scene of parked vehicles remains permanently expensive.",
+     "source": "SRC-AIS-037",
+     "locator": "Soft-body Physics - BeamNG.drive",
+     "relevance": "A shipped simulation title where sleeping/deactivation is a hard requirement for scene scale.",
+     "non_transferable": "Sleeping thresholds here interact with a soft-body solver; tuning for rigid bodies would differ.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Teardown",
+     "studio": "Tuxedo Labs",
+     "year": 2020,
+     "engine": "In-house voxel engine",
+     "fact": "After a destruction event the resulting debris must settle and stop simulating, or the scene cost never returns to baseline.",
+     "source": "SRC-AIS-020",
+     "locator": "Year summary (Voxagon Blog) - Teardown destruction and physics",
+     "relevance": "Demonstrates deactivation as the mechanism that restores the frame budget after a burst.",
+     "non_transferable": "Voxel debris has different settling behaviour from rigid-body meshes; the parameters do not transfer.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "planar_reflection_budget": {
+   "game_examples": [
+    {
+     "game": "Quake II RTX",
+     "studio": "NVIDIA Lightspeed Studios",
+     "year": 2019,
+     "engine": "Q2VKPT (Vulkan, VKRay)",
+     "fact": "A fully ray-traced remaster in which reflections are resolved globally rather than by re-rendering a mirrored view per surface.",
+     "source": "SRC-RND-025",
+     "locator": "Quake II RTX: Re-Engineering a Classic (SIGGRAPH/GDC presentation)",
+     "relevance": "A shipped contrast case: the same reflection requirement met by a completely different technique, which is what a planar-reflection budget has to be weighed against.",
+     "non_transferable": "Q2VKPT is a research-grade renderer requiring RTX hardware; it is not a substitute for a planar reflection path on mid-range GPUs.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "portal_scene_capture_budget": {
+   "game_examples": [
+    {
+     "game": "Portal 2",
+     "studio": "Valve Corporation",
+     "year": 2011,
+     "engine": "Source engine",
+     "fact": "A shipped puzzle game built entirely around recursive portal rendering, where each visible portal requires re-rendering part of the scene.",
+     "source": "SRC-TN-056",
+     "locator": "Game article: portal gameplay and rendering sections",
+     "relevance": "The canonical shipped example of portals as a core rendering cost rather than as an effect.",
+     "non_transferable": "Source's portal rendering is integrated into the engine's vis/rendering pipeline; a render-target-based approach in a modern engine has a different cost profile.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "screen_space_contact_shadows": {
+   "game_examples": [
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine",
+     "fact": "A lighting-heavy title where contact darkening carries material separation in interiors.",
+     "source": "SRC-RND-027",
+     "locator": "Exploring Ray Traced Future in Metro Exodus (GDC)",
+     "relevance": "A shipped example of contact-shadow quality being a visible, budgeted lighting feature.",
+     "non_transferable": "The source contrasts RT and raster techniques; it does not publish a per-effect cost.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "fact": "Dark, practical-lit scenes where contact shadows are essential to grounding objects.",
+     "source": "SRC-RND-023",
+     "locator": "How Northlight makes Alan Wake 2 shine (Remedy technology article)",
+     "relevance": "Second shipped example from a different studio, in a genre where shadow contact is narratively important.",
+     "non_transferable": "Northlight's shadow pipeline is bespoke; no cost figure is published.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "screenspace_light_shafts": {
+   "game_examples": [
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "fact": "Light shafts are used as a core visual motif in dark forest and interior scenes.",
+     "source": "SRC-RND-023",
+     "locator": "How Northlight makes Alan Wake 2 shine (Remedy technology article)",
+     "relevance": "A shipped example where volumetric light scattering is a headline visual feature rather than an optional post effect.",
+     "non_transferable": "Remedy's volumetric implementation is bespoke and its cost is not published.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Returnal",
+     "studio": "Housemarque",
+     "year": 2021,
+     "engine": "Unreal Engine 4",
+     "fact": "Dense atmospheric particle and light-shaft effects layered on top of heavy combat VFX.",
+     "source": "SRC-FUNC-067",
+     "locator": "Visual Effects Summit: Can We Do It without Particles? - Returnal VFX",
+     "relevance": "Second shipped example, showing volumetric effects competing for budget with dense gameplay VFX.",
+     "non_transferable": "The talk does not separate the cost of light shafts from other VFX.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "snapshot_slot_saves": {
+   "game_examples": [
+    {
+     "game": "Minecraft",
+     "studio": "Mojang Studios",
+     "year": 2011,
+     "engine": "Java Edition (in-house)",
+     "fact": "Discrete, player-managed worlds saved as separate save slots, i.e. the classic snapshot-per-slot model.",
+     "source": "SRC-WRS-041",
+     "locator": "Chunk format / world save layout",
+     "relevance": "A shipped example of slot-based saves coexisting with incremental per-region writes.",
+     "non_transferable": "Minecraft's slot model has no progression state to reconcile; a narrative game's save schema is far more constrained.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "No Man's Sky",
+     "studio": "Hello Games",
+     "year": 2016,
+     "engine": "Hello Games in-house",
+     "fact": "Multiple saved expeditions persisted alongside a shared generated universe.",
+     "source": "SRC-WRS-040",
+     "locator": "Continuous World Generation in 'No Man's Sky' (GDC)",
+     "relevance": "Second shipped example of slot-based persistence under a very large world state.",
+     "non_transferable": "Save schema details are not published; the example shows the pattern, not the implementation.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "sprite_atlas_batching": {
+   "game_examples": [
+    {
+     "game": "Rayman Legends",
+     "studio": "Ubisoft Montpellier",
+     "year": 2013,
+     "engine": "UbiArt Framework",
+     "fact": "A 2D title with very large numbers of animated sprites on screen, where per-sprite draw calls would dominate the frame.",
+     "source": "SRC-CHC-041",
+     "locator": "Rayman Legends: The Design Process (UbiArt pipeline)",
+     "relevance": "A shipped 2D example where sprite batching is a precondition for the target frame rate.",
+     "non_transferable": "UbiArt's batching is built into a bespoke 2D engine; a general-purpose engine's 2D batcher behaves differently.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "sprite_particle_atlas": {
+   "game_examples": [
+    {
+     "game": "Cuphead",
+     "studio": "Studio MDHR",
+     "year": 2017,
+     "engine": "Unity",
+     "fact": "Hand-drawn frame animation used for characters, projectiles and effects alike, so effects are sprite frames rather than simulated particles.",
+     "source": "SRC-CHC-046",
+     "locator": "Cuphead - A Game | Made with Unity (Unity case study)",
+     "relevance": "A shipped example of particle-like effects delivered entirely from sprite frame atlases.",
+     "non_transferable": "This is authored art rather than a particle system; it does not evidence runtime particle batching behaviour.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Rayman Legends",
+     "studio": "Ubisoft Montpellier",
+     "year": 2013,
+     "engine": "UbiArt Framework",
+     "fact": "Very high on-screen sprite counts including effect frames, requiring atlased sources.",
+     "source": "SRC-CHC-041",
+     "locator": "Rayman Legends: The Design Process (UbiArt pipeline)",
+     "relevance": "Second shipped 2D example from a different studio and engine.",
+     "non_transferable": "Same limitation: bespoke 2D pipeline, no published batching figures.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "sprite_sheet_compression": {
+   "game_examples": [
+    {
+     "game": "Rayman Legends",
+     "studio": "Ubisoft Montpellier",
+     "year": 2013,
+     "engine": "UbiArt Framework",
+     "fact": "Full-screen hand-drawn animation frames, where uncompressed sprite sheets would dominate the build and memory budget.",
+     "source": "SRC-CHC-041",
+     "locator": "Rayman Legends: The Design Process (UbiArt pipeline)",
+     "relevance": "A shipped case where sprite sheet size is a primary memory driver, which is the condition that makes sheet compression a budget item.",
+     "non_transferable": "Compression settings are not published and UbiArt's format is proprietary.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "srp_batcher_discipline": {
+   "game_examples": [
+    {
+     "game": "Cuphead",
+     "studio": "Studio MDHR",
+     "year": 2017,
+     "engine": "Unity",
+     "fact": "A shipped Unity 2D title whose hand-drawn pipeline depends on keeping draw calls low across thousands of frames of artwork.",
+     "source": "SRC-CHC-046",
+     "locator": "Cuphead - A Game | Made with Unity (Unity case study)",
+     "relevance": "Shows draw-call discipline as a shipping requirement in Unity specifically, which is the problem SRP Batcher addresses.",
+     "non_transferable": "IMPORTANT: Cuphead predates URP/SRP Batcher, so it evidences the requirement (draw-call pressure in Unity) but NOT the SRP Batcher feature. It is recorded at partial match level for that reason.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "tilemap_chunk_streaming": {
+   "game_examples": [
+    {
+     "game": "Minecraft",
+     "studio": "Mojang Studios",
+     "year": 2011,
+     "engine": "Java Edition (in-house)",
+     "fact": "The world is divided into fixed-size chunks that are loaded and unloaded around the player, which is the canonical tile/world chunk streaming model.",
+     "source": "SRC-WRS-041",
+     "locator": "Chunk format / chunk loading and simulation distance",
+     "relevance": "A shipped, extremely widely deployed example of chunk-granular world streaming.",
+     "non_transferable": "Minecraft chunks are voxel blocks with simple schemas; a tilemap with per-layer metadata has different streaming costs.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "tilemap_layer_culling": {
+   "game_examples": [
+    {
+     "game": "Minecraft",
+     "studio": "Mojang Studios",
+     "year": 2011,
+     "engine": "Java Edition (in-house)",
+     "fact": "Only chunks within simulation and render distance are processed, so per-chunk culling is what bounds both simulation and rendering cost.",
+     "source": "SRC-WRS-041",
+     "locator": "Simulation distance / chunk loading behaviour",
+     "relevance": "A shipped example of distance-based culling bounding work at chunk granularity.",
+     "non_transferable": "Minecraft's culling is per 16x16 chunk; a 2D tilemap's layer culling is a different axis.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "vehicle_simulation_lod": {
+   "game_examples": [
+    {
+     "game": "Just Cause 4",
+     "studio": "Avalanche Studios",
+     "year": 2018,
+     "engine": "Avalanche engine",
+     "fact": "A large open world with many vehicles, aircraft and physics props, where only nearby vehicles can be fully simulated.",
+     "source": "SRC-FUNC-071",
+     "locator": "Vehicle Physics and Tire Dynamics in 'Just Cause 4' (GDC)",
+     "relevance": "A shipped open-world example where vehicle simulation detail must degrade with distance and relevance.",
+     "non_transferable": "The talk covers full-detail vehicle physics, not the LOD policy; the degradation strategy is not documented.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "voxel_cone_tracing": {
+   "game_examples": [
+    {
+     "game": "Teardown",
+     "studio": "Tuxedo Labs",
+     "year": 2020,
+     "engine": "In-house voxel engine",
+     "fact": "A shipped game whose world is a voxel grid, i.e. the scene representation that voxel-based GI techniques operate on directly.",
+     "source": "SRC-AIS-020",
+     "locator": "Year summary (Voxagon Blog) - Teardown voxel world and lighting",
+     "relevance": "Demonstrates a shipped voxel world representation, which is the precondition for voxel cone tracing rather than an implementation of it.",
+     "non_transferable": "Teardown does not implement voxel cone tracing; this evidences the data representation, not the algorithm.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "post_effect_selective": {
+   "game_examples": [
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "fact": "A shipped title with a layered post-processing stack (volumetrics, depth of field, gradation) applied selectively per scene rather than uniformly.",
+     "source": "SRC-RND-023",
+     "locator": "How Northlight makes Alan Wake 2 shine (Remedy technology article)",
+     "relevance": "Shows selective post-effect application as a shipped, art-directed practice.",
+     "non_transferable": "Northlight's stack is bespoke and no per-effect cost breakdown is published.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Cyberpunk 2077",
+     "studio": "CD Projekt Red",
+     "year": 2020,
+     "engine": "REDengine 4",
+     "fact": "A shipped open-city title with an extensive, tiered post-processing stack that scales by quality preset.",
+     "source": "SRC-RND-024",
+     "locator": "Path Tracing & Overdrive Mode - requirements and post stack",
+     "relevance": "Second shipped example where post effects are budgeted and tiered rather than fixed.",
+     "non_transferable": "REDengine's stack and its presets are engine-specific; costs are not published.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "pso_precaching_warmup": {
+   "game_examples": [
+    {
+     "game": "Doom Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "fact": "A shipped title that performs shader/state pre-compilation before gameplay specifically to avoid hitching during play.",
+     "source": "SRC-AIS-008",
+     "locator": "Rendering the Hellscape of Doom Eternal (SIGGRAPH Advances)",
+     "relevance": "A shipped example of pre-caching as a load-time step taken deliberately to remove runtime stalls.",
+     "non_transferable": "id Tech 7 is a bespoke engine with a small, controlled shader set; the warm-up cost in a licensed engine with combinatorial variants is far larger.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "fact": "A shipped UE5 title whose first-launch shader compilation is a visible, widely reported part of the PC experience.",
+     "source": "SRC-ENG-073",
+     "locator": "Black Myth: Wukong - the PC tech review",
+     "relevance": "The counter-example: shows what happens when PSO/shader warm-up is incomplete, which is why pre-caching is a planned task rather than an optimisation.",
+     "non_transferable": "No measured compilation time is published here; the example establishes the risk, not its magnitude.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "shadow_caster_2d_limits": {
+   "game_examples": [
+    {
+     "game": "Rayman Legends",
+     "studio": "Ubisoft Montpellier",
+     "year": 2013,
+     "engine": "UbiArt Framework",
+     "fact": "A 2D platformer with per-layer lighting and shadowing, where the number of shadow casters has to be bounded by design.",
+     "source": "SRC-CHC-041",
+     "locator": "Rayman Legends: The Design Process (UbiArt pipeline)",
+     "relevance": "A shipped 2D example where shadow-caster count is an authored limit, not an engine default.",
+     "non_transferable": "UbiArt's 2D lighting is bespoke; the numeric limits are not published.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Cuphead",
+     "studio": "Studio MDHR",
+     "year": 2017,
+     "engine": "Unity",
+     "fact": "A 2D Unity title where all shading is authored, i.e. the degenerate case of a zero-cost 2D shadow setup.",
+     "source": "SRC-CHC-046",
+     "locator": "Cuphead - A Game | Made with Unity (Unity case study)",
+     "relevance": "Second shipped 2D example anchoring the low end of the 2D shadow budget range.",
+     "non_transferable": "No runtime shadow casting at all; this bounds the range but does not model a dynamic 2D shadow system.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "static_shadow_caching": {
+   "game_examples": [
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine",
+     "fact": "Large static levels where shadowing for static geometry can be resolved once rather than every frame.",
+     "source": "SRC-RND-026",
+     "locator": "Global Illumination in Metro Exodus: A Deep Dive (GDC)",
+     "relevance": "A shipped example of static/dynamic shadow separation as a budget strategy.",
+     "non_transferable": "The caching mechanism and its memory cost are not published.",
+     "evidence_level": "medium"
+    },
+    {
+     "game": "Horizon Zero Dawn",
+     "studio": "Guerrilla Games",
+     "year": 2017,
+     "engine": "Decima",
+     "fact": "A streaming open world with a time-of-day cycle, i.e. the hard case where static shadow caching competes with moving light.",
+     "source": "SRC-FUNC-055",
+     "locator": "Streaming the World of Horizon Zero Dawn (GDC)",
+     "relevance": "Second shipped example showing the constraint that limits static shadow caching: dynamic sun angle and streamed world state.",
+     "non_transferable": "Decima's shadow caching is proprietary; no figures are published.",
+     "evidence_level": "medium"
+    }
+   ]
+  },
+  "neural_texture_compression": {
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No shipped commercial title was located that uses neural texture compression. The located evidence covers the research/SDK stage only, so no game example is asserted here.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "n/a - declared absence, no source supports a game example",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared honestly under the study rule that absence of a source is not evidence of adoption."
+    }
+   ],
+   "game_examples": []
+  },
+  "temporal_radiance_cache": {
+   "claims": [
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No shipped commercial title was located that implements a temporal radiance cache. It is a research-stage technique; asserting a game example would be fabrication.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "n/a - declared absence, no source supports a game example",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared honestly under the study rule that absence of a source is not evidence of adoption."
+    }
+   ],
+   "game_examples": []
+  }
+ }
+}

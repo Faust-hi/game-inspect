@@ -1,0 +1,4437 @@
+{
+ "pack": "pack_method_proofs",
+ "generated": "2026-09-10",
+ "agent_scope": "Additional, independently re-checkable game-by-game proof for the catalog methods that previously had fewer than two game proofs, plus explicit gap records where no second shipped-game source could be found.",
+ "sources": [
+  {
+   "code": "SRC-MPR-001",
+   "title": "Rendering the Hellscape of Doom Eternal (Advances in Real-Time Rendering, SIGGRAPH 2020)",
+   "author_or_publisher": "id Software (Geffroy, Gneiting, Wang)",
+   "source_type": "conference_talk",
+   "published_date": "2020",
+   "verified_date": "2026-09-10",
+   "url": "https://advances.realtimerendering.com/s2020/RenderingDoomEternal.pdf",
+   "engine_or_api_version": "id Tech 7",
+   "platform": "Windows PC / consoles",
+   "locator": "slides 3, 4, 9, 14, 24, 44, 45, 49, 53, 57, 62, 66, 72, 76",
+   "availability": "verified_fetched",
+   "applicability_note": "Primary id Software deck on id Tech 7. Proves hybrid tile/cluster light binning, GPU triangle culling+merging, depth prepass, async overlap, Umbra-based occlusion and the Doom Eternal water pipeline. Does NOT give full frame budgets or console-vs-PC splits."
+  },
+  {
+   "code": "SRC-MPR-002",
+   "title": "Exploring Ray Traced Future in Metro Exodus (NVIDIA GTC 2019)",
+   "author_or_publisher": "4A Games / NVIDIA (Shyshkovtsov, Karmalsky, Archard, Zhdan)",
+   "source_type": "conference_talk",
+   "published_date": "2019",
+   "verified_date": "2026-09-10",
+   "url": "https://developer.download.nvidia.com/video/gputechconf/gtc/2019/presentation/s9985-exploring-ray-traced-future-in-metro-exodus.pdf",
+   "engine_or_api_version": "4A Engine (DXR)",
+   "platform": "Windows PC",
+   "locator": "slides 8, 9, 22, 26, 27, 28, 32, 40, 48, 73, 76, 87",
+   "availability": "verified_fetched",
+   "applicability_note": "Primary 4A Games deck on the shipped Metro Exodus RT pipeline (deferred, clustered lights, BVH management, async compute hiding, SH light probes, measured per-pass costs on RTX 2080). Covers only RT/lighting, not animation or streaming."
+  },
+  {
+   "code": "SRC-MPR-003",
+   "title": "How Northlight makes Alan Wake 2 shine",
+   "author_or_publisher": "Remedy Entertainment",
+   "source_type": "engineering_blog",
+   "published_date": "2023-11-06",
+   "verified_date": "2026-09-10",
+   "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
+   "engine_or_api_version": "Northlight",
+   "platform": "Windows PC / PS5 / Xbox Series X|S",
+   "locator": "sections 'GPU-driven rendering and meshlets', 'Character-style rigs on foliage', 'Motion Matching', 'Realistic wind', 'Ray tracing'",
+   "availability": "verified_fetched",
+   "applicability_note": "Remedy's own summary of shipped Alan Wake 2 tech: mesh shaders + meshlet culling, single-pixel occlusion, GPU vegetation skinning, distance-based motion matching, DLSS Frame Generation. High level; no numbers for culling budgets. [ORCHESTRATOR 2026-09-11: could not be re-verified from this network (proxy/TLS failure, not an HTTP error). Reachability is unconfirmed on this run; the citation is not asserted to be dead.]"
+  },
+  {
+   "code": "SRC-MPR-004",
+   "title": "Moving Gears to Tier 2 Variable Rate Shading (DirectX Developer Blog, guest post by The Coalition)",
+   "author_or_publisher": "Microsoft / The Coalition (Chris Wallis)",
+   "source_type": "engineering_blog",
+   "published_date": "2021-01-12",
+   "verified_date": "2026-09-10",
+   "url": "https://devblogs.microsoft.com/directx/gears-vrs-tier2/",
+   "engine_or_api_version": "DirectX 12 Ultimate / UE4",
+   "platform": "Windows PC / Xbox Series X|S",
+   "locator": "sections 'Moving to Tier 2', 'VRS Texture Generation', 'Working with Dynamic Resolution Scaling', 'Performance Results'",
+   "availability": "verified_fetched",
+   "applicability_note": "Primary shipping-studio account of Tier-2 VRS in Gears 5 / Gears Tactics with per-pass list, DRS interaction, async-compute overlap and a 6900 XT benchmark table. Vendor blog but authored by the shipping studio."
+  },
+  {
+   "code": "SRC-MPR-005",
+   "title": "Face-Off: Titanfall 2 (Digital Foundry)",
+   "author_or_publisher": "Digital Foundry / Eurogamer",
+   "source_type": "secondary",
+   "published_date": "2016-11-04",
+   "verified_date": "2026-09-10",
+   "url": "https://www.digitalfoundry.net/articles/digitalfoundry-2016-titanfall-2-face-off",
+   "engine_or_api_version": "Titanfall 2 engine (Source-derived)",
+   "platform": "Windows PC / PS4 / Xbox One",
+   "locator": "section 'Shadow quality', 'PC vs console'",
+   "availability": "verified_fetched",
+   "applicability_note": "Technical breakdown of shipped Titanfall 2 (Respawn, Source-derived). Useful for observed console/PC shadow-cascade and scalability differences. Secondary analysis, not a developer statement."
+  },
+  {
+   "code": "SRC-MPR-006",
+   "title": "Brilliant visuals and growing pains: analysing Unreal Engine 5 first-generation games (Digital Foundry)",
+   "author_or_publisher": "Digital Foundry",
+   "source_type": "secondary",
+   "published_date": "2023-12-30",
+   "verified_date": "2026-09-10",
+   "url": "https://www.digitalfoundry.net/articles/digitalfoundry-2023-brilliant-visuals-and-growing-pains-analysing-unreal-engine-5-first-generation-games",
+   "engine_or_api_version": "UE5",
+   "platform": "Windows PC / consoles",
+   "locator": "sections on Lumen/Nanite/VSM adoption, 'RT quality levels', texture quality",
+   "availability": "verified_fetched",
+   "applicability_note": "Survey of shipped UE5 titles (The Talos Principle 2, Remnant 2, Lords of the Fallen, Immortals of Aveum and others) and which of Lumen/Nanite/VSM they use, plus SDFAO fallback. Secondary but names specific shipped games."
+  },
+  {
+   "code": "SRC-MPR-007",
+   "title": "Black Myth: Wukong - the PC tech review (Digital Foundry)",
+   "author_or_publisher": "Digital Foundry",
+   "source_type": "secondary",
+   "published_date": "2024-08-20",
+   "verified_date": "2026-09-10",
+   "url": "https://www.digitalfoundry.net/articles/digitalfoundry-2024-black-myth-wukong-the-pc-tech-review",
+   "engine_or_api_version": "UE5",
+   "platform": "Windows PC",
+   "locator": "sections on Nanite, Lumen, virtual shadow maps, full RT / ReSTIR path tracing, GPU particles",
+   "availability": "verified_fetched",
+   "applicability_note": "PC tech review of shipped Black Myth: Wukong (Game Science, UE5) documenting software Lumen GI, VSM excision without full RT, Nanite (non-foliage), shadow-cascade artifacts and GPU physicalised particles. Secondary."
+  },
+  {
+   "code": "SRC-MPR-008",
+   "title": "Lords of the Fallen is a stunning UE5 soulslike with ongoing tech issues (Digital Foundry)",
+   "author_or_publisher": "Digital Foundry",
+   "source_type": "secondary",
+   "published_date": "2023-10-14",
+   "verified_date": "2026-09-10",
+   "url": "https://www.digitalfoundry.net/articles/digitalfoundry-2023-lords-of-the-fallen-is-a-stunning-ue5-soulslike-with-ongoing-tech-issues",
+   "engine_or_api_version": "UE5",
+   "platform": "Windows PC / PS5 / Xbox Series X|S",
+   "locator": "sections on virtual shadow maps, dynamic resolution, volumetric lighting quality modes, FSR2/TAAU",
+   "availability": "verified_fetched",
+   "applicability_note": "Technical review of shipped Lords of the Fallen (Hexworks, UE5) documenting VSM use, dynamic resolution bounds (1152p/648p) and 30fps-mode volumetric-resolution uplift. Secondary."
+  },
+  {
+   "code": "SRC-MPR-009",
+   "title": "Senua's Saga: Hellblade 2 is a defining moment in the evolution of real-time graphics (Digital Foundry)",
+   "author_or_publisher": "Digital Foundry",
+   "source_type": "secondary",
+   "published_date": "2024-05-21",
+   "verified_date": "2026-09-10",
+   "url": "https://www.digitalfoundry.net/articles/digitalfoundry-2024-senuas-saga-hellblade-2-is-a-defining-moment-in-the-evolution-of-real-time-graphics",
+   "engine_or_api_version": "UE5",
+   "platform": "Xbox Series X|S / Windows PC",
+   "locator": "sections on Nanite, virtual shadow maps, Lumen, volumetric fog, digital-human hair",
+   "availability": "verified_fetched",
+   "applicability_note": "Console-side technical review of shipped Hellblade 2 (Ninja Theory, UE5): Nanite, VSM, real-time Lumen lighting, volumetrics, character rendering. Secondary."
+  },
+  {
+   "code": "SRC-MPR-010",
+   "title": "Senua's Saga: Hellblade 2 PC tech review (Digital Foundry)",
+   "author_or_publisher": "Digital Foundry",
+   "source_type": "secondary",
+   "published_date": "2024-06-14",
+   "verified_date": "2026-09-10",
+   "url": "https://www.digitalfoundry.net/articles/digitalfoundry-2024-senuas-saga-hellblade-2-pc-tech-review",
+   "engine_or_api_version": "UE5",
+   "platform": "Windows PC",
+   "locator": "sections on upscaling/TSR, dynamic resolution, frame generation, graphics menu",
+   "availability": "verified_fetched",
+   "applicability_note": "PC-side review of shipped Hellblade 2 documenting TSR-only DRS, DLSS 3 / AMD frame generation, and per-setting frame-time measurements. Secondary."
+  },
+  {
+   "code": "SRC-MPR-011",
+   "title": "The AI Systems of Left 4 Dead (GDC 2009)",
+   "author_or_publisher": "Valve (Michael Booth)",
+   "source_type": "conference_talk",
+   "published_date": "2009",
+   "verified_date": "2026-09-10",
+   "url": "https://cdn.akamai.steamstatic.com/apps/valve/2009/ai_systems_of_l4d_mike_booth.pdf",
+   "engine_or_api_version": "Source engine",
+   "platform": "Windows PC / Xbox 360",
+   "locator": "slides 53-56, 59, 64-75, 78-82",
+   "availability": "verified_fetched",
+   "applicability_note": "Primary Valve deck on the shipped Left 4 Dead AI Director: Active Area Set population, structured unpredictability, Adaptive Dramatic Pacing with explicit intervals. Covers AI/population only."
+  },
+  {
+   "code": "SRC-MPR-012",
+   "title": "Three States and a Plan: The A.I. of F.E.A.R. (GDC 2006)",
+   "author_or_publisher": "Monolith Productions (Jeff Orkin)",
+   "source_type": "conference_talk",
+   "published_date": "2006",
+   "verified_date": "2026-09-10",
+   "url": "https://www.gamedevs.org/uploads/three-states-plan-ai-of-fear.pdf",
+   "engine_or_api_version": "F.E.A.R. engine (LithTech Jupiter EX)",
+   "platform": "Windows PC / consoles",
+   "locator": "pages 1-4, sections 'Managing Complexity', 'FSMs vs Planning'",
+   "availability": "verified_fetched",
+   "applicability_note": "Primary Monolith paper on the shipped F.E.A.R. GOAP planner: 3-state FSM plus A* action planning and data-driven SmartObjects. Proves data-driven action planning, not ability systems in the modern sense."
+  },
+  {
+   "code": "SRC-MPR-013",
+   "title": "Crowd Pathfinding and Steering Using Flow Field Tiles (Game AI Pro, Chapter 23)",
+   "author_or_publisher": "Elijah Emerson (Game AI Pro, CRC Press)",
+   "source_type": "book",
+   "published_date": "2013",
+   "verified_date": "2026-09-10",
+   "url": "https://www.gameaipro.com/GameAIPro/GameAIPro_Chapter23_Crowd_Pathfinding_and_Steering_Using_Flow_Field_Tiles.pdf",
+   "engine_or_api_version": "Supreme Commander 2 engine",
+   "platform": "Windows PC / Xbox 360",
+   "locator": "sections 23.3-23.8, 23.14, 23.15",
+   "availability": "verified_fetched",
+   "applicability_note": "Primary author chapter describing the flow-field-tile pathfinding shipped in Supreme Commander 2, including the fixed-millisecond rebuild time-slice queue and per-tick CPU caps. Single-game evidence."
+  },
+  {
+   "code": "SRC-MPR-014",
+   "title": "The Art of Destruction in Rainbow Six: Siege (GDC 2016)",
+   "author_or_publisher": "Ubisoft Montreal (Julien L'Heureux)",
+   "source_type": "conference_talk",
+   "published_date": "2016",
+   "verified_date": "2026-09-10",
+   "url": "https://media.gdcvault.com/gdc2016/Presentations/LHeureux_Julien_Art_Of_Destruction.pdf",
+   "engine_or_api_version": "RealBlast / AnvilNext",
+   "platform": "Windows PC / PS4 / Xbox One",
+   "locator": "slides 54-55, 57-58, 61-68, 73-74",
+   "availability": "verified_fetched",
+   "applicability_note": "Primary Ubisoft deck on the shipped Rainbow Six: Siege RealBlast procedural destruction: explicit CPU/GPU/RAM budgets, debris recycling and time-slicing. Covers destruction only."
+  },
+  {
+   "code": "SRC-MPR-015",
+   "title": "Massive Crowd on Assassin's Creed Unity: AI Recycling (GDC 2015, session page)",
+   "author_or_publisher": "Ubisoft (Francois Cournoyer) / GDC Vault",
+   "source_type": "conference_talk",
+   "published_date": "2015",
+   "verified_date": "2026-09-10",
+   "url": "https://www.gdcvault.com/play/1022411/Massive-Crowd-on-Assassin-s",
+   "engine_or_api_version": "AnvilNext",
+   "platform": "Windows PC / PS4 / Xbox One",
+   "locator": "session abstract",
+   "availability": "verified_fetched",
+   "applicability_note": "GDC Vault session abstract (not the full talk video). Confirms the shipped Assassin's Creed Unity crowd system: AI LOD recycling, 10,000 crowd NPCs on screen, 40 real AIs / 120 high-res models. Abstract only."
+  },
+  {
+   "code": "SRC-MPR-016",
+   "title": "Continuous World Generation in 'No Man's Sky' (GDC 2017, session page)",
+   "author_or_publisher": "Hello Games (Innes McKendrick) / GDC Vault",
+   "source_type": "conference_talk",
+   "published_date": "2017",
+   "verified_date": "2026-09-10",
+   "url": "https://www.gdcvault.com/play/1024265/Continuous-World-Generation-in-No",
+   "engine_or_api_version": "No Man's Sky engine",
+   "platform": "Windows PC / PS4 / Xbox One",
+   "locator": "session abstract",
+   "availability": "verified_fetched",
+   "applicability_note": "GDC Vault session abstract (not the full talk). Confirms the shipped No Man's Sky continuous generation pipeline: voxel world generation, polygonization, texturing, population, all continuous in real time. Abstract only."
+  },
+  {
+   "code": "SRC-MPR-017",
+   "title": "Graphics Deep Dive: Cascaded voxel cone tracing in The Tomorrow Children (Game Developer / Gamasutra)",
+   "author_or_publisher": "Q-Games (James McLaren) / Game Developer",
+   "source_type": "interview",
+   "published_date": "2016-11-28",
+   "verified_date": "2026-09-10",
+   "url": "https://www.gamedeveloper.com/programming/graphics-deep-dive-cascaded-voxel-cone-tracing-in-i-the-tomorrow-children-i-",
+   "engine_or_api_version": "Q-Games engine",
+   "platform": "PlayStation 4",
+   "locator": "sections 'What: Cascaded voxel cone tracing', 'Why: A totally dynamic world'",
+   "availability": "verified_fetched",
+   "applicability_note": "First-person deep dive by the Q-Games engine director on the shipped PS4 title The Tomorrow Children: cone tracing through six cascades of 3D textures, 16 fixed directions, three GI bounces. Primary for that game."
+  },
+  {
+   "code": "SRC-MPR-018",
+   "title": "Interactive Indirect Illumination Using Voxel Cone Tracing (Pacific Graphics 2011)",
+   "author_or_publisher": "Crassin, Neyret, Sainz, Green, Eisemann / NVIDIA Research",
+   "source_type": "academic_paper",
+   "published_date": "2011-09",
+   "verified_date": "2026-09-10",
+   "url": "https://research.nvidia.com/labs/rtr/publication/crassin2011givoxels/",
+   "engine_or_api_version": "NVIDIA VXGI",
+   "platform": "Windows PC",
+   "locator": "abstract",
+   "availability": "verified_fetched",
+   "applicability_note": "The originating VXGI paper (abstract page retrieved). Establishes the technique and its reported 25-70 FPS for two bounces. A research demo, NOT a shipped game."
+  },
+  {
+   "code": "SRC-MPR-019",
+   "title": "GPU Gems 3, Chapter 13: Volumetric Light Scattering as a Post-Process",
+   "author_or_publisher": "Kenny Mitchell / NVIDIA",
+   "source_type": "book",
+   "published_date": "2007",
+   "verified_date": "2026-09-10",
+   "url": "https://developer.nvidia.com/gpugems/gpugems3/part-ii-light-and-shadows/chapter-13-volumetric-light-scattering-post-process",
+   "engine_or_api_version": "GPU Gems 3",
+   "platform": "cross-platform",
+   "locator": "section 13.2 'Crepuscular Rays', 13.6 'Caveats'",
+   "availability": "verified_fetched",
+   "applicability_note": "Canonical technique chapter for screen-space crepuscular rays / god rays as a per-pixel post-process. A technique reference, not tied to a shipped title."
+  },
+  {
+   "code": "SRC-MPR-020",
+   "title": "Decima Engine: Advances in Lighting and AA (Guerrilla, SIGGRAPH 2017 talk page)",
+   "author_or_publisher": "Guerrilla Games",
+   "source_type": "conference_talk",
+   "published_date": "2017-07-31",
+   "verified_date": "2026-09-10",
+   "url": "https://www.guerrilla-games.com/read/decima-engine-advances-in-lighting-and-aa",
+   "engine_or_api_version": "Decima",
+   "platform": "PS4 / PS4 Pro",
+   "locator": "abstract",
+   "availability": "verified_fetched",
+   "applicability_note": "Guerrilla's own abstract for the Decima talk covering Horizon Zero Dawn / Death Stranding: spherical area lights, atmospheric scattering with height fog, 2-frame TAA at 1080p, 2160p checkerboard + 'tangram' resolve on PS4 Pro. Abstract only (slides are separate downloads)."
+  },
+  {
+   "code": "SRC-MPR-021",
+   "title": "Streaming the World of Horizon Zero Dawn (Guerrilla talk page)",
+   "author_or_publisher": "Guerrilla Games (Jan-Jaap)",
+   "source_type": "conference_talk",
+   "published_date": "2023-03-21",
+   "verified_date": "2026-09-10",
+   "url": "https://www.guerrilla-games.com/read/streaming-the-world-of-horizon-zero-dawn",
+   "engine_or_api_version": "Decima",
+   "platform": "PS4",
+   "locator": "abstract",
+   "availability": "verified_fetched",
+   "applicability_note": "Guerrilla's abstract for the HZD streaming talk: asset pipeline, low-level and high-level streaming systems, memory management and scheduling. Confirms streaming exists in the shipped HZD; no numeric budgets in the abstract."
+  },
+  {
+   "code": "SRC-MPR-022",
+   "title": "GPU-Based Procedural Placement in Horizon Zero Dawn (Guerrilla talk page)",
+   "author_or_publisher": "Guerrilla Games (Jaap van Muijden)",
+   "source_type": "conference_talk",
+   "published_date": "2017-03-01",
+   "verified_date": "2026-09-10",
+   "url": "https://www.guerrilla-games.com/read/gpu-based-procedural-placement-in-horizon-zero-dawn",
+   "engine_or_api_version": "Decima",
+   "platform": "PS4",
+   "locator": "abstract",
+   "availability": "verified_fetched",
+   "applicability_note": "Guerrilla's abstract for the GPU procedural placement talk: the shipped HZD world is assembled around the player on the GPU from artist-defined rules. Confirms GPU-side procedural placement; no numeric density given."
+  },
+  {
+   "code": "SRC-MPR-023",
+   "title": "Virtual Shadow Maps in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Shadow Cache Invalidation Behavior', 'Contact Shadows', 'Performance'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE5 VSM reference: page-based virtual shadow map, per-primitive shadow-cache invalidation, and the screen-space Contact Shadow property. Engine capability, not a specific game."
+  },
+  {
+   "code": "SRC-MPR-024",
+   "title": "Lumen Technical Details in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/lumen-technical-details-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Surface Cache', 'Radiance Cache', 'Distance Field', 'Software Ray Tracing'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE5 Lumen reference: surface cache, radiance cache, global distance field for software RT, async compute. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-025",
+   "title": "Lightmass Basics in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/lightmass-basics-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Lightmass Importance Volume', 'Lightmaps'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE lightmass reference: baked lightmaps and the Lightmass Importance Volume controlling photon emission area. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-026",
+   "title": "Optimizing Rendering with PSO Caches in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/unreal-engine/optimizing-rendering-with-pso-caches-in-unreal-engine?lang=en-US",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Terminology and Supported PSO Types', 'Generate PSO Caches'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE documentation on PSO caches: states that generating a PSO on demand can take 100+ ms and that shipped games pre-collect PSO descriptions into a cache file. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-027",
+   "title": "Scalability in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/scalability-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Scalability Levels', 'Quality Levels'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE scalability reference: Low/Medium/High/Epic scalability groups and per-group render settings. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-028",
+   "title": "Dynamic Resolution in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/dynamic-resolution-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'How Dynamic Resolution Works', 'FAQ'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE dynamic-resolution reference, including the note that Gaussian DoF and DFAO have issues with resolution changes. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-029",
+   "title": "Hierarchical Level of Detail in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/hierarchical-level-of-detail-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "section 'Hierarchical Level of Detail'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE HLOD reference: merge distant actors into proxy meshes to reduce draw calls. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-030",
+   "title": "Hair Rendering and Simulation in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/hair-rendering-and-simulation-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Groom', 'Card-based hair', 'Level of Detail'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE groom reference: strand-based rendering plus support for card-based hair and groom LODs. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-031",
+   "title": "Water System in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/water-system-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Water Bodies', 'Simulating Waves Using the Water Waves Asset'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE water reference: spline-based water bodies and a Water Waves asset driving wave simulation. Engine capability; the page does not state a specific wave algorithm."
+  },
+  {
+   "code": "SRC-MPR-032",
+   "title": "Scriptable Render Pipeline Batcher in URP (Unity official documentation)",
+   "author_or_publisher": "Unity Technologies",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.unity3d.com/Manual/SRPBatcher.html",
+   "engine_or_api_version": "Unity 6 / URP & HDRP",
+   "platform": "cross-platform",
+   "locator": "sections 'How the SRP Batcher works', 'Requirements and compatibility'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Unity reference: the SRP Batcher reduces CPU cost by reducing render-state changes between draw calls for materials sharing a shader variant. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-033",
+   "title": "Quality Settings (Unity official documentation)",
+   "author_or_publisher": "Unity Technologies",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.unity3d.com/Manual/class-QualitySettings.html",
+   "engine_or_api_version": "Unity 6",
+   "platform": "cross-platform",
+   "locator": "sections 'Shadow Cascades', 'Cascade splits', 'Shadowmask mode'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Unity reference for shadow cascades (Two / Four Cascades, cascade splits) and per-quality-level settings. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-034",
+   "title": "Lightmapping (Unity official documentation)",
+   "author_or_publisher": "Unity Technologies",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.unity3d.com/Manual/Lightmapping.html",
+   "engine_or_api_version": "Unity 6",
+   "platform": "cross-platform",
+   "locator": "sections 'Precalculating surface lighting with lightmaps', 'Baking lightmaps before runtime'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Unity reference: precomputed lightmaps baked before runtime and stored in lightmap textures. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-035",
+   "title": "The Progressive Lightmapper (Unity official documentation)",
+   "author_or_publisher": "Unity Technologies",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.unity3d.com/Manual/progressive-lightmapper.html",
+   "engine_or_api_version": "Unity 6",
+   "platform": "cross-platform",
+   "locator": "sections 'Progressive CPU Lightmapper', 'Progressive GPU Lightmapper'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Unity reference: the Progressive Lightmapper with CPU and GPU backends for baking lightmaps. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-036",
+   "title": "Light Probes (Unity official documentation)",
+   "author_or_publisher": "Unity Technologies",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.unity3d.com/Manual/LightProbes.html",
+   "engine_or_api_version": "Unity 6",
+   "platform": "cross-platform",
+   "locator": "sections 'Precalculating indirect light with Light Probes', 'Light Probes and moving GameObjects'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Unity reference: light probes store baked indirect lighting in a 3D grid and are sampled for moving objects. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-037",
+   "title": "V Rising: Behind the vampire realm built on 1,600 ECS systems (Unity case study)",
+   "author_or_publisher": "Unity Technologies / Stunlock Studios",
+   "source_type": "engineering_blog",
+   "published_date": "2024-12-09",
+   "verified_date": "2026-09-10",
+   "url": "https://unity.com/resources/stunlock-studios-v-rising",
+   "engine_or_api_version": "Unity DOTS / HDRP",
+   "platform": "Windows PC / PS5",
+   "locator": "sections 'The challenge', 'Scaling up operations with DOTS', results list",
+   "availability": "verified_fetched",
+   "applicability_note": "Vendor case study co-authored with the shipping studio. Confirms shipped V Rising (Stunlock) uses DOTS + HDRP, streamed 160,000+ objects, and states SRP Batcher 'eliminated multiple ms of frame lag'. Vendor framing."
+  },
+  {
+   "code": "SRC-MPR-038",
+   "title": "Using SDFGI (Godot official documentation)",
+   "author_or_publisher": "Godot Engine contributors",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.godotengine.org/en/stable/tutorials/3d/global_illumination/using_sdfgi.html",
+   "engine_or_api_version": "Godot 4",
+   "platform": "cross-platform",
+   "locator": "sections 'Cascades', 'Cascade 0 Distance', 'SDFGI caveats'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Godot reference for SDFGI: cascaded signed-distance-field global illumination with explicit cascade count/cost trade-offs. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-039",
+   "title": "2D lights and shadows (Godot official documentation)",
+   "author_or_publisher": "Godot Engine contributors",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.godotengine.org/en/stable/tutorials/2d/2d_lights_and_shadows.html",
+   "engine_or_api_version": "Godot 4",
+   "platform": "cross-platform",
+   "locator": "sections 'LightOccluder2D', 'Item Cull Mask', 'Limitations'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Godot reference for 2D lighting: LightOccluder2D shadow casters and the Item Cull Mask that limits which occluders cast shadows. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-040",
+   "title": "Using LightmapGI (Godot official documentation)",
+   "author_or_publisher": "Godot Engine contributors",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.godotengine.org/en/stable/tutorials/3d/global_illumination/using_lightmap_gi.html",
+   "engine_or_api_version": "Godot 4",
+   "platform": "cross-platform",
+   "locator": "sections 'LightmapGI', 'Shadowmasking'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Godot reference for baked lightmaps and shadowmasking. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-041",
+   "title": "Variable Rate Shading (Microsoft Direct3D 12 documentation)",
+   "author_or_publisher": "Microsoft",
+   "source_type": "api_specification",
+   "published_date": "2023",
+   "verified_date": "2026-09-10",
+   "url": "https://learn.microsoft.com/en-us/windows/win32/direct3d12/vrs",
+   "engine_or_api_version": "Direct3D 12",
+   "platform": "Windows PC / Xbox Series X|S",
+   "locator": "sections 'Variable Rate Shading Tiers', 'Shading Rate Image'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official D3D12 VRS specification: Tier 1 per-draw vs Tier 2 screen-space shading-rate image. API capability."
+  },
+  {
+   "code": "SRC-MPR-042",
+   "title": "DirectStorage overview (Microsoft Game Development Kit documentation)",
+   "author_or_publisher": "Microsoft",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://learn.microsoft.com/en-us/gaming/gdk/docs/features/console/storage/directstorage/directstorage-overview?view=gdk-2604",
+   "engine_or_api_version": "Microsoft GDK / DirectStorage",
+   "platform": "Windows PC / Xbox Series X|S",
+   "locator": "sections 'DirectStorage overview', 'Decompression'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Microsoft GDK DirectStorage reference: GPU-decompression and batched I/O queues. API capability."
+  },
+  {
+   "code": "SRC-MPR-043",
+   "title": "GPU Lightmass Global Illumination in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/gpu-lightmass-global-illumination-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC",
+   "locator": "sections 'GPU Lightmass', 'Enabling GPU Lightmass'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE GPU Lightmass reference: DXR/DX12 ray-traced light baking, stated to reach speeds comparable to distributed CPU Swarm builds. Engine capability, beta."
+  },
+  {
+   "code": "SRC-MPR-044",
+   "title": "Distance Field Soft Shadows in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/distance-field-soft-shadows-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Distance Field Soft Shadows', 'Distance Field Ambient Occlusion'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE reference for distance-field soft shadows and DFAO, used for far-field directional shadows and movable skylight shadowing. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-045",
+   "title": "Saving and Loading Your Game in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/saving-and-loading-your-game-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'SaveGame', 'SaveGameToSlot', 'Async Saving'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE save-system reference: slot-based SaveGame objects and the asynchronous save path. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-046",
+   "title": "Audio Mixer Overview in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/audio-mixer-overview-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Audio Mixer', 'Sound Waves'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE audio reference: mixer graph and sound-wave assets. Engine capability; does not itself prove a shipped-game streaming/compression choice."
+  },
+  {
+   "code": "SRC-MPR-047",
+   "title": "Gameplay Ability System in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-ability-system-for-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Gameplay Abilities', 'Gameplay Effects', 'Gameplay Attributes'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE GAS reference: data-driven abilities, gameplay effects and attribute sets. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-048",
+   "title": "The creators of the Havok engine discouraged the authors of Red Faction: Guerrilla from destructibility, calling it impossible (Studio AtticSalt)",
+   "author_or_publisher": "Studio AtticSalt (Aaron Hall), reporting an interview with Eric Arnold",
+   "source_type": "secondary",
+   "published_date": "2026-09-08",
+   "verified_date": "2026-09-10",
+   "url": "https://www.studioatticsalt.com/the-creators-of-the-havok-engine-discouraged-the-authors-of-red-faction-guerrilla-from-destructibility-calling-it-impossible/",
+   "engine_or_api_version": "Geo-Mod 2.0 / Havok",
+   "platform": "Windows PC / PS3 / Xbox 360",
+   "locator": "article body, paragraphs on Geo-Mod 2.0 and its rendering/AI costs",
+   "availability": "verified_fetched",
+   "applicability_note": "Secondary gaming-news write-up of an interview with a former Volition physics lead about shipped Red Faction: Guerrilla (Geo-Mod 2.0). States that full destructibility precluded pre-baked lighting and forced navmesh rebuilds. Secondary and paraphrased."
+  },
+  {
+   "code": "SRC-MPR-049",
+   "title": "Using Light Shafts in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/unreal-engine/using-light-shafts-in-unreal-engine?lang=en-US",
+   "engine_or_api_version": "UE 4.x/5.x",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Occlusion Method', 'Bloom Method', 'GPU Cost'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE light-shaft reference: screen-space occlusion and bloom methods for crepuscular rays, with a stated GPU cost (0.5 ms occlusion / 0.68 ms bloom at 1080p on a 680GTX). Engine capability."
+  },
+  {
+   "code": "SRC-MPR-050",
+   "title": "Volumetric Fog in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/volumetric-fog-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Volumetric Fog', 'Froxel Grid', 'Performance'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE volumetric-fog reference: froxel-grid volumetrics with a configurable grid resolution. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-051",
+   "title": "Portal developer commentary (Portal Wiki transcription of Valve in-game commentary)",
+   "author_or_publisher": "Valve (commentary); Portal Wiki transcription",
+   "source_type": "secondary",
+   "published_date": "2007",
+   "verified_date": "2026-09-10",
+   "url": "https://theportalwiki.com/wiki/Portal_developer_commentary",
+   "engine_or_api_version": "Source engine",
+   "platform": "Windows PC / consoles",
+   "locator": "commentary entries on portal rendering and recursive portal views",
+   "availability": "verified_fetched",
+   "applicability_note": "Community wiki transcription of Valve's own in-game developer commentary for the shipped Portal (2007). Explicitly describes rendering the view through a portal with a virtual camera, moving from two offscreen textures to recursive frame-buffer rendering, and a maximum of nine recursive portal views. Secondary transcription of a primary statement."
+  },
+  {
+   "code": "SRC-MPR-052",
+   "title": "Occlusion Culling (Unity official documentation)",
+   "author_or_publisher": "Unity Technologies",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.unity3d.com/Manual/OcclusionCulling.html",
+   "engine_or_api_version": "Unity 6",
+   "platform": "cross-platform",
+   "locator": "sections 'Occlusion Culling', 'Occlusion Culling data'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Unity reference for precomputed occlusion culling data (Umbra-based) baked in the editor. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-053",
+   "title": "Occlusion culling (Godot official documentation)",
+   "author_or_publisher": "Godot Engine contributors",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.godotengine.org/en/stable/tutorials/3d/occlusion_culling.html",
+   "engine_or_api_version": "Godot 4",
+   "platform": "cross-platform",
+   "locator": "sections 'Why use occlusion culling', 'How occlusion culling works in Godot'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Godot reference for baked occluder/occludee occlusion culling. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-054",
+   "title": "Mesh level of detail (LOD) (Godot official documentation)",
+   "author_or_publisher": "Godot Engine contributors",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.godotengine.org/en/stable/tutorials/3d/mesh_lod.html",
+   "engine_or_api_version": "Godot 4",
+   "platform": "cross-platform",
+   "locator": "sections 'Automatic mesh LOD', 'Visibility ranges (HLOD)'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Godot reference for mesh LOD and visibility-range based HLOD. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-055",
+   "title": "Using physics interpolation (Godot official documentation)",
+   "author_or_publisher": "Godot Engine contributors",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.godotengine.org/en/stable/tutorials/physics/interpolation/using_physics_interpolation.html",
+   "engine_or_api_version": "Godot 4",
+   "platform": "cross-platform",
+   "locator": "sections 'What is physics interpolation', 'Setup'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Godot reference for fixed-tick physics with rendered-frame interpolation. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-056",
+   "title": "Reflections Captures in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/reflections-captures-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Scene Capture', 'Planar Reflections', 'Reflection Captures'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE reference for scene-capture actors and planar reflections (render-to-texture). Engine capability."
+  },
+  {
+   "code": "SRC-MPR-057",
+   "title": "Overview of Niagara Effects in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-niagara-effects-for-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Niagara', 'GPU Particles', 'SubUV / Flipbook'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE Niagara reference including GPU particle simulation and flipbook/SubUV material support. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-058",
+   "title": "Cloth (Unity official documentation)",
+   "author_or_publisher": "Unity Technologies",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.unity3d.com/Manual/class-Cloth.html",
+   "engine_or_api_version": "Unity 6",
+   "platform": "cross-platform",
+   "locator": "sections 'Cloth component', 'Constraints'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Unity reference for cloth simulation with constraints and collision. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-059",
+   "title": "Job System overview (Unity official documentation)",
+   "author_or_publisher": "Unity Technologies",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.unity3d.com/Manual/JobSystemOverview.html",
+   "engine_or_api_version": "Unity 6",
+   "platform": "cross-platform",
+   "locator": "sections 'Job System', 'Safety system'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Unity reference for the C# Job System used to run work across worker threads. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-060",
+   "title": "Sprite Atlas (Unity official documentation)",
+   "author_or_publisher": "Unity Technologies",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.unity3d.com/Manual/class-SpriteAtlas.html",
+   "engine_or_api_version": "Unity 6",
+   "platform": "cross-platform",
+   "locator": "sections 'Sprite Atlas', 'Sprite packing'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Unity reference for packing sprites into atlases to reduce draw calls. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-061",
+   "title": "True Impostors (GPU Gems 3, Chapter 21)",
+   "author_or_publisher": "Ryan Geiss / NVIDIA",
+   "source_type": "book",
+   "published_date": "2007",
+   "verified_date": "2026-09-10",
+   "url": "https://developer.nvidia.com/gpugems/gpugems3/part-iv-image-effects/chapter-21-true-impostors",
+   "engine_or_api_version": "GPU Gems 3",
+   "platform": "cross-platform",
+   "locator": "chapter body, section on impostor rendering",
+   "availability": "verified_fetched",
+   "applicability_note": "Canonical technique chapter on impostor/billboard rendering for distant objects. Technique reference, not tied to a shipped title."
+  },
+  {
+   "code": "SRC-MPR-062",
+   "title": "Baking Normal Maps on the GPU (GPU Gems 3, Chapter 22)",
+   "author_or_publisher": "NVIDIA",
+   "source_type": "book",
+   "published_date": "2007",
+   "verified_date": "2026-09-10",
+   "url": "https://developer.nvidia.com/gpugems/gpugems3/part-iv-image-effects/chapter-22-baking-normal-maps-gpu",
+   "engine_or_api_version": "GPU Gems 3",
+   "platform": "cross-platform",
+   "locator": "chapter body",
+   "availability": "verified_fetched",
+   "applicability_note": "Technique chapter on baking high-detail normals onto low-poly meshes (normal-map baking for retopologised assets). Technique reference, not tied to a shipped title."
+  },
+  {
+   "code": "SRC-MPR-063",
+   "title": "Chaos Physics Overview in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/chaos-physics-overview",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Chaos Physics', 'Scene Queries'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE Chaos physics reference (rigid-body simulation, scene queries). Engine capability; the page does not document a broadphase algorithm or a shipped game's settings."
+  },
+  {
+   "code": "SRC-MPR-064",
+   "title": "Motion Matching in Unreal Engine (Epic official documentation)",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/motion-matching-in-unreal-engine",
+   "engine_or_api_version": "UE 5.4",
+   "platform": "Windows PC / consoles",
+   "locator": "sections 'Motion Matching', 'Pose Search'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official UE motion-matching reference (pose search against a motion database). Engine capability."
+  },
+  {
+   "code": "SRC-MPR-065",
+   "title": "3D lights and shadows (Godot official documentation)",
+   "author_or_publisher": "Godot Engine contributors",
+   "source_type": "official_documentation",
+   "published_date": "2024",
+   "verified_date": "2026-09-10",
+   "url": "https://docs.godotengine.org/en/stable/tutorials/3d/lights_and_shadows.html",
+   "engine_or_api_version": "Godot 4",
+   "platform": "cross-platform",
+   "locator": "sections 'Shadow mapping', 'Shadow bias'",
+   "availability": "verified_fetched",
+   "applicability_note": "Official Godot reference for 3D shadow mapping and per-light shadow settings. Engine capability."
+  },
+  {
+   "code": "SRC-MPR-066",
+   "title": "Illuminating Roco's Legacy: Scalable Global Illumination from Theory to Practice (GDC 2026)",
+   "author_or_publisher": "Tencent Games / MoreFun Studios (Sheng Feng)",
+   "source_type": "conference_talk",
+   "published_date": "2026-03",
+   "verified_date": "2026-09-10",
+   "url": "https://media.gdcvault.com/gdc2026/Slides/Sheng_Feng_IlluminatingRocosLegacyScalableGlobalIlluminationfromTheorytoPractice.pdf",
+   "engine_or_api_version": "Unreal Engine 4 (custom)",
+   "platform": "cross-platform (mobile + PC)",
+   "locator": "slides 5, 9, 15-17, 23-24, 28-31, 33-34, 36, 52",
+   "availability": "verified_fetched",
+   "applicability_note": "Primary GDC 2026 slides for the shipped open-world title Roco Kingdom: World (Tencent MoreFun Studios, UE4). Documents baked PRT GI, the 'Magic Dawn' distributed GPU lightmap baker, per-chunk lightmap and probe memory budgets, ASTC compression trade-offs and CLV probe streaming. Covers lighting only."
+  }
+ ],
+ "methods": {
+  "cascaded_shadow_maps": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Unity exposes a Shadow Cascades quality setting with Two Cascades or Four Cascades and per-cascade split distances.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-033",
+     "locator": "section 'Shadow Cascades' / 'Cascade splits'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Engine capability, not a shipped title."
+    },
+    {
+     "field": "implementation",
+     "statement": "Unreal Engine 5's mobile renderer supports Distance Field Shadows alongside Cascade Shadow Maps, with CSM covering objects closer to the camera and DFS filling far distances.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-044",
+     "locator": "section 'Distance Field Ambient Occlusion'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE5 mobile renderer documentation."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Titanfall 2",
+     "studio": "Respawn Entertainment",
+     "year": 2016,
+     "engine": "Titanfall 2 engine (Source-derived)",
+     "world_type": "linear",
+     "network_mode": "dedicated_server",
+     "fact": "Digital Foundry's breakdown observes a shadow 'filtering cascade' line on the floor on PS4/Xbox One and states console shadow quality is lower, with the PC retaining quality further out.",
+     "locator": "section 'Shadow quality'",
+     "source": "SRC-MPR-005",
+     "relevance": "strong",
+     "non_transferable": "Do not copy console shadow-cascade split distances or the low-quality filtering cascade; PC/console budgets differ per platform."
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry reports 'a very distinct shadow cascade line' near the main character when Virtual Shadow Maps are excised without Full RT, with distant shadows blobbing out.",
+     "locator": "section on virtual shadow maps / shadow quality",
+     "source": "SRC-MPR-007",
+     "relevance": "strong",
+     "non_transferable": "Do not copy the VSM-excised fallback configuration: it produces visible cascade seams that reviewers flagged."
+    }
+   ]
+  },
+  "virtual_shadow_maps": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE5 Virtual Shadow Maps use page-based caching with a per-primitive 'Shadow Cache Invalidation Behavior' to avoid re-rendering static shadow pages.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-023",
+     "locator": "sections 'Shadow Cache Invalidation Behavior', 'Caching'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE5 engine documentation."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Senua's Saga: Hellblade 2",
+     "studio": "Ninja Theory",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry states the game's Nanite geometry 'is nicely enhanced by the use of virtual shadow maps', a key UE5 feature used to raise shadow resolution for dense geometry.",
+     "locator": "section on Nanite and virtual shadow maps",
+     "source": "SRC-MPR-009",
+     "relevance": "exact",
+     "non_transferable": "Do not assume the VSM cost model of Hellblade 2 (narrow linear scenes) transfers to open worlds with heavy non-Nanite foliage."
+    },
+    {
+     "game": "Lords of the Fallen",
+     "studio": "Hexworks",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "Digital Foundry notes Virtual Shadow Maps add a lot to the visuals of Lords of the Fallen and questions why VSM cannot be toggled in the game's menu.",
+     "locator": "section on Virtual Shadow Maps / missing toggles",
+     "source": "SRC-MPR-008",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the shipped configuration that omits a user-facing VSM toggle; that is a menu-policy choice, not a technical requirement."
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry reports the game forgoes Virtual Shadow Maps unless Full RT is enabled because VSMs are expensive on non-Nanite foliage, producing more shadow issues than other UE5 titles.",
+     "locator": "section on Nanite/VSM",
+     "source": "SRC-MPR-007",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the decision to disable VSMs in a foliage-heavy game unless you accept the shadow artifacts it caused here."
+    }
+   ]
+  },
+  "distance_field_shadows": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Distance field soft shadows and DFAO in UE are used for far-field directional-light shadows and movable skylight shadowing, and require distance fields to be built for static meshes.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-044",
+     "locator": "section 'Distance Field Soft Shadows'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE5 engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "In UE5 mobile, Distance Field Shadows extend directional shadowing beyond the range covered by Cascade Shadow Maps.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-044",
+     "locator": "section 'Distance Field Ambient Occlusion'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE5 mobile renderer."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-044",
+     "locator": "section 'Distance Field Soft Shadows'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Remnant 2",
+     "studio": "Gunfire Games",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "Digital Foundry's UE5 survey states Remnant 2 does not use Lumen and instead falls back to SDFAO (signed-distance-field ambient occlusion) and other raster techniques.",
+     "locator": "section 'Lumen, Nanite and Virtual Shadow Maps on PC'",
+     "source": "SRC-MPR-006",
+     "relevance": "partial",
+     "non_transferable": "Do not copy the SDFAO fallback as a visual target: it is the cheaper non-Lumen path, not an equivalent GI solution."
+    }
+   ]
+  },
+  "screen_space_contact_shadows": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE's Contact Shadow feature is a screen-space effect controlled by Contact Shadow Length; with VSMs it is no longer required for sharp contact shadows and is best reserved for objects excluded from shadow maps such as grass.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-023",
+     "locator": "section 'Contact Shadows'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE5 engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-023",
+     "locator": "section 'Contact Shadows'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Gears 5 / Gears Tactics (Hivebusters)",
+     "studio": "The Coalition",
+     "year": 2020,
+     "engine": "Unreal Engine 4",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "The Coalition's own VRS write-up states the Xbox Series X|S launch of Gears 5/Tactics and the Hivebusters DLC 'added new rendering features including contact shadows and screen space global illumination'.",
+     "locator": "section 'Moving to Tier 2'",
+     "source": "SRC-MPR-004",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the pass list blindly: Gears applied VRS to contact-shadow-bearing passes under a specific budget that depends on its own target framerate."
+    }
+   ]
+  },
+  "static_shadow_caching": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE5 Virtual Shadow Maps cache shadow pages for static geometry and expose a 'Shadow Cache Invalidation Behavior' enumeration to stop World-Position-Offset materials from invalidating cached pages.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-023",
+     "locator": "section 'Shadow Cache Invalidation Behavior'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE5 engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of a second shipped-game source: no primary talk in the checked corpus documents a standalone static-shadow-cache implementation in a named game beyond VSM page caching.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-023",
+     "locator": "section 'Shadow Cache Invalidation Behavior'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Only VSM's built-in static page caching is evidenced; a game-specific static shadow cache was not found, so no game example is claimed."
+    }
+   ],
+   "game_examples": []
+  },
+  "dynamic_light_priority_budget": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Doom Eternal's hybrid binning targets a very tight light/decal binning budget of under 500 microseconds while handling thousands of lights or decals in some scenes.",
+     "unit": "us",
+     "value": 500,
+     "value_range": [
+      0,
+      500
+     ],
+     "source": "SRC-MPR-001",
+     "locator": "slide 9 'HYBRID BINNING'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "id Tech 7, Doom Eternal, author-stated budget."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "DOOM Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "world_type": "arena",
+     "network_mode": "single",
+     "fact": "The shipped game bins lights and decals with a hybrid cluster+tile scheme because artists wanted more dynamic lights and decals while the binning budget stayed under 500us.",
+     "locator": "slides 4, 9 'HYBRID BINNING'",
+     "source": "SRC-MPR-001",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the <500us binning budget without id Tech 7's compute-raster pipeline and bindless resource model."
+    },
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine (DXR)",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Metro Exodus sorts ray-tracing instances by accumulated per-frame priority and throttles BLAS updates, keeping the queue in a 'balanced' state of about 5k-6k outdated instances out of 20k+.",
+     "locator": "slide 27 'BLAS UPDATE THROTTLING'",
+     "source": "SRC-MPR-002",
+     "relevance": "partial",
+     "non_transferable": "Do not copy the instance-priority throttling numbers: they budget ray-tracing BLAS work, not dynamic punctual lights."
+    }
+   ]
+  },
+  "tiled_clustered_light_culling": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Doom Eternal replaced pure clustered binning with a hybrid cluster+tile scheme so that distant small lights and decals are no longer merged into one large cluster; fine tiles are 32x32 pixels and coarse tiles 256x256 pixels.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slides 4, 13-16 'HYBRID BINNING'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "id Tech 7, Doom Eternal."
+    },
+    {
+     "field": "implementation",
+     "statement": "Metro Exodus runs a deferred pipeline with clustered lights and image-based lighting accumulated into lighting buffers.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-002",
+     "locator": "slide 8 'A CUTTING EDGE ENGINE'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "4A Engine, Metro Exodus."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "DOOM Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "world_type": "arena",
+     "network_mode": "single",
+     "fact": "Shipped Doom Eternal uses hybrid cluster+tile light binning with per-fragment selection of the shorter of the cluster and tile light lists.",
+     "locator": "slides 4, 16 'LIGHT LIST SELECTION'",
+     "source": "SRC-MPR-001",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the cluster/tile sizes or the fragment-side list selection without the same bindless descriptor and scalarization scheme."
+    },
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine (DXR)",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Metro Exodus' deferred renderer accumulates sun, clustered lights and IBLs into lighting buffers before TAA and post-process.",
+     "locator": "slide 8 'A CUTTING EDGE ENGINE'",
+     "source": "SRC-MPR-002",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the clustered-light stage in isolation: Metro's pipeline depends on its RT module and SH light probes for GI."
+    }
+   ]
+  },
+  "light_range_attenuation_lod": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents a shipped game simplifying light attenuation/range as a function of distance (attenuation LOD) as a named technique.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Engine docs describe attenuation curves but not a distance-based attenuation LOD; no game source was found."
+    }
+   ],
+   "game_examples": []
+  },
+  "lightmap_2d_baking": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Unity bakes surface lighting into lightmap textures before runtime and supports multiple lightmapper backends.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-034",
+     "locator": "section 'Precalculating surface lighting with lightmaps'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Unity engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Godot's LightmapGI bakes lighting into lightmaps and supports shadowmasking so distant static shadows come from the lightmap rather than real-time cascades.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-040",
+     "locator": "sections 'LightmapGI', 'Shadowmasking'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Godot engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Roco Kingdom: World bakes static lighting with PRT lightmaps produced by Tencent's in-house baker Magic Dawn, using Forward+ only for dynamic local lighting.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-066",
+     "locator": "slides 5, 9",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Tencent MoreFun Studios, shipped Roco Kingdom: World (UE4)."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-034",
+     "locator": "section 'Precalculating surface lighting with lightmaps'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Roco Kingdom: World",
+     "studio": "Tencent Games / MoreFun Studios",
+     "year": 2026,
+     "engine": "Unreal Engine 4 (custom)",
+     "world_type": "open_world",
+     "network_mode": "dedicated_server",
+     "fact": "The shipped 8km x 8km cross-platform title uses baked PRT lightmaps for static lighting and dynamic indirect lighting, with Forward+ reserved for dynamic local lighting.",
+     "locator": "slides 4, 5",
+     "source": "SRC-MPR-066",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the PRT/lightmap split to a game with fully dynamic lighting or destructive environments; this pipeline assumes static local lighting."
+    }
+   ]
+  },
+  "lightmap_atlas_baking": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE Lightmass bakes static and stationary lighting into lightmap textures applied to scene geometry, with a Lightmass Importance Volume concentrating photon emission on the playable area.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-025",
+     "locator": "sections 'Lightmass Importance Volume', 'Lightmaps'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Godot's LightmapGI packs baked lighting into lightmap atlases and provides shadowmasking to separate static shadow data.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-040",
+     "locator": "sections 'LightmapGI', 'Shadowmasking'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Godot engine documentation."
+    },
+    {
+     "field": "optimization",
+     "statement": "Roco Kingdom: World eliminates the need to split Lightmap UVs by baking static local lighting into a Cascade Lighting Volume, reducing memory by 15%.",
+     "unit": "%",
+     "value": 15,
+     "value_range": null,
+     "source": "SRC-MPR-066",
+     "locator": "slide 52 'CLV to Boost Performance'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Tencent MoreFun Studios, shipped Roco Kingdom: World."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-025",
+     "locator": "sections 'Lightmass Importance Volume', 'Lightmaps'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Roco Kingdom: World",
+     "studio": "Tencent Games / MoreFun Studios",
+     "year": 2026,
+     "engine": "Unreal Engine 4 (custom)",
+     "world_type": "open_world",
+     "network_mode": "dedicated_server",
+     "fact": "Baking static local lighting into the CLV volume removed the need to split lightmap UVs and reduced memory usage by 15% in the shipped game.",
+     "locator": "slide 52",
+     "source": "SRC-MPR-066",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the 15% memory saving; it is specific to this title's lightmap/CLV split and texel budgets."
+    }
+   ]
+  },
+  "lightmap_compression_streaming": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE GPU Lightmass requires 'Virtual Texture Lightmaps' to be enabled, i.e. baked lightmaps are stored as virtual textures that can be streamed.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-043",
+     "locator": "section 'Enabling GPU Lightmass'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "optimization",
+     "statement": "Roco Kingdom: World budgets lightmap data at 60 MB per 256 m2 chunk; ASTC 4x4 would reach 120 MB and ASTC 8x8 is needed but looks blocky, so the studio encodes non-normalized SH coefficients that compress better.",
+     "unit": "MB",
+     "value": 60,
+     "value_range": null,
+     "source": "SRC-MPR-066",
+     "locator": "slides 28-31",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Tencent MoreFun Studios, shipped Roco Kingdom: World."
+    },
+    {
+     "field": "optimization",
+     "statement": "Roco Kingdom: World streams baked lighting with an area-based scheme: a Cascade Lighting Volume with 4 LODs streams and interpolates probe blocks, pre-interpolating probes of radius <= 4 m to avoid CPU hitches.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-066",
+     "locator": "slides 15-17, 33-34",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Tencent MoreFun Studios, shipped Roco Kingdom: World."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-043",
+     "locator": "section 'Enabling GPU Lightmass'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Roco Kingdom: World",
+     "studio": "Tencent Games / MoreFun Studios",
+     "year": 2026,
+     "engine": "Unreal Engine 4 (custom)",
+     "world_type": "open_world",
+     "network_mode": "dedicated_server",
+     "fact": "The shipped game streams baked lighting through a 4-LOD Cascade Lighting Volume with a 60 MB-per-chunk lightmap budget and pre-interpolated probe blocks.",
+     "locator": "slides 9, 15-17, 28",
+     "source": "SRC-MPR-066",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the 60 MB/chunk or ASTC settings without re-deriving them from your own chunk size, texel density and target devices."
+    }
+   ]
+  },
+  "gpu_lightmap_baking": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "UE GPU Lightmass uses DXR/DX12 ray tracing to bake static and stationary lighting and is stated to reach speeds comparable to distributed CPU Swarm builds, while also enabling on-the-fly rebuilds.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-043",
+     "locator": "section 'GPU Lightmass'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation; feature marked Beta."
+    },
+    {
+     "field": "optimization",
+     "statement": "Roco Kingdom: World's Magic Dawn baker uses hardware ray tracing (OptiX 7) on an elastic GPU pool, reporting about 6x speedup versus CPU for one node and about 40x with 8 nodes.",
+     "unit": "x",
+     "value": 40,
+     "value_range": [
+      6,
+      40
+     ],
+     "source": "SRC-MPR-066",
+     "locator": "slides 23-24",
+     "basis": "measured",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Tencent MoreFun Studios; per-node spec Intel 13900K + 128 GB RAM + RTX 4090D."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-043",
+     "locator": "section 'GPU Lightmass'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Roco Kingdom: World",
+     "studio": "Tencent Games / MoreFun Studios",
+     "year": 2026,
+     "engine": "Unreal Engine 4 (custom)",
+     "world_type": "open_world",
+     "network_mode": "dedicated_server",
+     "fact": "The shipped title's lightmaps are baked by the distributed GPU baker Magic Dawn (OptiX 7), with a 2km x 2km scene baked as 10,894 tasks at 8 bounces using 20 nodes in 5,686 s.",
+     "locator": "slides 23-24",
+     "source": "SRC-MPR-066",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the node count, task size (256x256 texels / 65,536 probes) or bake times; they depend on scene size, bounce count and the cloud GPU pool."
+    }
+   ]
+  },
+  "irradiance_volume_probes": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Unity light probes store precomputed indirect lighting on a 3D grid and are sampled for moving objects.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-036",
+     "locator": "section 'Precalculating indirect light with Light Probes'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Unity engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Metro Exodus stores irradiance as L1 spherical harmonics (Y in 4xFP16 plus CoCg 2xFP16, 96 bits per pixel) for its RTGI accumulation and denoising.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-002",
+     "locator": "slide 40 'IRRADIANCE STORAGE & ENCODING'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "4A Engine, Metro Exodus RTGI."
+    },
+    {
+     "field": "implementation",
+     "statement": "Roco Kingdom: World places PRT-GI probes at a 4 m interval outdoors and 2 m indoors, storing them in a 4-LOD Cascade Lighting Volume with an outdoor budget of 8 MB per chunk and a probe-data budget under 15 MB.",
+     "unit": "m",
+     "value": 4,
+     "value_range": null,
+     "source": "SRC-MPR-066",
+     "locator": "slides 9, 15, 36",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Tencent MoreFun Studios, shipped Roco Kingdom: World."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine (DXR)",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "The shipped game had a 'super-lazy-realtime grid of probes for GI' and voxel GI before RTGI, and its RTGI path stores per-pixel irradiance as L1 spherical harmonics.",
+     "locator": "slides 40, 76, 87",
+     "source": "SRC-MPR-002",
+     "relevance": "strong",
+     "non_transferable": "Do not copy the 96-bit/pixel SH irradiance encoding without Metro's two-pass denoiser and its HDR range assumptions."
+    },
+    {
+     "game": "Roco Kingdom: World",
+     "studio": "Tencent Games / MoreFun Studios",
+     "year": 2026,
+     "engine": "Unreal Engine 4 (custom)",
+     "world_type": "open_world",
+     "network_mode": "dedicated_server",
+     "fact": "The shipped game stores baked PRT probe lighting in a Cascade Lighting Volume with 4 LODs, 4 m outdoor / 2 m indoor probe intervals, streamed and interpolated on the GPU.",
+     "locator": "slides 9, 15-17",
+     "source": "SRC-MPR-066",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the 4 m / 2 m probe intervals or the 4-LOD CLV without re-deriving them from your world scale and memory budget."
+    }
+   ]
+  },
+  "dynamic_resolution_scaling": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Gears 5/Tactics use Dynamic Resolution Scaling to hold 60 FPS; combining it with VRS let dynamic resolution run an average of 10% higher on Xbox Series X cinematics and sometimes avoid downscaling entirely.",
+     "unit": "%",
+     "value": 10,
+     "value_range": null,
+     "source": "SRC-MPR-004",
+     "locator": "section 'Working with Dynamic Resolution Scaling'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "The Coalition, Gears 5/Tactics on Xbox Series X."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Gears 5 / Gears Tactics",
+     "studio": "The Coalition",
+     "year": 2020,
+     "engine": "Unreal Engine 4",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "The Coalition states the games use Dynamic Resolution Scaling to hit a smooth 60 FPS, rendering the next frame at lower resolution when near budget.",
+     "locator": "section 'Working with Dynamic Resolution Scaling'",
+     "source": "SRC-MPR-004",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the DRS thresholds or the 10% figure to a different engine/hardware target."
+    },
+    {
+     "game": "Senua's Saga: Hellblade 2",
+     "studio": "Ninja Theory",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry reports Hellblade 2 supports dynamic resolution scaling, but only when using UE5 TSR upscaling, not with DLSS, XeSS or FSR2 in the menu.",
+     "locator": "section on upscaling / dynamic resolution",
+     "source": "SRC-MPR-010",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the menu restriction that couples DRS to TSR only; the upscaler SDKs support DRS independently."
+    },
+    {
+     "game": "Lords of the Fallen",
+     "studio": "Hexworks",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "Digital Foundry measures the shipped PS5/Series X build at a dynamic 1152p with a 648p lower bound in performance mode.",
+     "locator": "section on performance testing",
+     "source": "SRC-MPR-008",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the 1152p/648p bounds; they are specific to this title's quality mode and hardware."
+    }
+   ]
+  },
+  "variable_rate_shading": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Gears 5/Tactics Tier-2 VRS delivered up to a 14% GPU performance gain with no perceptible quality impact in the studio's own measurements.",
+     "unit": "%",
+     "value": 14,
+     "value_range": null,
+     "source": "SRC-MPR-004",
+     "locator": "section 'Performance Results'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "The Coalition benchmark on AMD 6900 XT at 4K, Ultra/Insane with SSGI."
+    },
+    {
+     "field": "optimization",
+     "statement": "D3D12 Tier 2 VRS specifies the shading rate through a screen-space shading-rate image in 8x8 or 16x16 tiles, unlike Tier 1's per-draw rate.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-041",
+     "locator": "sections 'Variable Rate Shading Tiers', 'Shading Rate Image'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Microsoft D3D12 specification."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Gears 5 / Gears Tactics",
+     "studio": "The Coalition",
+     "year": 2020,
+     "engine": "Unreal Engine 4",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "Tier-2 VRS was shipped in Gears 5 and Gears Tactics, applied to the base pass, SSAO, lighting, SSGI, SSR, SSR temporal AA and translucency, with the VRS texture generated in under 0.1 ms on Xbox Series X|S.",
+     "locator": "sections 'VRS for different rendering passes', 'Performance Results'",
+     "source": "SRC-MPR-004",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the per-pass VRS list or the 'translucency is safe' conclusion: Tier 1 caused UI artifacts in this same title."
+    },
+    {
+     "game": "Call of Duty (SIGGRAPH 2020 talk, cited by The Coalition)",
+     "studio": "Infinity Ward / Activision",
+     "year": 2020,
+     "engine": "Call of Duty engine",
+     "world_type": "linear",
+     "network_mode": "dedicated_server",
+     "fact": "The Coalition's write-up points to 'Software-Based Variable Rate Shading in Call of Duty' (SIGGRAPH 2020) which emulates VRS via MSAA on platforms without hardware VRS and uses ExecuteDispatchIndirect for compute passes.",
+     "locator": "section 'Future work'",
+     "source": "SRC-MPR-004",
+     "relevance": "partial",
+     "non_transferable": "Do not copy software VRS emulation unless you can afford the de-blocking pass; it is a workaround for hardware without VRS support."
+    }
+   ]
+  },
+  "quality_tier_scalability": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "UE exposes Low/Medium/High/Epic scalability groups that drive render settings per quality level.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-027",
+     "locator": "sections 'Scalability Levels', 'Quality Levels'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "optimization",
+     "statement": "Gears 5/Tactics expose three VRS video settings (Quality, Balanced, Performance); Quality targets no perceptual impact while Performance makes visible compromises.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-004",
+     "locator": "section 'Performance Results'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "The Coalition, PC menu design."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Gears 5 / Gears Tactics",
+     "studio": "The Coalition",
+     "year": 2020,
+     "engine": "Unreal Engine 4",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "The shipped PC menu exposes VRS Quality/Balanced/Performance tiers, with Quality matching the Xbox Series X|S default.",
+     "locator": "section 'Performance Results'",
+     "source": "SRC-MPR-004",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the exact tier thresholds; they were tuned per-platform and per-title."
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry documents the game exposing multiple RT quality levels (software Lumen vs full RT / ReSTIR path tracing) so it can scale beyond current hardware.",
+     "locator": "section on RT quality levels",
+     "source": "SRC-MPR-007",
+     "relevance": "strong",
+     "non_transferable": "Do not copy the RT tiering without the same fallback chain; full RT here changes lighting, not just quality."
+    },
+    {
+     "game": "Senua's Saga: Hellblade 2",
+     "studio": "Ninja Theory",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry praises Hellblade 2's graphics menu for exposing multiple reconstruction and frame-generation options and per-setting frame-time trade-offs.",
+     "locator": "section on graphics menu",
+     "source": "SRC-MPR-010",
+     "relevance": "strong",
+     "non_transferable": "Do not copy the menu's restriction that locks DRS to TSR; that was a UX decision flagged as a nitpick."
+    }
+   ]
+  },
+  "pso_precaching_warmup": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Generating a PSO on demand can take 100 or more milliseconds, so UE ships a PSO cache file collected by logging what is actually drawn during play and including it in the build.",
+     "unit": "ms",
+     "value": 100,
+     "value_range": null,
+     "source": "SRC-MPR-026",
+     "locator": "sections 'Terminology and Supported PSO Types', 'Generate PSO Caches'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "UE engine documentation; ray-tracing PSO caching unsupported in UE 5.0."
+    },
+    {
+     "field": "optimization",
+     "statement": "Absence of evidence: no checked source names a shipped title with measured PSO-warmup hitch reduction.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-026",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Only the engine mechanism and its 100 ms+ on-demand cost are evidenced."
+    }
+   ],
+   "game_examples": []
+  },
+  "srp_batcher_discipline": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "The Unity SRP Batcher reduces CPU cost by reducing render-state changes between draw calls for materials that share a shader variant, combining bind and draw GPU commands.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-032",
+     "locator": "section 'How the SRP Batcher works'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Unity URP/HDRP documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-032",
+     "locator": "section 'How the SRP Batcher works'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "V Rising",
+     "studio": "Stunlock Studios",
+     "year": 2024,
+     "engine": "Unity DOTS / HDRP",
+     "world_type": "open_world",
+     "network_mode": "dedicated_server",
+     "fact": "The Unity/Stunlock case study states the shipped game 'Eliminated multiple ms of frame lag with the SRP Batcher' while streaming and rendering 160,000+ interactable objects.",
+     "locator": "results list / 'Scaling up operations with DOTS'",
+     "source": "SRC-MPR-037",
+     "relevance": "strong",
+     "non_transferable": "Do not copy the 'multiple ms' saving as a portable figure: it depends on V Rising's material/shader-variant discipline and HDRP setup."
+    }
+   ]
+  },
+  "post_effect_selective": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents a shipped game applying screen-space post effects selectively (e.g. by stencil/mask) as a named, measured technique.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-050",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. UE post-process volumes allow selective application by volume, but no game source quantifying it was found."
+    }
+   ],
+   "game_examples": []
+  },
+  "screenspace_light_shafts": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE directional lights generate light shafts either by an occlusion method (screen-space blurred depth mask modulating fog) or a bloom method (radial blur of bright scene colour).",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-049",
+     "locator": "sections 'Occlusion Method', 'Bloom Method'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "optimization",
+     "statement": "At 1080p on a 680GTX, UE's light-shaft occlusion costs 0.5 ms and bloom on a single light 0.68 ms, and the two effects cost separately.",
+     "unit": "ms",
+     "value": 0.5,
+     "value_range": [
+      0.5,
+      0.68
+     ],
+     "source": "SRC-MPR-049",
+     "locator": "section 'GPU Cost'",
+     "basis": "measured",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Epic's own measurement on a GTX 680 at 1080p; not a modern-GPU figure."
+    },
+    {
+     "field": "implementation",
+     "statement": "The canonical technique renders crepuscular rays as a per-pixel post-process with no scene pre-processing, sampling an occlusion buffer along the ray toward the light.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-019",
+     "locator": "sections 13.2, 13.6",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "GPU Gems 3 technique chapter."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-049",
+     "locator": "sections 'Occlusion Method', 'Bloom Method'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Lords of the Fallen",
+     "studio": "Hexworks",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "Digital Foundry observes that at 30fps the shipped game's volumetric lighting runs at a higher resolution, reducing stair-stepping across streaks of light (the game's visible light-shaft-like effect).",
+     "locator": "section on quality/performance modes",
+     "source": "SRC-MPR-008",
+     "relevance": "partial",
+     "non_transferable": "Do not treat volumetric lighting as equivalent to a screen-space post-process light-shaft pass; the review describes volumetrics, not a radial-blur god-ray pass."
+    }
+   ]
+  },
+  "volumetric_half_resolution": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE volumetric fog runs on a froxel grid whose resolution is configurable, so volumetrics are computed at a reduced resolution relative to the screen.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-050",
+     "locator": "sections 'Froxel Grid', 'Performance'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Lords of the Fallen",
+     "studio": "Hexworks",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "Digital Foundry notes that running at 30fps lets volumetric lighting run at a higher resolution, reducing stair-stepping across streaks of light, i.e. volumetrics are resolution-scaled.",
+     "locator": "section on quality/performance modes",
+     "source": "SRC-MPR-008",
+     "relevance": "strong",
+     "non_transferable": "Do not copy the 30fps-mode volumetric resolution as a default; it is a deliberate quality/performance trade."
+    },
+    {
+     "game": "V Rising",
+     "studio": "Stunlock Studios",
+     "year": 2024,
+     "engine": "Unity DOTS / HDRP",
+     "world_type": "open_world",
+     "network_mode": "dedicated_server",
+     "fact": "Unity's case study states Stunlock adopted HDRP to unlock 'high-fidelity visual effects like Volumetric Fog' for the game's Gothic atmosphere.",
+     "locator": "section 'The challenge'",
+     "source": "SRC-MPR-037",
+     "relevance": "partial",
+     "non_transferable": "Do not assume HDRP volumetric fog cost transfers; V Rising's world is streamed and chunked, not a single dense scene."
+    }
+   ]
+  },
+  "screen_space_gi": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Gears 5/Tactics add screen-space global illumination, and because VRS cannot natively apply to compute shaders the studio emulated VRS in the SSGI compute shader by eliminating threads by shading rate.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-004",
+     "locator": "section 'VRS for different rendering passes'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "The Coalition, UE4."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Gears 5 / Gears Tactics (Hivebusters)",
+     "studio": "The Coalition",
+     "year": 2020,
+     "engine": "Unreal Engine 4",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "SSGI was added for the Xbox Series X|S launch and is applied under VRS with the VRS texture fed into its denoiser to weight the blur.",
+     "locator": "section 'VRS for different rendering passes'",
+     "source": "SRC-MPR-004",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the VRS-emulation-in-compute approach without the denoiser coupling; the studio notes VRS amplifies SSGI noise."
+    },
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine (DXR)",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Metro's shipped pipeline performs a screen-space pre-trace before real rays, running as async compute parallel to BVH updates, and reuses the SSAO pass to accumulate ray-traced AO.",
+     "locator": "slides 23, 32 'PRE-TRACE'",
+     "source": "SRC-MPR-002",
+     "relevance": "partial",
+     "non_transferable": "Do not copy the screen-space pre-trace as a GI substitute: Metro uses it only to avoid spawning real rays when an intersection is found."
+    }
+   ]
+  },
+  "sdf_global_illumination": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Godot's SDFGI builds cascaded signed-distance-field global illumination; more cascades give more detail and greater distance but are significantly more expensive on CPU and GPU, especially when the camera moves fast.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-038",
+     "locator": "sections 'Cascades', 'SDFGI caveats'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Godot engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "UE Lumen's software ray tracing traces a single merged global distance field, making tracing independent of instance count and overlap.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-024",
+     "locator": "section 'Software Ray Tracing'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE5 engine documentation."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry reports that without Full RT the shipped game uses software Lumen on PC for diffuse GI and specular reflections, i.e. distance-field-based tracing.",
+     "locator": "section on Lumen",
+     "source": "SRC-MPR-007",
+     "relevance": "strong",
+     "non_transferable": "Do not copy software Lumen as equivalent to hardware RT here; the review notes reflections differ most."
+    },
+    {
+     "game": "Remnant 2",
+     "studio": "Gunfire Games",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "Digital Foundry's UE5 survey states Remnant 2 does not use Lumen and falls back to SDFAO and other raster techniques.",
+     "locator": "section on Lumen/Nanite/VSM adoption",
+     "source": "SRC-MPR-006",
+     "relevance": "partial",
+     "non_transferable": "Do not treat SDFAO fallback as GI: it is ambient occlusion, not a global-illumination solution."
+    }
+   ]
+  },
+  "temporal_radiance_cache": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE Lumen maintains a radiance cache that stores lighting in world space and is updated over time, throttled to avoid hitches, alongside the surface cache.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-024",
+     "locator": "sections 'Surface Cache', 'Radiance Cache'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE5 engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked shipped-game source gives a measured temporal-radiance-cache budget for a named title.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-024",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Only the engine mechanism is evidenced."
+    }
+   ],
+   "game_examples": []
+  },
+  "voxel_cone_tracing": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "The Tomorrow Children traces cones in 16 fixed directions through six cascades of 3D textures to compute both direct and indirect lighting, achieving three GI bounces on semi-dynamic scenes on PS4.",
+     "unit": "directions",
+     "value": 16,
+     "value_range": null,
+     "source": "SRC-MPR-017",
+     "locator": "section 'What: Cascaded voxel cone tracing'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Q-Games engine director, shipped PS4 title."
+    },
+    {
+     "field": "implementation",
+     "statement": "The originating VXGI paper reports interactive framerates of 25-70 FPS with two light bounces for Lambertian and glossy materials using a hierarchical voxel octree.",
+     "unit": "FPS",
+     "value": null,
+     "value_range": [
+      25,
+      70
+     ],
+     "source": "SRC-MPR-018",
+     "locator": "abstract",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Research demo on PC hardware (2011), not a shipped game."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-017",
+     "locator": "section 'What: Cascaded voxel cone tracing'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "The Tomorrow Children",
+     "studio": "Q-Games",
+     "year": 2016,
+     "engine": "Q-Games engine",
+     "world_type": "open_world",
+     "network_mode": "dedicated_server",
+     "fact": "The shipped PS4 title lit everything by tracing cones through six cascades of voxel 3D textures, occluding with screen-space directional occlusion and spherical occluders.",
+     "locator": "section 'What: Cascaded voxel cone tracing'",
+     "source": "SRC-MPR-017",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the six-cascade voxel structure or the 16-direction cone set to hardware without the same memory/bandwidth budget."
+    }
+   ]
+  },
+  "depth_prepass_early_z": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Doom Eternal uses a depth prepass; combining GPU triangle culling with geometry merging made opaque/PreZ draw calls 'almost completely disappear'.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slides 45, 53",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "id Tech 7, Doom Eternal."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no second shipped-game source in the checked corpus quantifies a standalone depth-prepass/early-Z saving.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Doom Eternal is the only game source; the second example is missing."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "DOOM Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "world_type": "arena",
+     "network_mode": "single",
+     "fact": "Shipped Doom Eternal issues a depth prepass, and its GPU triangle culling plus geometry merging is reported to remove almost all opaque/PreZ draw-call overhead, with up to 5 ms GPU savings in dense scenes.",
+     "locator": "slides 44, 45, 53 'RESULTS'",
+     "source": "SRC-MPR-001",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the 5 ms saving: it is the combined result of culling, merging, bindless resources and an ubershader design, not the prepass alone."
+    }
+   ]
+  },
+  "async_compute_overlap": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Doom Eternal fills GPU idle time from its long-but-few rasterization threads with async overlap, and runs the culling/merging compute shader asynchronously starting before shadows.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slides 24, 49",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "id Tech 7, Doom Eternal."
+    },
+    {
+     "field": "optimization",
+     "statement": "Metro Exodus hides BLAS/TLAS update and rebuild work with async compute, measuring about 0.5 ms 'completely hidden by async' on RTX 2080.",
+     "unit": "ms",
+     "value": 0.5,
+     "value_range": null,
+     "source": "SRC-MPR-002",
+     "locator": "slides 26, 73",
+     "basis": "measured",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "4A Games, Metro Exodus, RTX 2080 at 2560x1440."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "DOOM Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "world_type": "arena",
+     "network_mode": "single",
+     "fact": "The culling/merging shader 'runs async, started before shadows', with per-geometry-set synchronization enabling culling/draw overlap.",
+     "locator": "slide 49 'IMPLEMENTATION - DETAILS'",
+     "source": "SRC-MPR-001",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the per-geometry-set sync scheme without id Tech 7's command-buffer and bindless design."
+    },
+    {
+     "game": "Gears 5 / Gears Tactics",
+     "studio": "The Coalition",
+     "year": 2020,
+     "engine": "Unreal Engine 4",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "VRS texture generation runs on the Async Compute Queue, overlapping the next frame's depth pass; the studio had already moved the post-process chain to overlap the next frame's depth pass.",
+     "locator": "section 'VRS Texture Generation'",
+     "source": "SRC-MPR-004",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the overlap window: it depends on where VRS texture generation sits in the post chain (tonemapping here)."
+    },
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine (DXR)",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "BLAS/TLAS management runs as async compute hidden behind the pre-trace and SSR compute shaders, with both a compute-queue and a parallel-to-GBuffer mode implemented.",
+     "locator": "slides 26, 32, 73",
+     "source": "SRC-MPR-002",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the 'statistically insignificant difference' between Metro's two async modes without re-measuring on your hardware."
+    }
+   ]
+  },
+  "hiz_software_occlusion": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Doom Eternal performs occlusion culling with a depth mip chain generated from Umbra's software buffer, on top of standard CPU culling, removing about 70% of submitted triangles in a typical scene.",
+     "unit": "%",
+     "value": 70,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slide 44 'GPU TRIANGLE CULLING'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "id Tech 7, Doom Eternal."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "DOOM Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "world_type": "arena",
+     "network_mode": "single",
+     "fact": "Shipped Doom Eternal does GPU occlusion culling against a depth mip chain built from Umbra's software buffer, as an addition to standard CPU culling.",
+     "locator": "slide 44",
+     "source": "SRC-MPR-001",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the 70% culling figure; it is scene-dependent and relies on Umbra-derived software depth."
+    },
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "Remedy states AW2's GPU-driven mesh-shader pipeline does occlusion culling down to single-pixel precision and uses everything in a scene as an occluder.",
+     "locator": "section 'GPU-driven rendering and meshlets'",
+     "source": "SRC-MPR-003",
+     "relevance": "strong",
+     "non_transferable": "Do not copy the single-pixel occlusion claim to hardware without mesh shaders and a GPU-driven pipeline."
+    }
+   ]
+  },
+  "meshlet_pipeline_adoption": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Alan Wake 2 uses a GPU-driven rendering pipeline with mesh shaders and culls meshlets in addition to whole meshes, which Remedy says increased the geometric detail the world can carry.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-003",
+     "locator": "section 'GPU-driven rendering and meshlets'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Northlight, shipped Alan Wake 2."
+    },
+    {
+     "field": "implementation",
+     "statement": "UE5 Nanite renders virtualized geometry with automatic, ever-changing LOD, which Digital Foundry reports removes LOD pop-in on almost all geometry in shipped UE5 titles.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-007",
+     "locator": "section on Nanite",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE5 Nanite in Black Myth: Wukong (non-foliage)."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "Remedy's own write-up states the shipped game uses mesh shaders and culls meshlets, showing individual meshlets around Cauldron Lake fed into the renderer.",
+     "locator": "section 'GPU-driven rendering and meshlets'",
+     "source": "SRC-MPR-003",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the meshlet sizing or culling scheme without Remedy's mesh-shader-capable minimum hardware."
+    },
+    {
+     "game": "Senua's Saga: Hellblade 2",
+     "studio": "Ninja Theory",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry attributes the game's detail without LOD pop-in to UE5's Nanite virtualized geometry system.",
+     "locator": "section on Nanite-driven geometry",
+     "source": "SRC-MPR-009",
+     "relevance": "strong",
+     "non_transferable": "Do not copy Nanite settings from a linear, narrow game to an open world; Nanite cost scales with geometric density."
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry documents Nanite giving automatic LOD on almost all geometry but not on foliage, so foliage uses traditional LODs.",
+     "locator": "section on Nanite",
+     "source": "SRC-MPR-007",
+     "relevance": "strong",
+     "non_transferable": "Do not assume Nanite covers foliage: in this shipped UE5.0-era title it did not."
+    }
+   ]
+  },
+  "gpu_meshlet_culling_budget": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Alan Wake 2 culls meshlets in addition to meshes, which Remedy presents as the reason the shipped world has more geometric detail than its previous titles.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-003",
+     "locator": "section 'GPU-driven rendering and meshlets'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Northlight, shipped Alan Wake 2."
+    },
+    {
+     "field": "implementation",
+     "statement": "Doom Eternal budgets for 3M visible triangles after CPU culling and LOD selection, of which only about 1M reaches the rasterizer after GPU triangle culling.",
+     "unit": "triangles",
+     "value": 3000000,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slide 44",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "id Tech 7, Doom Eternal; triangle budget, not a meshlet budget."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "Shipped AW2 culls meshlets as well as meshes in its GPU-driven pipeline.",
+     "locator": "section 'GPU-driven rendering and meshlets'",
+     "source": "SRC-MPR-003",
+     "relevance": "exact",
+     "non_transferable": "Do not copy a meshlet budget derived from AW2; Remedy publishes no meshlet-count budget and the technique is tied to mesh shaders."
+    },
+    {
+     "game": "DOOM Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "world_type": "arena",
+     "network_mode": "single",
+     "fact": "Doom Eternal's GPU triangle culling is budgeted for 3M visible triangles with only ~1M reaching the rasterizer, removing ~70% of submitted triangles.",
+     "locator": "slide 44",
+     "source": "SRC-MPR-001",
+     "relevance": "partial",
+     "non_transferable": "Do not treat id Tech 7's triangle-culling budget as a meshlet budget: Doom Eternal is not a meshlet renderer."
+    }
+   ]
+  },
+  "deferred_forward_plus_choice": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "id Tech 7 in Doom Eternal is fully forward rendered with a small number of ubershader variations.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slide 3 'IDTECH 7'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "id Software, Doom Eternal."
+    },
+    {
+     "field": "implementation",
+     "statement": "Metro Exodus ships a standard deferred renderer that computes G-buffer and lighting buffers, then accumulates light and effects before TAA and post-process.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-002",
+     "locator": "slide 8 'A CUTTING EDGE ENGINE'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "4A Games, Metro Exodus."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "DOOM Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "world_type": "arena",
+     "network_mode": "single",
+     "fact": "The shipped engine is 'Fully forward rendered' with few ubershader variations, keeping 60 FPS on consoles at the same resolutions.",
+     "locator": "slide 3",
+     "source": "SRC-MPR-001",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the fully-forward choice without an ubershader discipline and bindless resource model; the deck ties it to those constraints."
+    },
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine (DXR)",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Metro's engine is described as a standard deferred renderer, with G-buffer, lighting buffers, TAA and post-process.",
+     "locator": "slide 8",
+     "source": "SRC-MPR-002",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the deferred choice if your content needs many materials or transparency-heavy gameplay; Metro's pipeline is tuned for its lighting model."
+    }
+   ]
+  },
+  "rt_effect_resolution_budget": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Doom Eternal renders its water G-buffer and water-screen-space reflections at half horizontal resolution (1/2), and composites the result.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slides 62, 66 'WATER G-BUFFER' / 'WATER SURFACE SSR'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "id Tech 7, Doom Eternal."
+    },
+    {
+     "field": "optimization",
+     "statement": "Metro Exodus measures ray tracing at 1-3 ms (High) and 2-6 ms (Ultra) on RTX 2080 at 2560x1440, with a total frame-time overhead of about 20%/30% versus RTX off.",
+     "unit": "ms",
+     "value": null,
+     "value_range": [
+      1,
+      6
+     ],
+     "source": "SRC-MPR-002",
+     "locator": "slide 73 'PERFORMANCE'",
+     "basis": "measured",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "4A Games, Metro Exodus, RTX 2080, 2560x1440."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "DOOM Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "world_type": "arena",
+     "network_mode": "single",
+     "fact": "The shipped game computes the water G-buffer and water SSR at half horizontal resolution before the final composite.",
+     "locator": "slides 62, 66",
+     "source": "SRC-MPR-001",
+     "relevance": "exact",
+     "non_transferable": "Do not copy half-resolution water reflections to non-water effects; the deck applies it specifically to the water pipeline."
+    },
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine (DXR)",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Metro's RT module separates a cheap screen-space pre-trace from real rays and caches ray-trace data for RTAO/RTGI, with measured per-pass costs and denoising overhead.",
+     "locator": "slides 24, 32, 73",
+     "source": "SRC-MPR-002",
+     "relevance": "strong",
+     "non_transferable": "Do not copy Metro's per-pass RT costs to other hardware; they are RTX 2080 figures at 1440p."
+    }
+   ]
+  },
+  "ml_frame_generation": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Alan Wake 2 ships with Nvidia DLSS Frame Generation (and DLSS Ray Reconstruction) on capable PC hardware.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-003",
+     "locator": "section 'Ray tracing' / DLSS",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Remedy, shipped Alan Wake 2 PC."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "Remedy states PC players can use DLSS Frame Generation, DLSS Ray Reconstruction and path-traced indirect lighting in the shipped game.",
+     "locator": "section 'Ray tracing'",
+     "source": "SRC-MPR-003",
+     "relevance": "exact",
+     "non_transferable": "Do not copy frame generation as a substitute for real frame-time headroom; it requires a minimum base framerate and compatible hardware."
+    },
+    {
+     "game": "Senua's Saga: Hellblade 2",
+     "studio": "Ninja Theory",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry reports the shipped PC build offers both Nvidia DLSS 3 and AMD frame generation, though the menu locks DLSS frame generation to the DLSS upscaler.",
+     "locator": "section on upscaling / frame generation",
+     "source": "SRC-MPR-010",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the menu restriction coupling DLSS frame generation to DLSS reconstruction; reviewers flagged it as unnecessary."
+    }
+   ]
+  },
+  "temporal_upscaling": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Gears 5/Tactics use Unreal Engine temporal upscaling so post-processing runs at full resolution even when dynamic resolution downscales.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-004",
+     "locator": "section 'Working with Dynamic Resolution Scaling'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "The Coalition, UE4."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Senua's Saga: Hellblade 2",
+     "studio": "Ninja Theory",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry reports dynamic resolution in the shipped PC build is only permitted with UE5 TSR upscaling, and the menu offers DLSS, FSR2, XeSS and TSR.",
+     "locator": "section on upscaling / dynamic resolution",
+     "source": "SRC-MPR-010",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the TSR-only coupling; the review notes every vendor SDK supports DRS independently."
+    },
+    {
+     "game": "Lords of the Fallen",
+     "studio": "Hexworks",
+     "year": 2023,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "Digital Foundry notes the shipped game reconstructs a 4K image using AMD FSR2 or Unreal TAAU on PC and consoles.",
+     "locator": "section on image reconstruction",
+     "source": "SRC-MPR-008",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the reconstruction preset; temporal upscaling quality depends on the base resolution and the game's motion vectors."
+    },
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry documents DLSS/FSR/XeSS/TSR options in the shipped game and criticises temporal dithering interacting badly with hair and motion blur.",
+     "locator": "section on upscaling / image quality",
+     "source": "SRC-MPR-007",
+     "relevance": "strong",
+     "non_transferable": "Do not copy aggressive temporal dithering that conflicts with upscaling; it produced visible aliasing here."
+    }
+   ]
+  },
+  "async_loading_pipeline": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Horizon Zero Dawn's Decima engine has separate low-level and high-level streaming systems plus memory management and scheduling to stream the world.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-021",
+     "locator": "abstract",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Guerrilla talk abstract; no numeric budgets given."
+    },
+    {
+     "field": "implementation",
+     "statement": "No Man's Sky generates planets and their supporting structures continuously in real time, from voxel world generation through polygonization and texturing to population and simulation.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-016",
+     "locator": "session abstract",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Hello Games GDC 2017 abstract."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Horizon Zero Dawn",
+     "studio": "Guerrilla Games",
+     "year": 2017,
+     "engine": "Decima",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "Guerrilla's own talk description states the shipped game uses low-level and high-level streaming systems with dedicated memory management and scheduling.",
+     "locator": "abstract",
+     "source": "SRC-MPR-021",
+     "relevance": "strong",
+     "non_transferable": "Do not copy Decima's streaming tiers without its asset conversion pipeline and memory allocators, which the talk presents as a coupled system."
+    },
+    {
+     "game": "No Man's Sky",
+     "studio": "Hello Games",
+     "year": 2016,
+     "engine": "No Man's Sky engine",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "The GDC 2017 session abstract states the game transitions seamlessly from space to an interactive populated terrain and generates planets continuously in real time.",
+     "locator": "session abstract",
+     "source": "SRC-MPR-016",
+     "relevance": "strong",
+     "non_transferable": "Do not copy a procedural-streaming architecture to a hand-authored world; NMS's approach is procedural by necessity."
+    }
+   ]
+  },
+  "hierarchical_lod": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE HLOD merges distant actors into proxy meshes to reduce draw calls while preserving distant silhouettes.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-029",
+     "locator": "section 'Hierarchical Level of Detail'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Godot provides mesh LOD and visibility-range based HLOD.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-054",
+     "locator": "sections 'Automatic mesh LOD', 'Visibility ranges (HLOD)'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Godot engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source names a shipped title with measured HLOD triangle/draw-call savings.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-029",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Engine mechanisms are evidenced; a game-specific HLOD budget was not found."
+    }
+   ],
+   "game_examples": []
+  },
+  "baked_occlusion_culling": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Unity bakes occlusion-culling data (Umbra-based) in the editor so only potentially visible renderers are drawn.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-052",
+     "locator": "sections 'Occlusion Culling', 'Occlusion Culling data'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Unity engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Godot supports baked occluder/occludee occlusion culling.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-053",
+     "locator": "sections 'Why use occlusion culling', 'How occlusion culling works in Godot'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Godot engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-052",
+     "locator": "sections 'Occlusion Culling', 'Occlusion Culling data'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "DOOM Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "world_type": "arena",
+     "network_mode": "single",
+     "fact": "Doom Eternal performs occlusion culling against a depth mip chain generated from Umbra's software buffer, in addition to standard CPU culling.",
+     "locator": "slide 44",
+     "source": "SRC-MPR-001",
+     "relevance": "strong",
+     "non_transferable": "Do not copy id Tech 7's Umbra-derived software depth pipeline; it is specific to that engine's culling architecture."
+    }
+   ]
+  },
+  "impostors_billboards": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "GPU Gems 3 Chapter 21 presents impostor rendering (cached views on billboard geometry) as the canonical technique for distant objects.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-061",
+     "locator": "chapter body",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Technique chapter, not tied to a shipped title."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-061",
+     "locator": "chapter body",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Metro Exodus",
+     "studio": "4A Games",
+     "year": 2019,
+     "engine": "4A Engine (DXR)",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Metro reuses simplified position-only 'shadow' meshes as ray-tracing BLAS geometry, making BLAS meshes about 4x smaller and cutting memory from about 4 GB to about 1 GB.",
+     "locator": "slide 28",
+     "source": "SRC-MPR-002",
+     "relevance": "partial",
+     "non_transferable": "Do not copy Metro's simplified-BLAS approach as a rendering impostor; it is a ray-tracing geometry reduction, not a billboard."
+    }
+   ]
+  },
+  "gpu_instancing_vegetation": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Horizon Zero Dawn assembles fully-fledged environments (rocks, trees, sound, effects, wildlife, gameplay elements) around the player on the GPU from artist-defined procedural rules.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-022",
+     "locator": "abstract",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Guerrilla talk abstract."
+    },
+    {
+     "field": "implementation",
+     "statement": "Alan Wake 2's vegetation uses a shader-based GPU skinning system with art-driven bone shaders, with almost 300,000 bones in the visible forest.",
+     "unit": "bones",
+     "value": 300000,
+     "value_range": null,
+     "source": "SRC-MPR-003",
+     "locator": "section 'Character-style rigs on foliage'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Remedy, shipped Alan Wake 2."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Horizon Zero Dawn",
+     "studio": "Guerrilla Games",
+     "year": 2017,
+     "engine": "Decima",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "The shipped game creates its world procedurally around the player on the GPU, from a graph editor defining placement rules.",
+     "locator": "abstract",
+     "source": "SRC-MPR-022",
+     "relevance": "strong",
+     "non_transferable": "Do not copy the procedural-placement rules to a hand-placed world; HZD's density depends on GPU placement being cheap."
+    },
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "Shipped AW2 animates all visible foliage with character-style GPU bone shader rigs (almost 300,000 bones in the forest).",
+     "locator": "section 'Character-style rigs on foliage'",
+     "source": "SRC-MPR-003",
+     "relevance": "exact",
+     "non_transferable": "Do not copy full character rigs on vegetation without Remedy's GPU skinning system and bone budget."
+    }
+   ]
+  },
+  "vegetation_atlas_lod": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Horizon Zero Dawn's GPU procedural placement assembles vegetation and other environment elements around the player, implying per-element LOD/placement control.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-022",
+     "locator": "abstract",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Guerrilla talk abstract."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Horizon Zero Dawn",
+     "studio": "Guerrilla Games",
+     "year": 2017,
+     "engine": "Decima",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "The shipped game's procedural system places rocks, trees, sound, effects and wildlife around the player on the GPU.",
+     "locator": "abstract",
+     "source": "SRC-MPR-022",
+     "relevance": "partial",
+     "non_transferable": "Do not copy the placement pipeline as an atlas/LOD scheme; the abstract does not describe atlas baking."
+    },
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "Shipped AW2 animates foliage with art-driven bone shaders and a GPU skinning system, with skeleton rigs visualised across the vegetation.",
+     "locator": "section 'Character-style rigs on foliage'",
+     "source": "SRC-MPR-003",
+     "relevance": "partial",
+     "non_transferable": "Do not copy the bone-shader vegetation approach if your target hardware lacks the GPU budget for per-bone skinning."
+    }
+   ]
+  },
+  "tilemap_chunk_streaming": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents chunked tilemap streaming in a named shipped game.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-016",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. No Man's Sky's continuous generation is voxel/3D, not a 2D tilemap, so it is not used as a proof here."
+    }
+   ],
+   "game_examples": []
+  },
+  "tilemap_layer_culling": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents layer/chunk culling for 2D tilemaps in a named shipped game.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-039",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. No shipped-game source was found."
+    }
+   ],
+   "game_examples": []
+  },
+  "directstorage_io": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Microsoft's DirectStorage provides batched I/O queues and GPU decompression so asset data can be decompressed on the GPU rather than the CPU.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-042",
+     "locator": "sections 'DirectStorage overview', 'Decompression'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Microsoft GDK documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source names a shipped title with measured DirectStorage I/O or decompression budgets.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-042",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Only the API capability is evidenced."
+    }
+   ],
+   "game_examples": []
+  },
+  "neural_texture_compression": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked, verified source documents neural texture compression shipping in a named game.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-003",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Neural texture compression remains a research/vendor topic in the checked corpus."
+    }
+   ],
+   "game_examples": []
+  },
+  "build_size_startup_budgets": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Absence of evidence: no checked source gives build-size or startup-time budgets for a named shipped title.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-045",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. No source found; do not infer a budget."
+    }
+   ],
+   "game_examples": []
+  },
+  "differential_patch_pipeline": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Absence of evidence: no checked source documents a differential/patched content pipeline with measured patch sizes for a named shipped title.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-042",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. No source found."
+    }
+   ],
+   "game_examples": []
+  },
+  "runtime_fracture_budget": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Rainbow Six: Siege budgets roughly 6 ms of CPU per destructible wall (2 procedural layers plus pre-fragmented), 25 MB GPU memory and 200 MB data + 150 MB engine RAM for destruction.",
+     "unit": "ms",
+     "value": 6,
+     "value_range": null,
+     "source": "SRC-MPR-014",
+     "locator": "slide 58 'Destruction Budgets'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Ubisoft Montreal, shipped R6: Siege."
+    },
+    {
+     "field": "optimization",
+     "statement": "R6: Siege avoids procedurally cut dynamic fragments: debris uses well-placed replacements that are instanced and aggressively recycled, and dynamic fragments do not collide with each other.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-014",
+     "locator": "slides 54, 55",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Ubisoft Montreal, shipped R6: Siege."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Tom Clancy's Rainbow Six: Siege",
+     "studio": "Ubisoft Montreal",
+     "year": 2015,
+     "engine": "RealBlast / AnvilNext",
+     "world_type": "arena",
+     "network_mode": "dedicated_server",
+     "fact": "The shipped game runs procedural surface destruction at 60 FPS under an explicit per-wall CPU budget, with instanced and recycled debris and simple box collision primitives.",
+     "locator": "slides 54-58, 74",
+     "source": "SRC-MPR-014",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the 6 ms/wall or 25 MB GPU budget to a different scale of destruction; they assume 2 procedural layers per wall and box-only debris collisions."
+    },
+    {
+     "game": "Red Faction: Guerrilla",
+     "studio": "Volition",
+     "year": 2009,
+     "engine": "Geo-Mod 2.0 / Havok",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "A former Volition physics lead states the shipped Geo-Mod 2.0 system fragments buildings into thousands of independent debris pieces at runtime, which precluded pre-baked lighting and forced navmesh rebuilds.",
+     "locator": "article body, paragraphs on Geo-Mod 2.0",
+     "source": "SRC-MPR-048",
+     "relevance": "strong",
+     "non_transferable": "Do not copy fully dynamic destruction into a production that depends on baked lighting or precomputed navigation; this title had to give both up."
+    }
+   ]
+  },
+  "fixed_timestep_physics": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Godot runs physics on a fixed tick and can interpolate rendered frames between physics ticks to remove visual stutter.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-055",
+     "locator": "sections 'What is physics interpolation', 'Setup'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Godot engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source names a shipped title with measured fixed-timestep physics/network-tick budgets.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-055",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Only the engine mechanism is evidenced."
+    }
+   ],
+   "game_examples": []
+  },
+  "broadphase_spatial_partitioning": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents a shipped game's physics broadphase structure (BVH / spatial hash) with settings or measured cost.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-063",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. UE Chaos documentation describes the simulation but not a broadphase algorithm or budget."
+    }
+   ],
+   "game_examples": []
+  },
+  "multithreaded_physics_jobs": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "R6: Siege multithreads destruction on an object basis, each independent sub-state running multi-threaded in the simulation, but the studio did not multi-thread the algorithms themselves.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-014",
+     "locator": "slide 61 'Multithreading'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Ubisoft Montreal, R6: Siege."
+    },
+    {
+     "field": "implementation",
+     "statement": "Unity's C# Job System runs work across worker threads with a safety system.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-059",
+     "locator": "sections 'Job System', 'Safety system'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Unity engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-014",
+     "locator": "slide 61 'Multithreading'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Tom Clancy's Rainbow Six: Siege",
+     "studio": "Ubisoft Montreal",
+     "year": 2015,
+     "engine": "RealBlast / AnvilNext",
+     "world_type": "arena",
+     "network_mode": "dedicated_server",
+     "fact": "Shipped R6: Siege multi-threads destruction at the object/sub-state level, with a warning about race conditions when creating new data.",
+     "locator": "slide 61",
+     "source": "SRC-MPR-014",
+     "relevance": "strong",
+     "non_transferable": "Do not copy the 'object-basis MT is trivial' conclusion without the studio's preallocated working data and event-forwarding scheme."
+    }
+   ]
+  },
+  "physics_lod_sleeping": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents physics LOD or sleeping-body tuning in a named shipped title.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-063",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. No shipped-game source found."
+    }
+   ],
+   "game_examples": []
+  },
+  "collision_layer_matrix": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents a shipped game's collision layer matrix configuration.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-063",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. No shipped-game source found."
+    }
+   ],
+   "game_examples": []
+  },
+  "vehicle_simulation_lod": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents vehicle-simulation LOD in a named shipped title.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-063",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. UE Chaos Vehicles documentation covers the simulation but not a shipped title's LOD scheme."
+    }
+   ],
+   "game_examples": []
+  },
+  "ai_director_pacing": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Left 4 Dead's AI Director uses Adaptive Dramatic Pacing: it estimates each Survivor's emotional intensity, and in the Relax state keeps a minimal threat population for 30-45 seconds before resuming Build Up.",
+     "unit": "s",
+     "value": null,
+     "value_range": [
+      30,
+      45
+     ],
+     "source": "SRC-MPR-011",
+     "locator": "slides 79-82",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Valve, shipped Left 4 Dead; Normal difficulty described."
+    },
+    {
+     "field": "implementation",
+     "statement": "Left 4 Dead mobs spawn at randomized intervals of 90-180 seconds on Normal difficulty, and 75% of mobs come from behind the Survivor team.",
+     "unit": "s",
+     "value": null,
+     "value_range": [
+      90,
+      180
+     ],
+     "source": "SRC-MPR-011",
+     "locator": "slides 64, 68, 70",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Valve, shipped Left 4 Dead."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Left 4 Dead",
+     "studio": "Valve",
+     "year": 2008,
+     "engine": "Source engine",
+     "world_type": "linear",
+     "network_mode": "coop",
+     "fact": "The shipped game's AI Director procedurally populates enemies and loot with structured unpredictability and modulates population from Survivor intensity across Build Up / Sustain Peak / Peak Fade / Relax states.",
+     "locator": "slides 55, 78-82",
+     "source": "SRC-MPR-011",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the 30-45 s relax window or 90-180 s mob interval without re-tuning for your session length and difficulty curve."
+    },
+    {
+     "game": "Assassin's Creed Unity",
+     "studio": "Ubisoft Montreal",
+     "year": 2014,
+     "engine": "AnvilNext",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "The GDC 2015 session describes an AI level-of-detail recycling/pooling system that let the shipped game put 10,000 crowd NPCs on screen using 40 real AIs and 120 high-resolution models.",
+     "locator": "session abstract",
+     "source": "SRC-MPR-015",
+     "relevance": "strong",
+     "non_transferable": "Do not copy the 40-real-AI / 120-high-res-model split: it is specific to Unity's crowd scale and hardware targets."
+    }
+   ]
+  },
+  "time_sliced_pathfinding": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Supreme Commander 2 rebuilds flow fields and portal graphs via a priority queue where each item is given a time slice of a fixed number of milliseconds.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-013",
+     "locator": "section 23.8 'Supporting Dynamic Environments and Queries'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Elijah Emerson, shipped Supreme Commander 2."
+    },
+    {
+     "field": "optimization",
+     "statement": "Supreme Commander 2 caps the number of tiles or grid squares committed per tick to bound CPU, and spreads integration work across threads because integration-field memory is separate.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-013",
+     "locator": "section 23.15 'Minimizing CPU Footprint'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Shipped Supreme Commander 2."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Supreme Commander 2",
+     "studio": "Gas Powered Games",
+     "year": 2010,
+     "engine": "Supreme Commander 2 engine",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "The shipped RTS moves hundreds to thousands of agents with flow-field tiles and time-slices dirty-region path rebuilding with a fixed millisecond budget per queue item.",
+     "locator": "sections 23.8, 23.15",
+     "source": "SRC-MPR-013",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the fixed-ms slice or the 10x10 m sector/1 m grid layout; they are tuned to an RTS camera and map scale."
+    },
+    {
+     "game": "Tom Clancy's Rainbow Six: Siege",
+     "studio": "Ubisoft Montreal",
+     "year": 2015,
+     "engine": "RealBlast / AnvilNext",
+     "world_type": "arena",
+     "network_mode": "dedicated_server",
+     "fact": "The shipped game time-slices its procedural destruction, splitting functions into steps that are rescheduled if unfinished, to avoid 60 ms spikes.",
+     "locator": "slides 65-67 'Time Slicing'",
+     "source": "SRC-MPR-014",
+     "relevance": "partial",
+     "non_transferable": "Do not copy destruction time-slicing as a pathfinding technique; here it bounds destruction CPU, and the studio warns time-sliced multi-threaded code is hard to debug."
+    }
+   ]
+  },
+  "crowd_2d_instancing": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Assassin's Creed Unity uses an AI recycling/pooling system to swap low-res and high-res NPCs and to animate thousands of NPCs with a simplistic AI brain.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-015",
+     "locator": "session abstract",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Ubisoft, shipped AC Unity."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents a 2D crowd drawn as a single batch in a named shipped title.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-015",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. AC Unity's crowd is 3D, so it is only partial evidence for 2D batched crowd rendering."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Assassin's Creed Unity",
+     "studio": "Ubisoft Montreal",
+     "year": 2014,
+     "engine": "AnvilNext",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "The GDC 2015 session states the shipped game renders 10,000 crowd NPCs on screen with a pooling system that swaps low-res for high-res NPCs unnoticed.",
+     "locator": "session abstract",
+     "source": "SRC-MPR-015",
+     "relevance": "partial",
+     "non_transferable": "Do not copy the pooling thresholds; they assume a 3D crowd and a specific CPU budget, and this is not a 2D sprite-batching technique."
+    }
+   ]
+  },
+  "motion_matching": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Alan Wake 2 NPCs use animation-driven movement combined with a new distance-based Motion Matching system, which Remedy says improves movement quality and control.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-003",
+     "locator": "section 'Motion Matching'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Remedy, shipped Alan Wake 2."
+    },
+    {
+     "field": "implementation",
+     "statement": "UE provides a motion-matching system that searches a pose database (Pose Search) to select animations.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-064",
+     "locator": "sections 'Motion Matching', 'Pose Search'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-003",
+     "locator": "section 'Motion Matching'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "Remedy states all NPCs in the shipped game use animation-driven movement combined with new distance-based Motion Matching.",
+     "locator": "section 'Motion Matching'",
+     "source": "SRC-MPR-003",
+     "relevance": "exact",
+     "non_transferable": "Do not copy 'distance-based' motion matching without Remedy's animation database and NPC locomotion authoring pipeline."
+    }
+   ]
+  },
+  "data_driven_ability_system": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE's Gameplay Ability System implements abilities, gameplay effects and attribute sets as data assets rather than hard-coded logic.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-047",
+     "locator": "sections 'Gameplay Abilities', 'Gameplay Effects', 'Gameplay Attributes'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "F.E.A.R.'s planner sequences data-driven SmartObjects and actions, with the animation specified through a SmartObject in the game database rather than hard-coded.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-012",
+     "locator": "page 2, section on UseSmartObject",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Monolith, shipped F.E.A.R."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-047",
+     "locator": "sections 'Gameplay Abilities', 'Gameplay Effects', 'Gameplay Attributes'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "F.E.A.R.",
+     "studio": "Monolith Productions",
+     "year": 2005,
+     "engine": "F.E.A.R. engine (LithTech Jupiter EX)",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "The shipped game's AI uses a 3-state FSM plus A* planning over data-driven actions/SmartObjects, so behaviour is composed from database entries rather than a large hand-written FSM.",
+     "locator": "pages 1-4",
+     "source": "SRC-MPR-012",
+     "relevance": "partial",
+     "non_transferable": "Do not copy F.E.A.R.'s 3-state FSM as an ability system: it is a goal-oriented action planner, not a cooldown/effect ability framework."
+    }
+   ]
+  },
+  "cloth_baked_animation": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents baked cloth animation in a named shipped title.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-058",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Unity Cloth documentation covers runtime simulation, not baked cloth."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "Remedy states wind in the shipped game realistically affects physics, particles and cloth, with smooth stateless transitions between indoor and outdoor wind areas.",
+     "locator": "section 'Realistic wind'",
+     "source": "SRC-MPR-003",
+     "relevance": "partial",
+     "non_transferable": "Do not copy the wind/cloth coupling as baked cloth; AW2 describes dynamic wind-driven cloth, not pre-baked animation."
+    }
+   ]
+  },
+  "cloth_constraint_simulation": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Unity's Cloth component simulates cloth with constraints and collision against the scene.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-058",
+     "locator": "sections 'Cloth component', 'Constraints'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Unity engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked shipped-game source quantifies cloth constraint simulation cost or settings.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-058",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "Remedy states the shipped game's wind system realistically affects cloth alongside physics and particles.",
+     "locator": "section 'Realistic wind'",
+     "source": "SRC-MPR-003",
+     "relevance": "partial",
+     "non_transferable": "Do not copy AW2's wind-driven cloth without its physics/particle wind solver; the source does not describe a constraint solver."
+    }
+   ]
+  },
+  "hair_cards_lod": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE's groom system renders individual strands but also supports card-based hair techniques and groom level of detail, and provides a strand-vs-card platform breakdown.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-030",
+     "locator": "sections 'Groom', 'Card-based hair', 'Level of Detail'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-030",
+     "locator": "sections 'Groom', 'Card-based hair', 'Level of Detail'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Senua's Saga: Hellblade 2",
+     "studio": "Ninja Theory",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry highlights the fine detail on Senua's lashes and the grouping of hair spilling from her headdress as part of the best digital-human depiction it has seen.",
+     "locator": "section on character rendering",
+     "source": "SRC-MPR-009",
+     "relevance": "partial",
+     "non_transferable": "Do not copy Hellblade 2's hair approach as a card technique: the review describes the result, and the title targets close-up linear cinematics."
+    }
+   ]
+  },
+  "sprite_atlas_batching": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Unity's Sprite Atlas packs sprites into atlases so that sprites sharing an atlas can be batched into fewer draw calls.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-060",
+     "locator": "sections 'Sprite Atlas', 'Sprite packing'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Unity engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents a shipped title's sprite-atlas/batch-count budget.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-060",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record."
+    }
+   ],
+   "game_examples": []
+  },
+  "sprite_sheet_compression": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Absence of evidence: no checked source documents sprite-sheet compression and mip policies in a named shipped title.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-060",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. No shipped-game source found."
+    }
+   ],
+   "game_examples": []
+  },
+  "sprite_particle_atlas": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Absence of evidence: no checked source documents reduced-precision atlas particles in a named shipped title.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-057",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. No shipped-game source found."
+    }
+   ],
+   "game_examples": []
+  },
+  "flipbook_particles": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE Niagara supports flipbook/SubUV material animation so particle effects can be authored as texture flipbooks rather than simulated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-057",
+     "locator": "sections 'Niagara', 'SubUV / Flipbook'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source names a shipped title with measured flipbook-vs-simulation particle savings.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-057",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record."
+    }
+   ],
+   "game_examples": []
+  },
+  "gpu_particle_simulation": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE Niagara supports GPU particle simulation, and Unity/Godot expose GPU particle systems as well.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-057",
+     "locator": "sections 'Niagara', 'GPU Particles'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-057",
+     "locator": "sections 'Niagara', 'GPU Particles'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Black Myth: Wukong",
+     "studio": "Game Science",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry describes the shipped game's physically simulated particles (fog volumes reacting to enemies) as a GPU-intensive effect that is rare outside Housemarque's Returnal and legacy PhysX titles.",
+     "locator": "section on particle effects",
+     "source": "SRC-MPR-007",
+     "relevance": "strong",
+     "non_transferable": "Do not copy GPU physicalised particles as a general effect budget; the review notes they are rare because they are expensive."
+    }
+   ]
+  },
+  "particle_pooling": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "R6: Siege uses pools of short-lived objects and avoids runtime allocations to bound destruction cost in multi-threaded environments.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-014",
+     "locator": "slide 73 'Limit Runtime Allocations'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Ubisoft Montreal, shipped R6: Siege."
+    },
+    {
+     "field": "optimization",
+     "statement": "Absence of evidence: no checked source documents particle-system pooling specifically in a named shipped title.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-014",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. R6: Siege pools destruction debris, not particle systems."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Tom Clancy's Rainbow Six: Siege",
+     "studio": "Ubisoft Montreal",
+     "year": 2015,
+     "engine": "RealBlast / AnvilNext",
+     "world_type": "arena",
+     "network_mode": "dedicated_server",
+     "fact": "The shipped game recycles debris aggressively and pools short-lived objects instead of allocating at runtime.",
+     "locator": "slides 54, 73",
+     "source": "SRC-MPR-014",
+     "relevance": "partial",
+     "non_transferable": "Do not copy the pooling strategy as particle pooling; it targets destruction debris and working data."
+    }
+   ]
+  },
+  "gerstner_fft_water": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Doom Eternal generates a water displacement map and normal map following Tessendorf's 'Simulating Ocean Water', projects a screen-space grid onto the water planes and displaces grid vertices in world space.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slides 57-58",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "id Tech 7, Doom Eternal."
+    },
+    {
+     "field": "implementation",
+     "statement": "Doom Eternal's interactive water-hit simulation runs on one 512x512 simulation grid for all water planes, using a height-field method centred on the camera.",
+     "unit": "grid",
+     "value": 512,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slide 72 'WATER HITS SIMULATION'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "id Tech 7, Doom Eternal."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slides 57-58",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "DOOM Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "world_type": "arena",
+     "network_mode": "single",
+     "fact": "The shipped game derives its ocean surface from a Tessendorf-style displacement map plus a 512x512 interactive height-field simulation, rendered through a projected screen-space grid.",
+     "locator": "slides 57, 58, 72",
+     "source": "SRC-MPR-001",
+     "relevance": "strong",
+     "non_transferable": "Do not copy the 512x512 simulation grid or the projected-grid resolution without id Tech 7's compute pipeline."
+    }
+   ]
+  },
+  "screen_space_water_simple": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Doom Eternal computes water surface screen-space reflections at half horizontal resolution from the water G-buffer, then composites with a distorted lookup for the after-water image.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slides 62, 66, 71",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "id Tech 7, Doom Eternal."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-001",
+     "locator": "slides 62, 66, 71",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "DOOM Eternal",
+     "studio": "id Software",
+     "year": 2020,
+     "engine": "id Tech 7",
+     "world_type": "arena",
+     "network_mode": "single",
+     "fact": "Shipped Doom Eternal computes water SSR into a half-horizontal-resolution image using the water G-buffer depth and normals.",
+     "locator": "slide 66 'WATER SURFACE SSR'",
+     "source": "SRC-MPR-001",
+     "relevance": "exact",
+     "non_transferable": "Do not copy half-resolution water SSR to other reflective surfaces; the deck applies it to the water pipeline specifically."
+    }
+   ]
+  },
+  "planar_reflection_budget": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE provides planar reflections that re-render the scene from a mirrored camera into a render target, as an alternative to reflection captures.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-056",
+     "locator": "sections 'Scene Capture', 'Planar Reflections'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked shipped-game source gives a planar-reflection resolution or update-frequency budget.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-056",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Only the engine mechanism is evidenced."
+    }
+   ],
+   "game_examples": []
+  },
+  "portal_scene_capture_budget": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Portal renders the view through a portal with a virtual camera looking out of the opposite portal, culling objects between the camera and the portal plane.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-051",
+     "locator": "commentary entry on portal rendering",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Valve in-game developer commentary for shipped Portal."
+    },
+    {
+     "field": "implementation",
+     "statement": "Portal moved from rendering portal views into two offscreen textures (incompatible with antialiasing and heavy on video memory) to recursive frame-buffer rendering, and supports a maximum of nine recursive portal views down a chain.",
+     "unit": "recursive views",
+     "value": 9,
+     "value_range": null,
+     "source": "SRC-MPR-051",
+     "locator": "commentary entry on recursive portal views",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "high",
+     "context": "Valve, shipped Portal (2007)."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-051",
+     "locator": "commentary entry on portal rendering",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Portal",
+     "studio": "Valve",
+     "year": 2007,
+     "engine": "Source engine",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Valve's own commentary states the shipped game renders the through-portal view with a virtual camera, switched to recursive frame-buffer rendering for antialiasing and memory reasons, and supports up to nine recursive portal views.",
+     "locator": "commentary entries on portal rendering and recursion",
+     "source": "SRC-MPR-051",
+     "relevance": "exact",
+     "non_transferable": "Do not copy the nine-view recursion cap or the offscreen-texture decision; the commentary presents them as trade-offs specific to Portal's hardware era."
+    }
+   ]
+  },
+  "snapshot_slot_saves": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE's SaveGame system writes slot-based save objects synchronously or asynchronously via SaveGameToSlot.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-045",
+     "locator": "sections 'SaveGame', 'SaveGameToSlot'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents a shipped title's snapshot slot-save cost or save size.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-045",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record."
+    }
+   ],
+   "game_examples": []
+  },
+  "async_incremental_saves": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "UE exposes an asynchronous save path (Async Save) alongside synchronous SaveGameToSlot.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-045",
+     "locator": "section 'Async Saving'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "optimization",
+     "statement": "Absence of evidence: no checked source documents incremental auto-saves in a named shipped title with measured hitch reduction.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-045",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record."
+    }
+   ],
+   "game_examples": []
+  },
+  "audio_streaming_compression": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE's audio system is built around a mixer graph and sound-wave assets.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-046",
+     "locator": "sections 'Audio Mixer', 'Sound Waves'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    },
+    {
+     "field": "implementation",
+     "statement": "Absence of evidence: no checked source documents audio streaming/compression bitrate or memory budgets for a named shipped title.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-046",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Only the engine mechanism is evidenced."
+    }
+   ],
+   "game_examples": []
+  },
+  "composition_bootstrap_architecture": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "Northlight switched to a data-oriented entity-component-system game object framework for Alan Wake 2, enabling memory-efficient storage and safe parallel execution.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-003",
+     "locator": "section 'New data-oriented game object model'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Remedy, shipped Alan Wake 2."
+    },
+    {
+     "field": "implementation",
+     "statement": "Only one distinct shipped-game example (see game_examples) was located in the verified sources; a second distinct game proving this method was not found. The two-game proof requirement is unmet and no further game example is fabricated.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-003",
+     "locator": "section 'New data-oriented game object model'",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Explicit gap record added by the research worker; no source was found to close it."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "Alan Wake 2",
+     "studio": "Remedy Entertainment",
+     "year": 2023,
+     "engine": "Northlight",
+     "world_type": "open_world",
+     "network_mode": "single",
+     "fact": "Remedy states the shipped game runs on a new ECS-based game object model that scales to a varying number of CPU cores and eased tool development (e.g. the vegetation Scattering tool).",
+     "locator": "section 'New data-oriented game object model'",
+     "source": "SRC-MPR-003",
+     "relevance": "strong",
+     "non_transferable": "Do not copy an ECS architecture expecting automatic gains; Remedy frames the benefit as scalability and iteration speed, not raw performance."
+    }
+   ]
+  },
+  "normal_bake_retopology_pipeline": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "GPU Gems 3 Chapter 22 presents GPU-based normal-map baking from high-detail meshes onto low-poly meshes, the standard retopology bake step.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-062",
+     "locator": "chapter body",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Technique chapter, not tied to a shipped title."
+    },
+    {
+     "field": "optimization",
+     "statement": "Absence of evidence: no checked source documents a named shipped title's normal-bake/retopology pipeline budgets.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-062",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record."
+    }
+   ],
+   "game_examples": []
+  },
+  "froxel_volumetric_fog": {
+   "claims": [
+    {
+     "field": "implementation",
+     "statement": "UE volumetric fog is evaluated on a froxel grid (a frustum-aligned voxel grid) whose resolution is adjustable for quality/performance.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-050",
+     "locator": "sections 'Volumetric Fog', 'Froxel Grid'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "UE engine documentation."
+    }
+   ],
+   "game_examples": [
+    {
+     "game": "V Rising",
+     "studio": "Stunlock Studios",
+     "year": 2024,
+     "engine": "Unity DOTS / HDRP",
+     "world_type": "open_world",
+     "network_mode": "dedicated_server",
+     "fact": "Unity's case study states Stunlock adopted HDRP early to unlock high-fidelity effects like Volumetric Fog, which the studio considered vital for the game's Gothic atmosphere.",
+     "locator": "section 'The challenge'",
+     "source": "SRC-MPR-037",
+     "relevance": "strong",
+     "non_transferable": "Do not copy HDRP volumetric fog cost to a non-chunked scene; V Rising streams its world in chunks."
+    },
+    {
+     "game": "Senua's Saga: Hellblade 2",
+     "studio": "Ninja Theory",
+     "year": 2024,
+     "engine": "Unreal Engine 5",
+     "world_type": "linear",
+     "network_mode": "single",
+     "fact": "Digital Foundry describes the shipped game's robust volumetric effects (mist, low-hanging clouds, smoke) and its use of Unreal's volumetric fog system combined with additional fog methods.",
+     "locator": "section on volumetric effects",
+     "source": "SRC-MPR-009",
+     "relevance": "strong",
+     "non_transferable": "Do not copy Hellblade 2's volumetric density settings to an open world; the game's scenes are narrow and cinematic."
+    }
+   ]
+  },
+  "shadow_caster_2d_limits": {
+   "claims": [
+    {
+     "field": "optimization",
+     "statement": "Godot 2D lighting uses LightOccluder2D nodes as shadow casters and provides an Item Cull Mask on each light to control which occluders cast shadows, limiting the set of shadow casters per light.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-039",
+     "locator": "sections 'LightOccluder2D', 'Item Cull Mask'",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Godot engine documentation."
+    },
+    {
+     "field": "optimization",
+     "statement": "Absence of evidence: no checked source documents a named shipped title's 2D shadow-caster budget.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "SRC-MPR-039",
+     "locator": "n/a",
+     "basis": "unknown",
+     "verification_state": "verified",
+     "evidence_level": "low",
+     "context": "Gap record. Only the engine mechanism is evidenced."
+    }
+   ],
+   "game_examples": []
+  }
+ }
+}

@@ -1,0 +1,548 @@
+[
+ {
+  "code": "ai_director_pacing",
+  "name": "Контроллер популяции NPC по интенсивности событий",
+  "kind": "implementation",
+  "function": "advanced_npc_ai",
+  "current_proofs": 1
+ },
+ {
+  "code": "async_compute_overlap",
+  "name": "Перекрытие графики и асинхронных вычислений GPU",
+  "kind": "implementation",
+  "function": "rendering_architecture",
+  "current_proofs": 1
+ },
+ {
+  "code": "async_incremental_saves",
+  "name": "Асинхронные инкрементальные автосейвы",
+  "kind": "implementation",
+  "function": "save_system",
+  "current_proofs": 1
+ },
+ {
+  "code": "async_loading_pipeline",
+  "name": "Асинхронная загрузка без блокировки кадра",
+  "kind": "optimization",
+  "function": "open_world_streaming",
+  "current_proofs": 1
+ },
+ {
+  "code": "audio_streaming_compression",
+  "name": "Потоковое сжатие аудио",
+  "kind": "optimization",
+  "function": "audio_system",
+  "current_proofs": 1
+ },
+ {
+  "code": "baked_occlusion_culling",
+  "name": "Запечённое отсечение по окклюзии",
+  "kind": "optimization",
+  "function": "open_world_streaming",
+  "current_proofs": 1
+ },
+ {
+  "code": "broadphase_spatial_partitioning",
+  "name": "Оптимизация широкой фазы (BVH / spatial hash)",
+  "kind": "optimization",
+  "function": "physics_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "build_size_startup_budgets",
+  "name": "Бюджеты размера сборки и старта",
+  "kind": "optimization",
+  "function": "build_delivery",
+  "current_proofs": 1
+ },
+ {
+  "code": "cascaded_shadow_maps",
+  "name": "Каскадные карты теней",
+  "kind": "implementation",
+  "function": "dynamic_shadows",
+  "current_proofs": 0
+ },
+ {
+  "code": "cloth_baked_animation",
+  "name": "Подготовленное движение ткани",
+  "kind": "implementation",
+  "function": "cloth_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "cloth_constraint_simulation",
+  "name": "Ткань с ограничениями и коллизиями",
+  "kind": "implementation",
+  "function": "cloth_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "collision_layer_matrix",
+  "name": "Матрица слоёв коллизий",
+  "kind": "optimization",
+  "function": "physics_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "composition_bootstrap_architecture",
+  "name": "Композиционный каркас проекта",
+  "kind": "optimization",
+  "function": "project_architecture",
+  "current_proofs": 1
+ },
+ {
+  "code": "crowd_2d_instancing",
+  "name": "Массовая отрисовка 2D-агентов одним батчем",
+  "kind": "implementation",
+  "function": "crowd_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "data_driven_ability_system",
+  "name": "Данные-ориентированная система способностей",
+  "kind": "implementation",
+  "function": "gameplay_ability_system",
+  "current_proofs": 1
+ },
+ {
+  "code": "deferred_forward_plus_choice",
+  "name": "Выбор архитектуры рендера (deferred / forward+)",
+  "kind": "implementation",
+  "function": "post_processing",
+  "current_proofs": 1
+ },
+ {
+  "code": "depth_prepass_early_z",
+  "name": "Предварительный проход глубины (early-Z)",
+  "kind": "optimization",
+  "function": "post_processing",
+  "current_proofs": 1
+ },
+ {
+  "code": "differential_patch_pipeline",
+  "name": "Дифференциальные патчи",
+  "kind": "optimization",
+  "function": "build_delivery",
+  "current_proofs": 1
+ },
+ {
+  "code": "directstorage_io",
+  "name": "DirectStorage: очереди I/O и выбор декомпрессии",
+  "kind": "implementation",
+  "function": "open_world_streaming",
+  "current_proofs": 1
+ },
+ {
+  "code": "distance_field_shadows",
+  "name": "Тени на дистанционных полях (SDF)",
+  "kind": "implementation",
+  "function": "dynamic_shadows",
+  "current_proofs": 1
+ },
+ {
+  "code": "dynamic_light_priority_budget",
+  "name": "Приоритезация и бюджет динамических источников",
+  "kind": "implementation",
+  "function": "dynamic_lighting",
+  "current_proofs": 0
+ },
+ {
+  "code": "dynamic_resolution_scaling",
+  "name": "Динамическое разрешение рендера",
+  "kind": "optimization",
+  "function": "post_processing",
+  "current_proofs": 0
+ },
+ {
+  "code": "fixed_timestep_physics",
+  "name": "Фиксированный шаг физики с интерполяцией",
+  "kind": "implementation",
+  "function": "physics_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "flipbook_particles",
+  "name": "Flipbook-текстуры вместо симуляции",
+  "kind": "optimization",
+  "function": "particle_systems",
+  "current_proofs": 1
+ },
+ {
+  "code": "froxel_volumetric_fog",
+  "name": "Объёмный туман на froxel-сетке",
+  "kind": "implementation",
+  "function": "volumetric_effects",
+  "current_proofs": 1
+ },
+ {
+  "code": "gerstner_fft_water",
+  "name": "Волны Герстнера и FFT на GPU",
+  "kind": "implementation",
+  "function": "water_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "gpu_instancing_vegetation",
+  "name": "GPU-инстансинг растительности",
+  "kind": "implementation",
+  "function": "procedural_vegetation",
+  "current_proofs": 1
+ },
+ {
+  "code": "gpu_lightmap_baking",
+  "name": "GPU-ускоренный пересчёт освещения",
+  "kind": "optimization",
+  "function": "baked_lighting",
+  "current_proofs": 0
+ },
+ {
+  "code": "gpu_meshlet_culling_budget",
+  "name": "Бюджет отсечения мешлетов на GPU",
+  "kind": "implementation",
+  "function": "mesh_shaders",
+  "current_proofs": 1
+ },
+ {
+  "code": "gpu_particle_simulation",
+  "name": "Симуляция частиц на GPU",
+  "kind": "implementation",
+  "function": "particle_systems",
+  "current_proofs": 1
+ },
+ {
+  "code": "hair_cards_lod",
+  "name": "Карточки волос и уровни детализации",
+  "kind": "implementation",
+  "function": "hair_rendering",
+  "current_proofs": 1
+ },
+ {
+  "code": "hierarchical_lod",
+  "name": "Иерархические LOD (HLOD)",
+  "kind": "optimization",
+  "function": "open_world_streaming",
+  "current_proofs": 1
+ },
+ {
+  "code": "hiz_software_occlusion",
+  "name": "Программное отсечение по Hi-Z",
+  "kind": "optimization",
+  "function": "rendering_architecture",
+  "current_proofs": 1
+ },
+ {
+  "code": "impostors_billboards",
+  "name": "Импосторы и билборды для дальнего плана",
+  "kind": "optimization",
+  "function": "procedural_vegetation",
+  "current_proofs": 1
+ },
+ {
+  "code": "irradiance_volume_probes",
+  "name": "Зонды освещённости (irradiance volume)",
+  "kind": "implementation",
+  "function": "dynamic_global_illumination",
+  "current_proofs": 0
+ },
+ {
+  "code": "light_range_attenuation_lod",
+  "name": "Упрощение затухания источников по дистанции",
+  "kind": "implementation",
+  "function": "dynamic_lighting",
+  "current_proofs": 0
+ },
+ {
+  "code": "lightmap_2d_baking",
+  "name": "Запекание 2D-освещения в текстуры",
+  "kind": "implementation",
+  "function": "baked_lighting",
+  "current_proofs": 0
+ },
+ {
+  "code": "lightmap_atlas_baking",
+  "name": "Запекание освещения в лайтмапы",
+  "kind": "implementation",
+  "function": "baked_lighting",
+  "current_proofs": 0
+ },
+ {
+  "code": "lightmap_compression_streaming",
+  "name": "Сжатие и потоковая подкачка лайтмапов",
+  "kind": "optimization",
+  "function": "baked_lighting",
+  "current_proofs": 0
+ },
+ {
+  "code": "meshlet_pipeline_adoption",
+  "name": "Конвейер мешлетов на меш-шейдерах",
+  "kind": "implementation",
+  "function": "mesh_shaders",
+  "current_proofs": 1
+ },
+ {
+  "code": "ml_frame_generation",
+  "name": "ML-генерация кадров",
+  "kind": "optimization",
+  "function": "upscaling_frame_generation",
+  "current_proofs": 1
+ },
+ {
+  "code": "motion_matching",
+  "name": "Motion matching",
+  "kind": "implementation",
+  "function": "character_animation",
+  "current_proofs": 1
+ },
+ {
+  "code": "multithreaded_physics_jobs",
+  "name": "Многопоточная физика на системе задач",
+  "kind": "optimization",
+  "function": "physics_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "neural_texture_compression",
+  "name": "Нейросжатие текстур",
+  "kind": "optimization",
+  "function": "large_scale_terrain",
+  "current_proofs": 1
+ },
+ {
+  "code": "normal_bake_retopology_pipeline",
+  "name": "Запекание нормалей и ретопология",
+  "kind": "optimization",
+  "function": "art_pipeline",
+  "current_proofs": 1
+ },
+ {
+  "code": "particle_pooling",
+  "name": "Пулинг систем частиц",
+  "kind": "optimization",
+  "function": "particle_systems",
+  "current_proofs": 1
+ },
+ {
+  "code": "physics_lod_sleeping",
+  "name": "LOD физики и спящие тела",
+  "kind": "optimization",
+  "function": "physics_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "planar_reflection_budget",
+  "name": "Бюджет плоских отражений",
+  "kind": "optimization",
+  "function": "water_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "portal_scene_capture_budget",
+  "name": "Порталы через рендер в текстуру",
+  "kind": "implementation",
+  "function": "portal_rendering",
+  "current_proofs": 0
+ },
+ {
+  "code": "post_effect_selective",
+  "name": "Выборочное применение экранных эффектов",
+  "kind": "optimization",
+  "function": "post_processing",
+  "current_proofs": 0
+ },
+ {
+  "code": "pso_precaching_warmup",
+  "name": "Предкомпиляция и прогрев PSO",
+  "kind": "optimization",
+  "function": "rendering_architecture",
+  "current_proofs": 0
+ },
+ {
+  "code": "quality_tier_scalability",
+  "name": "Тиры качества и scalability-группы",
+  "kind": "optimization",
+  "function": "render_scalability",
+  "current_proofs": 0
+ },
+ {
+  "code": "rt_effect_resolution_budget",
+  "name": "Половинное разрешение и кэш трассировочных эффектов",
+  "kind": "implementation",
+  "function": "ray_traced_effects",
+  "current_proofs": 1
+ },
+ {
+  "code": "runtime_fracture_budget",
+  "name": "Разрушение с бюджетом активных обломков",
+  "kind": "implementation",
+  "function": "destruction_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "screen_space_contact_shadows",
+  "name": "Контактные тени в экранном пространстве",
+  "kind": "optimization",
+  "function": "dynamic_shadows",
+  "current_proofs": 0
+ },
+ {
+  "code": "screen_space_gi",
+  "name": "Экранное глобальное освещение (SSGI)",
+  "kind": "optimization",
+  "function": "dynamic_global_illumination",
+  "current_proofs": 1
+ },
+ {
+  "code": "screen_space_water_simple",
+  "name": "Упрощённая вода в экранном пространстве",
+  "kind": "implementation",
+  "function": "water_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "screenspace_light_shafts",
+  "name": "Экранные световые валы (пост-процесс)",
+  "kind": "implementation",
+  "function": "post_processing",
+  "current_proofs": 0
+ },
+ {
+  "code": "sdf_global_illumination",
+  "name": "Глобальное освещение на дистанционных полях (SDF)",
+  "kind": "implementation",
+  "function": "dynamic_global_illumination",
+  "current_proofs": 0
+ },
+ {
+  "code": "shadow_caster_2d_limits",
+  "name": "Ограничение 2D-отбрасывателей теней",
+  "kind": "optimization",
+  "function": "dynamic_shadows",
+  "current_proofs": 0
+ },
+ {
+  "code": "snapshot_slot_saves",
+  "name": "Слотовые снапшоты мира (синхронная запись)",
+  "kind": "implementation",
+  "function": "save_system",
+  "current_proofs": 1
+ },
+ {
+  "code": "sprite_atlas_batching",
+  "name": "Атласы спрайтов и пакетная отрисовка",
+  "kind": "implementation",
+  "function": "character_animation",
+  "current_proofs": 1
+ },
+ {
+  "code": "sprite_particle_atlas",
+  "name": "Атласные частицы со сниженной точностью",
+  "kind": "optimization",
+  "function": "particle_systems",
+  "current_proofs": 1
+ },
+ {
+  "code": "sprite_sheet_compression",
+  "name": "Сжатие листов спрайтов и мип-уровни",
+  "kind": "optimization",
+  "function": "character_animation",
+  "current_proofs": 1
+ },
+ {
+  "code": "srp_batcher_discipline",
+  "name": "SRP Batcher и дисциплина материалов (URP/HDRP)",
+  "kind": "optimization",
+  "function": "rendering_architecture",
+  "current_proofs": 0
+ },
+ {
+  "code": "static_shadow_caching",
+  "name": "Кэширование теней от статических объектов",
+  "kind": "optimization",
+  "function": "dynamic_shadows",
+  "current_proofs": 0
+ },
+ {
+  "code": "temporal_radiance_cache",
+  "name": "Кэш излучения с временным накоплением",
+  "kind": "optimization",
+  "function": "dynamic_global_illumination",
+  "current_proofs": 0
+ },
+ {
+  "code": "temporal_upscaling",
+  "name": "Временное масштабирование изображения",
+  "kind": "optimization",
+  "function": "post_processing",
+  "current_proofs": 1
+ },
+ {
+  "code": "tiled_clustered_light_culling",
+  "name": "Тайловое и кластерное отсечение источников света",
+  "kind": "optimization",
+  "function": "rendering_architecture",
+  "current_proofs": 1
+ },
+ {
+  "code": "tilemap_chunk_streaming",
+  "name": "Чанковая подгрузка тайловой карты",
+  "kind": "implementation",
+  "function": "open_world_streaming",
+  "current_proofs": 1
+ },
+ {
+  "code": "tilemap_layer_culling",
+  "name": "Отсечение слоёв и чанков тайловой карты",
+  "kind": "optimization",
+  "function": "procedural_vegetation",
+  "current_proofs": 1
+ },
+ {
+  "code": "time_sliced_pathfinding",
+  "name": "Поиск пути с распределением по кадрам",
+  "kind": "optimization",
+  "function": "ai_pathfinding",
+  "current_proofs": 1
+ },
+ {
+  "code": "variable_rate_shading",
+  "name": "Переменная частота затенения (VRS)",
+  "kind": "optimization",
+  "function": "post_processing",
+  "current_proofs": 0
+ },
+ {
+  "code": "vegetation_atlas_lod",
+  "name": "Атласы и запечённые LOD растительности",
+  "kind": "optimization",
+  "function": "procedural_vegetation",
+  "current_proofs": 1
+ },
+ {
+  "code": "vehicle_simulation_lod",
+  "name": "Уровни детализации симуляции транспорта",
+  "kind": "implementation",
+  "function": "vehicle_simulation",
+  "current_proofs": 1
+ },
+ {
+  "code": "virtual_shadow_maps",
+  "name": "Виртуальные карты теней (VSM)",
+  "kind": "implementation",
+  "function": "dynamic_shadows",
+  "current_proofs": 0
+ },
+ {
+  "code": "volumetric_half_resolution",
+  "name": "Расчёт объёмов в пониженном разрешении",
+  "kind": "optimization",
+  "function": "volumetric_effects",
+  "current_proofs": 1
+ },
+ {
+  "code": "voxel_cone_tracing",
+  "name": "Воксельный конусный трейсинг",
+  "kind": "implementation",
+  "function": "dynamic_global_illumination",
+  "current_proofs": 0
+ }
+]

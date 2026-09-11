@@ -172,8 +172,116 @@ python -m alembic revision --autogenerate -m "описание изменени�
 
 Данные сида разделены по назначению: методы, функции, движки и связи описаны в
 `backend/app/seed/*_data.py`, а характеристики оборудования — в
-`backend/app/seed/data/hardware.json`. Список источников находится в
-`backend/app/seed/sources.py`.
+`backend/app/seed/data/hardware.json`. Список базовых источников находится в
+`backend/app/seed/sources.py`; дополнительный доказательный каталог, игровые
+кейсы, claims, узлы зависимостей и сценарии трудоёмкости — в
+`backend/app/seed/evidence_catalog.py`. Миграция создаёт отдельные таблицы
+`EvidenceSource`, `EvidenceClaim`, `GameCase`, `CaseEvidence`,
+`TechnologyNode`, `DependencyEdge`, `WorkPackage` и `TeamScenario`, не удаляя
+legacy-поля источников.
+
+## Отчёт
+
+Исследовательский отчёт можно пересобрать из корня проекта:
+
+```bash
+python tools/generate_research_report.py
+```
+
+Команда создаёт русскую Markdown-версию в
+`research/game-development-dss-study.md` и PDF в
+`output/pdf/game-development-dss-study.pdf`, а также построчную матрицу
+покрытия в `research/catalog-coverage-matrix.md`. Если рабочая база ещё не прошла
+новую миграцию, отчёт честно помечает её как legacy-снимок и показывает
+ожидаемый seed-каталог вместо выдуманных чисел.
+
+> Сборка PDF требует `reportlab`. Он установлен в `.venv`; интерпретатор
+> `.dss-venv` его не содержит. Markdown-часть собирается любым из двух.
+
+## Эксплуатационный runbook
+
+Пайплайн доказательной базы состоит из четырёх независимых проверок. Каждая
+запись каталога обязана пройти их без выдуманных данных: источник либо
+подтверждён, либо явно объявлен пробелом.
+
+### Рантаймы
+
+| Задача | Интерпретатор |
+| --- | --- |
+| Инструменты `tools/` | `.dss-venv/Scripts/python.exe` (или системный Python) |
+| Бэкенд, аудит, отчёты (MD) | `.dss-venv/Scripts/python.exe` (SQLAlchemy 2.0) |
+| PDF-сборка | `.venv/Scripts/python.exe` (нужен `reportlab`) |
+
+### Порядок операций
+
+```bash
+# 1. Схема-проверка паков без сети (быстро, безопасно)
+python tools/verify_sources.py --packs-only --no-net
+
+# 2. Загрузка паков в БД (бэкап создаётся перед загрузкой)
+cd backend && cp gamedev_dss.db gamedev-dss.bak-$(date +%Y%m%d-%H%M%S).db
+./../.dss-venv/Scripts/python.exe -c "import sys;sys.path.insert(0,'.');\
+from app.database import SessionLocal; from app.seed.pack_loader import sync_packs;\
+db=SessionLocal(); print(sync_packs(db)); db.commit()"
+
+# 3. Аудит покрытия (≥3 claims, ≥2 источника с локатором, ≥2 игровых примера)
+cd .. && ./.dss-venv/Scripts/python.exe tools/audit_evidence.py
+
+# 4. Полная HTTP-проверка всех URL (паки + БД, ~1 мин)
+./.dss-venv/Scripts/python.exe tools/verify_sources.py
+
+# 5. Перегенерация отчёта (MD + PDF + матрица)
+./.venv/Scripts/python.exe tools/generate_research_report.py
+
+# 6. Тесты
+cd backend && ../.dss-venv/Scripts/python.exe -m pytest tests/ -q
+cd ../frontend && npm test && npm run build
+```
+
+> Внимание: шаг 1 перезаписывает `research/verification_report.json` без сетевых
+> полей. Если он нужен для итоговых артефактов, после него выполните шаг 4.
+
+### Приёмка доказательной базы
+
+Итоговый статус достоверности собран в `research/reliability-report.md`. Он
+обязан подтверждать нулевые значения по следующим проверкам:
+
+| Проверка | Инвариант |
+| --- | --- |
+| `claim_dangling_source` | 0 — нет ссылок на несуществующий источник |
+| `derived_missing_formula_or_inputs` | 0 — у каждого `derived` есть формула и входы |
+| `numeric_claim_without_source` | 0 — числа без источника не публикуются |
+| `claim_missing_locator` | 0 — у каждого утверждения есть локатор |
+| `work_package_p80_lt_p50` | 0 — P80 не меньше P50 |
+| `conflict_without_url` | 0 |
+| молчаливые дыры (`entities_unproven_and_undeclared`) | 0 — пробел либо доказан, либо объявлен |
+
+Явно объявленные остатки (не дефекты): `declared_gap_claims` — пробелы без
+shipped-подтверждения; `dependency_edge_without_source` — плановые зависимости,
+помеченные `expert_estimate`; `method_engine_link_without_url` — связи,
+помеченные `user_defined`; `url_error` / `protected` — сетевые ограничения
+прокси и бот-стены, не мёртвые ссылки.
+
+### Правила, которые нельзя нарушать
+
+1. **Отсутствие источника не считается совместимостью.** Нет доказательства —
+   создаётся запись-пробел `field='adoption_evidence_gap'`, `basis='unknown'`,
+   `evidence_level='low'`, `source=None`.
+2. **`derived` требует формулу и входные параметры.** Качественное рассуждение —
+   это `documented` или `unknown`.
+3. **URL никогда не выдумывается.** Замена — только на пробитый 2xx-эквивалент.
+4. **Прямой пример ≠ перекрёстный.** Инструмент без прямого примера обязан
+   объявить пробел; reference-реализации не считаются игровыми примерами.
+5. **Регистр URL важен.** Дедупликация без учёта регистра, проба — с оригиналом.
+
+### Воспроизводимость
+
+Отчёт фиксирует ревизию каталога (`revision`) в шапке. Одинаковый вход, версия
+алгоритма и ревизия каталога дают одинаковый результат. Проверки детерминизма и
+обязательные инварианты модели (масштаб сцены → нагрузка, разрешение → GPU,
+NPC → CPU, RT не заменяет raster, RAM/VRAM не складываются, P80 ≥ P50)
+покрыты `backend/tests/`.
+
 
 ## API
 
@@ -189,10 +297,40 @@ GET  /api/catalog/engines
 GET  /api/catalog/conflicts
 GET  /api/catalog/hardware
 GET  /api/catalog/stage-guidance
+GET  /api/catalog/sources
+GET  /api/catalog/evidence
+GET  /api/catalog/evidence/{entity}/{code}
+GET  /api/catalog/evidence-summary
+GET  /api/catalog/cases
+GET  /api/catalog/cases/{code}
+GET  /api/catalog/dependencies
+GET  /api/catalog/teams
 POST /api/recommend
 POST /api/load-profile
 POST /api/hardware-estimate
+POST /api/schedule
+POST /api/report-data
+GET  /api/report-data
 ```
+
+`/api/report-data` в GET-форме принимает профиль query-параметрами и повторяемый
+`basket` с кодами методов; POST-форма предназначена для полного JSON-профиля и
+baseline. Отчётный снимок включает рекомендации, доказательства, кейсы,
+зависимости и сценарный план.
+
+### Профили команды для `/api/schedule`
+
+| Код | Размер | Потоки | Комментарий |
+| --- | --- | --- | --- |
+| `solo` | 1 | 1 | один специалист, узкие роли последовательно |
+| `small_2_5` | 4 | 2 | общая QA/production ёмкость |
+| `custom` | 6 | 3 | нетиповая команда; значения — экспертное допущение, переопределяются |
+| `mid_6_15` | 10 | 5 | специализированные роли |
+| `large_16_plus` | 24 | 12 | срок ограничен зависимостями и quality gates |
+
+Неизвестный код не подменяется похожим профилем: он возвращается под своим
+кодом, а в описании явно сообщается о подстановке. Размер команды меняет
+календарь, но не сумму person-days.
 
 Полный контракт запросов и ответов публикуется автоматически в Swagger по
 адресу `/api/docs`. Административные маршруты находятся под `/api/admin`;
