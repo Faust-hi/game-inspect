@@ -1,5 +1,5 @@
 {
-  "db": "C:\\Users\\user\\Desktop\\game-inspect\\backend\\gamedev_dss.db",
+  "db": "backend/gamedev_dss.db",
   "thresholds": {
     "min_claims": 3,
     "min_located_sources": 2,
@@ -326,6 +326,126 @@
       }
     ],
     "game_cases": []
+  },
+  "visibility": {
+    "tables": {
+      "case_evidence": {
+        "total": 375,
+        "published": 375,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "conflicts": {
+        "total": 456,
+        "published": 456,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "dependency_edges": {
+        "total": 930,
+        "published": 930,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "engine_tools": {
+        "total": 71,
+        "published": 71,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "engines": {
+        "total": 7,
+        "published": 7,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "evidence_claims": {
+        "total": 2564,
+        "published": 2540,
+        "invisible": 24,
+        "declared_draft": true,
+        "ok": true
+      },
+      "evidence_sources": {
+        "total": 936,
+        "published": 936,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "game_cases": {
+        "total": 155,
+        "published": 155,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "game_functions": {
+        "total": 40,
+        "published": 40,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "hardware_cpu": {
+        "total": 51,
+        "published": 51,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "hardware_gpu": {
+        "total": 79,
+        "published": 79,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "method_engine_links": {
+        "total": 475,
+        "published": 475,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "methods": {
+        "total": 124,
+        "published": 124,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "team_scenarios": {
+        "total": 5,
+        "published": 5,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "technology_nodes": {
+        "total": 222,
+        "published": 222,
+        "invisible": 0,
+        "declared_draft": false,
+        "ok": true
+      },
+      "work_packages": {
+        "total": 1794,
+        "published": 802,
+        "invisible": 992,
+        "declared_draft": false,
+        "ok": false
+      }
+    },
+    "invisible_tables": [
+      "work_packages"
+    ],
+    "invisible_rows": 992
   },
   "sources": {
     "total": 936,
@@ -1283,24 +1403,24 @@
     "dangling_count": 0,
     "by_basis": {
       "unknown": 263,
-      "measured": 104,
+      "case_evidence": 244,
+      "expert_estimate": 164,
       "documented": 1581,
       "derived": 208,
-      "expert_estimate": 164,
-      "case_evidence": 244
+      "measured": 104
     },
     "by_verification": {
-      "source_verified": 474,
-      "scenario_only": 124,
-      "verified": 1316,
       "derived_from_input": 4,
       "derived_from_formula": 2,
       "derived_from_published_rate": 1,
-      "partially_verified": 8,
       "needs_review": 1,
+      "verified": 1316,
       "derived_with_context": 130,
+      "unverified": 503,
+      "scenario_only": 124,
+      "partially_verified": 8,
       "derived_from_dag": 1,
-      "unverified": 503
+      "source_verified": 474
     },
     "numeric_without_source": 0
   },

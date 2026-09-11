@@ -220,11 +220,11 @@
 
 <ul>
 <li>Кандидатов: 27, рекомендовано: 23, исключено: 4.</li>
-<li>Учтено в расчёте: 2 из 4 выбранных техник.</li>
+<li>Учтено в расчёте: 4 из 4 выбранных техник, плюс 2 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>multiplayer_netcode</code> → <code>headless_dedicated_server</code>; <code>open_world_streaming</code> → <code>baked_occlusion_culling</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 1.05 (класс 5, ориентир None), GPU-индекс 0.48 (класс 3, ориентир GeForce RTX 3060 Ti), RAM 9.7 ГБ, VRAM 4.6 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 1.09 (класс 5, ориентир None), GPU-индекс 0.48 (класс 3, ориентир GeForce RTX 3060 Ti), RAM 9.7 ГБ, VRAM 4.6 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 64.45 чел.-дн., P80 96.73; срок P50 41.75 дн., P80 62.68.</li>
-<li>Объявленных пробелов модели: 6.</li>
+<li>Объявленных пробелов модели: 8.</li>
 </ul>
 
 <p><strong>Эталонное поведение игры.</strong></p>
@@ -240,8 +240,7 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>subtick_networking</code>, а движок ставит его на 8-е место из 8 в группе <code>multiplayer_netcode</code>; первым идёт <code>headless_dedicated_server</code>. Причина — критерии TOPSIS: у <code>subtick_networking</code> экспертный балл эффекта 0.3, стоимость внедрения 4, сложность 5, штраф за позднее внедрение <code>high</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>lag_compensation_rewind</code>, а движок ставит его на 7-е место из 8 в группе <code>multiplayer_netcode</code>; первым идёт <code>headless_dedicated_server</code>. Причина — критерии TOPSIS: у <code>lag_compensation_rewind</code> экспертный балл эффекта 0.3, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>high</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 2 из 4 выбранных техник (<code>subtick_networking</code>, <code>lag_compensation_rewind</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
-<li><strong>Ориентир по процессору не выдан:</strong> требуемый CPU-индекс 1.05 превышает максимум каталога — модель насыщается и не может предложить конкретную модель.</li>
+<li><strong>Ориентир по процессору не выдан:</strong> требуемый CPU-индекс 1.09 превышает максимум каталога — модель насыщается и не может предложить конкретную модель.</li>
 <li><strong>Выход за область применимости модели:</strong> Целевой FPS 240 выше откалиброванного диапазона (30–144): стоимость кадра экстраполирована.</li>
 <li><strong>FPS не моделируется:</strong> целевые 240.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
@@ -258,9 +257,9 @@
 
 <ul>
 <li>Кандидатов: 25, рекомендовано: 19, исключено: 6.</li>
-<li>Учтено в расчёте: 1 из 2 выбранных техник.</li>
+<li>Учтено в расчёте: 2 из 2 выбранных техник, плюс 1 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>baked_occlusion_culling</code>; <code>portal_rendering</code> → <code>portal_scene_capture_budget</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>; <code>water_simulation</code> → <code>screen_space_water_simple</code>.</li>
-<li>Оборудование: CPU-индекс 0.28 (класс 1, ориентир Core i3-8100), GPU-индекс 0.23 (класс 2, ориентир Radeon RX 6500 XT), RAM 10.1 ГБ, VRAM 5.5 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.3 (класс 1, ориентир Core i3-8100), GPU-индекс 0.25 (класс 2, ориентир GeForce GTX 1660 Super), RAM 10.1 ГБ, VRAM 5.7 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 24.45 чел.-дн., P80 36.69; срок P50 17.62 дн., P80 26.44.</li>
 <li>Объявленных пробелов модели: 6.</li>
 </ul>
@@ -276,7 +275,6 @@
 
 <ul>
 <li><strong>Совпадение:</strong> ключевая техника игры <code>portal_scene_capture_budget</code> стоит на 1-м месте в своей группе (portal_rendering).</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 2 выбранных техник (<code>portal_scene_capture_budget</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -292,9 +290,9 @@
 
 <ul>
 <li>Кандидатов: 28, рекомендовано: 22, исключено: 6.</li>
-<li>Учтено в расчёте: 2 из 3 выбранных техник.</li>
+<li>Учтено в расчёте: 3 из 3 выбранных техник, плюс 2 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>baked_occlusion_culling</code>; <code>post_processing</code> → <code>temporal_upscaling</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>split_screen_rendering</code> → <code>splitscreen_render_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.5 (класс 3, ориентир Core i7-8700K), GPU-индекс 0.28 (класс 2, ориентир GeForce RTX 3050), RAM 11.4 ГБ, VRAM 7.1 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.5 (класс 3, ориентир Core i7-8700K), GPU-индекс 0.26 (класс 2, ориентир GeForce RTX 3050), RAM 11.4 ГБ, VRAM 7.0 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 32.26 чел.-дн., P80 48.33; срок P50 20.61 дн., P80 30.86.</li>
 <li>Объявленных пробелов модели: 7.</li>
 </ul>
@@ -310,7 +308,6 @@
 
 <ul>
 <li><strong>Совпадение:</strong> ключевая техника игры <code>splitscreen_render_budget</code> стоит на 1-м месте в своей группе (split_screen_rendering).</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 3 выбранных техник (<code>splitscreen_render_budget</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps4, xbox_one) совместимый аппаратный прогноз не обещается.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
@@ -327,9 +324,9 @@
 
 <ul>
 <li>Кандидатов: 33, рекомендовано: 30, исключено: 3.</li>
-<li>Учтено в расчёте: 1 из 4 выбранных техник.</li>
+<li>Учтено в расчёте: 3 из 4 выбранных техник, плюс 6 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>dynamic_global_illumination</code> → <code>screen_space_gi</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>multiplayer_netcode</code> → <code>headless_dedicated_server</code>; <code>open_world_streaming</code> → <code>baked_occlusion_culling</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>split_screen_rendering</code> → <code>splitscreen_render_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.53 (класс 3, ориентир Core i7-9700K), GPU-индекс 0.48 (класс 3, ориентир GeForce RTX 5060 Ti), RAM 13.5 ГБ, VRAM 10.6 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.54 (класс 3, ориентир Core i7-9700K), GPU-индекс 0.43 (класс 3, ориентир GeForce RTX 5060 Ti), RAM 13.5 ГБ, VRAM 10.7 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 117.23 чел.-дн., P80 175.86; срок P50 70.07 дн., P80 105.12.</li>
 <li>Объявленных пробелов модели: 6.</li>
 </ul>
@@ -345,7 +342,7 @@
 
 <ul>
 <li><strong>Совпадение:</strong> ключевая техника игры <code>splitscreen_render_budget</code> стоит на 1-м месте в своей группе (split_screen_rendering).</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 3 из 4 выбранных техник (<code>splitscreen_render_budget</code>, <code>client_prediction_reconciliation</code>, <code>hardware_raytraced_gi</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
+<li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 4 выбранных техник (<code>hardware_raytraced_gi</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps5, xbox_series) совместимый аппаратный прогноз не обещается.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
@@ -362,9 +359,9 @@
 
 <ul>
 <li>Кандидатов: 46, рекомендовано: 35, исключено: 11.</li>
-<li>Учтено в расчёте: 3 из 7 выбранных техник.</li>
+<li>Учтено в расчёте: 6 из 7 выбранных техник, плюс 5 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>crowd_simulation</code> → <code>agent_update_budget</code>; <code>dynamic_global_illumination</code> → <code>screen_space_gi</code>; <code>dynamic_shadows</code> → <code>screen_space_contact_shadows</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>procedural_terrain</code> → <code>terrain_generation_streaming_budget</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.22 (класс 1, ориентир Core i3-8100), GPU-индекс 0.43 (класс 3, ориентир Radeon RX 9060 XT), RAM 17.4 ГБ, VRAM 14.4 ГБ; узкое место — GPU (растеризация).</li>
+<li>Оборудование: CPU-индекс 0.18 (класс 1, ориентир Core i3-8100), GPU-индекс 0.37 (класс 3, ориентир Arc A770), RAM 17.7 ГБ, VRAM 14.7 ГБ; узкое место — GPU (растеризация).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 151.87 чел.-дн., P80 227.84; срок P50 88.76 дн., P80 133.15.</li>
 <li>Объявленных пробелов модели: 8.</li>
 </ul>
@@ -384,7 +381,7 @@
 <li><strong>Расхождение ранга:</strong> игра применяет <code>world_partition_streaming</code>, а движок ставит его на 4-е место из 5 в группе <code>open_world_streaming</code>; первым идёт <code>gpu_compute_culling</code>. Причина — критерии TOPSIS: у <code>world_partition_streaming</code> экспертный балл эффекта 0.75, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>critical</code>.</li>
 <li><strong>Не предложено:</strong> техника игры <code>virtual_geometry_clusters</code> даже не попала в кандидаты: её функция не выбрана в профиле, а сама она не помечена как сквозная.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>hierarchical_lod</code>, а движок ставит его на 2-е место из 5 в группе <code>open_world_streaming</code>; первым идёт <code>gpu_compute_culling</code>. Причина — критерии TOPSIS: у <code>hierarchical_lod</code> экспертный балл эффекта 0.75, стоимость внедрения 3, сложность 3, штраф за позднее внедрение <code>medium</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 4 из 7 выбранных техник (<code>world_partition_streaming</code>, <code>virtual_geometry_clusters</code>, <code>hierarchical_lod</code>, <code>hardware_raytraced_gi</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
+<li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 7 выбранных техник (<code>hardware_raytraced_gi</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Число NPC (35 000) выше верхней границы модели (10 000): оценка не различает значения внутри этой области, результат является нижней границей диапазона.; Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps5, xbox_series) совместимый аппаратный прогноз не обещается.</li>
 <li><strong>FPS не моделируется:</strong> целевые 30.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
@@ -401,9 +398,9 @@
 
 <ul>
 <li>Кандидатов: 40, рекомендовано: 32, исключено: 8.</li>
-<li>Учтено в расчёте: 2 из 6 выбранных техник.</li>
+<li>Учтено в расчёте: 5 из 6 выбранных техник, плюс 5 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>dynamic_shadows</code> → <code>screen_space_contact_shadows</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>multiplayer_netcode</code> → <code>delta_compression_state</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.43 (класс 2, ориентир Core i3-10100), GPU-индекс 0.28 (класс 3, ориентир GeForce RTX 3060), RAM 14.7 ГБ, VRAM 9.4 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.36 (класс 2, ориентир Core i3-10100), GPU-индекс 0.26 (класс 3, ориентир GeForce RTX 3060), RAM 15.0 ГБ, VRAM 9.6 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 110.67 чел.-дн., P80 166.09; срок P50 66.41 дн., P80 99.66.</li>
 <li>Объявленных пробелов модели: 8.</li>
 </ul>
@@ -421,7 +418,7 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>world_partition_streaming</code>, а движок ставит его на 4-е место из 5 в группе <code>open_world_streaming</code>; первым идёт <code>gpu_compute_culling</code>. Причина — критерии TOPSIS: у <code>world_partition_streaming</code> экспертный балл эффекта 0.75, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>critical</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>client_prediction_reconciliation</code>, а движок ставит его на 7-е место из 8 в группе <code>multiplayer_netcode</code>; первым идёт <code>delta_compression_state</code>. Причина — критерии TOPSIS: у <code>client_prediction_reconciliation</code> экспертный балл эффекта 0.3, стоимость внедрения 5, сложность 5, штраф за позднее внедрение <code>critical</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 4 из 6 выбранных техник (<code>client_prediction_reconciliation</code>, <code>delta_compression_state</code>, <code>world_partition_streaming</code>, <code>virtual_geometry_clusters</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
+<li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 6 выбранных техник (<code>virtual_geometry_clusters</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Число игроков (100) выше порога различения (32): сетевой вклад оценён по насыщению.; Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps5, switch, xbox_series) совместимый аппаратный прогноз не обещается.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
@@ -438,11 +435,11 @@
 
 <ul>
 <li>Кандидатов: 28, рекомендовано: 25, исключено: 3.</li>
-<li>Учтено в расчёте: 2 из 4 выбранных техник.</li>
+<li>Учтено в расчёте: 4 из 4 выбранных техник, плюс 3 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>multiplayer_netcode</code> → <code>delta_compression_state</code>; <code>open_world_streaming</code> → <code>baked_occlusion_culling</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>runtime_security</code> → <code>runtime_security_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.63 (класс 3, ориентир Core i5-12400F), GPU-индекс 0.29 (класс 2, ориентир GeForce GTX 1660), RAM 9.7 ГБ, VRAM 4.6 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.65 (класс 3, ориентир Core i5-12400F), GPU-индекс 0.29 (класс 2, ориентир GeForce GTX 1660), RAM 9.7 ГБ, VRAM 4.6 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 75.89 чел.-дн., P80 113.89; срок P50 47.99 дн., P80 72.03.</li>
-<li>Объявленных пробелов модели: 9.</li>
+<li>Объявленных пробелов модели: 11.</li>
 </ul>
 
 <p><strong>Эталонное поведение игры.</strong></p>
@@ -458,7 +455,6 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>tickrate_budgeting</code>, а движок ставит его на 5-е место из 8 в группе <code>multiplayer_netcode</code>; первым идёт <code>delta_compression_state</code>. Причина — критерии TOPSIS: у <code>tickrate_budgeting</code> экспертный балл эффекта 0.6, стоимость внедрения 3, сложность 3, штраф за позднее внедрение <code>critical</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>lag_compensation_rewind</code>, а движок ставит его на 6-е место из 8 в группе <code>multiplayer_netcode</code>; первым идёт <code>delta_compression_state</code>. Причина — критерии TOPSIS: у <code>lag_compensation_rewind</code> экспертный балл эффекта 0.3, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>high</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 2 из 4 выбранных техник (<code>lag_compensation_rewind</code>, <code>runtime_security_budget</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>FPS не моделируется:</strong> целевые 144.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -512,9 +508,9 @@
 
 <ul>
 <li>Кандидатов: 42, рекомендовано: 33, исключено: 9.</li>
-<li>Учтено в расчёте: 2 из 6 выбранных техник.</li>
+<li>Учтено в расчёте: 4 из 6 выбранных техник, плюс 3 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>dynamic_global_illumination</code> → <code>screen_space_gi</code>; <code>dynamic_shadows</code> → <code>screen_space_contact_shadows</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>ray_traced_effects</code> → <code>rt_effect_resolution_budget</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.36 (класс 2, ориентир Core i3-10100), GPU-индекс 0.66 (класс 3, ориентир GeForce RTX 5060 Ti), RAM 17.0 ГБ, VRAM 14.4 ГБ; узкое место — GPU (растеризация).</li>
+<li>Оборудование: CPU-индекс 0.33 (класс 1, ориентир Core i3-8100), GPU-индекс 0.57 (класс 3, ориентир GeForce RTX 5060 Ti), RAM 17.3 ГБ, VRAM 14.7 ГБ; узкое место — Память.</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 104.98 чел.-дн., P80 157.46; срок P50 62.24 дн., P80 93.33.</li>
 <li>Объявленных пробелов модели: 7.</li>
 </ul>
@@ -532,7 +528,7 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>world_partition_streaming</code>, а движок ставит его на 4-е место из 5 в группе <code>open_world_streaming</code>; первым идёт <code>gpu_compute_culling</code>. Причина — критерии TOPSIS: у <code>world_partition_streaming</code> экспертный балл эффекта 0.75, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>critical</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>hardware_raytraced_gi</code>, а движок ставит его на 4-е место из 6 в группе <code>dynamic_global_illumination</code>; первым идёт <code>screen_space_gi</code>. Причина — критерии TOPSIS: у <code>hardware_raytraced_gi</code> экспертный балл эффекта 0.1, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>high</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 4 из 6 выбранных техник (<code>world_partition_streaming</code>, <code>hardware_raytraced_gi</code>, <code>temporal_radiance_cache</code>, <code>dynamic_resolution_scaling</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
+<li><strong>Не учтено в расчёте нагрузки:</strong> 2 из 6 выбранных техник (<code>hardware_raytraced_gi</code>, <code>temporal_radiance_cache</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps5, xbox_series) совместимый аппаратный прогноз не обещается.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
@@ -585,9 +581,9 @@
 
 <ul>
 <li>Кандидатов: 38, рекомендовано: 29, исключено: 9.</li>
-<li>Учтено в расчёте: 3 из 5 выбранных техник.</li>
+<li>Учтено в расчёте: 4 из 5 выбранных техник, плюс 2 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>large_scale_terrain</code> → <code>neural_texture_compression</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>procedural_vegetation</code> → <code>vegetation_atlas_lod</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.32 (класс 2, ориентир Core i3-10100), GPU-индекс 0.36 (класс 3, ориентир GeForce RTX 3060), RAM 14.9 ГБ, VRAM 9.2 ГБ; узкое место — GPU (растеризация).</li>
+<li>Оборудование: CPU-индекс 0.28 (класс 2, ориентир Core i3-10100), GPU-индекс 0.34 (класс 3, ориентир GeForce RTX 3060), RAM 15.0 ГБ, VRAM 9.3 ГБ; узкое место — GPU (растеризация).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 100.79 чел.-дн., P80 151.18; срок P50 60.48 дн., P80 90.71.</li>
 <li>Объявленных пробелов модели: 7.</li>
 </ul>
@@ -605,7 +601,7 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>terrain_clipmap</code>, а движок ставит его на 3-е место из 5 в группе <code>large_scale_terrain</code>; первым идёт <code>neural_texture_compression</code>. Причина — критерии TOPSIS: у <code>terrain_clipmap</code> экспертный балл эффекта 0.7, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>high</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>virtual_texturing</code>, а движок ставит его на 5-е место из 5 в группе <code>large_scale_terrain</code>; первым идёт <code>neural_texture_compression</code>. Причина — критерии TOPSIS: у <code>virtual_texturing</code> экспертный балл эффекта 0.6, стоимость внедрения 5, сложность 5, штраф за позднее внедрение <code>critical</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 2 из 5 выбранных техник (<code>terrain_clipmap</code>, <code>gpu_instancing_vegetation</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
+<li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 5 выбранных техник (<code>terrain_clipmap</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (xbox_series) совместимый аппаратный прогноз не обещается.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
@@ -622,9 +618,9 @@
 
 <ul>
 <li>Кандидатов: 29, рекомендовано: 24, исключено: 5.</li>
-<li>Учтено в расчёте: 2 из 4 выбранных техник.</li>
+<li>Учтено в расчёте: 4 из 4 выбранных техник, плюс 2 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>destruction_simulation</code> → <code>runtime_fracture_budget</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>physics_simulation</code> → <code>collision_layer_matrix</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>ray_traced_effects</code> → <code>rt_effect_resolution_budget</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.33 (класс 2, ориентир Core i3-10100), GPU-индекс 0.45 (класс 2, ориентир Radeon RX 6600), RAM 12.7 ГБ, VRAM 6.8 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.25 (класс 2, ориентир Core i3-10100), GPU-индекс 0.44 (класс 2, ориентир Radeon RX 6600), RAM 12.8 ГБ, VRAM 6.8 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 55.11 чел.-дн., P80 82.66; срок P50 34.48 дн., P80 51.72.</li>
 <li>Объявленных пробелов модели: 9.</li>
 </ul>
@@ -642,7 +638,6 @@
 <ul>
 <li><strong>Совпадение:</strong> ключевая техника игры <code>runtime_fracture_budget</code> стоит на 1-м месте в своей группе (destruction_simulation).</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>destruction_geometry_cache</code>, а движок ставит его на 2-е место из 2 в группе <code>destruction_simulation</code>; первым идёт <code>runtime_fracture_budget</code>. Причина — критерии TOPSIS: у <code>destruction_geometry_cache</code> экспертный балл эффекта 0.65, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>medium</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 2 из 4 выбранных техник (<code>runtime_fracture_budget</code>, <code>gpu_compute_culling</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -658,7 +653,7 @@
 
 <ul>
 <li>Кандидатов: 29, рекомендовано: 24, исключено: 5.</li>
-<li>Учтено в расчёте: 3 из 4 выбранных техник.</li>
+<li>Учтено в расчёте: 4 из 4 выбранных техник, плюс 1 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>destruction_simulation</code> → <code>runtime_fracture_budget</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>physics_simulation</code> → <code>collision_layer_matrix</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>; <code>vehicle_simulation</code> → <code>vehicle_simulation_lod</code>.</li>
 <li>Оборудование: CPU-индекс 0.24 (класс 2, ориентир Core i3-10100), GPU-индекс 0.19 (класс 2, ориентир Radeon RX 580), RAM 12.1 ГБ, VRAM 6.8 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 42.78 чел.-дн., P80 64.18; срок P50 26.72 дн., P80 40.07.</li>
@@ -678,7 +673,6 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>multithreaded_physics_jobs</code>, а движок ставит его на 4-е место из 5 в группе <code>physics_simulation</code>; первым идёт <code>collision_layer_matrix</code>. Причина — критерии TOPSIS: у <code>multithreaded_physics_jobs</code> экспертный балл эффекта 0.65, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>high</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>fixed_timestep_physics</code>, а движок ставит его на 5-е место из 5 в группе <code>physics_simulation</code>; первым идёт <code>collision_layer_matrix</code>. Причина — критерии TOPSIS: у <code>fixed_timestep_physics</code> экспертный балл эффекта 0.35, стоимость внедрения 3, сложность 3, штраф за позднее внедрение <code>critical</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 4 выбранных техник (<code>vehicle_simulation_lod</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -730,9 +724,9 @@
 
 <ul>
 <li>Кандидатов: 45, рекомендовано: 32, исключено: 13.</li>
-<li>Учтено в расчёте: 0 из 6 выбранных техник.</li>
+<li>Учтено в расчёте: 3 из 6 выбранных техник, плюс 5 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>character_animation</code> → <code>animation_lod_budget</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>large_scale_terrain</code> → <code>neural_texture_compression</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>procedural_vegetation</code> → <code>vegetation_atlas_lod</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.16 (класс 1, ориентир Core i3-8100), GPU-индекс 0.13 (класс 3, ориентир GeForce RTX 3060), RAM 13.9 ГБ, VRAM 8.3 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.13 (класс 1, ориентир Core i3-8100), GPU-индекс 0.11 (класс 3, ориентир GeForce RTX 3060), RAM 13.8 ГБ, VRAM 8.1 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 125.27 чел.-дн., P80 187.82; срок P50 75.0 дн., P80 112.45.</li>
 <li>Объявленных пробелов модели: 7.</li>
 </ul>
@@ -751,8 +745,7 @@
 <li><strong>Расхождение ранга:</strong> игра применяет <code>world_partition_streaming</code>, а движок ставит его на 4-е место из 5 в группе <code>open_world_streaming</code>; первым идёт <code>gpu_compute_culling</code>. Причина — критерии TOPSIS: у <code>world_partition_streaming</code> экспертный балл эффекта 0.75, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>critical</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>impostors_billboards</code>, а движок ставит его на 2-е место из 4 в группе <code>procedural_vegetation</code>; первым идёт <code>vegetation_atlas_lod</code>. Причина — критерии TOPSIS: у <code>impostors_billboards</code> экспертный балл эффекта 0.6, стоимость внедрения 2, сложность 2, штраф за позднее внедрение <code>low</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>gpu_instancing_vegetation</code>, а движок ставит его на 3-е место из 4 в группе <code>procedural_vegetation</code>; первым идёт <code>vegetation_atlas_lod</code>. Причина — критерии TOPSIS: у <code>gpu_instancing_vegetation</code> экспертный балл эффекта 0.75, стоимость внедрения 3, сложность 3, штраф за позднее внедрение <code>high</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 6 из 6 выбранных техник (<code>world_partition_streaming</code>, <code>heightmap_compression</code>, <code>gpu_instancing_vegetation</code>, <code>impostors_billboards</code>, <code>animation_compression</code>, <code>animation_lod_budget</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
-<li><strong>Профиль нагрузки нейтрален (50/50) при непустой корзине:</strong> ни одна выбранная техника не дошла до расчёта, поэтому числа отражают пустой набор, а не выбранные решения.</li>
+<li><strong>Не учтено в расчёте нагрузки:</strong> 3 из 6 выбранных техник (<code>heightmap_compression</code>, <code>animation_compression</code>, <code>animation_lod_budget</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps4) совместимый аппаратный прогноз не обещается.</li>
 <li><strong>FPS не моделируется:</strong> целевые 30.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
@@ -769,9 +762,9 @@
 
 <ul>
 <li>Кандидатов: 36, рекомендовано: 29, исключено: 7.</li>
-<li>Учтено в расчёте: 2 из 5 выбранных техник.</li>
+<li>Учтено в расчёте: 2 из 5 выбранных техник, плюс 2 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>dynamic_global_illumination</code> → <code>screen_space_gi</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>hair_rendering</code> → <code>hair_cards_lod</code>; <code>open_world_streaming</code> → <code>baked_occlusion_culling</code>; <code>path_tracing</code> → <code>path_tracing_sample_denoiser_budget</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>; <code>volumetric_effects</code> → <code>volumetric_half_resolution</code>.</li>
-<li>Оборудование: CPU-индекс 0.36 (класс 1, ориентир Core i3-8100), GPU-индекс 0.84 (класс 4, ориентир GeForce RTX 4070), RAM 12.6 ГБ, VRAM 9.5 ГБ; узкое место — GPU (растеризация).</li>
+<li>Оборудование: CPU-индекс 0.36 (класс 1, ориентир Core i3-8100), GPU-индекс 0.81 (класс 4, ориентир GeForce RTX 4070), RAM 12.6 ГБ, VRAM 9.6 ГБ; узкое место — GPU (растеризация).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 104.76 чел.-дн., P80 157.17; срок P50 63.37 дн., P80 95.08.</li>
 <li>Объявленных пробелов модели: 8.</li>
 </ul>
@@ -843,9 +836,9 @@
 
 <ul>
 <li>Кандидатов: 41, рекомендовано: 30, исключено: 11.</li>
-<li>Учтено в расчёте: 0 из 5 выбранных техник.</li>
+<li>Учтено в расчёте: 1 из 5 выбранных техник, плюс 2 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>character_animation</code> → <code>animation_lod_budget</code>; <code>dynamic_shadows</code> → <code>screen_space_contact_shadows</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>baked_occlusion_culling</code>; <code>post_processing</code> → <code>screenspace_light_shafts</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.14 (класс 1, ориентир Core i3-8100), GPU-индекс 0.11 (класс 2, ориентир Radeon RX 580), RAM 11.4 ГБ, VRAM 6.4 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.14 (класс 1, ориентир Core i3-8100), GPU-индекс 0.1 (класс 2, ориентир Radeon RX 580), RAM 11.3 ГБ, VRAM 6.4 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 77.13 чел.-дн., P80 115.63; срок P50 47.77 дн., P80 71.64.</li>
 <li>Объявленных пробелов модели: 6.</li>
 </ul>
@@ -863,8 +856,7 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>motion_matching</code>, а движок ставит его на 4-е место из 4 в группе <code>character_animation</code>; первым идёт <code>animation_lod_budget</code>. Причина — критерии TOPSIS: у <code>motion_matching</code> экспертный балл эффекта 0.0, стоимость внедрения 5, сложность 5, штраф за позднее внедрение <code>high</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>animation_compression</code>, а движок ставит его на 2-е место из 4 в группе <code>character_animation</code>; первым идёт <code>animation_lod_budget</code>. Причина — критерии TOPSIS: у <code>animation_compression</code> экспертный балл эффекта 0.4, стоимость внедрения 2, сложность 2, штраф за позднее внедрение <code>low</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 5 из 5 выбранных техник (<code>motion_matching</code>, <code>animation_compression</code>, <code>animation_lod_budget</code>, <code>normal_bake_retopology_pipeline</code>, <code>depth_prepass_early_z</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
-<li><strong>Профиль нагрузки нейтрален (50/50) при непустой корзине:</strong> ни одна выбранная техника не дошла до расчёта, поэтому числа отражают пустой набор, а не выбранные решения.</li>
+<li><strong>Не учтено в расчёте нагрузки:</strong> 4 из 5 выбранных техник (<code>motion_matching</code>, <code>animation_compression</code>, <code>animation_lod_budget</code>, <code>depth_prepass_early_z</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps4) совместимый аппаратный прогноз не обещается.</li>
 <li><strong>FPS не моделируется:</strong> целевые 30.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
@@ -881,9 +873,9 @@
 
 <ul>
 <li>Кандидатов: 36, рекомендовано: 29, исключено: 7.</li>
-<li>Учтено в расчёте: 2 из 5 выбранных техник.</li>
+<li>Учтено в расчёте: 5 из 5 выбранных техник, плюс 4 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>destruction_simulation</code> → <code>runtime_fracture_budget</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>physics_simulation</code> → <code>collision_layer_matrix</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>; <code>vehicle_simulation</code> → <code>vehicle_simulation_lod</code>.</li>
-<li>Оборудование: CPU-индекс 0.32 (класс 2, ориентир Ryzen 5 2600), GPU-индекс 0.23 (класс 3, ориентир GeForce RTX 3060), RAM 15.2 ГБ, VRAM 9.2 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.29 (класс 2, ориентир Ryzen 5 1600), GPU-индекс 0.23 (класс 3, ориентир GeForce RTX 3060), RAM 15.7 ГБ, VRAM 9.4 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 85.77 чел.-дн., P80 128.71; срок P50 50.71 дн., P80 76.06.</li>
 <li>Объявленных пробелов модели: 8.</li>
 </ul>
@@ -901,7 +893,6 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>destruction_geometry_cache</code>, а движок ставит его на 2-е место из 2 в группе <code>destruction_simulation</code>; первым идёт <code>runtime_fracture_budget</code>. Причина — критерии TOPSIS: у <code>destruction_geometry_cache</code> экспертный балл эффекта 0.65, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>medium</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>multithreaded_physics_jobs</code>, а движок ставит его на 4-е место из 5 в группе <code>physics_simulation</code>; первым идёт <code>collision_layer_matrix</code>. Причина — критерии TOPSIS: у <code>multithreaded_physics_jobs</code> экспертный балл эффекта 0.65, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>high</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 3 из 5 выбранных техник (<code>runtime_fracture_budget</code>, <code>multithreaded_physics_jobs</code>, <code>world_partition_streaming</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Количественный прогноз доступен только для Windows/Linux ПК: для платформ (ps4, xbox_one) совместимый аппаратный прогноз не обещается.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
@@ -918,9 +909,9 @@
 
 <ul>
 <li>Кандидатов: 25, рекомендовано: 19, исключено: 6.</li>
-<li>Учтено в расчёте: 2 из 4 выбранных техник.</li>
+<li>Учтено в расчёте: 3 из 4 выбранных техник, плюс 1 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>procedural_terrain</code> → <code>terrain_generation_streaming_budget</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>runtime_memory</code> → <code>managed_gc_alloc_budget</code>; <code>save_system</code> → <code>snapshot_slot_saves</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.37 (класс 2, ориентир Core i3-10100), GPU-индекс 0.16 (класс 3, ориентир GeForce RTX 3060), RAM 14.7 ГБ, VRAM 8.3 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.35 (класс 2, ориентир Core i3-10100), GPU-индекс 0.16 (класс 3, ориентир GeForce RTX 3060), RAM 15.2 ГБ, VRAM 8.3 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 47.79 чел.-дн., P80 71.72; срок P50 29.37 дн., P80 44.08.</li>
 <li>Объявленных пробелов модели: 7.</li>
 </ul>
@@ -938,7 +929,7 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>chunked_procedural_terrain</code>, а движок ставит его на 2-е место из 2 в группе <code>procedural_terrain</code>; первым идёт <code>terrain_generation_streaming_budget</code>. Причина — критерии TOPSIS: у <code>chunked_procedural_terrain</code> экспертный балл эффекта 0.7, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>critical</code>.</li>
 <li><strong>Совпадение:</strong> ключевая техника игры <code>managed_gc_alloc_budget</code> стоит на 1-м месте в своей группе (runtime_memory).</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 2 из 4 выбранных техник (<code>terrain_generation_streaming_budget</code>, <code>managed_gc_alloc_budget</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
+<li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 4 выбранных техник (<code>managed_gc_alloc_budget</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -954,9 +945,9 @@
 
 <ul>
 <li>Кандидатов: 34, рекомендовано: 24, исключено: 10.</li>
-<li>Учтено в расчёте: 3 из 4 выбранных техник.</li>
+<li>Учтено в расчёте: 4 из 4 выбранных техник, плюс 1 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>procedural_vegetation</code> → <code>vegetation_atlas_lod</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.32 (класс 2, ориентир Core i5-10400F), GPU-индекс 0.29 (класс 3, ориентир GeForce RTX 3060), RAM 12.6 ГБ, VRAM 8.8 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.29 (класс 2, ориентир Core i5-8400), GPU-индекс 0.29 (класс 3, ориентир GeForce RTX 3060), RAM 12.9 ГБ, VRAM 9.0 ГБ; узкое место — GPU (растеризация).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 40.77 чел.-дн., P80 61.18; срок P50 26.34 дн., P80 39.51.</li>
 <li>Объявленных пробелов модели: 8.</li>
 </ul>
@@ -974,7 +965,6 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>audio_occlusion_propagation</code>, а движок ставит его на 2-е место из 3 в группе <code>audio_system</code>; первым идёт <code>audio_streaming_compression</code>. Причина — критерии TOPSIS: у <code>audio_occlusion_propagation</code> экспертный балл эффекта 0.3, стоимость внедрения 3, сложность 3, штраф за позднее внедрение <code>medium</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>audio_convolution_reverb</code>, а движок ставит его на 3-е место из 3 в группе <code>audio_system</code>; первым идёт <code>audio_streaming_compression</code>. Причина — критерии TOPSIS: у <code>audio_convolution_reverb</code> экспертный балл эффекта 0.5, стоимость внедрения 2, сложность 3, штраф за позднее внедрение <code>medium</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 1 из 4 выбранных техник (<code>world_partition_streaming</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
 
@@ -1026,9 +1016,9 @@
 
 <ul>
 <li>Кандидатов: 38, рекомендовано: 19, исключено: 19.</li>
-<li>Учтено в расчёте: 3 из 4 выбранных техник.</li>
+<li>Учтено в расчёте: 3 из 4 выбранных техник, плюс 1 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>art_direction_stylization</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>character_animation</code> → <code>sprite_sheet_compression</code>; <code>crowd_simulation</code> → <code>crowd_2d_instancing</code>; <code>particle_systems</code> → <code>sprite_particle_atlas</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>pso_precaching_warmup</code>; <code>save_system</code> → <code>snapshot_slot_saves</code>.</li>
-<li>Оборудование: CPU-индекс 0.26 (класс 2, ориентир Core i3-10100), GPU-индекс 0.21 (класс 2, ориентир GeForce GTX 1060 6GB), RAM 10.8 ГБ, VRAM 5.3 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.26 (класс 2, ориентир Core i3-10100), GPU-индекс 0.21 (класс 2, ориентир GeForce GTX 1060 6GB), RAM 10.5 ГБ, VRAM 4.8 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 36.71 чел.-дн., P80 55.04; срок P50 22.69 дн., P80 34.01.</li>
 <li>Объявленных пробелов модели: 6.</li>
 </ul>
@@ -1064,9 +1054,9 @@
 
 <ul>
 <li>Кандидатов: 43, рекомендовано: 34, исключено: 9.</li>
-<li>Учтено в расчёте: 2 из 4 выбранных техник.</li>
+<li>Учтено в расчёте: 4 из 4 выбранных техник, плюс 2 достроенных обязательных зависимостей.</li>
 <li>Первое место по каждой функции: <code>art_pipeline</code> → <code>normal_bake_retopology_pipeline</code>; <code>audio_system</code> → <code>audio_streaming_compression</code>; <code>build_delivery</code> → <code>differential_patch_pipeline</code>; <code>character_animation</code> → <code>animation_lod_budget</code>; <code>geometry_pipeline</code> → <code>mesh_index_optimization</code>; <code>multiplayer_netcode</code> → <code>delta_compression_state</code>; <code>open_world_streaming</code> → <code>gpu_compute_culling</code>; <code>project_architecture</code> → <code>composition_bootstrap_architecture</code>; <code>render_scalability</code> → <code>quality_tier_scalability</code>; <code>rendering_architecture</code> → <code>tiled_clustered_light_culling</code>; <code>save_system</code> → <code>snapshot_slot_saves</code>; <code>upscaling_frame_generation</code> → <code>ml_frame_generation</code>.</li>
-<li>Оборудование: CPU-индекс 0.35 (класс 2, ориентир Ryzen 5 1600), GPU-индекс 0.15 (класс 2, ориентир Radeon RX 580), RAM 14.0 ГБ, VRAM 7.8 ГБ; узкое место — CPU (главный поток).</li>
+<li>Оборудование: CPU-индекс 0.38 (класс 2, ориентир Ryzen 5 1600), GPU-индекс 0.15 (класс 2, ориентир Radeon RX 580), RAM 14.0 ГБ, VRAM 7.8 ГБ; узкое место — CPU (главный поток).</li>
 <li>Календарь (команда <code>small_2_5</code>): трудоёмкость P50 56.01 чел.-дн., P80 84.1; срок P50 35.38 дн., P80 53.13.</li>
 <li>Объявленных пробелов модели: 8.</li>
 </ul>
@@ -1084,7 +1074,6 @@
 <ul>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>client_prediction_reconciliation</code>, а движок ставит его на 7-е место из 8 в группе <code>multiplayer_netcode</code>; первым идёт <code>delta_compression_state</code>. Причина — критерии TOPSIS: у <code>client_prediction_reconciliation</code> экспертный балл эффекта 0.3, стоимость внедрения 5, сложность 5, штраф за позднее внедрение <code>critical</code>.</li>
 <li><strong>Расхождение ранга:</strong> игра применяет <code>network_relevancy_priority</code>, а движок ставит его на 3-е место из 8 в группе <code>multiplayer_netcode</code>; первым идёт <code>delta_compression_state</code>. Причина — критерии TOPSIS: у <code>network_relevancy_priority</code> экспертный балл эффекта 0.7, стоимость внедрения 4, сложность 4, штраф за позднее внедрение <code>critical</code>.</li>
-<li><strong>Не учтено в расчёте нагрузки:</strong> 2 из 4 выбранных техник (<code>client_prediction_reconciliation</code>, <code>delta_compression_state</code>) исключены из профиля нагрузки и оценки оборудования из-за отсутствующих обязательных зависимостей.</li>
 <li><strong>Выход за область применимости модели:</strong> Число игроков (100) выше порога различения (32): сетевой вклад оценён по насыщению.</li>
 <li><strong>FPS не моделируется:</strong> целевые 60.0 FPS остаются статусом <code>not_modeled</code>; сравнить с фактической частотой кадров игры нельзя по устройству модели.</li>
 </ul>
@@ -1093,7 +1082,7 @@
 
 <ul>
 <li><strong>Совпадение с реальностью:</strong> хотя бы одна ключевая техника игры стоит на 1-м месте в своей группе в <strong>21 из 25</strong> сценариев.</li>
-<li><strong>Полнота учёта:</strong> в расчёт нагрузки и оборудования дошли <strong>60 из 114</strong> выбранных техник (53%). Остальные отброшены отсутствующими обязательными зависимостями.</li>
+<li><strong>Полнота учёта:</strong> из <strong>114</strong> выбранных техник в расчёт нагрузки и оборудования дошли <strong>91</strong> (80%). Дополнительно автоматически достроено <strong>50</strong> обязательных зависимостей (всего в расчёте 141). Недошедшие выбранные техники отброшены проверкой применимости — причина названа по каждой в пояснениях сценария.</li>
 <li><strong>«Сверка с практикой» пуста</strong> в <strong>0 из 25</strong> сценариев.</li>
 <li><strong>FPS не моделируется нигде:</strong> целевая частота кадров всегда остаётся статусом <code>not_modeled</code>, поэтому прямое сравнение с фактической производительностью оригинала по построению невозможно.</li>
 </ul>
@@ -1104,7 +1093,7 @@
 
 <p><strong>Сквозные методы попадают в функции, которых нет в профиле.</strong> 20 методов всегда входят в кандидаты. Для CS2 (мир — арена, функция — только сеть) движок всё равно выдаёт рекомендацию по <code>open_world_streaming</code>.</p>
 
-<p><strong>Половина выбранных техник не доходит до расчёта нагрузки.</strong> 54 из 114 техник отброшены обязательными зависимостями. В сценариях Horizon Zero Dawn и Uncharted 4 не учтена ни одна техника: профиль нагрузки остаётся нейтральным 50/50, что читается как «решения не влияют», а не «решения не посчитаны».</p>
+<p><strong>Половина выбранных техник не доходит до расчёта нагрузки.</strong> -27 из 114 техник отброшены обязательными зависимостями. В сценариях Horizon Zero Dawn и Uncharted 4 не учтена ни одна техника: профиль нагрузки остаётся нейтральным 50/50, что читается как «решения не влияют», а не «решения не посчитаны».</p>
 
 <p><strong>Каскадный обрыв из-за одной отсутствующей зависимости.</strong> Отсутствие <code>gpu_skinning_compute</code> обнуляет всю цепочку <code>animation_lod_budget</code> → <code>motion_matching</code> → <code>animation_compression</code>.</p>
 
