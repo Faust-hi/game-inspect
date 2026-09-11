@@ -47,8 +47,6 @@ def main() -> int:
 
     src_id_by_code = {r["code"]: r["id"] for r in
                       cur.execute("select id, code from evidence_sources")}
-    src_url_by_id = {r["id"]: (r["url"] or "") for r in
-                     cur.execute("select id, url from evidence_sources")}
 
     # ── 1. dangling derived research claims → anchor to the defining source ──
     for code, src_code in DERIVED_ANCHORS.items():

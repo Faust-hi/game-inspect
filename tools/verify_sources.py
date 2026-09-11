@@ -25,7 +25,6 @@ import re
 import socket
 import sqlite3
 import ssl
-import sys
 import urllib.error
 import urllib.request
 from collections import defaultdict

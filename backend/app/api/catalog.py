@@ -12,7 +12,6 @@ from sqlalchemy.orm import Session
 
 from .. import repositories
 from ..database import get_db
-from ..models.entities import Method
 from ..models.enums import (
     CalcMode, ConflictType, DevStage, EffectScope, GameFormat, LateCost, Level3,
     MemoryModel, MethodKind, NetworkTopology, Platform, Priority, RelationType,
@@ -26,7 +25,6 @@ from ..schemas.catalog import (
 from ..services import evidence as evidence_service, serializers, stage_guidance
 from ..services import graph as graph_service
 from ..services.serializers import label_of as _label
-from ..services.serializers import link_out
 
 router = APIRouter(prefix="/catalog", tags=["Каталоги"])
 

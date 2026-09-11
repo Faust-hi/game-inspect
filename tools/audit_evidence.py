@@ -62,7 +62,6 @@ def main() -> int:
     conn.row_factory = sqlite3.Row
 
     src_by_id = {r["id"]: dict(r) for r in q(conn, "select * from evidence_sources")}
-    src_by_code = {r["code"]: r for r in src_by_id.values()}
     src_ids = set(src_by_id)
 
     claims = q(conn, "select * from evidence_claims")

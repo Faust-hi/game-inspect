@@ -961,11 +961,11 @@ def _report_rows(snapshot: dict[str, int | None], db_path: Path) -> dict[str, ob
 def _markdown(snapshot: dict[str, int | None], db_path: Path) -> str:
     R = _report_rows(snapshot, db_path)
     (
-        revision, generated, status, old_counts, new_counts,
+        revision, generated, status, _, _,
         full_sources, full_source_links, type_rows, basis_rows, thin_rows,
         node_rows, relation_rows, team_rows, wp_rows, case_rows, dep_rows,
-        mandatory_edges, curated_sources, evidence_edges,
-        function_rows, function_count_rows, method_kind_rows, method_cat_rows,
+        mandatory_edges, curated_sources, _,
+        function_rows, function_count_rows, _, method_cat_rows,
         method_kind_text, fn_total, method_total, source_total,
         cpu_rows, gpu_rows, hw_basis_rows, hw_class_rows, hw_total,
         audit_rows, deep_text, calculations_text,
@@ -1408,7 +1408,7 @@ def _pdf(output: Path, snapshot: dict[str, int | None], db_path: Path) -> None:
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
     from reportlab.platypus import (
-        BaseDocTemplate, Frame, PageBreak, PageTemplate, Paragraph,
+        BaseDocTemplate, Frame, PageBreak, PageTemplate,
         Spacer, Table, TableStyle,
     )
 
@@ -1713,7 +1713,7 @@ def _pdf(output: Path, snapshot: dict[str, int | None], db_path: Path) -> None:
     add_text("UI содержит экраны «Доказательства», «Кейсы игр», «Зависимости и конфликты», «Трудоёмкость и календарный план»; badges показывают documented, measured, derived, case_evidence, expert_estimate и unknown.", note)
 
     # ── 20 ──
-    add_heading(f"20. Полный список источников")
+    add_heading("20. Полный список источников")
     add_text(f"Всего в реестре {R['source_total']} источников. Ниже — полный перечень с типом, датой проверки, локатором и доступностью, затем активные ссылки.")
     source_registry = _db_evidence(db_path)["sources"]
     add_table(

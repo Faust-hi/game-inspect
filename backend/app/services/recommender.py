@@ -29,7 +29,7 @@ from ..models.enums import (
 from ..schemas.catalog import (
     BasketConflictOut, CriterionScore, HardwareEstimateOut, LoadProfileOut,
     RecommendationOut, RecommendationResult, RiskOut, StageGuidanceOut,
-    StageNoteOut, input_fingerprint,
+    input_fingerprint,
 )
 from ..seed.methods_data import FUNCTION_ASSIGNMENTS
 from . import engines as engine_service

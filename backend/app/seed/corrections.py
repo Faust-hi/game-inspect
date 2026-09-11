@@ -3,8 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models.entities import (
-    CaseEvidence, Conflict, DependencyEdge, Engine, EngineTool, EvidenceClaim,
-    EvidenceSource, Method, MethodEngineLink,
+    CaseEvidence, Conflict, DependencyEdge, EvidenceClaim, EvidenceSource, Method,
 )
 from . import methods_data, sources
 

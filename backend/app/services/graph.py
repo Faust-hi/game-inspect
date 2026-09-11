@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models.entities import (
-    DependencyEdge, Engine, EngineTool, Method, TechnologyNode,
+    DependencyEdge, Engine, EngineTool, TechnologyNode,
 )
 
 #: Типы рёбер, которые задают обязательность для расчёта корзины.
@@ -49,7 +49,6 @@ def graph_checks(
     """Выполнить проверки графа и вернуть находки и счётчики."""
     basket_set = {c for c in (basket or []) if c}
     nodes = {n.id: n for n in db.scalars(select(TechnologyNode))}
-    by_code = {n.code: n for n in nodes.values()}
     edges = list(db.scalars(select(DependencyEdge)))
 
     issues: list[dict[str, Any]] = []
