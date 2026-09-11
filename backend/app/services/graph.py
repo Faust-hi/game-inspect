@@ -115,7 +115,6 @@ def graph_checks(
     # 3. Зависимость от неподдерживаемой версии.
     tools = {t.id: t for t in db.scalars(select(EngineTool))}
     engines = {e.id: e for e in db.scalars(select(Engine))}
-    unsupported = 0
     for edge in edges:
         if not edge.min_version:
             continue
@@ -130,7 +129,6 @@ def graph_checks(
             continue
         if engine and tool_engine.code == engine and engine_version:
             if _version_lt(engine_version, tool.min_version) is True:
-                unsupported += 1
                 issue(
                     "unsupported_version", "error",
                     f"Инструмент «{tool.name}» появляется только с версии {tool.min_version}, "

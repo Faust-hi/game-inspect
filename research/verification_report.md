@@ -7,11 +7,11 @@
 ## 1. Исследовательские пакеты
 
 - пакетов: **14**
-- источников: **646**
-- утверждений (claims): **1895**
+- источников: **647**
+- утверждений (claims): **1897**
 - игровых примеров: **600**
 - derived-утверждений с формулой и входными параметрами: **70 / 70**
-- уникальных URL: **524**
+- уникальных URL: **525**
 
 | Проверка | Нарушений |
 |---|---|
@@ -49,29 +49,36 @@
 
 - источников: **936**
 - утверждений: **2564**
-- уникальных URL: **758**
+- уникальных URL: **759**
 
 | Проверка | Нарушений |
 |---|---|
 | `claim_dangling_source` | 0 |
 | `claim_missing_locator` | 0 |
 | `conflict_without_url` | 0 |
-| `declared_gap_claims` | 29 |
-| `dependency_edge_without_source` | 157 |
+| `declared_gap_claims` | 28 |
+| `dependency_edge_without_source` | 154 |
 | `derived_missing_formula_or_inputs` | 0 |
 | `method_engine_link_without_url` | 111 |
 | `numeric_claim_without_source` | 0 |
 | `source_without_published_date` | 0 |
-| `url_error` | 59 |
+| `url_dead` | 1 |
+| `url_declared` | 30 |
+| `url_error` | 50 |
 | `work_package_p80_lt_p50` | 0 |
 
 ## 3. Доступность URL
 
-- проверено уникальных URL: **758**
-- доступны (2xx): **712**
+- проверено уникальных URL: **759**
+- доступны (2xx): **711**
 - защищены ботом/авторизацией (403/401/429): **19**
-- недоступны (404/410/DNS): **0**
+- недоступны (404/410/DNS): **1**
 - ошибки сети/таймаут: **27**
+- объявленное отсутствие ссылки, не адрес: **1**
+
+### Недоступные URL (требуют замены или пометки)
+
+- `https://www.digitalfoundry.net/articles/digitalfoundry-2021-it-takes-two-tech-analysis` — not found
 
 ### Ошибки соединения (проверить вручную)
 

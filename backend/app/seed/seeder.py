@@ -27,8 +27,9 @@ from ..models.enums import DevStage, Status
 from . import engines_data, functions_data, methods_data
 from .corrections import (
     correct_effect_scopes, correct_engine_tool_independence, correct_legacy_conflict_types,
-    correct_method_sources, correct_relation_types, correct_shadow_relation,
-    correct_source_publication, correct_splitscreen_dependency, declare_evidence_gaps,
+    correct_method_sources, correct_placeholder_source_dates, correct_relation_types,
+    correct_shadow_relation, correct_source_publication, correct_splitscreen_dependency,
+    declare_evidence_gaps,
 )
 
 PUBLISHED = Status.PUBLISHED.value
@@ -205,22 +206,65 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
     from .evidence_catalog import sync_all as sync_evidence_catalog
     from .fixes_v2 import apply_all as apply_fixes_v2
     from .pack_loader import sync_packs
+    extension_stats = sync_technical_extensions(db, functions)
     fix_stats = apply_fixes_v2(db)
-    pack_stats = sync_packs(db)
-    return {
-        "functions_created": created_functions,
-        **sync_technical_extensions(db, functions),
-        "methods_linked": linked_methods,
-        "method_metadata_updated": metadata_updated,
+    # Порядок проходов — как в полном сидере: коррекции связей идут до загрузки
+    # пакетов. Обратный порядок удалял связь, которую объявляет пакет: коррекция
+    # типа срабатывала уже после загрузки, и вернуть связь было нечем. Из-за
+    # этого старт приложения терял, например, исследованное дополнение
+    # `agent_update_budget` ↔ `crowd_instancing_impostors`.
+    corrections = {
         "relations_corrected": correct_shadow_relation(db),
         "legacy_conflict_types_corrected": correct_legacy_conflict_types(db),
         "effect_scopes_corrected": correct_effect_scopes(db),
         "splitscreen_dependency_corrected": correct_splitscreen_dependency(db),
         "relation_types_corrected": correct_relation_types(db),
         "method_sources_corrected": correct_method_sources(db),
+        "source_dates_corrected": correct_placeholder_source_dates(db),
         "verified_fields_corrected": correct_existing(db),
+    }
+    pack_stats = sync_packs(db)
+    # Канонизация связей — та же, что в полном сидере. Без неё старт приложения
+    # возвращал связи, которые разрыв циклов уже убрал: пакет объявляет
+    # `dependency`, понижение превращает её в `complement`, и следующий проход
+    # загрузчика считал `dependency` отсутствующей и вставлял её заново — без
+    # решения и без ребра, а обязательный цикл возвращался. Здесь эти проходы
+    # выполняются после загрузки, поэтому база сходится к тому же состоянию,
+    # что и собранная с нуля.
+    from .dependency_graph import (
+        break_dependency_cycles, dedupe_symmetric_relations, sync_dependency_graph,
+    )
+    from .relation_resolutions import apply_relation_resolutions
+    from .evidence_catalog import sync_work_packages
+    # Граф строится после загрузки пакетов — тем же порядком, что и в полном
+    # сидере. Только `sync_dependency_graph` превращает строки `conflicts` в
+    # рёбра `dependency_edges`; без него новый проход загрузчика создавал связь,
+    # но ребра у неё не было, и `graph_checks` её не видел, тогда как сборка с
+    # нуля ребро получала. Два входа в одну базу обязаны давать одно состояние.
+    graph_stats = sync_dependency_graph(db)
+    graph_stats.update(break_dependency_cycles(db))
+    graph_stats.update(dedupe_symmetric_relations(db))
+    # Предусловия пакетов работ пересчитываются после канонизации связей: иначе
+    # в `dependency_codes` попадают предусловия, которых в итоговом каталоге нет.
+    work_synced = sync_work_packages(db)
+    # Декларации пробелов — до решений: основание решения зависит от маркера
+    # источника (`user_defined:`), который ставит именно этот проход.
+    gap_stats = declare_evidence_gaps(db)
+    canonical = {
+        **graph_stats,
+        **gap_stats,
+        "work_package_dependencies_refreshed": work_synced,
+        **apply_relation_resolutions(db),
+    }
+    return {
+        "functions_created": created_functions,
+        **extension_stats,
+        "methods_linked": linked_methods,
+        "method_metadata_updated": metadata_updated,
+        **corrections,
         **fix_stats,
         **pack_stats,
+        **canonical,
         **sync_evidence_catalog(db),
     }
 
@@ -441,7 +485,15 @@ def validate_knowledge_base(db: Session) -> list[dict]:
     # отсутствие связи обосновано. Без этого различия предупреждение было бы
     # ложным для каждого такого метода, а настоящий пробел в данных тонул
     # в их числе. Обратное противоречие (признак есть и связи есть) — ошибка.
-    linked = {db.get(Method, link.method_id).code for link in db.scalars(select(MethodEngineLink))}
+    # `db.get` возвращает None, если связь ссылается на удалённую запись;
+    # прежнее прямое `.code` на результате роняло всю валидацию на одной
+    # висячей строке вместо того, чтобы сообщить о ней (сообщение о висячей
+    # связи уже выдаётся выше, в блоке проверки связей).
+    linked = {
+        method.code
+        for link in db.scalars(select(MethodEngineLink))
+        if (method := db.get(Method, link.method_id)) is not None
+    }
     for m in methods:
         if m.code in linked:
             if m.engine_tool_independent:
@@ -575,6 +627,15 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     links = seed_method_links(db, methods, tools, outcome)
     conflicts = seed_conflicts(db, outcome)
     hardware = seed_hardware(db, outcome)
+    # Пачка исправлений v2 — тот же проход, что выполняет стартовая синхронизация
+    # (`sync_function_taxonomy`). Без него свежая база отличалась от базы,
+    # прошедшей хотя бы один старт приложения: у 13 методов не поднимался
+    # `confidence` и оставался на значении по умолчанию 0.5 при наличии
+    # опубликованного источника, не исправлялась пара «название — URL» (1 запись)
+    # и не проставлялись сырые значения бенчмарков железа. Функция идемпотентна:
+    # повторный вызов ничего не меняет.
+    from .fixes_v2 import apply_all as apply_fixes_v2
+    fixes_v2 = apply_fixes_v2(db)
     # Записи, сохранённые до появления области эффекта, получают явные значения
     # каталога: иначе исправление расчёта действует только на новые базы.
     scopes_corrected = correct_effect_scopes(db)
@@ -586,6 +647,10 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     # Источники, подобранные по названию, а не по механизму, заменяются и в
     # уже существующих базах: ссылка — часть обоснования карточки.
     sources_corrected = correct_method_sources(db)
+    # Подставные даты публикации заменяются на объявленные значения из реестра:
+    # `sync_sources` не перезаписывает уже заполненное поле, поэтому без явного
+    # прохода унаследованная база сохраняла прежние заглушки.
+    source_dates_corrected = correct_placeholder_source_dates(db)
     independence_corrected = correct_engine_tool_independence(db)
     from .verified_corrections import correct_existing
     verified_fields_corrected = correct_existing(db)
@@ -613,7 +678,9 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     db.commit()
     # Граф зависимостей строится последним: ему нужны и узлы технологий, и
     # связи «метод-метод» из загруженных пакетов.
-    from .dependency_graph import break_dependency_cycles, sync_dependency_graph
+    from .dependency_graph import (
+        break_dependency_cycles, dedupe_symmetric_relations, sync_dependency_graph,
+    )
     graph_stats = sync_dependency_graph(db)
     graph_stats.update(break_dependency_cycles(db))
     # Повторная загрузка пакетов добавляет связи «метод-метод», часть которых
@@ -624,14 +691,39 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     # первая загрузка пакетов не успевала создать спорные рёбра.
     for key, value in break_dependency_cycles(db).items():
         graph_stats[key] = graph_stats.get(key, 0) + value
+    # Симметричная связь, записанная в обе стороны, — дубль, а не два факта.
+    # Проход убирает встречные записи, оставшиеся от прежних сборок; на базе,
+    # собранной с нуля, он не находит ничего.
+    graph_stats.update(dedupe_symmetric_relations(db))
     db.flush()
     db.commit()
-    # Декларации пробелов — последними: им нужны и инструменты, и связи
-    # «метод-инструмент», и конфликты, и рёбра графа, и железо. Раньше эти
-    # проходы выполнялись до создания перечисленных сущностей и на свежей базе
-    # не срабатывали (связки оставались без пометки user_defined, конфликты и
-    # рёбра — без декларации, сырые значения бенчмарков — пустыми).
+    # Предусловия пакетов работ пересчитываются КОНЦОМ всей цепочки: связи
+    # «метод требует метод» объявляются пакетами, а обязательная связь в цикле
+    # понижается до дополнения уже после построения графа. Проход, выполненный
+    # до разрыва циклов, записал бы в `dependency_codes` предусловия, которых в
+    # итоговом каталоге нет: 19 связей были бы выданы за обязательные. Здесь
+    # список зависимостей уже каноничен. Проход идемпотентен и обновляет только
+    # `dependency_codes`, не трогая остальные поля.
+    from .evidence_catalog import sync_work_packages
+    work_synced = sync_work_packages(db)
+    db.flush()
+    db.commit()
+    # Декларации пробелов — ДО заполнения решений. Проход ставит конфликтам без
+    # источника маркер `user_defined:catalog_dependency`, а решение о базисе
+    # принимается по этому полю (`derived` — связь с источником,
+    # `expert_estimate` — пользовательская). Обратный порядок приводил к тому,
+    # что 30 зависимостей каталога помечались как выведенные из документа,
+    # хотя публичного источника у них нет: маркер ставился уже после того, как
+    # основание было записано. Проход идемпотентен и заполняет только пустое.
     declarations = declare_evidence_gaps(db)
+    db.flush()
+    db.commit()
+    # Решения связей — после разрыва циклов: пониженная связь уже получила
+    # собственный текст, и он не должен быть перезаписан. Модуль заполняет
+    # только пустые решения и переносит их в рёбра графа.
+    from .relation_resolutions import apply_relation_resolutions
+    resolutions = apply_relation_resolutions(db)
+    db.flush()
     db.commit()
     issues = validate_knowledge_base(db) if validate else []
     db.commit()
@@ -650,10 +742,14 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
         "relation_types_corrected": relations_corrected,
         "method_sources_corrected": sources_corrected,
         "sources_published": sources_published,
+        "source_dates_corrected": source_dates_corrected,
         "engine_tool_independence_corrected": independence_corrected,
         "verified_fields_corrected": verified_fields_corrected,
+        "work_package_dependencies_refreshed": work_synced,
+        **fixes_v2,
         **evidence,
         **graph_stats,
+        **resolutions,
         **declarations,
         **outcome.as_report(),
     }

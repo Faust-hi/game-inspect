@@ -35,6 +35,7 @@ export interface Enums {
   solution_levels: EnumOption[];
   late_costs: EnumOption[];
   calc_modes: EnumOption[];
+  effect_scopes: EnumOption[];
   relation_types: EnumOption[];
   conflict_types: EnumOption[];
   statuses: EnumOption[];
@@ -105,6 +106,8 @@ export interface EngineTool {
   description: string;
   tool_type: string;
   docs_url: string;
+  /** Минимальная версия движка, где инструмент существует; null — граница не задана. */
+  min_version?: string | null;
 }
 
 export interface Engine {
@@ -131,8 +134,20 @@ export interface MethodEngineLink {
   available?: boolean | null;
   availability_note?: string | null;
   source_locator?: string;
+  /** Собственный URL связи; пусто — публичного источника не существует. */
+  source_url?: string;
   evidence_basis?: string;
   evidence_status?: string;
+}
+
+export interface MethodVariant {
+  /** Как именно метод может быть построен (например, «Global distance field»). */
+  name: string;
+  description: string;
+  /** Основание варианта: documented / measured / case_evidence / expert_estimate / unknown. */
+  basis: string;
+  /** Коды источников, подтверждающих вариант. */
+  evidence: string[];
 }
 
 export interface Method {
@@ -182,6 +197,10 @@ export interface Method {
   requires_conditions: string[];
   verification_method: string;
   verification_tools: string[];
+  /** Варианты реализации: пустой список — данных в исследовании нет, а не пробел переноса. */
+  implementation_variants: MethodVariant[];
+  /** Что нужно иметь до внедрения (данные, API, инструменты). */
+  required_data_and_tools: string;
   status: string;
   source_title: string;
   source_url: string;
@@ -196,6 +215,8 @@ export interface Conflict {
   severity: number;
   description: string;
   resolution: string;
+  /** Основание рекомендации: derived / expert_estimate / unknown / documented. */
+  basis: string;
   source_url: string;
 }
 
@@ -347,6 +368,8 @@ export interface BasketConflict {
   severity: number;
   description: string;
   resolution: string;
+  /** Основание рекомендации «что делать» (см. `Conflict.basis`). */
+  basis: string;
 }
 
 export interface SubsystemBreakdown {
@@ -462,6 +485,8 @@ export interface NonClientMethod {
 export interface ContributionItem {
   label: string;
   delta: number;
+  /** Единица измерения `delta`: «доля» (относительное изменение), «мс» или «×». */
+  unit: string;
   detail: string;
 }
 
@@ -616,6 +641,8 @@ export interface Dependency {
   source?: EvidenceSource | null;
   description: string;
   workaround: string;
+  /** Основание обходного пути: derived / expert_estimate / unknown / documented. */
+  basis: string;
   status: string;
 }
 
@@ -647,22 +674,6 @@ export interface EvidenceSummary {
   calibration_status: string;
 }
 
-export interface WorkPackage {
-  code: string;
-  method_code: string;
-  name: string;
-  package_type: string;
-  role: string;
-  min_days: number;
-  p50_days: number;
-  p80_days: number;
-  parallelizable: boolean;
-  recommended_stage: string;
-  late_factor: number;
-  dependency_codes: string[];
-  basis: string;
-}
-
 export interface TeamScenario {
   code: string;
   name: string;
@@ -687,6 +698,8 @@ export interface ScheduleTask {
   p80_days: number;
   parallelizable: boolean;
   recommended_stage: string;
+  /** Исходный текст стадии из пакета, если поле было не кодом. */
+  stage_note?: string;
   late_factor: number;
   basis: string;
   start_p50: number;

@@ -87,6 +87,7 @@ export function FunctionsScreen() {
                     <button
                       key={fn.code}
                       onClick={() => toggle(fn.code)}
+                      aria-pressed={selected}
                       style={{
                         textAlign: 'left',
                         border: `1px solid ${selected ? 'var(--accent)' : 'var(--border)'}`,
@@ -96,11 +97,17 @@ export function FunctionsScreen() {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {/* Флажок — только индикатор: обработчик клика один и он
+                            на кнопке. С собственным onChange клик по квадратику
+                            всплывал до кнопки и `toggle` вызывался дважды, так
+                            что отметка не менялась вовсе. */}
                         <input
                           type="checkbox"
                           checked={selected}
-                          onChange={() => toggle(fn.code)}
-                          style={{ width: 'auto', margin: 0 }}
+                          readOnly
+                          tabIndex={-1}
+                          aria-hidden="true"
+                          style={{ width: 'auto', margin: 0, pointerEvents: 'none' }}
                         />
                         <strong style={{ fontSize: 13.5 }}>{fn.name}</strong>
                         {state === 'typical' && <Badge tone="ok">типично</Badge>}

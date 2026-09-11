@@ -77,7 +77,6 @@ export function App() {
     profile,
     basket,
     result,
-    resultStale,
     catalog,
     calculating,
     calculate,
@@ -243,17 +242,12 @@ export function App() {
                 {calculateError && (
                   <Callout tone="danger" title="Расчёт не выполнен">
                     {calculateError}
-                  </Callout>
-                )}
-                {resultStale && (
-                  <Callout tone="warn" title="Данные изменены, результат нужно обновить">
-                    Показан расчёт для предыдущих значений профиля или корзины.
                     <button
                       className="btn btn-primary"
                       style={{ marginTop: 10 }}
                       onClick={() => void calculate()}
                     >
-                      Пересчитать
+                      Повторить расчёт
                     </button>
                   </Callout>
                 )}

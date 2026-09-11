@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -207,6 +208,17 @@ def _upsert_claim(db: Session, payload: dict[str, Any], sources_map: dict[str, E
     code = payload["code"]
     existing = db.scalar(select(EvidenceClaim).where(EvidenceClaim.code == code))
     if existing:
+        # Утверждение, загруженное раньше, чем пак объявил его источник,
+        # остаётся и без ссылки, и черновиком: `sources_map` собирается только
+        # из разделов `sources` паков, поэтому при первом проходе код мог быть
+        # не разрешён. Ссылка восстанавливается здесь — иначе запись навсегда
+        # попадает в «висячие ссылки» аудита, хотя источник в базе есть.
+        changed = False
+        missing_source = existing.source_id is None and sources_map.get(payload.get("source")) is not None
+        if missing_source:
+            existing.source_id = sources_map[payload["source"]].id
+            if existing.status == DRAFT:
+                existing.status = PUBLISHED
         # Rows loaded before a metadata field existed keep the old shape. Fill
         # in only the keys that are genuinely missing (e.g. the engine/role
         # classification added later) so already-loaded evidence is enriched
@@ -216,7 +228,6 @@ def _upsert_claim(db: Session, payload: dict[str, Any], sources_map: dict[str, E
             cur = existing.input_parameters
             cur = cur if isinstance(cur, dict) else {}
             merged = dict(cur)
-            changed = False
             for k, v in new_ip.items():
                 # Never blank out a value that is already populated.
                 if v in (None, "", {}):
@@ -226,7 +237,16 @@ def _upsert_claim(db: Session, payload: dict[str, Any], sources_map: dict[str, E
                     changed = True
             if changed:
                 existing.input_parameters = merged
-                db.flush()
+        # Явный JSON-`null` в поле `value` раньше превращался в строку "None" и
+        # выдавался в API как значение утверждения. Согласующий проход лечит уже
+        # собранные базы: ни одно утверждение не имеет осмысленного значения
+        # "None", поэтому литерал заменяется пустым значением (число, если оно
+        # есть, хранится отдельно в `value_num` и не трогается).
+        if (existing.value_text or "") == "None" and existing.value_num is None:
+            existing.value_text = ""
+            changed = True
+        if missing_source or changed:
+            db.flush()
         return existing
     src = sources_map.get(payload.get("source"))
     # `value_range` может быть явным null (в JSON это законно). Раньше это
@@ -237,6 +257,12 @@ def _upsert_claim(db: Session, payload: dict[str, Any], sources_map: dict[str, E
         vr = [None, None]
     range_min = vr[0] if len(vr) > 0 else None
     range_max = vr[1] if len(vr) > 1 else None
+    # Явный JSON-`null` в поле `value` — законная форма («числа в источнике
+    # нет»): он не должен превращаться в строку "None". `dict.get(key, default)`
+    # подставляет default только при отсутствии ключа, поэтому проверка нужна
+    # отдельная — иначе `str(None)` попадал в `value_text` и выдавался в API
+    # как значение утверждения.
+    raw_value = payload.get("value")
     claim = EvidenceClaim(
         code=code,
         entity=payload.get("entity", "method"),
@@ -244,8 +270,8 @@ def _upsert_claim(db: Session, payload: dict[str, Any], sources_map: dict[str, E
         field=payload.get("field", ""),
         claim=payload.get("claim", "")[:4000],
         unit=payload.get("unit", "")[:40],
-        value_text=str(payload.get("value", ""))[:4000],
-        value_num=payload.get("value") if isinstance(payload.get("value"), (int, float)) else None,
+        value_text=("" if raw_value is None else str(raw_value))[:4000],
+        value_num=raw_value if isinstance(raw_value, (int, float)) else None,
         range_min=range_min,
         range_max=range_max,
         source_id=src.id if src else None,
@@ -293,8 +319,15 @@ def _upsert_case(db: Session, payload: dict[str, Any], sources_map: dict[str, Ev
 
 def _upsert_work_package(db: Session, payload: dict[str, Any]) -> WorkPackage | None:
     code = payload["code"]
+    stage_code, stage_note = normalize_stage(payload.get("recommended_stage"))
     existing = db.scalar(select(WorkPackage).where(WorkPackage.code == code))
     if existing:
+        # Согласующий проход: «заполняется только пустое» не лечит уже собранные
+        # базы. Пакеты, созданные до появления `stage_note`, сохранили код
+        # стадии, но исходный текст рекомендации у них не записан.
+        if stage_note and not (existing.stage_note or "").strip():
+            existing.stage_note = stage_note
+            db.flush()
         return existing
     wp = WorkPackage(
         code=code,
@@ -306,7 +339,8 @@ def _upsert_work_package(db: Session, payload: dict[str, Any]) -> WorkPackage | 
         p50_days=payload.get("p50_days", 1.0),
         p80_days=payload.get("p80_days", 1.5),
         parallelizable=payload.get("parallelizable", True),
-        recommended_stage=normalize_stage(payload.get("recommended_stage"))[0],
+        recommended_stage=stage_code,
+        stage_note=stage_note or "",
         late_factor=payload.get("late_factor", 1.0),
         dependency_codes=payload.get("dependency_codes", []),
         basis=payload.get("basis", "expert_estimate"),
@@ -367,9 +401,17 @@ def _upsert_relation(
     if relation_type not in _RELATION_SEVERITY:
         relation_type = "unknown"
     key = (a_code, b_code, relation_type)
-    # `seen` нужен потому, что незакоммиченные строки не видны запросу,
-    # и один и тот же пакет может объявить связь дважды.
+    # `seen` нужен потому, что незакоммиченные строки не видны запросу: сессия
+    # создаётся с `autoflush=False`, поэтому `db.scalar` ниже не видит связь,
+    # добавленную в этой же сессии. Пакет может объявить связь дважды, а
+    # симметричный тип — ещё и с обратной стороны («A дополняет B» и
+    # «B дополняет A» — одно отношение). Проверка `seen` поэтому симметрична
+    # для типов без направления: иначе повторный проход создавал вторую запись
+    # и второе ребро, которых нет при сборке с нуля (459 конфликтов вместо 458).
     if key in seen:
+        return False
+    if relation_type in _SYMMETRIC_RELATIONS and (b_code, a_code, relation_type) in seen:
+        seen.add(key)
         return False
     # Дубликат проверяется по тройке в том виде, в каком она хранится в базе,
     # плюс по обратной паре для симметричных типов связи. Без второй проверки
@@ -407,6 +449,89 @@ def _upsert_relation(
     return True
 
 
+# ── Метаданные карточки метода из пакетов ──
+# Пакеты несут поля, которые спецификация требует в карточке метода
+# («варианты реализации», «условия применимости», «требуемые данные и
+# инструменты»), но у которых не было места в схеме. Здесь они переносятся в
+# модель. Перенос идемпотентен: заполняются только пустые поля, а условия
+# объединяются без дублей, поэтому повторная загрузка ничего не меняет.
+
+#: Сокращения, после которых точка не заканчивает условие. Без этого списка
+#: «…requires DirectX 12 (SM 6.4).» распадалось бы на два условия.
+_CONDITION_ABBREVIATIONS = frozenset({
+    "e.g.", "i.e.", "etc.", "vs.", "cf.", "approx.", "no.", "fig.", "inc.",
+    "ltd.", "u.s.", "dr.", "st.", "al.", "ver.", "max.", "min.",
+})
+
+
+def _ends_with_abbreviation(text: str) -> bool:
+    token = text.rstrip().split()[-1].lower() if text.strip() else ""
+    if token in _CONDITION_ABBREVIATIONS:
+        return True
+    # Версия («5.4.») или одиночная буква («A.») — не конец предложения.
+    return bool(re.fullmatch(r"\d+(\.\d+)+\.", token) or re.fullmatch(r"[a-z]\.", token))
+
+
+def split_conditions(text: str | None) -> list[str]:
+    """Разбить прозу «условий применимости» на отдельные условия.
+
+    Пакет хранит условия одним абзацем; карточка показывает их списком.
+    Разбиение идёт по границам предложений, но не после сокращений и версий.
+    """
+    text = (text or "").strip()
+    if not text:
+        return []
+    parts = re.split(r"(?<=[.!?])\s+(?=[A-Z(])", text)
+    result: list[str] = []
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
+        if result and _ends_with_abbreviation(result[-1]):
+            result[-1] = f"{result[-1]} {part}".strip()
+        else:
+            result.append(part)
+    return result
+
+
+def _apply_method_meta(method: Method, mdata: dict) -> None:
+    """Перенести метаданные карточки метода из пакета, не затирая данные."""
+    variants = [v for v in (mdata.get("implementation_variants") or []) if isinstance(v, dict)]
+    if variants:
+        merged = list(method.implementation_variants or [])
+        known = {item.get("name") for item in merged if isinstance(item, dict)}
+        for variant in variants:
+            name = (variant.get("name") or "").strip()
+            description = (variant.get("description") or "").strip()
+            if not name and not description:
+                continue
+            if name and name in known:
+                continue
+            merged.append({
+                "name": name,
+                "description": description,
+                "basis": (variant.get("basis") or "unknown").strip(),
+                "evidence": [code for code in (variant.get("evidence") or []) if code],
+            })
+            known.add(name)
+        method.implementation_variants = merged
+
+    required = (mdata.get("required_data_and_tools") or "").strip()
+    if required and not (method.required_data_and_tools or "").strip():
+        method.required_data_and_tools = required[:4000]
+
+    conditions = split_conditions(mdata.get("applicability_conditions"))
+    if conditions:
+        existing = list(method.requires_conditions or [])
+        seen = {item.strip().lower() for item in existing}
+        for condition in conditions:
+            key = condition.strip().lower()
+            if key and key not in seen:
+                existing.append(condition)
+                seen.add(key)
+        method.requires_conditions = existing[:24]
+
+
 # Секции пакета, не являющиеся методами, но требующие доказательного слоя.
 # section -> (entity в evidence_claims, колонка связи в case_evidence)
 _ENTITY_SECTIONS: dict[str, tuple[str, str]] = {
@@ -424,6 +549,24 @@ _ENTITY_SECTIONS: dict[str, tuple[str, str]] = {
 }
 
 
+def _mapping(pack: dict[str, Any], key: str) -> dict[str, Any]:
+    """Секция пакета в виде словаря.
+
+    Пакет — внешний файл, его вложенная структура не гарантирована: `_load_packs`
+    проверяет только то, что верхний уровень — объект. Раньше предполагалось,
+    что секция всегда объект, и пакет с секцией-списком ронял весь проход
+    исключением (молча теряя остальные пакеты) вместо объявленного сбоя.
+    """
+    value = pack.get(key)
+    return value if isinstance(value, dict) else {}
+
+
+def _sequence(pack: dict[str, Any], key: str) -> list[Any]:
+    """Секция пакета в виде списка; не-список не роняет проход."""
+    value = pack.get(key)
+    return value if isinstance(value, list) else []
+
+
 def sync_packs(db: Session) -> dict[str, int]:
     packs, pack_failures = _load_packs()
     stats = {
@@ -434,19 +577,32 @@ def sync_packs(db: Session) -> dict[str, int]:
         "packs_loaded": len(packs), "pack_load_failures": len(pack_failures),
     }
     sources_map: dict[str, EvidenceSource] = {}
-    known_methods = {code for (code,) in db.execute(select(Method.code)).all()}
+    method_rows = {m.code: m for m in db.scalars(select(Method))}
+    known_methods = set(method_rows)
     seen_relations: set[tuple[str, str, str]] = set()
 
     # 1. Sources
     for pack in packs:
-        for s in pack.get("sources", []):
+        for s in _sequence(pack, "sources"):
+            if not isinstance(s, dict) or not s.get("code"):
+                logger.warning("Пак %s: запись источника без кода пропущена", pack.get("pack"))
+                continue
             src = _upsert_source(db, s)
             sources_map[s["code"]] = src
             stats["sources"] += 1
 
     # 2. Claims + Cases + Work packages
     for pack in packs:
-        for mcode, mdata in pack.get("methods", {}).items():
+        for mcode, mdata in _mapping(pack, "methods").items():
+            if not isinstance(mdata, dict):
+                logger.warning("Пакет %s: метод %s описан не объектом, пропущен", pack.get("pack"), mcode)
+                continue
+            # Метаданные карточки метода: варианты реализации, условия
+            # применимости, требуемые данные и инструменты.
+            method = method_rows.get(mcode)
+            if method is not None:
+                _apply_method_meta(method, mdata)
+
             # claims
             for i, c in enumerate(mdata.get("claims", [])):
                 payload = {
@@ -472,6 +628,10 @@ def sync_packs(db: Session) -> dict[str, int]:
 
             # game examples → GameCase + CaseEvidence
             for i, ex in enumerate(mdata.get("game_examples", [])):
+                if not isinstance(ex, dict) or not ex.get("game"):
+                    logger.warning("Пакет %s, метод %s: пример игры без названия пропущен",
+                                   pack.get("pack"), mcode)
+                    continue
                 case_code = f"CASE_{ex['game'].replace(' ', '_').replace(':', '')}_{i}"[:120]
                 case = _upsert_case(db, {
                     "code": case_code,
@@ -510,31 +670,47 @@ def sync_packs(db: Session) -> dict[str, int]:
             # work packages
             effort = mdata.get("effort_person_days", {})
             if effort and effort.get("p50") is not None:
-                for pkg_type, role_map in {
-                    "design": "designer",
-                    "feasibility": "engineer",
-                    "integration": "engineer",
-                    "content": "artist",
-                    "optimization": "engineer",
+                # Роли — из словаря сценариев команды (`team_scenarios.role_capacity`:
+                # design / engineering / technical_art / qa / production) и те же,
+                # что у пакетов из `evidence_catalog.sync_work_packages` и
+                # `planning._fallback_packages`. Прежние названия (designer,
+                # engineer, artist, writer) не совпадали ни с одним ключом
+                # ёмкости: планировщик молча брал ёмкость 1, и размер команды
+                # переставал влиять на 868 пакетов из 1794.
+                for pkg_type, role in {
+                    "design": "design",
+                    "feasibility": "engineering",
+                    "integration": "engineering",
+                    "content": "technical_art",
+                    "optimization": "engineering",
                     "qa": "qa",
-                    "release": "engineer",
-                    "documentation": "writer",
+                    "release": "production",
+                    "documentation": "production",
                 }.items():
-                    # Simplified: one WP per method per type, P50/P80 split
+                    # Simplified: one WP per method per type, P50/P80 split.
+                    # `p80` не обязателен в пакете, но обязателен в модели
+                    # (`p80_days >= p50_days`). Раньше прямое обращение к ключу
+                    # обрывало весь `sync_packs` на пакете без `p80`; теперь
+                    # диапазон достраивается тем же отношением, что и в
+                    # `planning._fallback_packages` (P80 = 1,5 × P50), и не
+                    # может опуститься ниже P50.
                     p50 = float(effort["p50"]) / 8.0
-                    p80 = float(effort["p80"]) / 8.0
+                    raw_p80 = effort.get("p80")
+                    p80 = float(raw_p80) / 8.0 if raw_p80 is not None else p50 * 1.5
+                    if p80 < p50:
+                        p80 = p50
                     _upsert_work_package(db, {
                         "code": f"WP_{mcode}_{pkg_type}"[:180],
                         "method_code": mcode,
                         "name": f"{pkg_type}: {mcode}",
                         "package_type": pkg_type,
-                        "role": role_map,
+                        "role": role,
                         "p50_days": p50,
                         "p80_days": p80,
                         "basis": effort.get("basis", "expert_estimate"),
-                        "recommended_stage": normalize_stage(
-                            mdata.get("recommended_stage")
-                        )[0],
+                        # Сырое значение: нормализацию и сохранение примечания
+                        # выполняет `_upsert_work_package` в одной точке.
+                        "recommended_stage": mdata.get("recommended_stage"),
                     })
                     stats["work_packages"] += 1
 
@@ -572,7 +748,7 @@ def sync_packs(db: Session) -> dict[str, int]:
     #    claim/game_example shape as methods, different entity linkage.
     for section, (entity, link_field) in _ENTITY_SECTIONS.items():
         for pack in packs:
-            for ecode, edata in (pack.get(section) or {}).items():
+            for ecode, edata in _mapping(pack, section).items():
                 if not isinstance(edata, dict):
                     continue
                 for i, c in enumerate(edata.get("claims", [])):

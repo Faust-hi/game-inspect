@@ -96,6 +96,30 @@ function isAbortError(error: unknown): boolean {
   return error instanceof Error && error.name === 'AbortError';
 }
 
+/**
+ * Согласовать зависимые поля профиля после правки.
+ *
+ * Поле, потерявшее смысл, обязано очищаться: иначе оно остаётся в профиле и
+ * продолжает влиять на расчёт, хотя в анкете уже скрыто. Два случая:
+ * число локальных камер учитывается расчётом независимо от функции
+ * split-screen, поэтому при её снятии значение сбрасывается; базовый FPS
+ * генератора кадров выше целевого FPS — противоречие, которое сервер
+ * отклоняет целиком (422), поэтому при снижении целевого FPS оно снимается,
+ * а не подменяется другим числом.
+ */
+function reconcileProfile(prev: ProjectProfile, patch: Partial<ProjectProfile>): ProjectProfile {
+  const next = { ...prev, ...patch };
+  if (!next.functions.includes('split_screen_rendering')) {
+    next.local_view_count = null;
+  }
+  if (!next.frame_generation) {
+    next.base_render_fps = null;
+  } else if (next.base_render_fps != null && next.base_render_fps > next.target_fps) {
+    next.base_render_fps = null;
+  }
+  return next;
+}
+
 function errorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   return 'Расчёт не выполнен';
@@ -121,8 +145,6 @@ interface ProjectStore {
   resultKey: string | null;
   /** Отпечаток текущего входа: расходится с `resultKey` после правки анкеты. */
   inputKey: string;
-  /** Результат есть, но относится к уже изменённым данным. */
-  resultStale: boolean;
   catalog: CatalogState;
   calculating: boolean;
   calculateError: string | null;
@@ -165,6 +187,11 @@ function loadPersisted(value?: string, allowBaseline = true): { profile: Project
       if (!saved) return null;
       baseline = { profile: saved.profile, basket: saved.basket };
     }
+    // Псевдоним разрешения. Модель принимает и `4k`, и `2160p`, но анкета
+    // предлагает только `2160p`. Без приведения сохранённый профиль с `4k`
+    // показывал пустое поле выбора, хотя значение продолжало участвовать в
+    // расчёте: отпечаток входа нормализует `4k`, а само поле — нет.
+    if (restored.target_resolution === '4k') restored.target_resolution = '2160p';
     return {
       baseline,
       profile: restored,
@@ -257,7 +284,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const updateProfile = useCallback(
     (patch: Partial<ProjectProfile>) => {
       discardResult();
-      setProfile((prev) => ({ ...prev, ...patch }));
+      setProfile((prev) => reconcileProfile(prev, patch));
     },
     [discardResult],
   );
@@ -326,8 +353,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setBaseline({ profile: structuredClone(profile), basket: [...new Set(basket)] });
   }, [profile, basket, discardResult]);
 
-  const resultStale = result !== null && resultKey !== null && resultKey !== inputKey;
-
   const value: ProjectStore = useMemo(
     () => ({
       baseline,
@@ -337,7 +362,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       result,
       resultKey,
       inputKey,
-      resultStale,
       catalog,
       calculating,
       calculateError,
@@ -358,7 +382,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       result,
       resultKey,
       inputKey,
-      resultStale,
       catalog,
       calculating,
       calculateError,

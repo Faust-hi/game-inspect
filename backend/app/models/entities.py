@@ -143,11 +143,21 @@ class Method(Base):
     # Проверка решения
     verification_method: Mapped[str] = mapped_column(Text, default="")
     verification_tools: Mapped[list[str]] = mapped_column(JSON, default=list)
+    # Что нужно иметь до внедрения (данные, API, инструменты). Отдельно от
+    # `verification_tools`: те служат для проверки результата, а не для работы.
+    required_data_and_tools: Mapped[str] = mapped_column(Text, default="")
 
     # Алгоритм применения: упорядоченные шаги внедрения решения.
     # Отдельно от description, чтобы карточка метода отвечала на вопрос «как
     # внедрить», а не только «что это и зачем».
     application_steps: Mapped[list[str]] = mapped_column(JSON, default=list)
+
+    # Варианты реализации: как именно метод может быть построен в проекте.
+    # Каждый вариант — объект с именем, описанием и основанием
+    # (`{"name", "description", "basis", "evidence": [...]}`). Список, а не
+    # отдельная таблица: варианты всегда читаются вместе с карточкой метода и
+    # не участвуют в численных расчётах.
+    implementation_variants: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
 
     status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
     source_title: Mapped[str] = mapped_column(String(300), default="")
@@ -243,12 +253,21 @@ class Conflict(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     a_code: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     b_code: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
-    conflict_type: Mapped[str] = mapped_column(String(20), default="conflict")
+    #: Тип связи. По умолчанию — `unknown` из словаря `ConflictType`: прежнее
+    #: значение `conflict` в перечислении отсутствовало, и строка, созданная
+    #: без явного типа, получала значение вне словаря (оно не исключало ничего
+    #: и не предупреждало), пока его не поправит отдельный проход.
+    conflict_type: Mapped[str] = mapped_column(String(20), default="unknown")
     severity: Mapped[int] = mapped_column(Integer, default=2)  # 1..3
     description: Mapped[str] = mapped_column(Text, default="")
     resolution: Mapped[str] = mapped_column(Text, default="")
     status: Mapped[str] = mapped_column(String(20), default=DRAFT)
     source_url: Mapped[str] = mapped_column(String(600), default="")
+    #: Основание рекомендации `resolution`: documented — решение прямо следует
+    #: из источника; derived — выведено из описания связи и типа отношения;
+    #: expert_estimate — инженерное допущение; unknown — не задокументировано.
+    #: Без этого поля выведенное решение неотличимо от документированного.
+    basis: Mapped[str] = mapped_column(String(30), default="")
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
 
@@ -520,6 +539,8 @@ class DependencyEdge(Base):
     source_id: Mapped[int | None] = mapped_column(ForeignKey("evidence_sources.id"), nullable=True)
     description: Mapped[str] = mapped_column(Text, default="")
     workaround: Mapped[str] = mapped_column(Text, default="")
+    #: Основание `workaround` (см. `Conflict.basis`).
+    basis: Mapped[str] = mapped_column(String(30), default="")
     status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
@@ -544,6 +565,11 @@ class WorkPackage(Base):
     p80_days: Mapped[float] = mapped_column(Float, default=1.5)
     parallelizable: Mapped[bool] = mapped_column(Boolean, default=True)
     recommended_stage: Mapped[str] = mapped_column(String(20), default="prototype")
+    #: Исходный свободный текст поля `recommended_stage` из пакета, если он не
+    #: был кодом стадии. Пакеты используют одно имя поля для двух смыслов: кода
+    #: перечисления и развёрнутой рекомендации. Раньше текст молча терялся, хотя
+    #: `pack_loader.normalize_stage` прямо требует сохранить его как примечание.
+    stage_note: Mapped[str] = mapped_column(Text, default="")
     late_factor: Mapped[float] = mapped_column(Float, default=1.0)
     dependency_codes: Mapped[list[str]] = mapped_column(JSON, default=list)
     basis: Mapped[str] = mapped_column(String(40), default="expert_estimate")

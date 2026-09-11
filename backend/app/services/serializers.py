@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from .. import repositories
 from ..models.entities import Method
 from ..models.enums import CalcMode, DevStage, EffectScope, LateCost, SolutionLevel
-from ..schemas.catalog import MethodOut
+from ..schemas.catalog import MethodOut, MethodVariantOut
 
 from ..models.entities import Engine, EngineTool, HardwareCPU, HardwareGPU, MethodEngineLink
 from ..models.enums import RelationType
@@ -163,6 +163,17 @@ def method_to_out(
         verification_method=m.verification_method,
         verification_tools=m.verification_tools or [],
         application_steps=m.application_steps or [],
+        implementation_variants=[
+            MethodVariantOut(
+                name=v.get("name", ""),
+                description=v.get("description", ""),
+                basis=v.get("basis", "unknown"),
+                evidence=list(v.get("evidence") or []),
+            )
+            for v in (m.implementation_variants or [])
+            if isinstance(v, dict)
+        ],
+        required_data_and_tools=m.required_data_and_tools or "",
         status=m.status, source_title=m.source_title, source_url=m.source_url,
         engine_links=[link_out(db, link, profile) for link in links],
     )

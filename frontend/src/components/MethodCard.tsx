@@ -1,6 +1,7 @@
 /** Карточка метода: классификация, влияние, проверка, аналоги в движках. */
 import { impactsOf } from '../catalogUtils';
 import type { Method } from '../types';
+import { EvidenceBadge } from './Evidence';
 import { Badge, ImpactGrid, Modal, SourceLink } from './ui';
 
 const LEVEL_TONE: Record<string, 'info' | 'ok' | 'warn' | 'danger' | 'neutral'> = {
@@ -135,6 +136,45 @@ export function MethodCard({ method, onClose }: { method: Method; onClose: () =>
               <li key={item}>{item}</li>
             ))}
           </ul>
+        </>
+      )}
+
+      {(method.implementation_variants ?? []).length > 0 && (
+        <>
+          <div className="divider" />
+          <h4>Варианты реализации</h4>
+          <p className="xsmall faint" style={{ marginTop: 0, marginBottom: 8 }}>
+            Один и тот же метод собирается по-разному; вариант выбирается под движок
+            и бюджет. Основание указано у каждого варианта.
+          </p>
+          <div className="variant-list">
+            {(method.implementation_variants ?? []).map((variant, index) => (
+              <div className="variant" key={`${variant.name}-${index}`}>
+                <div className="variant-head">
+                  <strong>{variant.name || 'Вариант без названия'}</strong>
+                  <EvidenceBadge basis={variant.basis} />
+                </div>
+                {variant.description && <p className="muted small">{variant.description}</p>}
+                {(variant.evidence ?? []).length > 0 && (
+                  <div className="chip-row" style={{ marginTop: 4 }}>
+                    {variant.evidence.map((code) => (
+                      <span key={code} className="chip xsmall">
+                        {code}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {method.required_data_and_tools && (
+        <>
+          <div className="divider" />
+          <h4>Требуемые данные и инструменты</h4>
+          <p className="muted">{method.required_data_and_tools}</p>
         </>
       )}
 

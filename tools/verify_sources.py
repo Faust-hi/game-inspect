@@ -70,7 +70,7 @@ TOPIC_TOKENS = {
     "shadergraph": ["shader graph"],
     "vfxgraph": ["vfx graph"],
     "hair": ["tressfx", "hairworks", "strand"],
-    "audio": ["wwise", "fmod", "cryaudio", "wwise"],
+    "audio": ["wwise", "fmod", "cryaudio"],
 }
 
 
@@ -82,6 +82,15 @@ def topics(text: str) -> set[str]:
 
 # ─────────────────────────── HTTP reachability ───────────────────────────
 
+# Объявленный маркер отсутствия ссылки (`user_defined:catalog_dependency`).
+# Это НЕ адрес: `declare_evidence_gaps` ставит его конфликтам, выведенным из
+# структуры каталога, у которых публичного источника не существует. Проверять
+# его как URL и объявлять «мёртвой ссылкой» нельзя: 30 таких конфликтов давали
+# 30 ложных срабатываний и раздували `url_dead` с 4 до 34, а
+# `tools/repair_dead_links.py` пытался бы «починить» саму декларацию.
+DECLARED_URL_MARKER = re.compile(r"^\s*(user_defined|declared)\s*:", re.I)
+
+
 def _cache_path(url: str) -> Path:
     import hashlib
     h = hashlib.sha1(url.encode("utf-8")).hexdigest()[:16]
@@ -89,7 +98,10 @@ def _cache_path(url: str) -> Path:
 
 
 def http_check(url: str, timeout: int = 25, use_cache: bool = True) -> dict:
-    """Return {'status': 'ok|protected|dead|error', 'code': int|None, 'note': str}."""
+    """Return {'status': 'ok|protected|declared|dead|error', 'code': int|None, 'note': str}."""
+    if DECLARED_URL_MARKER.match(url or ""):
+        return {"status": "declared", "code": None,
+                "note": "объявленное отсутствие ссылки, не адрес"}
     if not url or not re.match(r"^https?://", url, re.I):
         return {"status": "dead", "code": None, "note": "not an http(s) url"}
     CACHE.mkdir(parents=True, exist_ok=True)
@@ -240,7 +252,16 @@ def verify_packs(do_net: bool) -> dict:
                         findings["claim_bad_basis"].append(
                             {"pack": pname, "entity": f"{section}/{ecode}", "basis": basis})
                     is_num = c.get("value") is not None or bool(c.get("value_range"))
-                    if is_num and basis in NUMERIC_BASES_REQUIRING_SOURCE and not src:
+                    # Тот же порядок обоснования, что и в БД-проверке: число
+                    # допустимо без источника, если оно выведено собственной
+                    # формулой с явными входами (спека, строка 412).
+                    pack_self_justified = (
+                        basis == "derived"
+                        and bool((c.get("formula") or "").strip())
+                        and bool(c.get("input_parameters"))
+                    )
+                    if (is_num and basis in NUMERIC_BASES_REQUIRING_SOURCE
+                            and not src and not pack_self_justified):
                         findings["numeric_claim_without_source"].append(
                             {"pack": pname, "entity": f"{section}/{ecode}",
                              "field": c.get("field")})
@@ -315,6 +336,11 @@ def verify_packs(do_net: bool) -> dict:
                 for owner in url_index[u]:
                     findings["url_dead"].append(
                         {"owner": owner, "url": shown, "note": res["note"], "code": res["code"]})
+            elif res["status"] == "declared":
+                # Объявленное отсутствие ссылки: не дефект, а решение.
+                for owner in url_index[u]:
+                    findings["url_declared"].append(
+                        {"owner": owner, "url": shown, "note": res["note"]})
             elif res["status"] == "error":
                 for owner in url_index[u]:
                     findings["url_error"].append(
@@ -374,10 +400,33 @@ def verify_db(db_path: str, do_net: bool) -> dict:
     def _gap(c: dict) -> bool:
         return (c.get("field") or "").strip() in DECLARED_GAP_FIELDS
 
+    def _self_justified(c: dict) -> bool:
+        """Число обосновано собственным расчётом, а не внешним источником.
+
+        Правило спецификации (строка 412): запись валидна при `source` ЛИБО при
+        `formula` + `input_parameters`. `derived`-утверждение с формулой и
+        входами не «без источника» — оно вообще не ссылается наружу, и его
+        отсутствие в `source_id` не дефект. Та же формула используется в
+        `tools/audit_evidence.py` и в валидаторе базы; без неё эта проверка
+        давала 3 ложных срабатывания, пока аудит показывал 0.
+        """
+        return (
+            (c.get("basis") or "") == "derived"
+            and bool((c.get("formula") or "").strip())
+            and bool((c.get("input_parameters") or "").strip())
+        )
+
     # Declared absences are intentionally source-less; they are counted and
     # reported under their own key instead of being hidden inside `dangling`.
+    # `_self_justified` обязателен и здесь: `derived`-утверждение с формулой и
+    # входами вообще не ссылается наружу, и его пустой `source_id` — не дефект.
+    # Без этого условия проверка давала ровно 3 ложных срабатывания
+    # (`research:frame_budget_60`, `research:resolution_ratio_4k`,
+    # `research:memory_headroom`) и противоречила `tools/audit_evidence.py`,
+    # который показывал 0. Именно этот случай описан в docstring выше.
     dangling = [c["code"] for c in claims
                 if not _gap(c)
+                and not _self_justified(c)
                 and (c.get("source_id") is None or c["source_id"] not in src_ids)]
     findings["declared_gap_claims"] = [c["code"] for c in claims if _gap(c)]
     derived_bad = [{"code": c["code"], "entity": f"{c['entity']}/{c['entity_code']}"}
@@ -386,7 +435,8 @@ def verify_db(db_path: str, do_net: bool) -> dict:
                         or not (c.get("input_parameters") or "").strip())]
     numeric_no_source = [c["code"] for c in claims
                          if (c.get("value_num") is not None or c.get("range_min") is not None)
-                         and (c.get("source_id") is None or c["source_id"] not in src_ids)]
+                         and (c.get("source_id") is None or c["source_id"] not in src_ids)
+                         and not _self_justified(c)]
     no_locator = [c["code"] for c in claims
                   if not (c.get("locator") or "").strip() and not _gap(c)]
 
@@ -428,6 +478,12 @@ def verify_db(db_path: str, do_net: bool) -> dict:
                 for owner in url_owners[u]:
                     findings["url_dead"].append(
                         {"owner": owner, "url": shown, "note": res["note"], "code": res["code"]})
+            elif res["status"] == "declared":
+                # `user_defined:catalog_dependency` — объявленное отсутствие
+                # ссылки у 30 конфликтов, выведенных из структуры каталога.
+                for owner in url_owners[u]:
+                    findings["url_declared"].append(
+                        {"owner": owner, "url": shown, "note": res["note"]})
             elif res["status"] == "error":
                 for owner in url_owners[u]:
                     findings["url_error"].append(
@@ -525,6 +581,7 @@ def main() -> int:
               f"- защищены ботом/авторизацией (403/401/429): **{buckets.get('protected', 0)}**",
               f"- недоступны (404/410/DNS): **{buckets.get('dead', 0)}**",
               f"- ошибки сети/таймаут: **{buckets.get('error', 0)}**",
+              f"- объявленное отсутствие ссылки, не адрес: **{buckets.get('declared', 0)}**",
               ""]
         dead = [(u, r) for u, r in all_net.items() if r["status"] == "dead"]
         if dead:

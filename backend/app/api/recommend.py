@@ -47,7 +47,14 @@ def schedule(payload: ScheduleRequest, db: Session = Depends(get_db)):
     )
 
 
-def _report_data(db: Session, profile: ProjectProfile, basket: list[str], baseline=None):
+def _report_data(
+    db: Session,
+    profile: ProjectProfile,
+    basket: list[str],
+    baseline=None,
+    team: str = "small_2_5",
+    include_dependencies: bool = True,
+):
     """Собрать единый снимок, используемый UI и Markdown/PDF экспортом."""
     engine_catalog.require_known(db, profile.engine)
     recommendation = recommender.build_recommendations(
@@ -62,15 +69,18 @@ def _report_data(db: Session, profile: ProjectProfile, basket: list[str], baseli
         ) if source is not None],
         cases=evidence.cases_for_methods(db, method_codes),
         dependencies=evidence.dependencies_to_out(db),
-        schedule=planning.schedule(
-            db, profile, basket, "small_2_5", True,
-        ),
+        # Профиль команды берётся из запроса: жёстко заданная малая команда
+        # делала календарь отчёта несовместимым с выбранным пользователем.
+        schedule=planning.schedule(db, profile, basket, team, include_dependencies),
     )
 
 
 @router.post("/report-data", response_model=ReportDataOut, summary="Снимок расчёта для отчёта")
 def report_data(payload: RecommendationRequest, db: Session = Depends(get_db)):
-    return _report_data(db, payload.profile, payload.basket or [], payload.baseline)
+    return _report_data(
+        db, payload.profile, payload.basket or [], payload.baseline,
+        payload.team, payload.include_dependencies,
+    )
 
 
 @router.get("/report-data", response_model=ReportDataOut,

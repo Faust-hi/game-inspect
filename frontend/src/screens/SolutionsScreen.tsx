@@ -56,9 +56,19 @@ export function SolutionsScreen({ onCompare }: { onCompare: (codes: string[]) =>
   if (calculating) return <Loading text="Расчёт рекомендаций…" />;
 
   if (calculateError) {
+    // Ошибка расчёта — не тупик: кнопка повторного запуска нужна здесь так же,
+    // как и в ветке «расчёт ещё не выполнен». Без неё экран предлагал только
+    // сменить профиль или корзину, хотя причина сбоя обычно временная.
     return (
       <Callout tone="danger" title="Расчёт не выполнен">
         {calculateError}
+        <button
+          className="btn btn-primary"
+          style={{ marginTop: 10 }}
+          onClick={() => void calculate()}
+        >
+          Повторить расчёт
+        </button>
       </Callout>
     );
   }

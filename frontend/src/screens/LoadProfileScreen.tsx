@@ -1,6 +1,6 @@
 /** Экран 8. Сводный профиль нагрузки выбранного набора решений. */
 import { useMemo } from 'react';
-import { useEnsureResult, useStore } from '../store';
+import { useStore } from '../store';
 import { Badge, Callout, Card, Empty, Loading, SourceLink } from '../components/ui';
 import { ClaimBlocks, EvidenceBadge, UnconfirmedFactors } from '../components/Evidence';
 import { impactsOf, methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
@@ -55,7 +55,7 @@ function scaleCaption(detail: LoadResourceDetail | undefined): string {
 export function LoadProfileScreen() {
   const { result, basket, catalog, calculating } = useStore();
 
-  useEnsureResult();
+  // Автоматический расчёт выполняет каркас приложения (App.useEnsureResult).
 
   const methodsByCode = useMemo(() => buildMethodMap(catalog.methods), [catalog.methods]);
 

@@ -1,5 +1,5 @@
 /** Экран 9. Ориентировочный минимальный класс оборудования (раздел 5 плана). */
-import { useEnsureResult, useStore } from '../store';
+import { useStore } from '../store';
 import { Badge, Callout, Card, Empty, Loading, Metric, SourceLink } from '../components/ui';
 import { EvidenceBadge } from '../components/Evidence';
 import type { HardwareCPU, HardwareGPU } from '../types';
@@ -163,7 +163,7 @@ function GpuSpec({ gpu }: { gpu: HardwareGPU }) {
 export function HardwareScreen() {
   const { result, calculating } = useStore();
 
-  useEnsureResult();
+  // Автоматический расчёт выполняет каркас приложения (App.useEnsureResult).
 
   if (calculating) return <Loading text="Расчёт аппаратной оценки…" />;
 

@@ -631,16 +631,16 @@
   },
   {
    "code": "SRC-RND-048",
-   "title": "It Takes Two tech analysis (Digital Foundry)",
-   "author_or_publisher": "Digital Foundry / Eurogamer",
-   "source_type": "secondary technical analysis",
-   "published_date": "2021 (URL in catalog)",
+   "title": "It Takes Two (Wikipedia)",
+   "author_or_publisher": "Wikipedia contributors",
+   "source_type": "secondary source",
+   "published_date": "accessed 2026-09-11",
    "url": "https://en.wikipedia.org/wiki/It_Takes_Two_(video_game)",
-   "engine_or_api_version": "Unreal Engine 4",
+   "engine_or_api_version": "n/a",
    "platform": "consoles / PC",
-   "locator": "n/a - server returned '404 Not Found'",
+   "locator": "Article lead and development section",
    "availability": "verified_fetched",
-   "applicability_note": "The catalog's anchor for splitscreen_render_budget could not be fetched (404). Substituted with SRC-RND-042 (first-party Hazelight interview, verified) and SRC-RND-008 (Epic Scalability, which explicitly names split screen). [ORCHESTRATOR 2026-09-11: original URL returned HTTP 404 and was replaced with a verified alternative; the original citation is no longer reachable.]"
+   "applicability_note": "The catalog's anchor for splitscreen_render_budget could not be fetched (404). Substituted with SRC-RND-042 (first-party Hazelight interview, verified) and SRC-RND-008 (Epic Scalability, which explicitly names split screen). [ORCHESTRATOR 2026-09-11: original URL returned HTTP 404 and was replaced with a verified alternative; the original citation is no longer reachable.] [REPAIR 2026-09-11: the replacement URL was recorded without updating the citation's own title/publisher/type/locator, so the record contradicted itself (Digital Foundry title on a Wikipedia URL, locator still reporting the old 404). No claim cites this source; it is retained only as the provenance trail for the replaced citation.]"
   }
  ],
  "methods": {

@@ -88,6 +88,11 @@ function TaskTable({ schedule }: { schedule: Schedule }) {
                 </td>
                 <td className="small">
                   {task.recommended_stage}
+                  {task.stage_note && (
+                    <div className="xsmall faint" title={task.stage_note}>
+                      из пакета: {task.stage_note}
+                    </div>
+                  )}
                   {task.critical && <div><Badge tone="danger">критический путь</Badge></div>}
                 </td>
                 <td className="small">
@@ -123,6 +128,7 @@ export function ScheduleScreen() {
   const [team, setTeam] = useState('small_2_5');
   const [schedule, setSchedule] = useState<Schedule | null>(null);
   const [teams, setTeams] = useState<TeamScenario[]>([]);
+  const [teamsError, setTeamsError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState('packages');
@@ -131,7 +137,14 @@ export function ScheduleScreen() {
     let active = true;
     void api.teams()
       .then(list => { if (active) setTeams(list); })
-      .catch(() => { /* список сценариев необязателен: остаётся значение по умолчанию */ });
+      .catch((cause: unknown) => {
+        // Список профилей команд влияет на календарь. Раньше сбой молча
+        // подставлял пустой сценарий с нулями, и карточка команды показывала
+        // «0%» как реальные значения профиля. Теперь сбой объявляется.
+        if (active) {
+          setTeamsError(cause instanceof Error ? cause.message : 'Не удалось загрузить профили команд');
+        }
+      });
     return () => { active = false; };
   }, []);
 
@@ -187,12 +200,23 @@ export function ScheduleScreen() {
         title="Трудоёмкость и календарный план"
         hint="Трудоёмкость измеряется в человеко-днях и не зависит от размера команды. Команда влияет на календарный срок, а не на объём работы."
         actions={
-          <select className="select" value={team} onChange={e => setTeam(e.target.value)}>
-            {(teams.length > 0 ? teams : [{ code: team, name: team, description: '', team_size: 0, role_capacity: {}, parallel_tracks: 0, communication_pct: 0, unplanned_pct: 0, specialist_capacity: {} }])
-              .map(t => <option key={t.code} value={t.code}>{t.name}</option>)}
-          </select>
+          teams.length > 0 ? (
+            <select className="select" value={team} onChange={e => setTeam(e.target.value)}>
+              {teams.map(t => <option key={t.code} value={t.code}>{t.name}</option>)}
+            </select>
+          ) : (
+            <span className="small faint">
+              {teamsError ? `Профили команд недоступны: ${teamsError}` : 'Загрузка профилей команд…'}
+            </span>
+          )
         }
       >
+        {teamsError && (
+          <Callout tone="warn" title="Профили команд не загрузились">
+            Календарь рассчитан для профиля «{team}» с параметрами по умолчанию;
+            список доступных профилей и их характеристики не показаны.
+          </Callout>
+        )}
         {loading && <Loading text="Расчёт плана…" />}
         {error && <Callout tone="danger" title="План не построен">{error}</Callout>}
         {p80Inconsistent && (

@@ -6,6 +6,7 @@
  */
 import type { ReactNode } from 'react';
 import { Badge, Callout } from './ui';
+import { EvidenceBadge } from './Evidence';
 import type { BasketConflict } from '../types';
 
 export function conflictTone(severity: number): 'danger' | 'warn' {
@@ -18,19 +19,30 @@ export function CompatibilityEntry({
   badge,
   description,
   resolution,
+  basis,
 }: {
   tone: 'danger' | 'warn' | 'info' | 'ok';
   head: ReactNode;
   badge?: ReactNode;
   description: string;
   resolution?: string;
+  basis?: string;
 }) {
   return (
     <div style={{ marginBottom: 10 }}>
       <Callout tone={tone}>
         <strong>{head}</strong> {badge}
         <div style={{ marginTop: 6 }}>{description}</div>
-        {resolution && <div style={{ marginTop: 6 }}>Что делать: {resolution}</div>}
+        {resolution && (
+          <div style={{ marginTop: 6 }}>
+            Что делать: {resolution}
+            {basis && (
+              <span style={{ marginLeft: 6 }}>
+                <EvidenceBadge basis={basis} title="Основание рекомендации: выведено из типа связи, документировано или экспертное допущение." />
+              </span>
+            )}
+          </div>
+        )}
       </Callout>
     </div>
   );
@@ -46,6 +58,7 @@ export function ConflictEntry({ item }: { item: BasketConflict }) {
       badge={<Badge tone={tone}>{item.conflict_label}</Badge>}
       description={item.description}
       resolution={item.resolution}
+      basis={item.basis}
     />
   );
 }
@@ -59,6 +72,7 @@ export function DependencyEntry({ item }: { item: BasketConflict }) {
       badge={<Badge tone="info">{item.conflict_label}</Badge>}
       description={item.description}
       resolution={item.resolution}
+      basis={item.basis}
     />
   );
 }
@@ -72,6 +86,7 @@ export function SynergyEntry({ item }: { item: BasketConflict }) {
       badge={<Badge tone="info">{item.conflict_label}</Badge>}
       description={item.description}
       resolution={item.resolution}
+      basis={item.basis}
     />
   );
 }

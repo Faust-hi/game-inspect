@@ -75,6 +75,26 @@ def main() -> int:
             return "x" if value else ""
         return (value or "").strip()
 
+    def _json_len(value) -> int:
+        """Длина JSON-списка, хранимого как TEXT; 0 для NULL, `[]` и битого JSON.
+
+        Поля `implementation_variants` и `requires_conditions` лежат в SQLite
+        строкой. Строка `'[]'` непустая, поэтому проверка «есть ли данные» по
+        `_text` дала бы ложное «заполнено» — список разбирается явно.
+        """
+        if value is None:
+            return 0
+        if isinstance(value, list):
+            return len(value)
+        text = str(value).strip()
+        if not text:
+            return 0
+        try:
+            parsed = json.loads(text)
+        except (TypeError, ValueError):
+            return 0
+        return len(parsed) if isinstance(parsed, list) else 0
+
     def is_self_justified(c) -> bool:
         """Утверждение обосновано без внешнего источника (spec, строка 412).
 
@@ -400,14 +420,38 @@ def main() -> int:
 
     conf = q(conn, "select * from conflicts")
 
-    def conflict_has_source(c):
+    #: Декларация «внешнего источника не существует»: проход
+    #: `corrections.declare_evidence_gaps` пишет её в `source_url` префиксом
+    #: `user_defined:`. Прежняя проверка `bool(u) or u.startswith(...)` была
+    #: тождественна `bool(u)`: вторая ветка недостижима, потому что пустая
+    #: строка не начинается с префикса. Различить «есть URL» и «есть
+    #: декларация» она не могла, поэтому `undeclared_missing_url` совпадал с
+    #: `missing_url` и молчаливая дыра не отличалась от объявленной.
+    def conflict_is_declared(c) -> bool:
+        return (c.get("source_url") or "").strip().startswith("user_defined:")
+
+    def conflict_has_source(c) -> bool:
         u = (c.get("source_url") or "").strip()
-        return bool(u) or u.startswith("user_defined:")
+        return bool(u) and not conflict_is_declared(c)
 
     out["classes"]["conflicts"] = {
         "entity_class": "conflicts", "total": len(conf),
-        "missing_url": sum(1 for c in conf if not (c.get("source_url") or "").strip()),
-        "undeclared_missing_url": sum(1 for c in conf if not conflict_has_source(c)),
+        # Ссылка, которую можно открыть: декларация — не URL.
+        "missing_url": sum(1 for c in conf if not conflict_has_source(c)),
+        "declared_user_defined": sum(1 for c in conf if conflict_is_declared(c)),
+        # Молчаливая дыра: нет ни URL, ни декларации. Обязана быть нулём.
+        "undeclared_missing_url": sum(
+            1 for c in conf if not conflict_has_source(c) and not conflict_is_declared(c)),
+        # Спецификация (стр. 142) требует у каждой связи «решение или
+        # workaround». Пустое решение — пробел, а не «нет рекомендации»:
+        # решение выводится из типа связи детерминированно (basis='derived')
+        # либо объявляется экспертным допущением.
+        "missing_resolution": sum(1 for c in conf if not (c.get("resolution") or "").strip()),
+        # Основание обязательно там, где решение есть: без него выведенное
+        # решение неотличимо от документированного.
+        "missing_resolution_basis": sum(
+            1 for c in conf
+            if (c.get("resolution") or "").strip() and not (c.get("basis") or "").strip()),
     }
 
     edges = q(conn, "select * from dependency_edges")
@@ -427,6 +471,26 @@ def main() -> int:
                                          if not e.get("source_id")
                                          and not edge_declared_expert(e)),
         "unknown_relation": sum(1 for e in edges if (e.get("status") or "") == "unknown"),
+        # «Решение / workaround» (спецификация, стр. 142) у каждого ребра.
+        "missing_workaround": sum(1 for e in edges if not (e.get("workaround") or "").strip()),
+        "missing_workaround_basis": sum(
+            1 for e in edges
+            if (e.get("workaround") or "").strip() and not (e.get("basis") or "").strip()),
+    }
+
+    # Метаданные карточки метода из исследований (спецификация: «варианты
+    # реализации», «условия применимости», «требуемые данные и инструменты»).
+    # Пустое поле здесь — пробел переноса: данные есть в паках у 125 методов,
+    # поэтому нулевое покрытие означало бы, что загрузчик их не читает.
+    methods = q(conn, "select * from methods")
+    out["classes"]["method_research_meta"] = {
+        "entity_class": "methods", "total": len(methods),
+        "missing_implementation_variants": sum(
+            1 for m in methods if _json_len(m.get("implementation_variants")) == 0),
+        "missing_applicability_conditions": sum(
+            1 for m in methods if _json_len(m.get("requires_conditions")) == 0),
+        "missing_required_data_and_tools": sum(
+            1 for m in methods if not (m.get("required_data_and_tools") or "").strip()),
     }
 
     wps = q(conn, "select * from work_packages")
@@ -473,19 +537,30 @@ def main() -> int:
             src_issues.append({"code": s["code"], "issue": "missing_source_type"})
 
     # heuristic title/URL contradiction detector (same class of bug as the
-    # known "State -> Niagara", "DLSS -> RTXNTC", "VSM -> DF Shadows" cases)
+    # known "State -> Niagara", "DLSS -> RTXNTC", "VSM -> DF Shadows" cases).
+    # Шаблоны со словесной границей записаны СЫРЫМИ строками: в обычном
+    # литерале `"\btsr\b"` — это символ забоя (0x08), а не граница слова, и
+    # шаблон не находил ничего. Набор и значения обязаны совпадать с
+    # `tools/verify_sources.py`: расхождение двух копий уже приводило к тому,
+    # что один инструмент видел противоречие, а другой — нет.
     TOPIC_TOKENS = {
-        "niagara": ["niagara"], "dlss": ["dlss"], "nanite": ["nanite"],
-        "lumen": ["lumen"], "vsm": ["virtual shadow", "virtual-shadow", "vsm"],
+        "niagara": ["niagara"],
+        "dlss": [r"\bdlss\b"],
+        "nanite": ["nanite"],
+        "lumen": ["lumen"],
+        "vsm": ["virtual shadow", "virtual-shadow", r"\bvsm\b"],
         "dfshadow": ["distance field shadow", "distance-field"],
-        "dlss_rayrecon": ["ray reconstruction", "rtxntc", "neural texture"],
+        "ray_reconstruction": ["ray reconstruction", "rtxntc", "neural texture"],
         "chaos": ["chaos physics", "chaos cloth", "chaos destruction"],
         "subtick": ["sub-tick", "subtick"],
         "rtxdi": ["rtxdi", "ray traced direct"],
-        "tsr": ["temporal super resolution", "\btsr\b"],
+        "tsr": ["temporal super resolution", r"\btsr\b"],
         "navmesh": ["navmesh", "nav mesh"],
-        "ecs": ["\becs\b", "entity component system"],
-        "sgf": ["shader graph"], "vfxgraph": ["vfx graph"],
+        "ecs": [r"\becs\b", "entity component system"],
+        "shadergraph": ["shader graph"],
+        "vfxgraph": ["vfx graph"],
+        "hair": ["tressfx", "hairworks", "strand"],
+        "audio": ["wwise", "fmod", "cryaudio"],
     }
 
     def topics(text):
@@ -510,9 +585,10 @@ def main() -> int:
                          for k in {i["issue"] for i in src_issues}},
         "issue_examples": src_issues[:60],
         "title_url_contradictions": contradictions,
-        "duplicate_urls": [u for u, n in
-                           defaultdict(int, {u: 0 for u in []}).items()],
     }
+    # Дубликаты URL считаются ниже и перезаписывают ключ. Прежняя заглушка
+    # `defaultdict(int, {u: 0 for u in []})` давала пустой список и создавала
+    # впечатление, что проверка выполнена.
     dup = defaultdict(list)
     for s in src_by_id.values():
         u = (s.get("url") or "").strip().lower()

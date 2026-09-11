@@ -80,6 +80,10 @@ class Task:
     # работ нельзя ни поставить в план по стадии, ни отличить измерение от
     # экспертного допущения.
     recommended_stage: str = "prototype"
+    #: Исходный свободный текст поля `recommended_stage` из пакета, если он не
+    #: был кодом стадии: без него нормализованный код неотличим от кода,
+    #: заданного пакетом явно.
+    stage_note: str = ""
     basis: str = "expert_estimate"
 
 
@@ -155,6 +159,7 @@ def _db_packages(rows: list[WorkPackage]) -> list[Task]:
             parallelizable=bool(row.parallelizable), late_factor=float(row.late_factor),
             dependencies=[],
             recommended_stage=row.recommended_stage or "prototype",
+            stage_note=row.stage_note or "",
             basis=row.basis or "expert_estimate",
         ))
     by_method: dict[str, list[Task]] = {}
@@ -183,16 +188,17 @@ def _methods_with_dependencies(db: Session, codes: list[str], include: bool) -> 
         return sorted(selected), unresolved
     nodes = {node.code: node for node in repositories.technology_nodes(db)}
     edges = repositories.dependency_edges(db)
+    # Карта по id строится один раз: рёбра ссылаются на числовые идентификаторы
+    # узлов, а не на их коды. Раньше здесь был холостой проход, который искал
+    # узлы по коду в словаре, ключованном кодом, и присваивал неиспользуемые
+    # локальные переменные, — то есть не делал ничего.
+    by_id = {node.id: node for node in nodes.values()}
+    # Набор известных методов — тоже один раз: раньше внутри цикла выполнялся
+    # запрос `repositories.methods(db)` на каждую добавленную зависимость.
+    known_methods = {m.code for m in repositories.methods(db)}
     changed = True
     while changed:
         changed = False
-        for edge in edges:
-            source = nodes.get(edge.source_node_id) if isinstance(edge.source_node_id, str) else None
-            target = nodes.get(edge.target_node_id) if isinstance(edge.target_node_id, str) else None
-            # ORM ids are integers; build the mapping once without assuming
-            # relationship attributes were eagerly loaded.
-        # Prefix-based nodes are resolved through a small id map below.
-        by_id = {node.id: node for node in nodes.values()}
         for edge in edges:
             source = by_id.get(edge.source_node_id)
             target = by_id.get(edge.target_node_id)
@@ -202,15 +208,15 @@ def _methods_with_dependencies(db: Session, codes: list[str], include: bool) -> 
                 continue
             target_code = target.code.removeprefix("method:") if target.node_type == "method" else ""
             if target_code and target_code not in selected:
-                if any(m.code == target_code for m in repositories.methods(db)):
+                if target_code in known_methods:
                     selected.add(target_code)
                     changed = True
                 else:
                     unresolved.append(f"{source.code} требует отсутствующий метод {target.code}")
-            elif not target_code and target is None:
-                unresolved.append(f"{source.code} требует неизвестный узел")
+            # Ветка «узел неизвестен» здесь недостижима: `target is None` уже
+            # отсечён условием выше. Неизвестные узлы рёбер собираются ниже,
+            # отдельным проходом по всем рёбрам.
     # Validate mandatory non-method dependencies against the selected profile.
-    by_id = {node.id: node for node in nodes.values()}
     for edge in edges:
         source = by_id.get(edge.source_node_id)
         target = by_id.get(edge.target_node_id)
@@ -246,11 +252,20 @@ def _ordered_tasks(tasks: list[Task]) -> tuple[list[Task], list[str]]:
 
 
 def _schedule_tasks(tasks: list[Task], team: TeamScenarioOut) -> tuple[list[ScheduleTaskOut], float, float, list[str]]:
+    """Развернуть задачи в календарь по двум сценариям — P50 и P80.
+
+    Сценарии считаются независимо: у каждого своя доступность роли. Раньше
+    обе ветки читали одну карту `role_available`, которую заполнял P50-финиш,
+    поэтому P80-старт задачи ограничивался P50-освобождением исполнителя. Для
+    команды с ёмкостью роли 1 это занижало P80-календарь: следующая задача
+    того же исполнителя начиналась раньше, чем он освобождался по P80.
+    """
     ordered, cycles = _ordered_tasks(tasks)
     finish50: dict[str, float] = {}
     finish80: dict[str, float] = {}
     task_out: dict[str, ScheduleTaskOut] = {}
-    role_available: dict[str, float] = {}
+    role_available50: dict[str, float] = {}
+    role_available80: dict[str, float] = {}
     factor = 1.0 + team.communication_pct + team.unplanned_pct
     for task in ordered:
         capacity = float((team.role_capacity or {}).get(task.role, 1) or 1)
@@ -259,13 +274,14 @@ def _schedule_tasks(tasks: list[Task], team: TeamScenarioOut) -> tuple[list[Sche
         duration80 = task.p80 * factor / capacity
         dep50 = max((finish50.get(dep, 0.0) for dep in task.dependencies), default=0.0)
         dep80 = max((finish80.get(dep, 0.0) for dep in task.dependencies), default=0.0)
-        start50 = max(dep50, role_available.get(task.role, 0.0))
-        start80 = max(dep80, role_available.get(task.role, 0.0))
+        start50 = max(dep50, role_available50.get(task.role, 0.0))
+        start80 = max(dep80, role_available80.get(task.role, 0.0))
         end50 = start50 + duration50
         end80 = start80 + duration80
         finish50[task.code] = end50
         finish80[task.code] = end80
-        role_available[task.role] = end50
+        role_available50[task.role] = end50
+        role_available80[task.role] = end80
         task_out[task.code] = ScheduleTaskOut(
             code=task.code, name=task.name, method_code=task.method_code,
             package_type=task.package_type, role=task.role,
@@ -274,6 +290,7 @@ def _schedule_tasks(tasks: list[Task], team: TeamScenarioOut) -> tuple[list[Sche
             p50_days=task.p50, p80_days=task.p80,
             parallelizable=task.parallelizable,
             recommended_stage=task.recommended_stage,
+            stage_note=task.stage_note,
             late_factor=task.late_factor,
             basis=task.basis,
             start_p50=round(start50, 2), finish_p50=round(end50, 2),
@@ -344,6 +361,7 @@ def effort_for_methods(db: Session, method_codes: list[str]) -> list[EffortEstim
                 package_type=row.package_type, role=row.role, min_days=row.min_days,
                 p50_days=row.p50_days, p80_days=row.p80_days,
                 parallelizable=row.parallelizable, recommended_stage=row.recommended_stage,
+                stage_note=row.stage_note or "",
                 late_factor=row.late_factor, dependency_codes=row.dependency_codes or [], basis=row.basis,
             ) for row in sorted(by_method[code], key=lambda item: (PACKAGE_ORDER.get(item.package_type, 50), item.code))]
         else:

@@ -1,7 +1,7 @@
 /** Экран 11. Итоговый план проекта. Одновременно является печатной формой отчёта. */
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
-import { useEnsureResult, useStore } from '../store';
+import { useStore } from '../store';
 import { TransitionDetails } from '../components/ImplementationTransition';
 import {
   Badge,
@@ -22,6 +22,19 @@ import { HardwareWarnings } from '../components/HardwareWarnings';
 
 /** Порядок внедрения: от архитектуры к настройкам. */
 const LEVEL_ORDER = ['architecture', 'production', 'algorithm', 'setting'];
+
+/**
+ * Вклад фактора с единицей измерения.
+ *
+ * Раньше выводилось только число: доля «0.35» читалась как «0.35», а бюджет
+ * кадра «16.667» — как доля. Теперь единица берётся из ответа и подставляется
+ * явно, поэтому число нельзя прочитать неправильно.
+ */
+function formatContribution(item: { delta: number; unit: string }): string {
+  const sign = item.delta > 0 ? '+' : '';
+  if (item.unit === 'доля') return `${sign}${(item.delta * 100).toFixed(1)} %`;
+  return `${sign}${item.delta} ${item.unit}`;
+}
 
 const LEVEL_COMMENT: Record<string, string> = {
   architecture: 'Требует закладки на ранней стадии: изменение после наполнения контента дорого.',
@@ -48,7 +61,7 @@ export function PlanScreen() {
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [scheduleError, setScheduleError] = useState<string | null>(null);
 
-  useEnsureResult();
+  // Автоматический расчёт выполняет каркас приложения (App.useEnsureResult).
 
   const methodsByCode = useMemo(() => buildMethodMap(catalog.methods), [catalog.methods]);
 
@@ -380,7 +393,10 @@ export function PlanScreen() {
         </Card>
       )}
 
-      <Card title="Сверка с практикой" hint="В разработке.">
+      <Card
+        title="Сверка с практикой"
+        hint="Сопоставление с реальными кейсами. Их показатели не переносятся в проект: независимая калибровка не выполнялась."
+      >
         <Callout tone="info">
           {result.practice_check.title}
         </Callout>
@@ -388,11 +404,11 @@ export function PlanScreen() {
       </Card>
 
       {result.contributions.parameters.length > 0 && (
-        <Card title="Вклад параметров анкеты" hint="Во сколько раз параметр меняет стоимость кадра.">
+        <Card title="Вклад параметров анкеты" hint="На сколько параметр меняет стоимость кадра; бюджет кадра — в миллисекундах.">
           <ul className="reason-list">
             {result.contributions.parameters.map((item, i) => (
               <li key={i}>
-                <strong>{item.label}</strong> — {item.delta > 0 ? '+' : ''}{item.delta}. {item.detail}
+                <strong>{item.label}</strong> — {formatContribution(item)}. {item.detail}
               </li>
             ))}
           </ul>
@@ -404,7 +420,7 @@ export function PlanScreen() {
           <ul className="reason-list">
             {result.contributions.methods.map((item, i) => (
               <li key={i}>
-                <strong>{item.label}</strong> — {item.delta > 0 ? '+' : ''}{item.delta}. {item.detail}
+                <strong>{item.label}</strong> — {formatContribution(item)}. {item.detail}
               </li>
             ))}
           </ul>

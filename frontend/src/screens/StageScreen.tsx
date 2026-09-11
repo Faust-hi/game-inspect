@@ -17,6 +17,11 @@ export function StageScreen() {
   const { profile, updateProfile, catalog, result } = useStore();
   const { enums } = catalog;
   const [guidance, setGuidance] = useState<StageGuidance | null>(null);
+  // Сбой запроса нельзя показывать как «загружается…»: без отдельного признака
+  // ошибки пользователь видел бесконечную загрузку без объяснения и без
+  // возможности повторить запрос.
+  const [guidanceError, setGuidanceError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   /**
    * Подсказка запрашивается отдельным маршрутом, а не берётся из результата
@@ -28,21 +33,26 @@ export function StageScreen() {
     if (!enums) return;
     if (result?.stage_guidance && result.profile.stage === profile.stage) {
       setGuidance(result.stage_guidance);
+      setGuidanceError(false);
       return;
     }
     let cancelled = false;
+    setGuidanceError(false);
     void api
       .stageGuidance(profile.stage)
       .then((next) => {
         if (!cancelled) setGuidance(next);
       })
       .catch(() => {
-        if (!cancelled) setGuidance(null);
+        if (!cancelled) {
+          setGuidance(null);
+          setGuidanceError(true);
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [enums, profile.stage, result]);
+  }, [enums, profile.stage, result, reloadKey]);
 
   if (!enums) return null;
 
@@ -65,6 +75,14 @@ export function StageScreen() {
         </div>
         {guidance ? (
           <StageGuidanceBlock guidance={guidance} />
+        ) : guidanceError ? (
+          <Callout tone="warn" title="Описание стадии не загрузилось">
+            Сервер не отдал подсказку по этой стадии. Выбор стадии и расчёт это не
+            блокирует, но ограничения стадии ниже не показаны.{' '}
+            <button className="btn btn-sm" onClick={() => setReloadKey((key) => key + 1)}>
+              Повторить запрос
+            </button>
+          </Callout>
         ) : (
           <Callout tone="info" title="Что это означает">
             Описание стадии загружается…

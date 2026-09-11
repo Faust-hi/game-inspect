@@ -1,5 +1,5 @@
 /** Экран рисков проекта (шаг 2 алгоритма раздела 4). */
-import { useEnsureResult, useStore } from '../store';
+import { useStore } from '../store';
 import { Badge, Callout, Card, Empty, Loading, severityLabel, severityTone } from '../components/ui';
 import { ClaimBlocks, EvidenceBadge } from '../components/Evidence';
 import type { Risk } from '../types';
@@ -34,8 +34,9 @@ function RiskItem({ risk }: { risk: Risk }) {
 export function RisksScreen() {
   const { result, calculating, calculate, profile } = useStore();
 
-  // Без выбранных функций расчёт не запускается: ниже показана подсказка.
-  useEnsureResult(profile.functions.length > 0);
+  // Автоматический расчёт выполняет каркас приложения (`App.useEnsureResult`):
+  // второй вызов на самом экране запускал параллельный запрос, потому что оба
+  // компонента видят одно и то же состояние до его обновления.
 
   if (calculating) return <Loading text="Расчёт рекомендаций…" />;
 

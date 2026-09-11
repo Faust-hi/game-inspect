@@ -167,7 +167,10 @@ function GraphPanel({ dependencies }: { dependencies: Dependency[] }) {
           <div className="small" style={{ gridColumn: '1 / -1' }}>
             {item.description}
             {item.workaround && (
-              <div className="xsmall faint" style={{ marginTop: 3 }}>Обход: {item.workaround}</div>
+              <div className="xsmall faint" style={{ marginTop: 3 }}>
+                Обход: {item.workaround}{' '}
+                {item.basis && <EvidenceBadge basis={item.basis} />}
+              </div>
             )}
             <div className="xsmall faint" style={{ marginTop: 3 }}>
               {item.source
@@ -236,6 +239,12 @@ function RelationsPanel({ conflicts }: { conflicts: Conflict[] }) {
                   </td>
                   <td className="small">
                     {item.description}
+                    {item.resolution && (
+                      <div className="xsmall" style={{ marginTop: 3 }}>
+                        <strong>Что делать:</strong> {item.resolution}{' '}
+                        {item.basis && <EvidenceBadge basis={item.basis} />}
+                      </div>
+                    )}
                     {item.conflict_type === 'unknown' && (
                       <div className="xsmall faint" style={{ marginTop: 3 }}>
                         Связь не проверена: отсутствие запрета не означает совместимость.

@@ -15,20 +15,27 @@ from ..models.entities import Engine, EngineTool, EvidenceSource, HardwareCPU, H
 # ── 1. Исправления title/URL, где URL уже обновлён, а заголовок остался старым ──
 # (correct_method_sources в corrections.py ловит только случаи «URL старый»)
 TITLE_ONLY_FIXES: dict[str, dict[str, str]] = {
+    # Дата источника совпадает с реестром источников: для постоянно
+    # обновляемой документации и страниц SDK она не объявлена (`n/a`).
+    # Прежнее значение `2025-01-01` было заглушкой и читалось как настоящая
+    # дата публикации.
     "ability_visual_effect_budget": {
         "source_title": "Unreal Engine: Niagara Visual Effects",
         "source_url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/niagara-visual-effects-in-unreal-engine",
-        "source_date": "2025-01-01",
+        "source_date": "n/a",
     },
     "neural_texture_compression": {
         "source_title": "NVIDIA RTX Neural Texture Compression (RTXNTC)",
         "source_url": "https://github.com/NVIDIA-RTX/Rtxntc",
-        "source_date": "2025-01-01",
+        "source_date": "n/a",
     },
     "distance_field_shadows": {
         "source_title": "Unreal Engine: Using Distance Field Shadows",
         "source_url": "https://dev.epicgames.com/documentation/unreal-engine/using-distance-field-shadows-in-unreal-engine?lang=en-US",
-        "source_date": "2026-09-07",
+        # Обновляемая документация Epic не объявляет дату публикации: значение
+        # приведено к `n/a`, как у остальных страниц dev.epicgames.com в реестре.
+        # Прежняя дата была датой проверки ссылки и выдавалась за публикацию.
+        "source_date": "n/a",
     },
 }
 
@@ -151,8 +158,6 @@ _MEASURED_CPU_MULTI: dict[str, int] = {
     "Core i5-13400F": 24882,
     "Core i5-14400F": 25440,
     "Core i5-12600K": 27505,
-    "Core i5-13600K": 29500,  # approx from common list (not in fetch; derive)
-    "Core i5-14600K": 29500,  # approx
     "Core i5-8400": 9233,
     "Core i5-9400F": 9457,
     "Core i7-10700K": 18492,
@@ -194,6 +199,15 @@ _MEASURED_CPU_MULTI: dict[str, int] = {
     "Ryzen 9 7900X": 51224,
     "Ryzen 9 7950X": 62132,
     "Van Gogh (Steam Deck Custom APU)": 9342,
+}
+
+#: Приближённые значения multi-thread, полученные не замером, а оценкой по
+#: соседним моделям линейки. Раньше они лежали в `_MEASURED_CPU_MULTI` и
+#: выдавались в API как `evidence_basis="measured"`, то есть как измерение
+#: PassMark, хотя в выборке прямого замера для этих моделей не было.
+_APPROX_CPU_MULTI: dict[str, int] = {
+    "Core i5-13600K": 29500,
+    "Core i5-14600K": 29500,
 }
 
 _MEASURED_CPU_SINGLE: dict[str, int] = {
@@ -377,6 +391,20 @@ def apply_hardware_raw_values(db: Session) -> int:
                 + _cpu_single_thread_note(row, anchor_cpu_single)
             )
             row.evidence_basis = "measured"
+            row.evidence_source_id = src.id
+        elif (approx_multi := _APPROX_CPU_MULTI.get(row.model)) is not None:
+            row.benchmark_raw_value = float(approx_multi)
+            row.benchmark_name = "PassMark CPU Mark (multi-thread)"
+            row.benchmark_context = f"PassMark PerformanceTest V10, snapshot 2026-09-10, {row.model}"
+            row.normalization_note = (
+                f"Исходное значение (multi-thread): {approx_multi} — приближённая оценка по "
+                "соседним моделям линейки; прямого замера PassMark для этой модели в выборке нет. "
+                f"Якорь нормализации: {_ANCHORS['cpu_multi']['model']} = {anchor_cpu_multi}. "
+                f"Формула: normalized = raw / {anchor_cpu_multi} (округление до 2 знаков). "
+                "Допуск ±5%; для точного значения сверить с PassMark. "
+                + _cpu_single_thread_note(row, anchor_cpu_single)
+            )
+            row.evidence_basis = "derived"
             row.evidence_source_id = src.id
         else:
             # derived from normalized

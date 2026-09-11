@@ -29,18 +29,29 @@ class ErrorCode(str, Enum):
     CONFLICT = "conflict"
     PUBLICATION_REJECTED = "publication_rejected"
     UNSUPPORTED = "unsupported"
+    PAYLOAD_TOO_LARGE = "payload_too_large"
+    UNAVAILABLE = "unavailable"
     INTERNAL = "internal_error"
 
 
 #: Код по умолчанию для каждой группы ответов: сообщения не всегда известны
 #: заранее, а клиенту всё равно нужен различимый код.
+#:
+#: Таблица обязана покрывать все статусы, которые маршруты действительно
+#: возвращают. Импорт отвечает 413 при превышении предела строк или размера
+#: файла, проверка состояния — 503, пока схема не приведена к head. Без явных
+#: записей оба статуса попадали в ветку «по умолчанию» и клиент получал
+#: `internal_error` на свою же ошибку ввода: причину нельзя было отличить от
+#: сбоя сервиса, а `INTERNAL` переставал означать «обратитесь к журналу».
 _CODE_BY_STATUS: dict[int, ErrorCode] = {
     400: ErrorCode.VALIDATION,
     403: ErrorCode.FORBIDDEN,
     404: ErrorCode.NOT_FOUND,
     409: ErrorCode.CONFLICT,
+    413: ErrorCode.PAYLOAD_TOO_LARGE,
     422: ErrorCode.VALIDATION,
     500: ErrorCode.INTERNAL,
+    503: ErrorCode.UNAVAILABLE,
 }
 
 

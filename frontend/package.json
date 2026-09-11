@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Информационная система поддержки принятия решений по оптимизации на этапе разработки игры",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

@@ -97,7 +97,7 @@ def dependencies_to_out(db: Session) -> list[DependencyOut]:
             min_version=edge.min_version, max_version=edge.max_version,
             platform=edge.platform, scope=edge.scope, severity=edge.severity,
             source=source_to_out(evidence), description=edge.description,
-            workaround=edge.workaround, status=edge.status,
+            workaround=edge.workaround, basis=edge.basis or "", status=edge.status,
         ))
     return result
 

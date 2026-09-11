@@ -178,7 +178,6 @@ describe('состояние проекта', () => {
 
     expect(view.result.current.result).not.toBeNull();
     expect(view.result.current.resultKey).toBe(view.result.current.inputKey);
-    expect(view.result.current.resultStale).toBe(false);
     expect(view.result.current.calculating).toBe(false);
     expect(view.result.current.calculateError).toBeNull();
   });
@@ -202,7 +201,6 @@ describe('состояние проекта', () => {
     });
 
     expect(view.result.current.resultKey).toBe(view.result.current.inputKey);
-    expect(view.result.current.resultStale).toBe(false);
   });
 
   const resets: { name: string; run: (store: ReturnType<typeof useStore>) => void }[] = [
@@ -270,7 +268,6 @@ describe('состояние проекта', () => {
     expect(mocks.recommend).toHaveBeenCalledTimes(2);
     expect(view.result.current.result?.input_key).toBe('актуальный');
     expect(view.result.current.resultKey).toBe(view.result.current.inputKey);
-    expect(view.result.current.resultStale).toBe(false);
   });
 
   it('сохраняет текст ошибки и снимает признак расчёта', async () => {
@@ -342,6 +339,5 @@ describe('useEnsureResult', () => {
     await waitFor(() => {
       expect(view.result.current.result?.input_key).toBe('второй');
     });
-    expect(view.result.current.resultStale).toBe(false);
   });
 });

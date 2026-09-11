@@ -1128,6 +1128,7 @@ def basket_compatibility(
             b_code=row.b_code, b_name=b.name if b else row.b_code,
             conflict_type=conflict_type, conflict_label=label,
             severity=row.severity, description=description, resolution=resolution,
+            basis=getattr(row, "basis", "") or "",
         )
 
     for row in repositories.conflicts(db):

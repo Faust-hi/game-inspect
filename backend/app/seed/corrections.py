@@ -1,11 +1,65 @@
 """Точечные исправления известных исходных записей с сохранением ручных правок."""
+import re
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models.entities import (
-    CaseEvidence, Conflict, DependencyEdge, EvidenceClaim, EvidenceSource, Method,
+    CaseEvidence, Conflict, DependencyEdge, EvidenceClaim, EvidenceSource,
+    HardwareCPU, HardwareGPU, Method, MethodEngineLink,
 )
 from . import methods_data, sources
+
+#: Дата публикации, записанная как «1 января»: точность таких источников —
+#: только год, а день добавлен нормализацией. Реестр хранит их как `YYYY`,
+#: пакеты исследований — так же.
+_YEAR_ONLY_DATE = re.compile(r"^\d{4}-01-01$")
+
+#: Литералы-заглушки для источников без объявленной даты публикации
+#: (постоянно обновляемая документация, страницы SDK).
+_PLACEHOLDER_DATES = frozenset({"2025-01-01", "2026-09-09"})
+
+#: Недоступные адреса источников: прежний URL → проверенная замена.
+#: Проба HTTP выполнена 2026-09-11 (`tools/verify_sources.py`): каждый новый
+#: адрес ответил 2xx, принадлежит тому же вендору и раскрывает ту же тему.
+#: Здесь только переезд адреса; источники без проверенной замены сюда не
+#: попадают — недоступный источник объявляется, а не подменяется похожим.
+SOURCE_URL_REPLACEMENTS: dict[str, str] = {
+    # Unity перенесла справочник 6000.x под /Documentation/Manual/.
+    "https://docs.unity3d.com/Manual/ShaderLoadTimeOptimization.html":
+        "https://docs.unity3d.com/6000.0/Documentation/Manual/shader-loading.html",
+    "https://docs.unity3d.com/6000.0/Manual/job-system-overview.html":
+        "https://docs.unity3d.com/6000.0/Documentation/Manual/job-system-overview.html",
+}
+
+
+def repair_dead_source_urls(db: Session) -> int:
+    """Перевести уже записанные недоступные адреса на проверенные замены.
+
+    Реестр источников меняется, но `evidence_catalog.sync_sources` намеренно не
+    перезаписывает непустые поля (правка администратора важнее), поэтому
+    исправление реестра само по себе до существующей базы не доезжает: 404
+    продолжали жить в `evidence_sources`, `methods`, `conflicts`,
+    `method_engine_links` и `hardware_*`. Функция идемпотентна и срабатывает
+    только на точное совпадение прежнего адреса — собственная ссылка
+    администратора не заменяется.
+    """
+    updated = 0
+    for model, column in (
+        (EvidenceSource, "url"),
+        (Method, "source_url"),
+        (Conflict, "source_url"),
+        (MethodEngineLink, "source_url"),
+        (HardwareCPU, "source_url"),
+        (HardwareGPU, "source_url"),
+    ):
+        for old_url, new_url in SOURCE_URL_REPLACEMENTS.items():
+            for row in db.scalars(select(model).where(getattr(model, column) == old_url)):
+                setattr(row, column, new_url)
+                updated += 1
+    if updated:
+        db.flush()
+    return updated
 
 
 def correct_shadow_relation(db: Session) -> int:
@@ -307,6 +361,52 @@ def correct_engine_tool_independence(db: Session) -> int:
     return updated
 
 
+def correct_placeholder_source_dates(db: Session) -> int:
+    """Заменить подставные даты публикации на честные значения из реестра.
+
+    Записи каталога источников наполняются с оговоркой «существующее значение
+    не перезаписывается» (см. `evidence_catalog.sync_sources`), поэтому правка
+    реестра сама по себе не доезжала до уже существующих баз: 93 источника
+    продолжали показывать `2025-01-01` как дату публикации, хотя у постоянно
+    обновляемой документации даты нет, а 11 источников выдавали «1 января» за
+    настоящий день выхода.
+
+    Заменяются только значения, которые заведомо подставные: заглушки и
+    «1 января». Осознанная правка администратора с настоящей датой не трогается.
+    """
+    # Оба реестра: `sources.SOURCES` (базовый) и `EXTRA_SOURCES` из каталога
+    # доказательств. Источники второго реестра не попадали бы в сводку только
+    # по `sources.SOURCES`, и восемь записей сохранили бы подставные даты.
+    from .evidence_catalog import EXTRA_SOURCES
+    registry = {**sources.SOURCES, **EXTRA_SOURCES}
+
+    updated = 0
+    for row in db.scalars(select(EvidenceSource)):
+        current = (row.published_date or "").strip()
+        if not current:
+            continue
+        record = registry.get(row.code)
+        expected = (record or {}).get("date", "").strip()
+        if not expected or expected == current:
+            continue
+        placeholder = bool(_YEAR_ONLY_DATE.match(current)) or current in _PLACEHOLDER_DATES
+        # Реестр прямо объявляет отсутствие даты публикации (`n/a`). Значит любая
+        # конкретная дата в базе недостоверна: у обновляемой документации даты
+        # публикации не существует, и конкретное число здесь — либо заглушка,
+        # либо дата проверки ссылки, выданная за публикацию. Правило закрывает
+        # именно этот класс: две страницы dev.epicgames.com показывали
+        # `2026-09-01`/`2026-09-07`, тогда как соседние страницы того же вендора
+        # помечены `n/a`.
+        undated_declared = expected == "n/a"
+        if not placeholder and not undated_declared:
+            continue
+        row.published_date = expected
+        updated += 1
+    if updated:
+        db.flush()
+    return updated
+
+
 def declare_evidence_gaps(db: Session) -> dict[str, int]:
     """Довести машинно-читаемые декларации пробелов до согласованного вида.
 
@@ -353,6 +453,9 @@ def declare_evidence_gaps(db: Session) -> dict[str, int]:
     # исходной величины, из-за чего нормализация непроверяема.
     hardware_raw = apply_hardware_raw_values(db)
 
+    # Переехавшие адреса источников: 404 в уже собранной базе.
+    urls_repaired = repair_dead_source_urls(db)
+
     if conflicts_declared or edges_declared:
         db.flush()
     return {
@@ -361,4 +464,5 @@ def declare_evidence_gaps(db: Session) -> dict[str, int]:
         "conflicts_declared": conflicts_declared,
         "dependency_edges_declared": edges_declared,
         "hardware_raw_values": hardware_raw,
+        "source_urls_repaired": urls_repaired,
     }

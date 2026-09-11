@@ -8,20 +8,27 @@ imported. These entries describe reusable implementation choices.
 SOURCES = {
     'GAME_AI_FLOW_FIELDS': ('Crowd Pathfinding and Steering Using Flow Field Tiles — Elijah Emerson',
                             'https://www.gameaipro.com/GameAIPro/GameAIPro_Chapter23_Crowd_Pathfinding_and_Steering_Using_Flow_Field_Tiles.pdf', '2013'),
+    # Пустая строка означала «даты нет», но читалась аудитом как пропуск
+    # (`missing_published_date`), тогда как соседние страницы того же вендора
+    # помечены `n/a` (`declared_undated_living_doc`). У постоянно обновляемой
+    # how-to страницы даты публикации не существует — это объявленное
+    # отсутствие, а не незакрытый пробел.
     'UNITY_GPU_BUDGETS': ('Unity — Managing GPU usage for PC and console games',
-                         'https://unity.com/how-to/gpu-optimization', ''),
+                         'https://unity.com/how-to/gpu-optimization', 'n/a'),
     'NVIDIA_VOXEL_CONES': ('Interactive Indirect Illumination Using Voxel Cone Tracing — Crassin et al.',
                           'https://research.nvidia.com/labs/rtr/publication/crassin2011givoxels/', '2011-09'),
     'VALVE_DIRECTOR': ('The AI Systems of Left 4 Dead — Michael Booth, Valve',
                        'https://cdn.akamai.steamstatic.com/apps/valve/2009/ai_systems_of_l4d_mike_booth.pdf', '2009'),
     'VALVE_SUBTICK': ('Counter-Strike 2 — sub-tick updates, Valve',
                       'https://www.counter-strike.net/cs2', '2023-03-22'),
+    # Файл в живом репозитории: даты публикации у него нет, есть только
+    # история коммитов. `n/a` — объявление этого факта.
     'VALVE_REWIND': ('Valve Source SDK — player_lagcompensation.cpp',
-                     'https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/game/server/player_lagcompensation.cpp', ''),
+                     'https://github.com/ValveSoftware/source-sdk-2013/blob/master/src/game/server/player_lagcompensation.cpp', 'n/a'),
     'MS_DIRECTSTORAGE_GUIDANCE': ('Microsoft DirectStorage — Developer Guidance',
-                                 'https://github.com/microsoft/DirectStorage/blob/main/Docs/DeveloperGuidance.md', ''),
+                                 'https://github.com/microsoft/DirectStorage/blob/main/Docs/DeveloperGuidance.md', 'n/a'),
     'KHRONOS_ASYNC_COMPUTE': ('Khronos Vulkan Samples — Using async compute to saturate GPU',
-                             'https://docs.vulkan.org/samples/latest/samples/performance/async_compute/README.html', ''),
+                             'https://docs.vulkan.org/samples/latest/samples/performance/async_compute/README.html', 'n/a'),
 }
 
 # Notes, rather than fictional percentages, participate in the hardware report.

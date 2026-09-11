@@ -27,6 +27,9 @@ from ..models.entities import (
     Conflict, DependencyEdge, Engine, EngineTool, EvidenceSource,
     Method, MethodEngineLink, TechnologyNode,
 )
+from .relation_resolutions import (
+    DIRECT_TOOL_WORKAROUND, TOOL_ENGINE_CUSTOM_WORKAROUND, TOOL_ENGINE_WORKAROUND,
+)
 
 # ── Тип связи «метод-инструмент» → обязательность и критичность ──
 # Прямая реализация — самый сильный сигнал, но всё равно не обязательство:
@@ -332,7 +335,11 @@ def sync_dependency_graph(db: Session) -> dict[str, int]:
             scope=tool.tool_type or "runtime",
             source_url=link.source_url or "",
             description=link.note or f"Метод реализуется инструментом «{tool.name}» ({link.relation_type}).",
-            workaround="" if link.relation_type in {"direct", "complement"} else "Рассмотреть альтернативный инструмент или собственную реализацию.",
+            workaround=(
+                DIRECT_TOOL_WORKAROUND
+                if link.relation_type in {"direct", "complement"}
+                else "Рассмотреть альтернативный инструмент или собственную реализацию."
+            ),
             no_source_note=(
                 "Публичного источника не существует: инструмент помечен как пользовательская "
                 "технология, связь является экспертной оценкой, а не подтверждённой совместимостью."
@@ -357,7 +364,11 @@ def sync_dependency_graph(db: Session) -> dict[str, int]:
                 f"Инструмент «{tool.name}» существует только внутри движка {engine.name}"
                 + (" и помечен как пользовательская технология." if tool.is_user_defined else ".")
             ),
-            workaround="" if not tool.is_user_defined else "Реализуется командой самостоятельно; внешней поддержки нет.",
+            workaround=(
+                TOOL_ENGINE_WORKAROUND
+                if not tool.is_user_defined
+                else TOOL_ENGINE_CUSTOM_WORKAROUND
+            ),
             no_source_note=(
                 "Публичного источника не существует: инструмент пользовательского движка "
                 "описан самой командой, а не внешним вендором."
@@ -451,11 +462,17 @@ def break_dependency_cycles(db: Session) -> dict[str, int]:
             break
         # Детерминированный выбор: наибольший a_code, затем b_code.
         victim = max(candidates, key=lambda r: (r.a_code, r.b_code))
-        # Уникальность задана парой (a_code, b_code, conflict_type), поэтому
+        # Уникальность задана тройкой (a_code, b_code, conflict_type), поэтому
         # дополнение с такой же парой уже может существовать. В этом случае
         # связь уже описана как дополнение — обязательную строку нужно убрать,
-        # а не переписывать.
-        twin = (victim.a_code, victim.b_code) in existing_complement
+        # а не переписывать. Дополнение симметрично («A дополняет B» и
+        # «B дополняет A» — одно отношение), поэтому проверяются оба
+        # направления: иначе понижение создавало вторую запись об уже описанной
+        # связи и второе ребро, которых нет при сборке с нуля.
+        twin = (
+            (victim.a_code, victim.b_code) in existing_complement
+            or (victim.b_code, victim.a_code) in existing_complement
+        )
         if twin:
             db.delete(victim)
             rows.remove(victim)
@@ -517,6 +534,67 @@ def _follow_edge_demotion(
     edge.dependency_type = "complement"
     edge.mandatory = 0
     edge.severity = 1
+
+
+#: Типы связей без направления: «A дополняет B» и «B дополняет A» — одно
+#: отношение, а не два. Уникальность в базе задана тройкой с направлением,
+#: поэтому обе записи могут сосуществовать, хотя описывают одну связь.
+_SYMMETRIC_CONFLICT_TYPES = frozenset({"complement", "alternative", "hard_conflict", "risk"})
+
+
+def dedupe_symmetric_relations(db: Session) -> dict[str, int]:
+    """Убрать симметричные связи, записанные в обе стороны.
+
+    База, собранная до того, как понижение цикла перестало создавать встречное
+    дополнение, содержит по две записи об одной связи. Дубль не безобиден: пара
+    показывается дважды — в таблице связей и в блоке усилений корзины, — и даёт
+    лишнее ребро в графе. Остаётся детерминированно меньшая пара (по коду A,
+    затем B): при сборке с нуля создаётся именно она. Встречная запись и её
+    ребро удаляются.
+
+    Функция идемпотентна: на базе без дублей не делает ничего.
+    """
+    rows = list(db.scalars(select(Conflict)))
+    by_key = {(r.a_code, r.b_code, r.conflict_type): r for r in rows}
+
+    victims: list[Conflict] = []
+    for (a_code, b_code, ctype) in sorted(by_key):
+        if ctype not in _SYMMETRIC_CONFLICT_TYPES:
+            continue
+        # Встречная пара обрабатывается в своей итерации, поэтому берётся
+        # только канонический (лексикографически меньший) порядок.
+        if (a_code, b_code) > (b_code, a_code):
+            continue
+        if (b_code, a_code, ctype) in by_key:
+            victims.append(by_key[(b_code, a_code, ctype)])
+
+    if not victims:
+        return {"symmetric_relation_duplicates_removed": 0,
+                "symmetric_relation_edges_removed": 0}
+
+    removed_edges = 0
+    for victim in victims:
+        src = db.scalar(
+            select(TechnologyNode.id).where(TechnologyNode.code == f"method:{victim.a_code}")
+        )
+        dst = db.scalar(
+            select(TechnologyNode.id).where(TechnologyNode.code == f"method:{victim.b_code}")
+        )
+        if src is not None and dst is not None:
+            edge = db.scalar(
+                select(DependencyEdge).where(
+                    DependencyEdge.source_node_id == src,
+                    DependencyEdge.target_node_id == dst,
+                    DependencyEdge.dependency_type == victim.conflict_type,
+                )
+            )
+            if edge is not None:
+                db.delete(edge)
+                removed_edges += 1
+        db.delete(victim)
+    db.flush()
+    return {"symmetric_relation_duplicates_removed": len(victims),
+            "symmetric_relation_edges_removed": removed_edges}
 
 
 def _find_cycle(adjacency: dict[str, list[str]]) -> list[str] | None:

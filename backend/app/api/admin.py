@@ -500,7 +500,21 @@ def _coerce(model, row: dict[str, Any], list_fields: frozenset[str] = frozenset(
             except ValueError:
                 raise ValueError(f"поле «{column.name}» должно быть числом, получено {value!r}")
         if column.type.python_type is bool and isinstance(value, str):
-            value = value.strip().lower() in ("1", "true", "yes", "да")
+            token = value.strip().lower()
+            if token == "":
+                # Пустая ячейка — «не указано», а не «нет»: значение не
+                # подставляется, остаётся прежнее (или модельное по умолчанию).
+                continue
+            if token in ("1", "true", "yes", "да"):
+                value = True
+            elif token in ("0", "false", "no", "нет"):
+                value = False
+            else:
+                # Раньше любое нераспознанное слово молча становилось False
+                # (включая опечатку «ture»): импорт принимал ошибку за ответ.
+                raise ValueError(
+                    f"поле «{column.name}» должно быть логическим (true/false), получено {value!r}"
+                )
         result[column.name] = value
     return result
 
@@ -509,7 +523,19 @@ def _read_rows(raw: bytes, filename: str | None, entity: str) -> list[dict[str, 
     """Разобрать импортируемый файл. Ошибка формата отклоняет весь импорт."""
     if filename and filename.lower().endswith(".json"):
         payload = json_loads(raw)
-        rows = payload.get(entity, []) if isinstance(payload, dict) else payload
+        if isinstance(payload, dict):
+            # Объект без раздела нужной сущности — это ошибка формата, а не
+            # пустой импорт: раньше он давал `created=0` и код 200, хотя
+            # документация обещает отклонить некорректный файл целиком.
+            if entity not in payload:
+                raise HTTPException(
+                    400,
+                    f"В JSON нет раздела «{entity}». Ожидался объект с ключом «{entity}» "
+                    "или массив записей.",
+                )
+            rows = payload[entity]
+        else:
+            rows = payload
     else:
         rows = list(csv.DictReader(io.StringIO(raw.decode("utf-8-sig"))))
     if not isinstance(rows, list):
@@ -670,16 +696,18 @@ async def import_entity(
     try:
         for row in rows:
             data = _coerce(model, {**row, **normalize_row(entity, row)}, list_fields)
-            if "status" not in data:
-                data["status"] = Status.DRAFT.value
+            # Статус из файла не принимается: импорт не является каналом
+            # публикации. Раньше колонка `status` в файле проходила насквозь, и
+            # новая запись могла сразу создаться опубликованной, хотя докумен-
+            # тация и комментарий ниже обещают обратное. Обновление статуса —
+            # только явным переходом в административном разделе.
+            data.pop("status", None)
             obj = _find_existing(db, model, entity, data)
             if obj is None:
+                data["status"] = Status.DRAFT.value
                 db.add(model(**data))
                 created += 1
             else:
-                # Публикация через импорт запрещена: статус меняется только
-                # через явный переход в административном разделе.
-                data.pop("status", None)
                 for key, value in data.items():
                     setattr(obj, key, value)
                 updated += 1

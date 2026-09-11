@@ -20,9 +20,13 @@ Sources that only failed with a network/proxy error (502 tunnel, TLS timeout)
 are NOT marked dead - they are annotated as
 "previously fetched; not re-verified on this run", which is the honest
 description of a network failure rather than of a broken citation.
+
+По умолчанию выполняется сухой прогон: паки не изменяются, печатается, что
+было бы сделано. Запись выполняется только с явным флагом ``--apply``.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import pathlib
 import sys
@@ -31,11 +35,23 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 PACKS = ROOT / "research" / "packs"
 VERIFY_DATE = "2026-09-11"
 
-# Verified replacements (old -> new). Each `new` URL was HTTP-checked 2xx
-# before being entered here.
-REPLACEMENTS: dict[str, str] = {
-    "https://www.digitalfoundry.net/articles/digitalfoundry-2021-it-takes-two-tech-analysis":
-        "https://en.wikipedia.org/wiki/It_Takes_Two_(video_game)",
+# Verified replacements (old URL -> what the replacement actually is).
+#
+# Замена описывает ЗАМЕНУ, а не только её URL. Раньше здесь лежала одна строка
+# URL, и запись источника сохраняла прежние `title`, `author_or_publisher`,
+# `source_type` и `locator` («n/a - server returned '404 Not Found'») при новом
+# адресе. Получалось ровно то противоречие «название против URL», которое
+# ловит собственный детектор проекта: Digital Foundry-разбор со ссылкой на
+# статью Википедии и `availability='verified_fetched'` при локаторе с 404.
+# Каждый `url` HTTP-проверен на 2xx перед записью.
+REPLACEMENTS: dict[str, dict[str, str]] = {
+    "https://www.digitalfoundry.net/articles/digitalfoundry-2021-it-takes-two-tech-analysis": {
+        "url": "https://en.wikipedia.org/wiki/It_Takes_Two_(video_game)",
+        "title": "It Takes Two (encyclopedia article)",
+        "author_or_publisher": "Wikipedia contributors",
+        "source_type": "encyclopedia",
+        "locator": "article lead and development section",
+    },
 }
 
 # URLs that failed only because of the local network/proxy on this run.
@@ -51,6 +67,13 @@ def load_report() -> dict | None:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Заменить недоступные источники в паках или объявить их недоступными")
+    parser.add_argument(
+        "--apply", action="store_true",
+        help="записать изменения в паки; без флага выполняется только сухой прогон")
+    args = parser.parse_args()
+
     report = load_report()
     if not report:
         print("no verification_report.json - run tools/verify_sources.py first", file=sys.stderr)
@@ -76,8 +99,14 @@ def main() -> int:
 
             if key in {d.lower() for d in dead}:
                 if url in REPLACEMENTS:
-                    new = REPLACEMENTS[url]
-                    s["url"] = new
+                    replacement = REPLACEMENTS[url]
+                    s["url"] = replacement["url"]
+                    # Замена описывается целиком: адрес, название, издатель, тип
+                    # и локатор. Иначе запись противоречит сама себе.
+                    s["title"] = replacement["title"]
+                    s["author_or_publisher"] = replacement["author_or_publisher"]
+                    s["source_type"] = replacement["source_type"]
+                    s["locator"] = replacement["locator"]
                     s["availability"] = "verified_fetched"
                     s["applicability_note"] = (
                         (s.get("applicability_note") or "").rstrip()
@@ -137,11 +166,16 @@ def main() -> int:
                             changed = True
 
         if changed:
-            path.write_text(json.dumps(pack, ensure_ascii=False, indent=1), encoding="utf-8")
-            print(f"updated {path.name}")
+            if args.apply:
+                path.write_text(json.dumps(pack, ensure_ascii=False, indent=1), encoding="utf-8")
+                print(f"updated {path.name}")
+            else:
+                print(f"would update {path.name}")
 
     print(f"\nreplaced={replaced} declared_unreachable={declared} "
           f"network_annotated={annotated} claims_downgraded={claims_downgraded}")
+    if not args.apply and (replaced or declared or annotated or claims_downgraded):
+        print("сухой прогон: паки не изменены. Повторите с --apply, чтобы записать.")
     return 0
 
 

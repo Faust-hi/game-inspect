@@ -1743,15 +1743,32 @@ def main() -> None:
     parser.add_argument("--markdown", type=Path, default=DEFAULT_MARKDOWN)
     parser.add_argument("--pdf", type=Path, default=DEFAULT_PDF)
     parser.add_argument("--matrix", type=Path, default=DEFAULT_MATRIX)
+    parser.add_argument(
+        "--no-pdf", action="store_true",
+        help="собрать только Markdown и матрицу покрытия (reportlab не нужен)")
     args = parser.parse_args()
     snapshot = _snapshot(args.db)
     markdown = _markdown(snapshot, args.db)
     args.markdown.parent.mkdir(parents=True, exist_ok=True)
     args.markdown.write_text(markdown, encoding="utf-8")
-    _pdf(args.pdf, snapshot, args.db)
+    # Отсутствие reportlab — не повод терять уже собранный Markdown и матрицу.
+    # Раньше импорт падал трассировкой после записи Markdown, и матрица покрытия
+    # не создавалась вовсе, хотя её построение от PDF не зависит.
+    pdf_status = "не собирался (--no-pdf)"
+    if not args.no_pdf:
+        try:
+            _pdf(args.pdf, snapshot, args.db)
+            pdf_status = str(args.pdf)
+        except ModuleNotFoundError as exc:
+            if exc.name != "reportlab":
+                raise
+            pdf_status = (
+                "не собран: нет модуля reportlab. Установите его: "
+                "python -m pip install -r backend/requirements-report.txt"
+            )
     _write_coverage_matrix(args.db, args.matrix)
     print(f"Markdown: {args.markdown}")
-    print(f"PDF: {args.pdf}")
+    print(f"PDF: {pdf_status}")
     print(f"Matrix: {args.matrix}")
     print(f"Revision: {_git_revision()}")
 

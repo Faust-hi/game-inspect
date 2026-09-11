@@ -45,6 +45,20 @@ rem --- 3. Frontend dependencies (lock-first, same as CI) ----------------------
 rem Existing node_modules is NOT proof of matching dependencies, so install
 rem from the lock file instead of trusting it.
 echo [3/5] Installing frontend dependencies...
+where node >nul 2>nul
+if errorlevel 1 (
+    echo ERROR: Node.js not found.
+    echo Install Node.js 22 or newer ^(LTS^) and run this file again.
+    goto :fail
+)
+rem Version is checked, not just presence: README, CI and the Linux launcher all
+rem require Node.js 22+, and this file used to accept any version while its own
+rem message said "18 or newer".
+for /f "delims=." %%v in ('node -p "process.versions.node"') do set "NODE_MAJOR=%%v"
+if %NODE_MAJOR% LSS 22 (
+    echo ERROR: Node.js %NODE_MAJOR% found; Node.js 22 or newer is required.
+    goto :fail
+)
 pushd "%ROOT%frontend"
 if exist "package-lock.json" (
     call npm ci
@@ -54,7 +68,6 @@ if exist "package-lock.json" (
 popd
 if not exist "%ROOT%frontend\node_modules" (
     echo ERROR: failed to install frontend dependencies.
-    echo Install Node.js 18 or newer and run this file again.
     goto :fail
 )
 

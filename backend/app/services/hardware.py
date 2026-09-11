@@ -773,7 +773,11 @@ def _gpu_feature_support(gpu: HardwareGPU, required: str) -> bool | None:
     if "ray tracing" in req or req in {"rt", "rtx", "rt cores", "ray accelerators"}:
         return _supports_ray_tracing(gpu)
     if req.startswith(("dlss", "fsr", "xess")):
-        return any(f.startswith(req) for f in features)
+        # Отсутствие апскейлера в списке возможностей каталога — это «каталог не
+        # отвечает», а не «карта заведомо без него»: возвращать False значило бы
+        # опровергать поддержку там, где данных просто нет. Контракт функции —
+        # None для неизвестности, и он соблюдается так же, как в ветке выше.
+        return True if any(f.startswith(req) for f in features) else None
     return None
 
 
@@ -880,7 +884,11 @@ def _estimated_draw_calls(profile: ProjectProfile, content: float, method_codes:
     if "crowd_simulation" in profile.functions:
         base += 4_000 * profile.npc_count_effective
     if "split_screen_rendering" in profile.functions:
-        base *= max(2, profile.player_count)
+        # Split screen повторяет подготовку рендера по локальным видам, а не по
+        # сетевым игрокам: `player_count` — размер сетевой сессии, и умножение
+        # на него давало локальному коопу с одним экраном ×2, а сетевой игре со
+        # 100 игроками — ×100. То же число видов использует расчёт подсистем.
+        base *= _local_views(profile)
     if method_codes & {"hierarchical_lod", "baked_occlusion_culling", "gpu_compute_culling", "hiz_software_occlusion"}:
         base *= 0.65
     return max(100, round(base))
@@ -1386,6 +1394,10 @@ def _apply_method_effects(
         contributions.append(ContributionItem(
             label=f"{names.get(code, code)}: трассировка лучей",
             delta=round(scaled, 3),
+            # Вклад трассировки — абсолютная добавка к стоимости кадра, а не её
+            # относительное изменение: базовой стоимости трассировки нет, её
+            # вводят сами решения, поэтому доля от нуля не определена.
+            unit="мс",
             detail=detail,
         ))
 
@@ -1395,10 +1407,20 @@ def _apply_method_effects(
                 continue
             subsystem = key.split(":", 1)[1]
             base = costs.get(subsystem, 0.0)
-            if base <= 0:
-                continue
             # Наибольшая экономия применяется всегда.
             best_code, best_value = max(entries, key=lambda item: item[1])
+            if base <= 0:
+                # Базовая стоимость подсистемы не начисляется моделью (например,
+                # физика при отсутствии физических функций): относительное
+                # снижение от нуля не определено. Раньше экономия просто
+                # исчезала — пользователь не отличал «не повлияло» от «забыто».
+                exclusions.append(
+                    f"«{names.get(best_code, best_code)}»: экономия в подсистеме "
+                    f"«{_subsystem_label(scope, subsystem)}» не применена — модель не "
+                    "начисляет базовую стоимость этой подсистемы, поэтому снижение "
+                    "относительно неё не определено."
+                )
+                continue
             total_saving = min(MAX_SUBSYSTEM_SAVING, best_value)
             superseded: list[str] = []
             for code, value in entries:
@@ -1437,6 +1459,17 @@ def _apply_method_effects(
         costs = cpu if scope == "cpu" else gpu
         base = costs.get(subsystem, 0.0)
         added = sum(value for _, value in entries)
+        if base <= 0:
+            # Подсистема не начисляется моделью: приращение к нулю осталось бы
+            # нулём, а вклад «+N%» показывался бы при неизменной стоимости.
+            # Эффект не растворяется молча, а перечисляется как причина неучёта.
+            listed = ", ".join(names.get(code, code) for code, _ in entries)
+            exclusions.append(
+                f"«{listed}»: дополнительная работа в подсистеме "
+                f"«{_subsystem_label(scope, subsystem)}» не учтена — модель не начисляет "
+                "базовую стоимость этой подсистемы, поэтому приращение не к чему применить."
+            )
+            continue
         costs[subsystem] = base * (1.0 + added)
         for code, value in entries:
             contributions.append(ContributionItem(
@@ -1833,7 +1866,12 @@ def _parameter_contributions(
     profile: ProjectProfile, content: float, world: float,
     render_fps: float, budget_ms: float,
 ) -> list[ContributionItem]:
-    """Вклад параметров анкеты: во сколько раз параметр меняет стоимость кадра."""
+    """Вклад параметров анкеты: относительное изменение стоимости кадра.
+
+    Каждый вклад — доля (не процент), на которую параметр меняет стоимость
+    кадра относительно нейтрального значения. Исключение помечено единицей:
+    бюджет кадра задаётся в миллисекундах, потому что он порог, а не множитель.
+    """
     items: list[ContributionItem] = []
     res = _resolution_factor(profile.target_resolution)
     quality = QUALITY_FACTOR.get(profile.target_quality, 1.0)
@@ -1850,6 +1888,10 @@ def _parameter_contributions(
     items.append(ContributionItem(
         label=f"Отрисованных кадров в секунду: {render_fps:g}",
         delta=round(budget_ms, 3),
+        # Бюджет кадра — абсолютная величина в миллисекундах. Он задаёт порог,
+        # с которым сравнивается стоимость кадра, а не множитель самой
+        # стоимости: считать его относительным изменением нельзя.
+        unit="мс",
         detail="Бюджет кадра в миллисекундах: 1000 / частота отрисованных кадров.",
     ))
     items.append(ContributionItem(
@@ -1878,9 +1920,13 @@ def _parameter_contributions(
             detail="Сетевой вклад полностью исключён из расчёта.",
         ))
     if "physics_simulation" in profile.functions:
+        tick_hz = profile.physics_tick_hz or DEFAULT_PHYSICS_TICK_HZ
         items.append(ContributionItem(
-            label=f"Такт физики: {profile.physics_tick_hz or DEFAULT_PHYSICS_TICK_HZ:g} Гц",
-            delta=round((profile.physics_tick_hz or DEFAULT_PHYSICS_TICK_HZ) / render_fps, 3),
+            label=f"Такт физики: {tick_hz:g} Гц",
+            # Остальные вклады выражены как относительное изменение стоимости,
+            # поэтому и здесь вычитается единица: при такте, равном частоте
+            # кадров, стоимость кадра не меняется (0.0), а не удваивается.
+            delta=round(tick_hz / render_fps - 1.0, 3),
             detail="Стоимость такта физики распределяется по отрисованным кадрам.",
         ))
     return items
@@ -2215,7 +2261,12 @@ def _consequences(profile: ProjectProfile, methods: list, model: FrameModel) -> 
             "производительность проверяется по отдельной RT-шкале."
         )
     late = sorted(
-        (m for m in methods if m.late_cost in {"high", "blocking"}),
+        # Значения `late_cost` — из перечисления LateCost: low/medium/high/critical.
+        # Литерал `blocking` в перечислении отсутствует, поэтому все 17 методов с
+        # критической стоимостью позднего внедрения молча выпадали из
+        # предупреждения — оставались только «высокие». Тот же набор значений
+        # используется в планировщике (`planning.effort_for_methods`).
+        (m for m in methods if m.late_cost in {"high", "critical"}),
         key=lambda m: m.name,
     )
     if late:
@@ -2611,12 +2662,12 @@ def _pick_references(
                 "Подходящий ориентир не найден."
             )
         reference_gpu = None
-    if reference_gpu is not None and reference_gpu.vram_gb < vram_gb:
-        unmet.append(
-            f"Видеокарта {reference_gpu.model} имеет {reference_gpu.vram_gb:g} ГБ видеопамяти "
-            f"при требуемых {vram_gb:.1f} ГБ: в базе нет карты, одновременно достаточно "
-            "производительной и вместительной."
-        )
+    # Ветки «карта меньше требуемой VRAM» здесь быть не может: `_pick_gpu`
+    # фильтрует пул по `vram_gb` и возвращает карту только из него, поэтому
+    # `reference_gpu.vram_gb < vram_gb` недостижимо. Случай «подходящей по
+    # памяти карты нет» уже описан выше (`reference_gpu is None`, ветка про
+    # отсутствие карты с нужным объёмом), поэтому прежняя проверка была мёртвым
+    # кодом, а её сообщение пользователь никогда не видел.
 
     reference_cpu = _pick_cpu(cpus, st_index=st_index, mt_index=mt_index)
     if reference_cpu is None:

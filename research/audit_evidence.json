@@ -41,14 +41,14 @@
     },
     "engine_tools": {
       "entity_class": "engine_tools",
-      "total": 70,
-      "pct_claims>=3": 100.0,
-      "pct_located_sources>=2": 100.0,
-      "pct_game_proofs>=2": 100.0,
-      "pct_fully_ok": 100.0,
+      "total": 71,
+      "pct_claims>=3": 98.6,
+      "pct_located_sources>=2": 98.6,
+      "pct_game_proofs>=2": 98.6,
+      "pct_fully_ok": 98.6,
       "total_derived_missing_formula": 0,
       "total_dangling_claims": 0,
-      "entities_declaring_gap": 21,
+      "entities_declaring_gap": 22,
       "direct_game_proofs_total": 100,
       "entities_with_direct_proof": 52,
       "entities_unproven_and_undeclared": 0,
@@ -56,10 +56,10 @@
     },
     "technology_nodes": {
       "entity_class": "technology_nodes",
-      "total": 221,
-      "inherited_from_catalog": 201,
+      "total": 222,
+      "inherited_from_catalog": 202,
       "standalone": 20,
-      "pct_fully_ok": 97.3,
+      "pct_fully_ok": 96.8,
       "standalone_pct_fully_ok": 80.0,
       "standalone_without_evidence": 0,
       "standalone_declared_no_shipped_title_proof": 4,
@@ -73,8 +73,8 @@
     },
     "method_engine_links": {
       "entity_class": "method_engine_links",
-      "total": 473,
-      "with_url_or_declared_user_defined": 473,
+      "total": 475,
+      "with_url_or_declared_user_defined": 475,
       "pct_ok": 100.0,
       "missing_url": 111,
       "declared_user_defined": 111,
@@ -84,17 +84,29 @@
     },
     "conflicts": {
       "entity_class": "conflicts",
-      "total": 458,
-      "missing_url": 0,
-      "undeclared_missing_url": 0
+      "total": 456,
+      "missing_url": 30,
+      "declared_user_defined": 30,
+      "undeclared_missing_url": 0,
+      "missing_resolution": 0,
+      "missing_resolution_basis": 0
     },
     "dependency_edges": {
       "entity_class": "dependency_edges",
-      "total": 929,
+      "total": 930,
       "missing_source_id": 154,
       "declared_expert_estimate": 154,
       "undeclared_missing_source": 0,
-      "unknown_relation": 0
+      "unknown_relation": 0,
+      "missing_workaround": 0,
+      "missing_workaround_basis": 0
+    },
+    "method_research_meta": {
+      "entity_class": "methods",
+      "total": 124,
+      "missing_implementation_variants": 0,
+      "missing_applicability_conditions": 0,
+      "missing_required_data_and_tools": 0
     },
     "work_packages": {
       "entity_class": "work_packages",
@@ -194,7 +206,32 @@
       }
     ],
     "engines": [],
-    "engine_tools": [],
+    "engine_tools": [
+      {
+        "code": "ue_networking",
+        "name": "Networking and Multiplayer",
+        "claims": 2,
+        "direct_game_proofs": 0,
+        "declared_gap": true,
+        "sources": 1,
+        "located_sources": 1,
+        "fields": [
+          "adoption_evidence_gap",
+          "purpose"
+        ],
+        "bases": [
+          "documented",
+          "unknown"
+        ],
+        "numeric_claims": 0,
+        "derived_no_formula": 0,
+        "dangling": 0,
+        "game_proofs": 0,
+        "ok_claims": false,
+        "ok_sources": false,
+        "ok_proofs": false
+      }
+    ],
     "technology_nodes": [
       {
         "code": "method:temporal_radiance_cache",
@@ -273,6 +310,19 @@
         "ok_sources": true,
         "ok_proofs": false,
         "declared_gap": true
+      },
+      {
+        "code": "tool:ue_networking",
+        "name": "Networking and Multiplayer",
+        "node_type": "tool",
+        "origin": "inherited:engine_tool:ue_networking",
+        "claims": 2,
+        "located_sources": 1,
+        "game_proofs": 0,
+        "ok_claims": false,
+        "ok_sources": false,
+        "ok_proofs": false,
+        "declared_gap": false
       }
     ],
     "game_cases": []
@@ -422,124 +472,247 @@
       "WIKI_SVO"
     ],
     "issue_counts": {
-      "missing_published_date": 28,
-      "declared_undated_living_doc": 1
+      "declared_undated_living_doc": 131
     },
     "issue_examples": [
       {
+        "code": "GAFFER_TIMESTEP",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GODOT_DECALS",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GODOT_LIGHTS",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GODOT_MESHLOD",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GODOT_MULTIMESH",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GODOT_MULTIPLAYER",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GODOT_OCCLUSION",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GODOT_PARTICLES",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GODOT_PERF",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GODOT_PHYSICS",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GODOT_THREADS",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GPP_DATALOCALITY",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GPP_OBJECTPOOL",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "GPP_STATE",
+        "issue": "declared_undated_living_doc"
+      },
+      {
         "code": "KHRONOS_ASYNC_COMPUTE",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "MESHOPT",
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "MS_DIRECTSTORAGE_GUIDANCE",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "MS_MESH_SHADER",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "MS_VRS",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "NVIDIA_NTC",
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S23_PACKAGING",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S24_HLOD",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S25_PCG",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S27_RELEVANCY",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S28_CRY_STREAMING",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S29_CRY_AUDIO",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S31_UNITY_JOB_OVERVIEW",
-        "issue": "missing_published_date"
-      },
-      {
-        "code": "RESEARCH_S35_PMI_PERT",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S38_D3D_FEATURE_LEVELS",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S39_D3D_CHECK_FEATURE",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S40_D3D_RT_TIER",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S41_UE_SPECS",
-        "issue": "missing_published_date"
-      },
-      {
-        "code": "RESEARCH_S42_RIOT_SCALABILITY",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S43_HAMMER",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S44_HEROENGINE_LEGACY",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S45_HEROENGINE_VIDEOS",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S46_UNITY_JOB_DEPENDENCIES",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S49_PASSMARK_SINGLE",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S50_PASSMARK_FAQ",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S51_3DMARK",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S54_UE_TEXTURE_METRICS",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S55_UE_TEXTURE_CONFIG",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S57_NASA_GLOSSARY",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
         "code": "RESEARCH_S58_UNITY_JOB_TROUBLESHOOTING",
-        "issue": "missing_published_date"
+        "issue": "declared_undated_living_doc"
       },
       {
-        "code": "UNITY_GPU_BUDGETS",
-        "issue": "missing_published_date"
+        "code": "SAVE_PATTERNS",
+        "issue": "declared_undated_living_doc"
       },
       {
-        "code": "VALVE_REWIND",
-        "issue": "missing_published_date"
+        "code": "TECH_CAPTURE",
+        "issue": "declared_undated_living_doc"
       },
       {
-        "code": "SRC-RND-030",
+        "code": "TECH_CLOTH",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "TECH_DESTRUCTION",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "TECH_HAIR",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "TECH_REVERB",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "TECH_SECURITY",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "UE_ANIMBUDGET",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "UE_CHAOS",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "UE_CITY_SAMPLE",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "UE_CITY_SAMPLE_PCG",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "UE_DISTANCE_SHADOWS",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "UE_FEATURE_MATRIX",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "UE_HLOD",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "UE_INSIGHTS",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "UE_ISM",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "UE_LOD",
+        "issue": "declared_undated_living_doc"
+      },
+      {
+        "code": "UE_LUMEN",
         "issue": "declared_undated_living_doc"
       }
     ],
@@ -1105,29 +1278,29 @@
     }
   },
   "claims": {
-    "total": 2562,
+    "total": 2564,
     "dangling": [],
     "dangling_count": 0,
     "by_basis": {
-      "documented": 1580,
-      "expert_estimate": 164,
+      "unknown": 263,
       "measured": 104,
-      "case_evidence": 244,
-      "unknown": 262,
-      "derived": 208
+      "documented": 1581,
+      "derived": 208,
+      "expert_estimate": 164,
+      "case_evidence": 244
     },
     "by_verification": {
-      "derived_from_dag": 1,
-      "derived_from_input": 4,
-      "derived_with_context": 130,
-      "scenario_only": 124,
-      "derived_from_formula": 2,
-      "verified": 1315,
       "source_verified": 474,
-      "unverified": 502,
+      "scenario_only": 124,
+      "verified": 1316,
+      "derived_from_input": 4,
+      "derived_from_formula": 2,
       "derived_from_published_rate": 1,
       "partially_verified": 8,
-      "needs_review": 1
+      "needs_review": 1,
+      "derived_with_context": 130,
+      "derived_from_dag": 1,
+      "unverified": 503
     },
     "numeric_without_source": 0
   },

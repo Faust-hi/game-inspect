@@ -2,7 +2,22 @@
  "pack": "pack_tool_proofs",
  "generated": "2026-09-11",
  "agent_scope": "additional distinct-game proofs and second located sources for the engine_tools that had not reached the evidence bar; reuses already-registered sources only",
- "sources": [],
+ "sources": [
+  {
+   "code": "UE_NETWORKING",
+   "title": "Unreal Engine: Networking and Multiplayer",
+   "author_or_publisher": "Epic Games",
+   "source_type": "official_documentation",
+   "published_date": "n/a",
+   "verified_date": "2026-09-11",
+   "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/networking-and-multiplayer-in-unreal-engine",
+   "engine_or_api_version": "Unreal Engine 5",
+   "platform": "cross-platform",
+   "locator": "section: Networking and Multiplayer, lead paragraph",
+   "availability": "verified_url_only",
+   "applicability_note": "Hub page for the networking subsystem: it links Iris, Replication Graph and dedicated-server setup rather than documenting each in depth. Used for the definition of Replication and for the existence of the subsystems, not for any numeric cost."
+  }
+ ],
  "engine_tools": {
   "ue_anim_budget": {
    "game_examples": [
@@ -1502,6 +1517,38 @@
      "verification_state": "unverified",
      "evidence_level": "low",
      "context": "Declared absence: reference implementations are not shipped-title evidence."
+    }
+   ]
+  },
+  "ue_networking": {
+   "game_examples": [],
+   "direct_examples": 0,
+   "claims": [
+    {
+     "field": "purpose",
+     "statement": "In Unreal Engine, Replication is the name for the process of synchronizing data and procedure calls between clients and servers; the Replication system provides a higher-level abstraction along with low-level customization.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": "UE_NETWORKING",
+     "locator": "section: Networking and Multiplayer, lead paragraph",
+     "basis": "documented",
+     "verification_state": "verified",
+     "evidence_level": "medium",
+     "context": "Quoted from the vendor page. The page is a hub: it links the subsystems (Iris, Replication Graph, dedicated servers) rather than documenting each in depth, so it supports what the subsystem is, not how much it costs."
+    },
+    {
+     "field": "adoption_evidence_gap",
+     "statement": "No located source names a shipped title that adopted `ue_networking` explicitly. The evidence available is vendor documentation only. Treat adoption of this specific tool as unverified.",
+     "unit": "",
+     "value": null,
+     "value_range": null,
+     "source": null,
+     "locator": "",
+     "basis": "unknown",
+     "verification_state": "unverified",
+     "evidence_level": "low",
+     "context": "Declared absence. Recorded so the gap is visible rather than silently filled."
     }
    ]
   }

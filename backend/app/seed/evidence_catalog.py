@@ -45,19 +45,22 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "UNITY_DOTS_PRODUCTION": {
         "title": "Unity DOTS - Data-Oriented Technology Stack",
         "url": "https://unity.com/dots",
-        "date": "2024-01-01", "publisher": "Unity Technologies", "source_type": "official_case_index",
+        "date": "2024", "publisher": "Unity Technologies", "source_type": "official_case_index",
         "locator": "section: DOTS in Production",
     },
     "UE_CITY_SAMPLE": {
         "title": "City Sample Project Unreal Engine Demonstration",
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/city-sample-project-unreal-engine-demonstration",
-        "date": "2025-01-01", "publisher": "Epic Games", "source_type": "official_case_study",
+        "date": "n/a", "publisher": "Epic Games", "source_type": "official_case_study",
         "locator": "sections: World Partition, Nanite Virtualized Geometry, Mass AI",
     },
     "UE_CITY_SAMPLE_PCG": {
         "title": "City Sample PCG for Unreal Engine",
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/city-sample-pcg-for-unreal-engine?lang=en-US",
-        "date": "2026-09-01", "publisher": "Epic Games", "source_type": "official_documentation",
+        # Обновляемая документация Epic даты публикации не объявляет; значение
+        # приведено к `n/a`, как у соседней страницы City Sample. Прежняя дата
+        # была датой проверки ссылки, а не публикации.
+        "date": "n/a", "publisher": "Epic Games", "source_type": "official_documentation",
         "locator": "section: procedural city and PCG graph examples",
     },
     "HUNT_AUDIO_2025": {
@@ -69,7 +72,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "UE_FEATURE_MATRIX": {
         "title": "Supported Features by Rendering Path for Desktop",
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/supported-features-by-rendering-path-for-desktop-with-unreal-engine",
-        "date": "2025-01-01", "publisher": "Epic Games", "source_type": "official_documentation",
+        "date": "n/a", "publisher": "Epic Games", "source_type": "official_documentation",
         "locator": "table: Supported Features by Rendering Path",
     },
     # Книги и справочные издания. Сайт/каталог издателя является точкой
@@ -110,7 +113,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "STANDARD_VULKAN_SPEC": {
         "title": "Vulkan 1.3 Extensions Specification",
         "url": "https://registry.khronos.org/vulkan/specs/1.3-extensions/html/",
-        "date": "2022-01-01", "version": "1.3 extensions",
+        "date": "2022", "version": "1.3 extensions",
         "authors": "Khronos Vulkan Working Group", "publisher": "Khronos Group",
         "source_type": "standard",
         "locator": "chapters: device features, queues, synchronization",
@@ -123,6 +126,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S23_PACKAGING": {
         "title": "Unreal Engine: Packaging Your Project",
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/packaging-your-project",
+        "date": "n/a",
         "publisher": "Epic Games", "source_type": "official_documentation",
         "locator": "sections: Build, Cook, Stage, Package; Chunking",
         "platform": "Windows/Linux PC",
@@ -130,6 +134,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S24_HLOD": {
         "title": "Unreal Engine: World Partition HLOD",
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/world-partition---hierarchical-level-of-detail-in-unreal-engine",
+        "date": "n/a",
         "publisher": "Epic Games", "source_type": "official_documentation",
         "locator": "sections: HLOD layers and proxy mesh methods",
         "platform": "Windows/Linux PC",
@@ -137,6 +142,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S25_PCG": {
         "title": "Using PCG with World Partition",
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/using-pcg-with-world-partition-in-unreal-engine?lang=en-US",
+        "date": "n/a",
         "publisher": "Epic Games", "source_type": "official_documentation",
         "locator": "sections: PCG Data Layers and HLOD Layers",
         "platform": "Windows/Linux PC",
@@ -144,6 +150,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S27_RELEVANCY": {
         "title": "Unreal Engine: Actor Relevancy",
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/actor-relevancy-in-unreal-engine",
+        "date": "n/a",
         "publisher": "Epic Games", "source_type": "official_documentation",
         "locator": "sections: actor relevancy and distance",
         "platform": "Windows/Linux PC",
@@ -151,6 +158,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S28_CRY_STREAMING": {
         "title": "CRYENGINE: Streaming System",
         "url": "https://www.cryengine.com/docs/static/engines/cryengine-5/categories/23756813/pages/23306430",
+        "date": "n/a",
         "publisher": "Crytek", "source_type": "official_documentation",
         "locator": "sections: asynchronous reads, decompression and main-thread completion",
         "platform": "Windows PC",
@@ -158,13 +166,18 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S29_CRY_AUDIO": {
         "title": "CRYENGINE: Audio & Occlusion",
         "url": "https://www.cryengine.com/docs/static/engines/cryengine-5/categories/23756816/pages/44964914",
+        "date": "n/a",
         "publisher": "Crytek", "source_type": "official_documentation",
         "locator": "sections: No Ray, SingleRay, MultipleRay and distance limits",
         "platform": "Windows PC",
     },
     "RESEARCH_S31_UNITY_JOB_OVERVIEW": {
         "title": "Unity Manual: Job System Overview",
-        "url": "https://docs.unity3d.com/6000.0/Manual/job-system-overview.html",
+        # Unity перенесла справочник 6000.x под /Documentation/Manual/; прежний
+        # путь `6000.0/Manual/job-system-overview.html` отдаёт 404 (проверено
+        # пробой), новый — 200. Замена адреса, а не источника.
+        "url": "https://docs.unity3d.com/6000.0/Documentation/Manual/job-system-overview.html",
+        "date": "n/a",
         "publisher": "Unity Technologies", "source_type": "official_documentation",
         "locator": "sections: worker threads, cores, work stealing and safety",
         "platform": "Windows/Linux PC",
@@ -173,19 +186,20 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
         "title": "ISO/IEC 25010:2023 Product Quality Model",
         "url": "https://www.iso.org/standard/78176.html",
         "publisher": "ISO/IEC JTC 1/SC 7", "source_type": "standard",
-        "date": "2023-01-01", "version": "2023",
+        "date": "2023", "version": "2023",
         "locator": "product quality model and evaluation characteristics",
     },
     "RESEARCH_S34_ISO_20741": {
         "title": "ISO/IEC 20741:2017 Software Engineering Tool Evaluation",
         "url": "https://www.iso.org/obp/ui?_escaped_fragment_=iso%3Astd%3Aiso-iec%3A20741%3Aed-1%3Av1%3Aen",
         "publisher": "ISO/IEC JTC 1/SC 7", "source_type": "standard",
-        "date": "2017-01-01", "version": "2017",
+        "date": "2017", "version": "2017",
         "locator": "purpose-oriented tool selection and quality characteristics",
     },
     "RESEARCH_S35_PMI_PERT": {
         "title": "Practice Standard for Scheduling - Second Edition",
         "url": "https://www.pmi.org/-/media/pmi/documents/public/pdf/certifications/practice-standard-scheduling.pdf?v=c7ca2721-8c26-4e07-ba47-069d0987bc0c",
+        "date": "2011",
         "publisher": "Project Management Institute", "source_type": "practice_standard",
         "locator": "three-point estimating: triangular and beta/PERT formulas",
     },
@@ -193,19 +207,20 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
         "title": "Analytical Technique for Schedule Risk Assessment",
         "url": "https://ntrs.nasa.gov/api/citations/19870020777/downloads/19870020777.pdf",
         "publisher": "NASA", "source_type": "technical_report",
-        "date": "1987-01-01",
+        "date": "1987",
         "locator": "PERT/CPM precedence network and critical path sections",
     },
     "RESEARCH_S37_AMDAHL": {
         "title": "Amdahl's Law & Parallel Speedup",
         "url": "https://www.usenix.org/legacy/publications/library/proceedings/als00/2000papers/papers/full_papers/brownrobert/brownrobert_html/node3.html",
         "publisher": "USENIX", "source_type": "conference_paper",
-        "date": "2000-01-01",
+        "date": "2000",
         "locator": "serial/parallel speedup and overhead",
     },
     "RESEARCH_S38_D3D_FEATURE_LEVELS": {
         "title": "Direct3D Hardware Feature Levels",
         "url": "https://learn.microsoft.com/en-us/windows/win32/direct3d12/hardware-feature-levels",
+        "date": "n/a",
         "publisher": "Microsoft", "source_type": "official_documentation",
         "locator": "feature-level functionality versus performance",
         "platform": "Windows PC",
@@ -213,6 +228,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S39_D3D_CHECK_FEATURE": {
         "title": "ID3D12Device::CheckFeatureSupport",
         "url": "https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-checkfeaturesupport",
+        "date": "n/a",
         "publisher": "Microsoft", "source_type": "official_documentation",
         "locator": "syntax, remarks and ray-tracing capability query",
         "platform": "Windows PC",
@@ -220,6 +236,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S40_D3D_RT_TIER": {
         "title": "D3D12 Raytracing Tier",
         "url": "https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_raytracing_tier",
+        "date": "n/a",
         "publisher": "Microsoft", "source_type": "official_documentation",
         "locator": "ray-tracing tier capability",
         "platform": "Windows PC",
@@ -227,6 +244,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S41_UE_SPECS": {
         "title": "Hardware and Software Specifications for Unreal Engine",
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/hardware-and-software-specifications-for-unreal-engine",
+        "date": "n/a",
         "publisher": "Epic Games", "source_type": "official_documentation",
         "locator": "editor requirements and rendering-path constraints",
         "platform": "Windows/Linux PC",
@@ -234,6 +252,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S42_RIOT_SCALABILITY": {
         "title": "VALORANT: Scalability and Load Testing",
         "url": "https://www.riotgames.com/en/news/scalability-and-load-testing-valorant",
+        "date": "2020-12-15",
         "publisher": "Riot Games", "source_type": "studio_engineering",
         "locator": "sections: server scalability and 128-tick load test",
         "platform": "server",
@@ -241,24 +260,28 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S43_HAMMER": {
         "title": "Valve Hammer Editor / Source SDK",
         "url": "https://developer.valvesoftware.com/wiki/Valve_Hammer_Editor",
+        "date": "n/a",
         "publisher": "Valve Developer Community", "source_type": "official_developer_resource",
         "locator": "branch-specific Hammer/Source SDK tooling",
     },
     "RESEARCH_S44_HEROENGINE_LEGACY": {
         "title": "HeroEngine Legacy",
         "url": "https://tgs.tech/solutions/heroengine-legacy",
+        "date": "n/a",
         "publisher": "TGS Tech", "source_type": "studio_information",
         "locator": "legacy status and current applicability warning",
     },
     "RESEARCH_S45_HEROENGINE_VIDEOS": {
         "title": "HeroEngine Legacy Platform Videos",
         "url": "https://tgs.tech/apex-videos",
+        "date": "n/a",
         "publisher": "TGS Tech", "source_type": "studio_engineering",
         "locator": "historical live collaboration and integration examples",
     },
     "RESEARCH_S46_UNITY_JOB_DEPENDENCIES": {
         "title": "Unity Job Dependencies",
         "url": "https://docs.unity3d.com/2023.2/Documentation/Manual/JobSystemJobDependencies.html",
+        "date": "n/a",
         "publisher": "Unity Technologies", "source_type": "official_documentation",
         "locator": "job dependencies and synchronization",
         "platform": "Windows/Linux PC",
@@ -266,6 +289,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S49_PASSMARK_SINGLE": {
         "title": "PassMark CPU Single Thread Chart",
         "url": "https://www.cpubenchmark.net/singleThread.html",
+        "date": "n/a",
         "publisher": "PassMark Software", "source_type": "benchmark",
         "locator": "single-thread comparison chart and notes",
         "platform": "Windows/Linux PC",
@@ -273,6 +297,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S50_PASSMARK_FAQ": {
         "title": "PassMark PerformanceTest FAQ",
         "url": "https://passmark.com/support/performancetest_faq/understanding-results.php",
+        "date": "n/a",
         "publisher": "PassMark Software", "source_type": "benchmark_methodology",
         "locator": "benchmark limits and workload caveat",
         "platform": "Windows/Linux PC",
@@ -280,6 +305,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S51_3DMARK": {
         "title": "UL 3DMark",
         "url": "https://benchmarks.ul.com/3dmark",
+        "date": "n/a",
         "publisher": "UL Solutions", "source_type": "benchmark",
         "locator": "GPU/CPU comparison and frame-rate context",
         "platform": "Windows PC",
@@ -295,6 +321,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S54_UE_TEXTURE_METRICS": {
         "title": "Unreal Engine: Texture Streaming Metrics",
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-streaming-metrics-in-unreal-engine",
+        "date": "n/a",
         "publisher": "Epic Games", "source_type": "official_documentation",
         "locator": "wanted mips, pool usage and streaming metrics",
         "platform": "Windows/Linux PC",
@@ -302,6 +329,7 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S55_UE_TEXTURE_CONFIG": {
         "title": "Unreal Engine: Texture Streaming Configuration",
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-streaming-configuration",
+        "date": "n/a",
         "publisher": "Epic Games", "source_type": "official_documentation",
         "locator": "pool sizing and update behavior",
         "platform": "Windows/Linux PC",
@@ -309,12 +337,14 @@ EXTRA_SOURCES: dict[str, dict[str, str]] = {
     "RESEARCH_S57_NASA_GLOSSARY": {
         "title": "NASA PP&C Glossary: Critical Path and Double Counting",
         "url": "https://www.nasa.gov/ocfo/ppc-corner/ppc-glossary/",
+        "date": "n/a",
         "publisher": "NASA", "source_type": "technical_guidance",
         "locator": "critical path, uncertainty and double-counting entries",
     },
     "RESEARCH_S58_UNITY_JOB_TROUBLESHOOTING": {
         "title": "Unity Job System Troubleshooting",
         "url": "https://docs.unity3d.com/es/2021.1/Manual/JobSystemTroubleshooting.html",
+        "date": "n/a",
         "publisher": "Unity Technologies", "source_type": "official_documentation",
         "locator": "WaitForJobGroup and Complete synchronization",
         "platform": "Windows/Linux PC",
@@ -787,9 +817,21 @@ def sync_cases(db: Session, sources: dict[str, EvidenceSource]) -> int:
 def sync_claims(db: Session, sources: dict[str, EvidenceSource]) -> int:
     created = 0
 
-    def add(payload: dict[str, Any]) -> None:
+    def add(payload: dict[str, Any], refresh: tuple[str, ...] = ()) -> None:
         nonlocal created
-        if db.scalar(select(EvidenceClaim.id).where(EvidenceClaim.code == payload["code"])):
+        existing = db.scalar(
+            select(EvidenceClaim).where(EvidenceClaim.code == payload["code"])
+        )
+        if existing is not None:
+            # Машинно-выведенное утверждение обязано следовать за исправленной
+            # строкой-источником: индекс железа считается из строки бенчмарка, и
+            # если строка позже получила точные значения, утверждение не должно
+            # оставаться с прежним контекстом. Курируемые утверждения (basis не
+            # `derived`) не трогаются: правки администратора сохраняются.
+            if refresh and (existing.basis or "") == "derived":
+                for key in refresh:
+                    if getattr(existing, key, None) != payload.get(key):
+                        setattr(existing, key, payload[key])
             return
         db.add(EvidenceClaim(**payload))
         created += 1
@@ -871,7 +913,8 @@ def sync_claims(db: Session, sources: dict[str, EvidenceSource]) -> int:
                 "verification_status": "derived_with_context" if source else "needs_review", "evidence_level": "medium",
                 "formula": "normalize(raw benchmark within catalog bounds)", "input_parameters": {"model": item.model, "benchmark_name": getattr(item, "benchmark_name", "")},
                 "context": getattr(item, "benchmark_context", ""), "status": "published",
-            })
+            }, refresh=("source_id", "value_num", "locator", "verification_status",
+                        "input_parameters", "context"))
     db.flush()
     return created
 
@@ -932,7 +975,17 @@ def sync_nodes_and_edges(db: Session, sources: dict[str, EvidenceSource]) -> dic
 
 
 def sync_work_packages(db: Session) -> int:
+    """Создать пакеты работ и обновить их предусловия.
+
+    `dependency_codes` пересчитываются и у уже существующих пакетов. Раньше
+    проход только вставлял новые строки и пропускал существующие, а связи
+    «метод требует метод» появляются позже — при загрузке пакетов. В итоге все
+    802 опубликованных пакета оставались с пустым списком предусловий, хотя 64
+    метода имеют опубликованную зависимость: планировщик не ставил первый пакет
+    метода после интеграционного пакета его предусловия.
+    """
     created = 0
+    refreshed = 0
     relation_dependencies: dict[str, list[str]] = {}
     from ..models.entities import Conflict
     for relation in db.scalars(select(Conflict).where(
@@ -942,6 +995,7 @@ def sync_work_packages(db: Session) -> int:
     for method in db.scalars(select(Method).where(Method.status == "published")):
         factor = {"low": 1.08, "medium": 1.2, "high": 1.45, "critical": 1.8}.get(method.late_cost, 1.2)
         c = max(1.0, float(method.implementation_cost or 3)); x = max(1.0, float(method.complexity or 3))
+        dependencies = list(relation_dependencies.get(method.code, []))
         packages = [
             ("design", "Проектирование и контракт", "design", 0.45 + c * 0.22, True),
             ("feasibility", "Проверка реализуемости", "engineering", (0.6 + x * 0.35) if method.requires_prototype or x >= 4 else 0.0, True),
@@ -955,21 +1009,25 @@ def sync_work_packages(db: Session) -> int:
             if p50 <= 0:
                 continue
             code = f"{method.code}.{kind}"
-            if db.scalar(select(WorkPackage.id).where(WorkPackage.code == code)):
+            existing = db.scalar(select(WorkPackage).where(WorkPackage.code == code))
+            if existing is not None:
+                if list(existing.dependency_codes or []) != dependencies:
+                    existing.dependency_codes = dependencies
+                    refreshed += 1
                 continue
             db.add(WorkPackage(
                 code=code, method_code=method.code, name=f"{method.name}: {name}",
                 package_type=kind, role=role, min_days=round(p50 * 0.65, 2),
                 p50_days=round(p50, 2), p80_days=round(p50 * 1.5, 2),
                 parallelizable=parallelizable, recommended_stage=method.recommended_stage,
-                late_factor=factor, dependency_codes=relation_dependencies.get(method.code, []),
+                late_factor=factor, dependency_codes=dependencies,
                 basis="expert_estimate", status="published",
             )); created += 1
     for payload in TEAM_RECORDS:
         if not db.scalar(select(TeamScenario.id).where(TeamScenario.code == payload["code"])):
             db.add(TeamScenario(**payload, status="published")); created += 1
     db.flush()
-    return created
+    return created + refreshed
 
 
 def sync_all(db: Session) -> dict[str, int]:
@@ -978,4 +1036,7 @@ def sync_all(db: Session) -> dict[str, int]:
     claims = sync_claims(db, sources)
     graph = sync_nodes_and_edges(db, sources)
     work = sync_work_packages(db)
-    return {"evidence_sources": len(sources), "evidence_claims_created": claims, "case_evidence_created": cases, **graph, "planning_records_created": work}
+    # Ключ называет действие, а не только вставку: `sync_work_packages`
+    # пересчитывает предусловия у существующих пакетов и возвращает сумму
+    # созданных и обновлённых записей.
+    return {"evidence_sources": len(sources), "evidence_claims_created": claims, "case_evidence_created": cases, **graph, "planning_records_synced": work}

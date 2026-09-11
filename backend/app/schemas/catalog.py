@@ -293,6 +293,12 @@ class ImplementationBaseline(BasketRequest):
 
 class RecommendationRequest(BasketRequest):
     baseline: ImplementationBaseline | None = None
+    #: Профиль команды и учёт зависимостей для календаря в снимке отчёта.
+    #: Раньше снимок всегда считался по малой команде с включёнными
+    #: зависимостями, поэтому экспортированный календарь не совпадал с тем,
+    #: который пользователь выбрал на экране расписания.
+    team: Annotated[str, Field(min_length=1, max_length=40)] = "small_2_5"
+    include_dependencies: bool = True
 
 
 class ScheduleRequest(BaseModel):
@@ -381,6 +387,15 @@ class MethodEngineLinkOut(BaseModel):
     evidence_status: str = "unknown"
 
 
+class MethodVariantOut(BaseModel):
+    """Вариант реализации метода: как именно он может быть построен."""
+
+    name: str
+    description: str
+    basis: str
+    evidence: list[str] = Field(default_factory=list)
+
+
 class MethodOut(BaseModel):
     code: str
     name: str
@@ -432,6 +447,13 @@ class MethodOut(BaseModel):
     verification_method: str
     verification_tools: list[str]
     application_steps: list[str] = Field(default_factory=list)
+    # «Варианты реализации» карточки метода: как именно он может быть построен.
+    # Пустой список означает, что вариантов нет в исследовании, а не что поле
+    # забыли перенести: перенос идёт из паков, покрытие проверяется тестом.
+    implementation_variants: list[MethodVariantOut] = Field(default_factory=list)
+    # Что нужно иметь до внедрения. Отдельно от `verification_tools`: те служат
+    # для проверки результата, а не для работы.
+    required_data_and_tools: str = ""
     status: str
     source_title: str
     source_url: str
@@ -446,6 +468,9 @@ class ConflictOut(BaseModel):
     severity: int
     description: str
     resolution: str
+    #: Основание рекомендации: documented / derived / expert_estimate / unknown.
+    #: Без него выведенное решение неотличимо от документированного.
+    basis: str = ""
     source_url: str
 
 
@@ -602,6 +627,8 @@ class BasketConflictOut(BaseModel):
     severity: int
     description: str
     resolution: str
+    #: Основание рекомендации «что делать» (см. `ConflictOut.basis`).
+    basis: str = ""
 
 
 class NonClientMethodOut(BaseModel):
@@ -866,6 +893,8 @@ class DependencyOut(BaseModel):
     source: EvidenceSourceOut | None = None
     description: str
     workaround: str
+    #: Основание обходного пути (см. `ConflictOut.basis`).
+    basis: str = ""
     status: str
 
 
@@ -905,6 +934,7 @@ class WorkPackageOut(BaseModel):
     p80_days: float
     parallelizable: bool
     recommended_stage: str
+    stage_note: str = ""
     late_factor: float
     dependency_codes: list[str] = Field(default_factory=list)
     basis: str
@@ -943,6 +973,9 @@ class ScheduleTaskOut(BaseModel):
     p80_days: float
     parallelizable: bool = True
     recommended_stage: str = "prototype"
+    #: Исходный свободный текст стадии из пакета, если поле было не кодом:
+    #: нормализованный код без него неотличим от кода, заданного явно.
+    stage_note: str = ""
     late_factor: float = 1.0
     #: Основание оценки: экспертное допущение или выведенное значение.
     basis: str = "expert_estimate"
@@ -980,13 +1013,22 @@ class EvidenceSummaryOut(BaseModel):
 class ContributionItem(BaseModel):
     """Вклад одного фактора в результат.
 
-    `delta` — относительное изменение стоимости (доля, не процент). Нулевой
-    вклад означает «фактор учтён, но не изменил стоимость» и не равен
+    `delta` — величина вклада, а `unit` — в чём она измерена. По умолчанию
+    (`unit='доля'`) это относительное изменение стоимости: доля, не процент.
+    Нулевой вклад означает «фактор учтён, но не изменил стоимость» и не равен
     «фактор потерян при расчёте».
+
+    Единица указывается явно там, где вклад не является относительным
+    изменением: проход трассировки и бюджет кадра измеряются в миллисекундах,
+    такт физики — множителем. Раньше поле `delta` было безразмерным, и число
+    без единицы читалось как доля: «+16.667» в интерфейсе не отличить от
+    «+16.667 %», а множитель 1.0 — от «+100 %».
     """
 
     label: str
     delta: float
+    #: Единица измерения `delta`: «доля», «мс» или «×».
+    unit: str = "доля"
     detail: str = ""
 
 

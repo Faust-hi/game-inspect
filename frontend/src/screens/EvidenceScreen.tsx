@@ -7,6 +7,9 @@ import type { Dependency, EvidenceClaim, EvidenceSource, EvidenceSummary, GameCa
 
 type EvidenceTab = 'cases' | 'claims' | 'dependencies' | 'sources';
 
+/** Предел числа строк утверждений в таблице: реестр целиком в DOM не помещается. */
+const CLAIM_ROW_LIMIT = 120;
+
 const TABS = [
   { key: 'cases', label: 'Кейсы' },
   { key: 'claims', label: 'Claims' },
@@ -184,7 +187,15 @@ export function EvidenceScreen() {
         {tab === 'cases' && (visibleCases.length === 0 ? <Empty>Подходящих кейсов не найдено.</Empty> : visibleCases.map(item => <CaseCard key={item.code} item={item} selected={selectedCases.has(item.code)} />))}
         {tab === 'claims' && (
           <div style={{ overflowX: 'auto' }}>
-            <table className="table"><thead><tr><th>Сущность</th><th>Утверждение</th><th>Основание</th><th>Значение</th><th>Источник и локатор</th></tr></thead><tbody>{visibleClaims.slice(0, 120).map(item => <ClaimRow key={item.code} item={item} />)}</tbody></table>
+            {/* Реестр не помещается в DOM целиком; об усечении нужно сообщать,
+                иначе неполный список читается как полный (как в других вкладках). */}
+            {visibleClaims.length > CLAIM_ROW_LIMIT && (
+              <p className="small faint">
+                Показаны первые {CLAIM_ROW_LIMIT} из {visibleClaims.length} утверждений.
+                Уточните поиск, чтобы увидеть остальные.
+              </p>
+            )}
+            <table className="table"><thead><tr><th>Сущность</th><th>Утверждение</th><th>Основание</th><th>Значение</th><th>Источник и локатор</th></tr></thead><tbody>{visibleClaims.slice(0, CLAIM_ROW_LIMIT).map(item => <ClaimRow key={item.code} item={item} />)}</tbody></table>
           </div>
         )}
         {tab === 'dependencies' && (

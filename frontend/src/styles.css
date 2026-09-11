@@ -291,8 +291,24 @@ code {
   color: var(--text-faint);
 }
 
+/* Вторичный блок внутри карточки: происхождение значения, ограничения
+   переноса, факт доказательства. Класс использовался в шести местах, но в
+   таблице стилей отсутствовал, поэтому блоки выводились как обычный текст без
+   рамки и фона и не отделялись от основного содержимого. */
+.subtle-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+/* `input[type='text']` не совпадает с `<input className="input">` без атрибута
+   type: браузер подставляет тип по умолчанию, но селектор атрибута требует
+   явного значения. Из-за этого поля поиска на экранах кейсов и реестра
+   доказательств оставались без рамки и отступов. */
 input[type='text'],
 input[type='number'],
+input.input,
 select,
 textarea {
   font: inherit;
@@ -568,6 +584,23 @@ textarea:focus {
   color: var(--text-muted);
 }
 .reason-list li { margin-bottom: 3px; }
+
+/* Варианты реализации метода: карточка каждого варианта с основанием. */
+.variant-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.variant {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--surface-2);
+}
+.variant-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  justify-content: space-between;
+}
+.variant p { margin: 4px 0 0; }
 
 .kv {
   display: grid;

@@ -105,7 +105,8 @@ def list_conflicts(db: Session = Depends(get_db)):
         ConflictOut(
             a_code=c.a_code, b_code=c.b_code, conflict_type=c.conflict_type,
             conflict_label=_label(ConflictType, c.conflict_type), severity=c.severity,
-            description=c.description, resolution=c.resolution, source_url=c.source_url,
+            description=c.description, resolution=c.resolution,
+            basis=c.basis or "", source_url=c.source_url,
         )
         for c in rows
     ]

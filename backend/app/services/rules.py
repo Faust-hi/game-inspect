@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from collections.abc import Sequence
 
 from ..models.entities import Conflict, Method
-from ..models.enums import DevStage, EffectScope, LateCost, Level3, Scale
+from ..models.enums import DevStage, EffectScope, LateCost, Scale
 from ..schemas.catalog import ProjectProfile
 
 # Порядок стадий для сравнения «раньше / позже».
@@ -66,24 +66,27 @@ class Applicability:
     late_penalty: float = 0.0
 
 
-def _level_value(level: str | None, default: float = 0.55) -> float:
-    if not level:
-        return default
-    try:
-        return Level3(level).numeric
-    except ValueError:
-        return default
-
-
 def stage_pressure(profile_stage: str, method_stage: str) -> float:
-    """Насколько текущая стадия проекта позже рекомендованной для метода (0..1)."""
+    """Насколько текущая стадия проекта позже рекомендованной для метода (0..1).
+
+    Делитель 4 — экспертное допущение: шкала стадий содержит восемь позиций
+    (concept..post_release), и смещение на четыре шага и более считается
+    предельным давлением позднего внедрения. Независимая калибровка не
+    выполнялась; значение заявлено как допущение, а не как измерение.
+    """
     current = STAGE_ORDER.get(profile_stage, 2)
     recommended = STAGE_ORDER.get(method_stage, 2)
     return max(0.0, min(1.0, (current - recommended) / 4.0))
 
 
 def resource_severity(profile: ProjectProfile) -> dict[str, float]:
-    """Насколько критичен дефицит каждого ресурса (0 — не критичен, 1 — критичен)."""
+    """Насколько критичен дефицит каждого ресурса (0 — не критичен, 1 — критичен).
+
+    Веса бюджета и значения по умолчанию — экспертные допущения: измерений
+    чувствительности модели к дефициту ресурса не выполнялось. Неизвестный
+    уровень даёт 0,4 — между «высоким» (0,2) и «средним» (0,5), чтобы
+    отсутствие ответа не читалось как ни тугая, ни свободная смета.
+    """
     mapping = {"low": 1.0, "medium": 0.5, "high": 0.2}
 
     def get(value: str | None) -> float:

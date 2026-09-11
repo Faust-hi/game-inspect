@@ -3,12 +3,12 @@
   "packs": {
     "stats": {
       "packs": 14,
-      "sources": 646,
-      "claims": 1895,
+      "sources": 647,
+      "claims": 1897,
       "game_examples": 600,
       "derived_with_formula": 70,
       "derived_total": 70,
-      "declared_gaps": 27
+      "declared_gaps": 28
     },
     "findings": {
       "url_error": [
@@ -2562,6 +2562,11 @@
         "code": 200,
         "note": ""
       },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/networking-and-multiplayer-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
       "https://docs.godotengine.org/en/stable/tutorials/io/background_loading.html": {
         "status": "ok",
         "code": 200,
@@ -3173,22 +3178,16 @@
         "note": ""
       }
     },
-    "unique_urls": 524
+    "unique_urls": 525
   },
   "db": {
     "counts": {
       "sources": 936,
       "claims": 2564,
-      "unique_urls": 758
+      "unique_urls": 759
     },
     "findings": {
       "declared_gap_claims": [
-        "SRC_TN_009_technology_node_lib:acl_adoption_evidence_gap_3",
-        "SRC_TN_011_technology_node_lib:meshoptimizer_adoption_evidence_gap_3",
-        "SRC_TN_014_technology_node_lib:rvo2_adoption_evidence_gap_3",
-        "SRC_TN_015_technology_node_lib:tracy_adoption_evidence_gap_3",
-        "None_method_neural_texture_compression_adoption_evidence_gap_0",
-        "None_method_temporal_radiance_cache_adoption_evidence_gap_0",
         "NOSRC_method_neural_texture_compression_adoption_evidence_gap_0",
         "NOSRC_method_temporal_radiance_cache_adoption_evidence_gap_0",
         "NOSRC_engine_tool_ue_behavior_tree_adoption_evidence_gap_0",
@@ -3211,7 +3210,12 @@
         "NOSRC_engine_tool_c_memory_adoption_evidence_gap_0",
         "NOSRC_engine_tool_c_streaming_adoption_evidence_gap_0",
         "NOSRC_engine_tool_c_profiler_adoption_evidence_gap_0",
-        "NOSRC_engine_tool_c_manual_adoption_evidence_gap_0"
+        "NOSRC_engine_tool_c_manual_adoption_evidence_gap_0",
+        "SRC_TN_009_technology_node_lib:acl_adoption_evidence_gap_3",
+        "SRC_TN_011_technology_node_lib:meshoptimizer_adoption_evidence_gap_3",
+        "SRC_TN_014_technology_node_lib:rvo2_adoption_evidence_gap_3",
+        "SRC_TN_015_technology_node_lib:tracy_adoption_evidence_gap_3",
+        "NOSRC_engine_tool_ue_networking_adoption_evidence_gap_1"
       ],
       "claim_dangling_source": [],
       "derived_missing_formula_or_inputs": [],
@@ -3220,787 +3224,772 @@
       "work_package_p80_lt_p50": [],
       "dependency_edge_without_source": [
         {
-          "id": 4,
+          "id": 11,
           "source_node_id": 1,
-          "target_node_id": 197
+          "target_node_id": 200
         },
         {
-          "id": 6,
+          "id": 13,
           "source_node_id": 2,
-          "target_node_id": 182
-        },
-        {
-          "id": 10,
-          "source_node_id": 3,
-          "target_node_id": 188
-        },
-        {
-          "id": 14,
-          "source_node_id": 4,
-          "target_node_id": 180
-        },
-        {
-          "id": 21,
-          "source_node_id": 6,
-          "target_node_id": 188
-        },
-        {
-          "id": 22,
-          "source_node_id": 6,
-          "target_node_id": 197
-        },
-        {
-          "id": 26,
-          "source_node_id": 7,
-          "target_node_id": 180
-        },
-        {
-          "id": 36,
-          "source_node_id": 11,
-          "target_node_id": 180
-        },
-        {
-          "id": 37,
-          "source_node_id": 11,
           "target_node_id": 185
         },
         {
-          "id": 50,
-          "source_node_id": 15,
-          "target_node_id": 186
+          "id": 17,
+          "source_node_id": 3,
+          "target_node_id": 191
         },
         {
-          "id": 60,
-          "source_node_id": 18,
-          "target_node_id": 180
-        },
-        {
-          "id": 66,
-          "source_node_id": 20,
-          "target_node_id": 180
-        },
-        {
-          "id": 79,
-          "source_node_id": 24,
-          "target_node_id": 180
-        },
-        {
-          "id": 80,
-          "source_node_id": 24,
-          "target_node_id": 186
-        },
-        {
-          "id": 82,
-          "source_node_id": 25,
-          "target_node_id": 180
-        },
-        {
-          "id": 89,
-          "source_node_id": 27,
-          "target_node_id": 180
-        },
-        {
-          "id": 93,
-          "source_node_id": 28,
-          "target_node_id": 180
-        },
-        {
-          "id": 100,
-          "source_node_id": 30,
-          "target_node_id": 181
-        },
-        {
-          "id": 107,
-          "source_node_id": 32,
-          "target_node_id": 178
-        },
-        {
-          "id": 108,
-          "source_node_id": 32,
-          "target_node_id": 190
-        },
-        {
-          "id": 112,
-          "source_node_id": 33,
-          "target_node_id": 178
-        },
-        {
-          "id": 113,
-          "source_node_id": 33,
-          "target_node_id": 190
-        },
-        {
-          "id": 117,
-          "source_node_id": 34,
-          "target_node_id": 178
-        },
-        {
-          "id": 121,
-          "source_node_id": 35,
-          "target_node_id": 179
-        },
-        {
-          "id": 122,
-          "source_node_id": 35,
-          "target_node_id": 190
-        },
-        {
-          "id": 125,
-          "source_node_id": 36,
-          "target_node_id": 180
-        },
-        {
-          "id": 132,
-          "source_node_id": 38,
-          "target_node_id": 178
-        },
-        {
-          "id": 137,
-          "source_node_id": 40,
-          "target_node_id": 179
-        },
-        {
-          "id": 141,
-          "source_node_id": 41,
-          "target_node_id": 180
-        },
-        {
-          "id": 145,
-          "source_node_id": 42,
-          "target_node_id": 178
-        },
-        {
-          "id": 152,
-          "source_node_id": 44,
-          "target_node_id": 178
-        },
-        {
-          "id": 156,
-          "source_node_id": 45,
-          "target_node_id": 179
-        },
-        {
-          "id": 160,
-          "source_node_id": 46,
-          "target_node_id": 180
-        },
-        {
-          "id": 164,
-          "source_node_id": 47,
-          "target_node_id": 180
-        },
-        {
-          "id": 168,
-          "source_node_id": 48,
-          "target_node_id": 180
-        },
-        {
-          "id": 172,
-          "source_node_id": 49,
-          "target_node_id": 180
-        },
-        {
-          "id": 173,
-          "source_node_id": 49,
-          "target_node_id": 187
-        },
-        {
-          "id": 180,
-          "source_node_id": 51,
-          "target_node_id": 180
-        },
-        {
-          "id": 184,
-          "source_node_id": 52,
-          "target_node_id": 180
-        },
-        {
-          "id": 190,
-          "source_node_id": 54,
-          "target_node_id": 192
-        },
-        {
-          "id": 191,
-          "source_node_id": 54,
-          "target_node_id": 197
-        },
-        {
-          "id": 194,
-          "source_node_id": 55,
-          "target_node_id": 192
-        },
-        {
-          "id": 195,
-          "source_node_id": 55,
-          "target_node_id": 196
-        },
-        {
-          "id": 199,
-          "source_node_id": 56,
-          "target_node_id": 192
-        },
-        {
-          "id": 202,
-          "source_node_id": 57,
-          "target_node_id": 184
-        },
-        {
-          "id": 203,
-          "source_node_id": 57,
-          "target_node_id": 192
-        },
-        {
-          "id": 204,
-          "source_node_id": 57,
-          "target_node_id": 196
-        },
-        {
-          "id": 208,
-          "source_node_id": 58,
-          "target_node_id": 180
-        },
-        {
-          "id": 218,
-          "source_node_id": 62,
-          "target_node_id": 180
-        },
-        {
-          "id": 229,
-          "source_node_id": 66,
-          "target_node_id": 180
-        },
-        {
-          "id": 235,
-          "source_node_id": 68,
-          "target_node_id": 180
-        },
-        {
-          "id": 239,
-          "source_node_id": 69,
-          "target_node_id": 180
-        },
-        {
-          "id": 243,
-          "source_node_id": 81,
-          "target_node_id": 181
-        },
-        {
-          "id": 246,
-          "source_node_id": 82,
-          "target_node_id": 184
-        },
-        {
-          "id": 250,
-          "source_node_id": 83,
-          "target_node_id": 184
-        },
-        {
-          "id": 254,
-          "source_node_id": 84,
-          "target_node_id": 184
-        },
-        {
-          "id": 258,
-          "source_node_id": 85,
-          "target_node_id": 182
-        },
-        {
-          "id": 262,
-          "source_node_id": 86,
-          "target_node_id": 182
-        },
-        {
-          "id": 266,
-          "source_node_id": 87,
-          "target_node_id": 184
-        },
-        {
-          "id": 270,
-          "source_node_id": 88,
-          "target_node_id": 179
-        },
-        {
-          "id": 273,
-          "source_node_id": 89,
-          "target_node_id": 184
-        },
-        {
-          "id": 275,
-          "source_node_id": 90,
-          "target_node_id": 180
-        },
-        {
-          "id": 278,
-          "source_node_id": 91,
-          "target_node_id": 180
-        },
-        {
-          "id": 280,
-          "source_node_id": 72,
+          "id": 21,
+          "source_node_id": 4,
           "target_node_id": 183
         },
         {
-          "id": 281,
-          "source_node_id": 92,
+          "id": 28,
+          "source_node_id": 6,
+          "target_node_id": 191
+        },
+        {
+          "id": 29,
+          "source_node_id": 6,
+          "target_node_id": 200
+        },
+        {
+          "id": 33,
+          "source_node_id": 7,
+          "target_node_id": 183
+        },
+        {
+          "id": 43,
+          "source_node_id": 11,
+          "target_node_id": 183
+        },
+        {
+          "id": 44,
+          "source_node_id": 11,
+          "target_node_id": 188
+        },
+        {
+          "id": 57,
+          "source_node_id": 15,
+          "target_node_id": 189
+        },
+        {
+          "id": 67,
+          "source_node_id": 18,
+          "target_node_id": 183
+        },
+        {
+          "id": 73,
+          "source_node_id": 20,
+          "target_node_id": 183
+        },
+        {
+          "id": 86,
+          "source_node_id": 24,
+          "target_node_id": 183
+        },
+        {
+          "id": 87,
+          "source_node_id": 24,
+          "target_node_id": 189
+        },
+        {
+          "id": 89,
+          "source_node_id": 25,
+          "target_node_id": 183
+        },
+        {
+          "id": 96,
+          "source_node_id": 27,
+          "target_node_id": 183
+        },
+        {
+          "id": 100,
+          "source_node_id": 28,
+          "target_node_id": 183
+        },
+        {
+          "id": 107,
+          "source_node_id": 30,
           "target_node_id": 184
         },
         {
+          "id": 114,
+          "source_node_id": 32,
+          "target_node_id": 181
+        },
+        {
+          "id": 115,
+          "source_node_id": 32,
+          "target_node_id": 193
+        },
+        {
+          "id": 119,
+          "source_node_id": 33,
+          "target_node_id": 181
+        },
+        {
+          "id": 120,
+          "source_node_id": 33,
+          "target_node_id": 193
+        },
+        {
+          "id": 124,
+          "source_node_id": 34,
+          "target_node_id": 181
+        },
+        {
+          "id": 128,
+          "source_node_id": 35,
+          "target_node_id": 182
+        },
+        {
+          "id": 129,
+          "source_node_id": 35,
+          "target_node_id": 193
+        },
+        {
+          "id": 132,
+          "source_node_id": 36,
+          "target_node_id": 183
+        },
+        {
+          "id": 139,
+          "source_node_id": 38,
+          "target_node_id": 181
+        },
+        {
+          "id": 144,
+          "source_node_id": 40,
+          "target_node_id": 182
+        },
+        {
+          "id": 148,
+          "source_node_id": 41,
+          "target_node_id": 183
+        },
+        {
+          "id": 152,
+          "source_node_id": 42,
+          "target_node_id": 181
+        },
+        {
+          "id": 159,
+          "source_node_id": 44,
+          "target_node_id": 181
+        },
+        {
+          "id": 163,
+          "source_node_id": 45,
+          "target_node_id": 182
+        },
+        {
+          "id": 167,
+          "source_node_id": 46,
+          "target_node_id": 183
+        },
+        {
+          "id": 171,
+          "source_node_id": 47,
+          "target_node_id": 183
+        },
+        {
+          "id": 175,
+          "source_node_id": 48,
+          "target_node_id": 183
+        },
+        {
+          "id": 179,
+          "source_node_id": 49,
+          "target_node_id": 183
+        },
+        {
+          "id": 180,
+          "source_node_id": 49,
+          "target_node_id": 190
+        },
+        {
+          "id": 187,
+          "source_node_id": 51,
+          "target_node_id": 183
+        },
+        {
+          "id": 191,
+          "source_node_id": 52,
+          "target_node_id": 183
+        },
+        {
+          "id": 197,
+          "source_node_id": 54,
+          "target_node_id": 195
+        },
+        {
+          "id": 198,
+          "source_node_id": 54,
+          "target_node_id": 200
+        },
+        {
+          "id": 201,
+          "source_node_id": 55,
+          "target_node_id": 195
+        },
+        {
+          "id": 202,
+          "source_node_id": 55,
+          "target_node_id": 199
+        },
+        {
+          "id": 206,
+          "source_node_id": 56,
+          "target_node_id": 195
+        },
+        {
+          "id": 209,
+          "source_node_id": 57,
+          "target_node_id": 187
+        },
+        {
+          "id": 210,
+          "source_node_id": 57,
+          "target_node_id": 195
+        },
+        {
+          "id": 211,
+          "source_node_id": 57,
+          "target_node_id": 199
+        },
+        {
+          "id": 215,
+          "source_node_id": 58,
+          "target_node_id": 183
+        },
+        {
+          "id": 225,
+          "source_node_id": 62,
+          "target_node_id": 183
+        },
+        {
+          "id": 236,
+          "source_node_id": 66,
+          "target_node_id": 183
+        },
+        {
+          "id": 242,
+          "source_node_id": 68,
+          "target_node_id": 183
+        },
+        {
+          "id": 246,
+          "source_node_id": 69,
+          "target_node_id": 183
+        },
+        {
+          "id": 250,
+          "source_node_id": 81,
+          "target_node_id": 184
+        },
+        {
+          "id": 253,
+          "source_node_id": 82,
+          "target_node_id": 187
+        },
+        {
+          "id": 257,
+          "source_node_id": 83,
+          "target_node_id": 187
+        },
+        {
+          "id": 261,
+          "source_node_id": 84,
+          "target_node_id": 187
+        },
+        {
+          "id": 265,
+          "source_node_id": 85,
+          "target_node_id": 185
+        },
+        {
+          "id": 269,
+          "source_node_id": 86,
+          "target_node_id": 185
+        },
+        {
+          "id": 273,
+          "source_node_id": 87,
+          "target_node_id": 187
+        },
+        {
+          "id": 277,
+          "source_node_id": 88,
+          "target_node_id": 182
+        },
+        {
+          "id": 280,
+          "source_node_id": 89,
+          "target_node_id": 187
+        },
+        {
+          "id": 282,
+          "source_node_id": 90,
+          "target_node_id": 183
+        },
+        {
           "id": 285,
-          "source_node_id": 93,
+          "source_node_id": 91,
           "target_node_id": 183
         },
         {
           "id": 287,
+          "source_node_id": 72,
+          "target_node_id": 186
+        },
+        {
+          "id": 288,
+          "source_node_id": 92,
+          "target_node_id": 187
+        },
+        {
+          "id": 292,
+          "source_node_id": 93,
+          "target_node_id": 186
+        },
+        {
+          "id": 294,
           "source_node_id": 94,
-          "target_node_id": 180
-        },
-        {
-          "id": 291,
-          "source_node_id": 95,
-          "target_node_id": 184
-        },
-        {
-          "id": 295,
-          "source_node_id": 70,
-          "target_node_id": 180
-        },
-        {
-          "id": 299,
-          "source_node_id": 71,
           "target_node_id": 183
         },
         {
-          "id": 300,
-          "source_node_id": 71,
-          "target_node_id": 194
+          "id": 298,
+          "source_node_id": 95,
+          "target_node_id": 187
         },
         {
           "id": 301,
-          "source_node_id": 73,
-          "target_node_id": 189
-        },
-        {
-          "id": 305,
-          "source_node_id": 74,
-          "target_node_id": 182
-        },
-        {
-          "id": 306,
-          "source_node_id": 75,
-          "target_node_id": 192
-        },
-        {
-          "id": 309,
-          "source_node_id": 75,
-          "target_node_id": 196
-        },
-        {
-          "id": 314,
-          "source_node_id": 77,
+          "source_node_id": 96,
           "target_node_id": 183
         },
         {
-          "id": 315,
-          "source_node_id": 77,
-          "target_node_id": 194
+          "id": 304,
+          "source_node_id": 97,
+          "target_node_id": 183
         },
         {
-          "id": 319,
-          "source_node_id": 78,
-          "target_node_id": 180
+          "id": 307,
+          "source_node_id": 98,
+          "target_node_id": 183
+        },
+        {
+          "id": 310,
+          "source_node_id": 99,
+          "target_node_id": 183
+        },
+        {
+          "id": 314,
+          "source_node_id": 100,
+          "target_node_id": 187
+        },
+        {
+          "id": 318,
+          "source_node_id": 101,
+          "target_node_id": 187
         },
         {
           "id": 320,
-          "source_node_id": 79,
-          "target_node_id": 192
+          "source_node_id": 102,
+          "target_node_id": 183
         },
         {
           "id": 323,
-          "source_node_id": 79,
-          "target_node_id": 196
-        },
-        {
-          "id": 324,
-          "source_node_id": 80,
-          "target_node_id": 180
+          "source_node_id": 103,
+          "target_node_id": 183
         },
         {
           "id": 327,
-          "source_node_id": 80,
-          "target_node_id": 193
-        },
-        {
-          "id": 330,
-          "source_node_id": 96,
-          "target_node_id": 180
-        },
-        {
-          "id": 333,
-          "source_node_id": 97,
-          "target_node_id": 180
-        },
-        {
-          "id": 336,
-          "source_node_id": 98,
-          "target_node_id": 180
-        },
-        {
-          "id": 339,
-          "source_node_id": 99,
-          "target_node_id": 180
-        },
-        {
-          "id": 343,
-          "source_node_id": 100,
-          "target_node_id": 184
-        },
-        {
-          "id": 347,
-          "source_node_id": 101,
-          "target_node_id": 184
-        },
-        {
-          "id": 349,
-          "source_node_id": 102,
-          "target_node_id": 180
-        },
-        {
-          "id": 352,
-          "source_node_id": 103,
-          "target_node_id": 180
-        },
-        {
-          "id": 356,
           "source_node_id": 104,
+          "target_node_id": 185
+        },
+        {
+          "id": 331,
+          "source_node_id": 105,
+          "target_node_id": 181
+        },
+        {
+          "id": 334,
+          "source_node_id": 106,
           "target_node_id": 182
         },
         {
-          "id": 360,
-          "source_node_id": 105,
-          "target_node_id": 178
+          "id": 338,
+          "source_node_id": 107,
+          "target_node_id": 187
         },
         {
-          "id": 363,
-          "source_node_id": 106,
-          "target_node_id": 179
+          "id": 339,
+          "source_node_id": 108,
+          "target_node_id": 151
+        },
+        {
+          "id": 341,
+          "source_node_id": 108,
+          "target_node_id": 187
+        },
+        {
+          "id": 342,
+          "source_node_id": 109,
+          "target_node_id": 151
+        },
+        {
+          "id": 345,
+          "source_node_id": 109,
+          "target_node_id": 181
+        },
+        {
+          "id": 349,
+          "source_node_id": 110,
+          "target_node_id": 182
+        },
+        {
+          "id": 352,
+          "source_node_id": 111,
+          "target_node_id": 187
+        },
+        {
+          "id": 356,
+          "source_node_id": 70,
+          "target_node_id": 183
+        },
+        {
+          "id": 360,
+          "source_node_id": 71,
+          "target_node_id": 186
+        },
+        {
+          "id": 361,
+          "source_node_id": 71,
+          "target_node_id": 197
+        },
+        {
+          "id": 362,
+          "source_node_id": 73,
+          "target_node_id": 192
+        },
+        {
+          "id": 366,
+          "source_node_id": 74,
+          "target_node_id": 185
         },
         {
           "id": 367,
-          "source_node_id": 107,
-          "target_node_id": 184
-        },
-        {
-          "id": 368,
-          "source_node_id": 108,
-          "target_node_id": 201
+          "source_node_id": 75,
+          "target_node_id": 195
         },
         {
           "id": 370,
-          "source_node_id": 108,
-          "target_node_id": 184
-        },
-        {
-          "id": 371,
-          "source_node_id": 109,
-          "target_node_id": 201
-        },
-        {
-          "id": 374,
-          "source_node_id": 109,
-          "target_node_id": 178
+          "source_node_id": 75,
+          "target_node_id": 199
         },
         {
           "id": 375,
-          "source_node_id": 110,
-          "target_node_id": 200
+          "source_node_id": 77,
+          "target_node_id": 186
         },
         {
-          "id": 378,
-          "source_node_id": 110,
-          "target_node_id": 179
+          "id": 376,
+          "source_node_id": 77,
+          "target_node_id": 197
         },
         {
-          "id": 379,
-          "source_node_id": 111,
-          "target_node_id": 200
+          "id": 380,
+          "source_node_id": 78,
+          "target_node_id": 183
         },
         {
           "id": 381,
-          "source_node_id": 111,
-          "target_node_id": 184
+          "source_node_id": 79,
+          "target_node_id": 195
         },
         {
-          "id": 428,
-          "source_node_id": 178,
-          "target_node_id": 128
+          "id": 384,
+          "source_node_id": 79,
+          "target_node_id": 199
         },
         {
-          "id": 429,
-          "source_node_id": 179,
-          "target_node_id": 128
+          "id": 385,
+          "source_node_id": 80,
+          "target_node_id": 183
         },
         {
-          "id": 430,
-          "source_node_id": 180,
-          "target_node_id": 128
+          "id": 388,
+          "source_node_id": 80,
+          "target_node_id": 196
         },
         {
-          "id": 431,
+          "id": 408,
+          "source_node_id": 151,
+          "target_node_id": 125
+        },
+        {
+          "id": 438,
           "source_node_id": 181,
           "target_node_id": 128
         },
         {
-          "id": 432,
+          "id": 439,
           "source_node_id": 182,
           "target_node_id": 128
         },
         {
-          "id": 433,
+          "id": 440,
           "source_node_id": 183,
           "target_node_id": 128
         },
         {
-          "id": 434,
+          "id": 441,
           "source_node_id": 184,
           "target_node_id": 128
         },
         {
-          "id": 435,
+          "id": 442,
           "source_node_id": 185,
-          "target_node_id": 129
+          "target_node_id": 128
         },
         {
-          "id": 436,
+          "id": 443,
           "source_node_id": 186,
-          "target_node_id": 129
+          "target_node_id": 128
         },
         {
-          "id": 437,
+          "id": 444,
           "source_node_id": 187,
-          "target_node_id": 129
+          "target_node_id": 128
         },
         {
-          "id": 438,
+          "id": 445,
           "source_node_id": 188,
           "target_node_id": 129
         },
         {
-          "id": 439,
+          "id": 446,
           "source_node_id": 189,
           "target_node_id": 129
         },
         {
-          "id": 440,
+          "id": 447,
           "source_node_id": 190,
-          "target_node_id": 130
+          "target_node_id": 129
         },
         {
-          "id": 441,
+          "id": 448,
           "source_node_id": 191,
-          "target_node_id": 130
+          "target_node_id": 129
         },
         {
-          "id": 442,
+          "id": 449,
           "source_node_id": 192,
-          "target_node_id": 130
+          "target_node_id": 129
         },
         {
-          "id": 443,
+          "id": 450,
           "source_node_id": 193,
           "target_node_id": 130
         },
         {
-          "id": 444,
+          "id": 451,
           "source_node_id": 194,
           "target_node_id": 130
         },
         {
-          "id": 445,
+          "id": 452,
           "source_node_id": 195,
-          "target_node_id": 131
+          "target_node_id": 130
         },
         {
-          "id": 446,
+          "id": 453,
           "source_node_id": 196,
-          "target_node_id": 131
+          "target_node_id": 130
         },
         {
-          "id": 447,
+          "id": 454,
           "source_node_id": 197,
-          "target_node_id": 131
+          "target_node_id": 130
         },
         {
-          "id": 448,
+          "id": 455,
           "source_node_id": 198,
           "target_node_id": 131
         },
         {
-          "id": 450,
+          "id": 456,
+          "source_node_id": 199,
+          "target_node_id": 131
+        },
+        {
+          "id": 457,
           "source_node_id": 200,
-          "target_node_id": 125
+          "target_node_id": 131
         },
         {
-          "id": 451,
+          "id": 458,
           "source_node_id": 201,
-          "target_node_id": 125
+          "target_node_id": 131
         },
         {
-          "id": 466,
-          "source_node_id": 184,
+          "id": 470,
+          "source_node_id": 187,
           "target_node_id": 216
         },
         {
-          "id": 467,
-          "source_node_id": 183,
+          "id": 471,
+          "source_node_id": 186,
           "target_node_id": 218
         },
         {
-          "id": 640,
+          "id": 615,
           "source_node_id": 38,
           "target_node_id": 36
         },
         {
-          "id": 646,
+          "id": 620,
           "source_node_id": 39,
           "target_node_id": 38
         },
         {
-          "id": 690,
+          "id": 655,
           "source_node_id": 55,
           "target_node_id": 57
         },
         {
-          "id": 696,
+          "id": 660,
           "source_node_id": 56,
           "target_node_id": 54
         },
         {
-          "id": 717,
+          "id": 675,
           "source_node_id": 121,
           "target_node_id": 55
         },
         {
-          "id": 722,
+          "id": 679,
           "source_node_id": 122,
           "target_node_id": 55
         },
         {
-          "id": 723,
+          "id": 680,
           "source_node_id": 122,
           "target_node_id": 54
         },
         {
-          "id": 746,
+          "id": 694,
           "source_node_id": 72,
           "target_node_id": 79
         },
         {
-          "id": 753,
+          "id": 700,
           "source_node_id": 20,
           "target_node_id": 52
         },
         {
-          "id": 754,
+          "id": 701,
           "source_node_id": 20,
           "target_node_id": 50
         },
         {
-          "id": 755,
+          "id": 702,
           "source_node_id": 20,
           "target_node_id": 98
         },
         {
-          "id": 760,
+          "id": 706,
           "source_node_id": 15,
           "target_node_id": 20
         },
         {
-          "id": 765,
+          "id": 711,
           "source_node_id": 18,
           "target_node_id": 52
         },
         {
-          "id": 766,
+          "id": 712,
           "source_node_id": 18,
           "target_node_id": 50
         },
         {
-          "id": 771,
+          "id": 716,
           "source_node_id": 16,
           "target_node_id": 21
         },
         {
-          "id": 776,
+          "id": 720,
           "source_node_id": 19,
           "target_node_id": 20
         },
         {
-          "id": 777,
+          "id": 721,
           "source_node_id": 19,
           "target_node_id": 52
         },
         {
-          "id": 782,
+          "id": 725,
           "source_node_id": 17,
           "target_node_id": 52
         },
         {
-          "id": 790,
+          "id": 732,
           "source_node_id": 101,
           "target_node_id": 100
         },
         {
-          "id": 802,
+          "id": 740,
           "source_node_id": 26,
           "target_node_id": 15
         },
         {
-          "id": 806,
+          "id": 744,
           "source_node_id": 27,
           "target_node_id": 52
         },
         {
-          "id": 827,
+          "id": 761,
           "source_node_id": 48,
           "target_node_id": 52
         },
         {
-          "id": 831,
+          "id": 764,
           "source_node_id": 49,
           "target_node_id": 48
         },
         {
-          "id": 843,
+          "id": 774,
           "source_node_id": 96,
           "target_node_id": 98
         },
         {
-          "id": 844,
+          "id": 775,
           "source_node_id": 96,
           "target_node_id": 50
         },
         {
-          "id": 857,
+          "id": 788,
           "source_node_id": 51,
           "target_node_id": 50
         },
         {
-          "id": 874,
+          "id": 803,
           "source_node_id": 53,
           "target_node_id": 52
         },
         {
-          "id": 879,
+          "id": 806,
           "source_node_id": 77,
           "target_node_id": 50
         },
         {
-          "id": 948,
+          "id": 863,
           "source_node_id": 4,
           "target_node_id": 81
         },
         {
-          "id": 977,
+          "id": 888,
           "source_node_id": 10,
           "target_node_id": 81
         }
@@ -4266,22 +4255,28 @@
           "id": 363
         },
         {
-          "id": 370
+          "id": 367
         },
         {
-          "id": 374
+          "id": 371
         },
         {
-          "id": 381
+          "id": 375
         },
         {
-          "id": 385
+          "id": 379
         },
         {
-          "id": 390
+          "id": 383
         },
         {
-          "id": 394
+          "id": 387
+        },
+        {
+          "id": 391
+        },
+        {
+          "id": 395
         },
         {
           "id": 399
@@ -4290,31 +4285,28 @@
           "id": 403
         },
         {
-          "id": 405
+          "id": 407
         },
         {
-          "id": 413
+          "id": 411
         },
         {
-          "id": 417
+          "id": 415
         },
         {
-          "id": 421
+          "id": 419
         },
         {
-          "id": 425
+          "id": 423
         },
         {
-          "id": 429
+          "id": 427
         },
         {
-          "id": 433
+          "id": 434
         },
         {
-          "id": 437
-        },
-        {
-          "id": 441
+          "id": 438
         },
         {
           "id": 445
@@ -4323,25 +4315,30 @@
           "id": 449
         },
         {
-          "id": 453
+          "id": 454
         },
         {
-          "id": 457
+          "id": 458
         },
         {
-          "id": 461
+          "id": 463
         },
         {
-          "id": 465
+          "id": 467
         },
         {
           "id": 469
-        },
-        {
-          "id": 473
         }
       ],
       "source_without_published_date": [],
+      "url_dead": [
+        {
+          "owner": "source:DF_ITTakesTWO",
+          "url": "https://www.digitalfoundry.net/articles/digitalfoundry-2021-it-takes-two-tech-analysis",
+          "note": "not found",
+          "code": 404
+        }
+      ],
       "url_error": [
         {
           "owner": "source:KHRONOS_ASYNC_COMPUTE",
@@ -4354,17 +4351,17 @@
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:48",
+          "owner": "conflict:36",
           "url": "https://docs.vulkan.org/samples/latest/samples/performance/async_compute/README.html",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:49",
+          "owner": "conflict:37",
           "url": "https://docs.vulkan.org/samples/latest/samples/performance/async_compute/README.html",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:438",
+          "owner": "conflict:344",
           "url": "https://docs.vulkan.org/samples/latest/samples/performance/async_compute/README.html",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
@@ -4379,22 +4376,17 @@
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:471",
+          "owner": "conflict:368",
           "url": "https://microsoft.github.io/DirectX-Specs/d3d/MeshShader.html",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:475",
+          "owner": "conflict:372",
           "url": "https://microsoft.github.io/DirectX-Specs/d3d/MeshShader.html",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
           "owner": "source:MS_VRS",
-          "url": "https://microsoft.github.io/DirectX-Specs/d3d/VariableRateShading.html",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:421",
           "url": "https://microsoft.github.io/DirectX-Specs/d3d/VariableRateShading.html",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
@@ -4419,22 +4411,17 @@
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:61",
+          "owner": "conflict:49",
           "url": "https://recastnav.com/",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:65",
+          "owner": "conflict:113",
           "url": "https://recastnav.com/",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:147",
-          "url": "https://recastnav.com/",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:151",
+          "owner": "conflict:115",
           "url": "https://recastnav.com/",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
@@ -4444,88 +4431,8 @@
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:122",
+          "owner": "conflict:93",
           "url": "https://nvidia-omniverse.github.io/PhysX/physx/5.6.1/_api_build/structPxBroadPhaseType.html",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:134",
-          "url": "https://nvidia-omniverse.github.io/PhysX/physx/5.6.1/_api_build/structPxBroadPhaseType.html",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "source:SRC-RND-015",
-          "url": "https://docs.vulkan.org/guide/latest/extensions/ray_tracing.html",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "source:SRC-RND-016",
-          "url": "https://docs.vulkan.org/features/latest/features/proposals/VK_EXT_mesh_shader.html",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:468",
-          "url": "https://docs.vulkan.org/features/latest/features/proposals/VK_EXT_mesh_shader.html",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:472",
-          "url": "https://docs.vulkan.org/features/latest/features/proposals/VK_EXT_mesh_shader.html",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:600",
-          "url": "https://docs.vulkan.org/features/latest/features/proposals/VK_EXT_mesh_shader.html",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "source:SRC-RND-023",
-          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "source:SRC-FUNC-064",
-          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "source:SRC-MPR-003",
-          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:388",
-          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:400",
-          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:423",
-          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:444",
-          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:456",
-          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:470",
-          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "source:SRC-RND-047",
-          "url": "https://microsoft.github.io/DirectX-Specs/d3d/HLSL_SM_6_6_DynamicResources.html",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
@@ -4539,6 +4446,41 @@
           "note": "_ssl.c:1015: The handshake operation timed out"
         },
         {
+          "owner": "source:SRC-FUNC-064",
+          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
+          "note": "Tunnel connection failed: 502 Bad Gateway"
+        },
+        {
+          "owner": "source:SRC-MPR-003",
+          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
+          "note": "Tunnel connection failed: 502 Bad Gateway"
+        },
+        {
+          "owner": "source:SRC-RND-023",
+          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
+          "note": "Tunnel connection failed: 502 Bad Gateway"
+        },
+        {
+          "owner": "conflict:301",
+          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
+          "note": "Tunnel connection failed: 502 Bad Gateway"
+        },
+        {
+          "owner": "conflict:313",
+          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
+          "note": "Tunnel connection failed: 502 Bad Gateway"
+        },
+        {
+          "owner": "conflict:348",
+          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
+          "note": "Tunnel connection failed: 502 Bad Gateway"
+        },
+        {
+          "owner": "conflict:357",
+          "url": "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine",
+          "note": "Tunnel connection failed: 502 Bad Gateway"
+        },
+        {
           "owner": "source:SRC-NTA-010",
           "url": "https://radwan92.github.io/assets/pdfs/Fast-Paced%20Multiplayer%20-%20Gabriel%20Gambetta.pdf",
           "note": "Tunnel connection failed: 502 Bad Gateway"
@@ -4549,27 +4491,17 @@
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:271",
+          "owner": "conflict:210",
           "url": "https://valvesoftware.github.io/steam-audio/doc/capi/guide.html",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:276",
+          "owner": "conflict:215",
           "url": "https://valvesoftware.github.io/steam-audio/doc/capi/guide.html",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:279",
-          "url": "https://valvesoftware.github.io/steam-audio/doc/capi/guide.html",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:290",
-          "url": "https://valvesoftware.github.io/steam-audio/doc/capi/guide.html",
-          "note": "Tunnel connection failed: 502 Bad Gateway"
-        },
-        {
-          "owner": "conflict:291",
+          "owner": "conflict:218",
           "url": "https://valvesoftware.github.io/steam-audio/doc/capi/guide.html",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
@@ -4584,13 +4516,33 @@
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:234",
+          "owner": "conflict:181",
           "url": "https://zzzremake.github.io/site/blog/translate-overwatch-architecture-netcode/",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
-          "owner": "conflict:250",
-          "url": "https://zzzremake.github.io/site/blog/translate-overwatch-architecture-netcode/",
+          "owner": "source:SRC-RND-015",
+          "url": "https://docs.vulkan.org/guide/latest/extensions/ray_tracing.html",
+          "note": "Tunnel connection failed: 502 Bad Gateway"
+        },
+        {
+          "owner": "source:SRC-RND-016",
+          "url": "https://docs.vulkan.org/features/latest/features/proposals/VK_EXT_mesh_shader.html",
+          "note": "Tunnel connection failed: 502 Bad Gateway"
+        },
+        {
+          "owner": "conflict:367",
+          "url": "https://docs.vulkan.org/features/latest/features/proposals/VK_EXT_mesh_shader.html",
+          "note": "Tunnel connection failed: 502 Bad Gateway"
+        },
+        {
+          "owner": "conflict:369",
+          "url": "https://docs.vulkan.org/features/latest/features/proposals/VK_EXT_mesh_shader.html",
+          "note": "Tunnel connection failed: 502 Bad Gateway"
+        },
+        {
+          "owner": "source:SRC-RND-047",
+          "url": "https://microsoft.github.io/DirectX-Specs/d3d/HLSL_SM_6_6_DynamicResources.html",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         },
         {
@@ -4638,6 +4590,158 @@
           "url": "https://web.archive.org/web/2014/http://www.heroengine.com/herocloud/tech-features/",
           "note": "Tunnel connection failed: 502 Bad Gateway"
         }
+      ],
+      "url_declared": [
+        {
+          "owner": "conflict:144",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:149",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:184",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:189",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:204",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:208",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:209",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:223",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:229",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:230",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:231",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:235",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:240",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:241",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:245",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:249",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:250",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:254",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:261",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:269",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:273",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:290",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:293",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:303",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:304",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:317",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:332",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:335",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:392",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        },
+        {
+          "owner": "conflict:417",
+          "url": "user_defined:catalog_dependency",
+          "note": "объявленное отсутствие ссылки, не адрес"
+        }
       ]
     },
     "url_results": {
@@ -4676,10 +4780,10 @@
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/it_takes_two_(video_game)": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
+      "https://www.digitalfoundry.net/articles/digitalfoundry-2021-it-takes-two-tech-analysis": {
+        "status": "dead",
+        "code": 404,
+        "note": "not found"
       },
       "https://advances.realtimerendering.com/s2020/renderingdoometernal.pdf": {
         "status": "ok",
@@ -4866,7 +4970,7 @@
         "code": 403,
         "note": "bot-protected / auth wall"
       },
-      "https://www.pmi.org/-/media/pmi/documents/public/pdf/pmbok-standards/errata-sheet-qas-6th.pdf": {
+      "https://www.pmi.org/-/media/pmi/documents/public/pdf/certifications/practice-standard-scheduling.pdf?v=c7ca2721-8c26-4e07-ba47-069d0987bc0c": {
         "status": "ok",
         "code": 200,
         "note": ""
@@ -4886,7 +4990,7 @@
         "code": 200,
         "note": ""
       },
-      "https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_feature": {
+      "https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-checkfeaturesupport": {
         "status": "ok",
         "code": 200,
         "note": ""
@@ -4971,7 +5075,7 @@
         "code": 200,
         "note": ""
       },
-      "https://technology.riotgames.com/news/valorants-128-tick-servers": {
+      "https://www.riotgames.com/en/news/valorants-128-tick-servers": {
         "status": "ok",
         "code": 200,
         "note": ""
@@ -5226,7 +5330,7 @@
         "code": 200,
         "note": ""
       },
-      "https://docs.unity3d.com/manual/shader-loading.html": {
+      "https://docs.unity3d.com/6000.0/documentation/manual/shader-loading.html": {
         "status": "ok",
         "code": 200,
         "note": ""
@@ -6081,11 +6185,6 @@
         "code": 200,
         "note": ""
       },
-      "https://www.cpubenchmark.net/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
       "https://gamma.cs.unc.edu/rvo2/": {
         "status": "ok",
         "code": 200,
@@ -6250,161 +6349,6 @@
         "status": "ok",
         "code": 200,
         "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/temporal-super-resolution-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/render-dependency-graph-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/dynamic-resolution-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/path-tracer-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/unreal-engine/optimizing-rendering-with-pso-caches-in-unreal-engine?lang=en-us": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://developer.nvidia.com/dlss": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://developer.nvidia.com/blog/accelerating-ultrarealistic-game-development-with-nvidia-dlss-3-and-rtx-path-tracing/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://github.com/gpuopen-effects/fidelityfx-fsr2": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://github.com/intel/xess/blob/main/doc/xess_sr_developer_guide_english.md": {
-        "status": "protected",
-        "code": 429,
-        "note": "bot-protected / auth wall"
-      },
-      "https://github.com/microsoft/directx-specs/blob/master/d3d/raytracing.md": {
-        "status": "protected",
-        "code": 429,
-        "note": "bot-protected / auth wall"
-      },
-      "https://docs.vulkan.org/guide/latest/extensions/ray_tracing.html": {
-        "status": "error",
-        "code": null,
-        "note": "Tunnel connection failed: 502 Bad Gateway"
-      },
-      "https://docs.vulkan.org/features/latest/features/proposals/vk_ext_mesh_shader.html": {
-        "status": "error",
-        "code": null,
-        "note": "Tunnel connection failed: 502 Bad Gateway"
-      },
-      "https://github.com/microsoft/directx-specs/blob/master/d3d/variablerateshading.md": {
-        "status": "protected",
-        "code": 429,
-        "note": "bot-protected / auth wall"
-      },
-      "https://bartwronski.com/wp-content/uploads/2014/08/bwronski_volumetric_fog_siggraph2014.pdf": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.gdcvault.com/play/1024045/framegraph-extensible-rendering-architecture-in": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine": {
-        "status": "error",
-        "code": null,
-        "note": "Tunnel connection failed: 502 Bad Gateway"
-      },
-      "https://support.cdprojektred.com/en/cyberpunk/pc/sp-technical/issue/2383/path-tracing-overdrive-mode-requirements-how-to": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.nvidia.com/en-us/geforce/news/quake-ii-rtx-ray-tracing-vulkan-vkray-geforce-rtx/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://developer.nvidia.com/blog/global-illumination-in-metro-exodus/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://developer.download.nvidia.com/video/gputechconf/gtc/2019/presentation/s9985-exploring-ray-traced-future-in-metro-exodus.pdf": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.guerrilla-games.com/read/decima-engine-advances-in-lighting-and-aa": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://docs.godotengine.org/en/stable/tutorials/2d/2d_lights_and_shadows.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://advances.realtimerendering.com/s2023/index.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/scene-capture-2d-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/gpu-lightmass-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://unity.com/blog/engine-platform/srp-batcher-speed-up-your-rendering": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.rastergrid.com/blog/2010/10/hierarchical-z-map-based-occlusion-culling/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://gpuopen.com/learn/concurrent-execution-asynchronous-queues/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.unrealengine.com/developer-interviews/sci-fi-and-fantasy-worlds-collide-in-ue5-powered-co-op-adventure-split-fiction": {
-        "status": "protected",
-        "code": 403,
-        "note": "bot-protected / auth wall"
-      },
-      "https://danielilett.com/2020-01-19-tut4-6-portal-recursion/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://microsoft.github.io/directx-specs/d3d/hlsl_sm_6_6_dynamicresources.html": {
-        "status": "error",
-        "code": null,
-        "note": "Tunnel connection failed: 502 Bad Gateway"
       },
       "https://dev.epicgames.com/documentation/unreal-engine/animation-optimization-in-unreal-engine?lang=en-us": {
         "status": "ok",
@@ -6621,507 +6565,17 @@
         "code": 200,
         "note": ""
       },
-      "https://developer.valvesoftware.com/wiki/source_multiplayer_networking": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://developer.valvesoftware.com/wiki/lag_compensation": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://developer.valvesoftware.com/wiki/latency_compensating_methods_in_client/server_in-game_protocol_design_and_optimization": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.gdcvault.com/play/1024001/-overwatch-gameplay-architecture-and": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.gdcvault.com/play/1024053/replay-technology-in-overwatch-kill": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.riotgames.com/en/news/valorants-128-tick-servers": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.riotgames.com/en/news/peeking-valorants-netcode": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.gamedeveloper.com/programming/1500-archers-on-a-28-8-network-programming-in-age-of-empires-and-beyond": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.gamedevs.org/uploads/1500-archers-age-of-empires-network-programming.pdf": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://radwan92.github.io/assets/pdfs/fast-paced%20multiplayer%20-%20gabriel%20gambetta.pdf": {
-        "status": "error",
-        "code": null,
-        "note": "Tunnel connection failed: 502 Bad Gateway"
-      },
-      "https://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.counter-strike.net/cs2/hardware?l=english": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://counterstrikewiki.com/sub-tick": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/unreal-engine/replication-graph-in-unreal-engine?lang=en-us": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/unreal-engine/setting-up-dedicated-servers-in-unreal-engine?lang=en-us": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/zh-cn/unreal-engine/iris-replication-system-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://docs.unity3d.com/packages/com.unity.netcode@7.0/manual/intro-to-prediction.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://docs.unity.com/en-us/multiplayer/netcode/netcode": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://valvesoftware.github.io/steam-audio/doc/capi/guide.html": {
-        "status": "error",
-        "code": null,
-        "note": "Tunnel connection failed: 502 Bad Gateway"
-      },
-      "https://github.com/valvesoftware/steam-audio/blob/master/core/doc/index.rst": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.audiokinetic.com/library/edge/?source=ue4&id=using_features_occlusion.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.audiokinetic.com/library/edge/?source=sdk&id=spatial_audio_concepts.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://documentation.help/wwise-unity/pg__obs__occ.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.audiokinetic.com/en/wwise/wwise-spatial-audio/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.fmod.com/docs/2.03/api/using-dsp-effects-in-the-core-api.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.fmod.com/resources/documentation-api?version=1.10&page=content/generated/fmod_dsp_convolution_reverb.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://developer.valvesoftware.com/wiki/steam_datagram_relay": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/docs/game-services/anti-cheat/using-anti-cheat": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/docs/epic-online-services/trust-and-safety/anti-cheat-interfaces/anti-cheat-interfaces": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.riotgames.com/en/news/vanguard-on-demand": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://support.riotgames.com/en-us/league-of-legends/performance/riot-vanguard-faq-league-of-legends/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://docs.unity3d.com/6000.0/documentation/manual/performance-incremental-garbage-collection.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/unreal-engine/garbage-collection-settings-in-the-unreal-engine-project-settings?lang=en-us": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/migrate-to-iris-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.jfedor.org/quake3/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://github.com/id-software/quake-iii-arena/blob/master/code/server/sv_snapshot.c": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://github.com/valvesoftware/gamenetworkingsockets": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://gdcvault.com/play/1035513/ambience-design-and-acoustic-systems": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.gamedeveloper.com/audio/how-ninja-theory-created-hellblade-ii-s-unsettling-soundscape": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://devtrackers.gg/hunt-showdown/p/e4016122-developer-insight-did-you-hear-that": {
-        "status": "error",
-        "code": null,
-        "note": "Tunnel connection failed: 502 Bad Gateway"
-      },
-      "https://docs.unity.cn/manual//dedicated-server.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://docs.unity3d.org.cn/manual/dedicated-server-build.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://csgo-news.com/en/guides/why-bullets-miss-an-analysis-of-the-cs2-subtick-system": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://wiki.teamfortress.com/wiki/lag_compensation": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.riotgames.com/zh-cn/news/vanguard-security-update-motherboard-zh-cn": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://zzzremake.github.io/site/blog/translate-overwatch-architecture-netcode/": {
-        "status": "error",
-        "code": null,
-        "note": "Tunnel connection failed: 502 Bad Gateway"
-      },
-      "https://www.youtube.com/watch?v=ks98ke3cs30": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://docs.unity3d.com/6000.0/documentation/manual/audiofiles-compression.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.audiokinetic.com/zh/public-library/2025.1.9_9197/?source=help&id=conversion_settings_editor": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://github.com/needle-mirror/com.unity.netcode/blob/master/documentation%7e/prediction-n4e.md": {
-        "status": "protected",
-        "code": 429,
-        "note": "bot-protected / auth wall"
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/world-partition---data-layers-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/one-file-per-actor-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/large-world-coordinates-in-unreal-engine-5": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/large-world-coordinates-rendering-in-unreal-engine-5": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/streaming-virtual-texturing-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/runtime-virtual-texturing-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-texture-memory-pools-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-streaming-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/mesh-distance-fields-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/distance-field-soft-shadows-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/precomputed-visibility-volumes-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/visibility-and-occlusion-culling-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-technical-guide-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/asynchronous-asset-loading-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/oodle-data": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/cooking-and-chunking-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/foliage-mode-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/hierarchical-instanced-static-mesh-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/automatic-static-mesh-lod-generation-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://dev.epicgames.com/documentation/en-us/unreal-engine/procedural-content-generation-overview-in-unreal-engine": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://advances.realtimerendering.com/s2021/karis_nanite_siggraph_advances_2021_final.pdf": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.advances.realtimerendering.com/s2015/aaltonenhaar_siggraph2015_combined_final_footer_220dpi.pdf": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-2-terrain-rendering-using-gpu-based-geometry": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-4-next-generation-speedtree-rendering": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://tulrich.com/geekstuff/chunklod.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.crs4.it/vic/data/papers/eg2006-cbdam.pdf": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://silverspaceship.com/src/svt/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://mrelusive.com/publications/papers/software-virtual-textures.pdf": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://learn.microsoft.com/en-us/windows/win32/dstorage/dstorage-portal": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://learn.microsoft.com/en-us/windows/win32/dstorage/using-dstorage": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://github.com/microsoft/directstorage/blob/main/gdeflate/gdeflate/readme.md": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://learn.microsoft.com/en-us/windows/win32/direct3d11/tiled-resources": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://gdcvault.com/play/1025480/terrain-rendering-in-far-cry": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://www.guerrilla-games.com/read/gpu-based-procedural-placement-in-horizon-zero-dawn": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://gdcvault.com/play/1024265/continuous-world-generation-in-no": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://minecraft.wiki/w/chunk_format": {
-        "status": "protected",
-        "code": 403,
-        "note": "bot-protected / auth wall"
-      },
-      "https://minecraft.wiki/w/chunk": {
-        "status": "protected",
-        "code": 403,
-        "note": "bot-protected / auth wall"
-      },
-      "https://minecraft.wiki/w/simulation_distance": {
-        "status": "protected",
-        "code": 403,
-        "note": "bot-protected / auth wall"
-      },
-      "https://research.nvidia.com/labs/rtr/neural_texture_compression/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://research.nvidia.com/labs/rtr/neural_texture_compression/assets/ntc_medium_size.pdf": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://shaderbits.com/blog/octahedral-impostors": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://docs.godotengine.org/en/4.4/tutorials/physics/large_world_coordinates.html": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://partner.steamgames.com/doc/sdk/updating": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://gdcvault.com/play/1024514/building-worlds-using": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://github.com/microsoft/directstorage/blob/main/samples/gpudecompressionbenchmark/readme.md": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://partner.steamgames.com/doc/sdk/uploading": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://devblogs.microsoft.com/directx/directstorage-api-available-on-pc/": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
-      "https://github.com/zeux/meshoptimizer/discussions/986": {
-        "status": "ok",
-        "code": 200,
-        "note": ""
-      },
       "https://store.steampowered.com/hwsurvey/": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
       "https://store.steampowered.com/hwsurvey/videocard/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://developer.valvesoftware.com/wiki/source_multiplayer_networking": {
         "status": "ok",
         "code": 200,
         "note": ""
@@ -7226,6 +6680,11 @@
         "code": 200,
         "note": ""
       },
+      "https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
       "https://en.wikipedia.org/wiki/the_mythical_man-month": {
         "status": "ok",
         "code": 200,
@@ -7256,6 +6715,11 @@
         "code": 200,
         "note": ""
       },
+      "https://www.riotgames.com/en/news/peeking-valorants-netcode": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
       "https://www.gameprogrammingpatterns.com/game-loop.html": {
         "status": "ok",
         "code": 200,
@@ -7267,6 +6731,11 @@
         "note": ""
       },
       "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-build-tool-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/large-world-coordinates-in-unreal-engine-5": {
         "status": "ok",
         "code": 200,
         "note": ""
@@ -7521,7 +6990,37 @@
         "code": 200,
         "note": ""
       },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/render-dependency-graph-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/temporal-super-resolution-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/dynamic-resolution-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/path-tracer-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
       "https://dev.epicgames.com/documentation/en-us/unreal-engine/lightmass-basics-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/foliage-mode-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-technical-guide-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
@@ -7696,6 +7195,11 @@
         "code": 200,
         "note": ""
       },
+      "https://www.remedygames.com/article/how-northlight-makes-alan-wake-2-shine": {
+        "status": "error",
+        "code": null,
+        "note": "Tunnel connection failed: 502 Bad Gateway"
+      },
       "https://gdcvault.com/play/1012330/multiplayer-level-design-in-red": {
         "status": "ok",
         "code": 200,
@@ -7761,6 +7265,11 @@
         "code": 200,
         "note": ""
       },
+      "https://www.unrealengine.com/developer-interviews/sci-fi-and-fantasy-worlds-collide-in-ue5-powered-co-op-adventure-split-fiction": {
+        "status": "protected",
+        "code": 403,
+        "note": "bot-protected / auth wall"
+      },
       "https://people.csail.mit.edu/teller/pubs/siggraph91.pdf": {
         "status": "ok",
         "code": 200,
@@ -7780,6 +7289,11 @@
         "status": "protected",
         "code": 403,
         "note": "bot-protected / auth wall"
+      },
+      "https://developer.download.nvidia.com/video/gputechconf/gtc/2019/presentation/s9985-exploring-ray-traced-future-in-metro-exodus.pdf": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
       },
       "https://devblogs.microsoft.com/directx/gears-vrs-tier2/": {
         "status": "ok",
@@ -7806,7 +7320,27 @@
         "code": 200,
         "note": ""
       },
+      "https://www.guerrilla-games.com/read/decima-engine-advances-in-lighting-and-aa": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.guerrilla-games.com/read/gpu-based-procedural-placement-in-horizon-zero-dawn": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/unreal-engine/optimizing-rendering-with-pso-caches-in-unreal-engine?lang=en-us": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
       "https://docs.godotengine.org/en/stable/tutorials/3d/global_illumination/using_sdfgi.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://docs.godotengine.org/en/stable/tutorials/2d/2d_lights_and_shadows.html": {
         "status": "ok",
         "code": 200,
         "note": ""
@@ -7822,6 +7356,11 @@
         "note": ""
       },
       "https://dev.epicgames.com/documentation/en-us/unreal-engine/gpu-lightmass-global-illumination-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/distance-field-soft-shadows-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
@@ -7872,6 +7411,531 @@
         "note": ""
       },
       "https://media.gdcvault.com/gdc2026/slides/sheng_feng_illuminatingrocoslegacyscalableglobalilluminationfromtheorytopractice.pdf": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/portal_2": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://developer.valvesoftware.com/wiki/lag_compensation": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://developer.valvesoftware.com/wiki/latency_compensating_methods_in_client/server_in-game_protocol_design_and_optimization": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.gdcvault.com/play/1024001/-overwatch-gameplay-architecture-and": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.gdcvault.com/play/1024053/replay-technology-in-overwatch-kill": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.gamedeveloper.com/programming/1500-archers-on-a-28-8-network-programming-in-age-of-empires-and-beyond": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.gamedevs.org/uploads/1500-archers-age-of-empires-network-programming.pdf": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://radwan92.github.io/assets/pdfs/fast-paced%20multiplayer%20-%20gabriel%20gambetta.pdf": {
+        "status": "error",
+        "code": null,
+        "note": "Tunnel connection failed: 502 Bad Gateway"
+      },
+      "https://www.gabrielgambetta.com/client-side-prediction-server-reconciliation.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.counter-strike.net/cs2/hardware?l=english": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://counterstrikewiki.com/sub-tick": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/unreal-engine/replication-graph-in-unreal-engine?lang=en-us": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/unreal-engine/setting-up-dedicated-servers-in-unreal-engine?lang=en-us": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/zh-cn/unreal-engine/iris-replication-system-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://docs.unity3d.com/packages/com.unity.netcode@7.0/manual/intro-to-prediction.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://docs.unity.com/en-us/multiplayer/netcode/netcode": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://valvesoftware.github.io/steam-audio/doc/capi/guide.html": {
+        "status": "error",
+        "code": null,
+        "note": "Tunnel connection failed: 502 Bad Gateway"
+      },
+      "https://github.com/valvesoftware/steam-audio/blob/master/core/doc/index.rst": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.audiokinetic.com/library/edge/?source=ue4&id=using_features_occlusion.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.audiokinetic.com/library/edge/?source=sdk&id=spatial_audio_concepts.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://documentation.help/wwise-unity/pg__obs__occ.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.audiokinetic.com/en/wwise/wwise-spatial-audio/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.fmod.com/docs/2.03/api/using-dsp-effects-in-the-core-api.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.fmod.com/resources/documentation-api?version=1.10&page=content/generated/fmod_dsp_convolution_reverb.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://developer.valvesoftware.com/wiki/steam_datagram_relay": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/docs/game-services/anti-cheat/using-anti-cheat": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/docs/epic-online-services/trust-and-safety/anti-cheat-interfaces/anti-cheat-interfaces": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.riotgames.com/en/news/vanguard-on-demand": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://support.riotgames.com/en-us/league-of-legends/performance/riot-vanguard-faq-league-of-legends/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://docs.unity3d.com/6000.0/documentation/manual/performance-incremental-garbage-collection.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/unreal-engine/garbage-collection-settings-in-the-unreal-engine-project-settings?lang=en-us": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/migrate-to-iris-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.jfedor.org/quake3/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/id-software/quake-iii-arena/blob/master/code/server/sv_snapshot.c": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/valvesoftware/gamenetworkingsockets": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://gdcvault.com/play/1035513/ambience-design-and-acoustic-systems": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.gamedeveloper.com/audio/how-ninja-theory-created-hellblade-ii-s-unsettling-soundscape": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://devtrackers.gg/hunt-showdown/p/e4016122-developer-insight-did-you-hear-that": {
+        "status": "error",
+        "code": null,
+        "note": "Tunnel connection failed: 502 Bad Gateway"
+      },
+      "https://docs.unity.cn/manual//dedicated-server.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://docs.unity3d.org.cn/manual/dedicated-server-build.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://csgo-news.com/en/guides/why-bullets-miss-an-analysis-of-the-cs2-subtick-system": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://wiki.teamfortress.com/wiki/lag_compensation": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.riotgames.com/zh-cn/news/vanguard-security-update-motherboard-zh-cn": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://zzzremake.github.io/site/blog/translate-overwatch-architecture-netcode/": {
+        "status": "error",
+        "code": null,
+        "note": "Tunnel connection failed: 502 Bad Gateway"
+      },
+      "https://www.youtube.com/watch?v=ks98ke3cs30": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://docs.unity3d.com/6000.0/documentation/manual/audiofiles-compression.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.audiokinetic.com/zh/public-library/2025.1.9_9197/?source=help&id=conversion_settings_editor": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/needle-mirror/com.unity.netcode/blob/master/documentation%7e/prediction-n4e.md": {
+        "status": "protected",
+        "code": 429,
+        "note": "bot-protected / auth wall"
+      },
+      "https://developer.nvidia.com/dlss": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://developer.nvidia.com/blog/accelerating-ultrarealistic-game-development-with-nvidia-dlss-3-and-rtx-path-tracing/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/gpuopen-effects/fidelityfx-fsr2": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/intel/xess/blob/main/doc/xess_sr_developer_guide_english.md": {
+        "status": "protected",
+        "code": 429,
+        "note": "bot-protected / auth wall"
+      },
+      "https://github.com/microsoft/directx-specs/blob/master/d3d/raytracing.md": {
+        "status": "protected",
+        "code": 429,
+        "note": "bot-protected / auth wall"
+      },
+      "https://docs.vulkan.org/guide/latest/extensions/ray_tracing.html": {
+        "status": "error",
+        "code": null,
+        "note": "Tunnel connection failed: 502 Bad Gateway"
+      },
+      "https://docs.vulkan.org/features/latest/features/proposals/vk_ext_mesh_shader.html": {
+        "status": "error",
+        "code": null,
+        "note": "Tunnel connection failed: 502 Bad Gateway"
+      },
+      "https://github.com/microsoft/directx-specs/blob/master/d3d/variablerateshading.md": {
+        "status": "protected",
+        "code": 429,
+        "note": "bot-protected / auth wall"
+      },
+      "https://bartwronski.com/wp-content/uploads/2014/08/bwronski_volumetric_fog_siggraph2014.pdf": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.gdcvault.com/play/1024045/framegraph-extensible-rendering-architecture-in": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://support.cdprojektred.com/en/cyberpunk/pc/sp-technical/issue/2383/path-tracing-overdrive-mode-requirements-how-to": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.nvidia.com/en-us/geforce/news/quake-ii-rtx-ray-tracing-vulkan-vkray-geforce-rtx/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://developer.nvidia.com/blog/global-illumination-in-metro-exodus/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://advances.realtimerendering.com/s2023/index.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/scene-capture-2d-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/gpu-lightmass-in-unreal-engine": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://unity.com/blog/engine-platform/srp-batcher-speed-up-your-rendering": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.rastergrid.com/blog/2010/10/hierarchical-z-map-based-occlusion-culling/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://gpuopen.com/learn/concurrent-execution-asynchronous-queues/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://danielilett.com/2020-01-19-tut4-6-portal-recursion/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://microsoft.github.io/directx-specs/d3d/hlsl_sm_6_6_dynamicresources.html": {
+        "status": "error",
+        "code": null,
+        "note": "Tunnel connection failed: 502 Bad Gateway"
+      },
+      "https://en.wikipedia.org/wiki/it_takes_two_(video_game)": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://learn.microsoft.com/en-us/windows/win32/direct3d11/atoc-dx-graphics-direct3d-11": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://learn.microsoft.com/en-us/windows/win32/api/_direct3d11/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/khronosgroup/vulkan-docs": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-raytracing": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-raytracing-hlsl-reference": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/zeux/meshoptimizer/blob/master/readme.md": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://gamma.cs.unc.edu/rvo2/documentation/2.0/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/wolfpld/tracy": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/wolfpld/tracy/blob/master/readme.md": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://opus-codec.org": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://datatracker.ietf.org/doc/html/rfc6716": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/nvidia-omniverse/physx": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://docs.unity3d.com/packages/com.unity.transport@1.5/manual/index.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://docs.unity3d.com/packages/com.unity.burst@1.8/manual/index.html": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://partner.steamgames.com/doc/sdk": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://partner.steamgames.com/doc/features": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/microsoft/directstorage": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/microsoft/directstorage/blob/main/readme.md": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/ashes_of_the_singularity": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/civilization_vi": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/the_witcher_3:_wild_hunt": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/grand_theft_auto_v": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/doom_(2016_video_game)": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/doom_eternal": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/battlefield_v": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/metro_exodus": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/batman:_arkham_asylum": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/mafia_ii": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/team_fortress_2": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/counter-strike_2": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/fortnite": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/v_rising": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/ratchet_and_clank:_rift_apart": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://en.wikipedia.org/wiki/forspoken": {
         "status": "ok",
         "code": 200,
         "note": ""
@@ -8231,185 +8295,230 @@
         "code": 200,
         "note": ""
       },
-      "https://learn.microsoft.com/en-us/windows/win32/direct3d11/atoc-dx-graphics-direct3d-11": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/world-partition---data-layers-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://learn.microsoft.com/en-us/windows/win32/api/_direct3d11/": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/one-file-per-actor-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/large-world-coordinates-rendering-in-unreal-engine-5": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://github.com/khronosgroup/vulkan-docs": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/streaming-virtual-texturing-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-raytracing": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/runtime-virtual-texturing-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-raytracing-hlsl-reference": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-texture-memory-pools-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://github.com/zeux/meshoptimizer/blob/master/readme.md": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-streaming-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://gamma.cs.unc.edu/rvo2/documentation/2.0/": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/mesh-distance-fields-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://github.com/wolfpld/tracy": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/precomputed-visibility-volumes-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://github.com/wolfpld/tracy/blob/master/readme.md": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/visibility-and-occlusion-culling-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://opus-codec.org": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/asynchronous-asset-loading-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://datatracker.ietf.org/doc/html/rfc6716": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/oodle-data": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://github.com/nvidia-omniverse/physx": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/cooking-and-chunking-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://docs.unity3d.com/packages/com.unity.transport@1.5/manual/index.html": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/hierarchical-instanced-static-mesh-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://docs.unity3d.com/packages/com.unity.burst@1.8/manual/index.html": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/automatic-static-mesh-lod-generation-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://partner.steamgames.com/doc/sdk": {
+      "https://dev.epicgames.com/documentation/en-us/unreal-engine/procedural-content-generation-overview-in-unreal-engine": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://partner.steamgames.com/doc/features": {
+      "https://advances.realtimerendering.com/s2021/karis_nanite_siggraph_advances_2021_final.pdf": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://github.com/microsoft/directstorage": {
+      "https://www.advances.realtimerendering.com/s2015/aaltonenhaar_siggraph2015_combined_final_footer_220dpi.pdf": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://github.com/microsoft/directstorage/blob/main/readme.md": {
+      "https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-2-terrain-rendering-using-gpu-based-geometry": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/ashes_of_the_singularity": {
+      "https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-4-next-generation-speedtree-rendering": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/civilization_vi": {
+      "https://tulrich.com/geekstuff/chunklod.html": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/the_witcher_3:_wild_hunt": {
+      "https://www.crs4.it/vic/data/papers/eg2006-cbdam.pdf": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/grand_theft_auto_v": {
+      "https://silverspaceship.com/src/svt/": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/doom_(2016_video_game)": {
+      "https://mrelusive.com/publications/papers/software-virtual-textures.pdf": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/doom_eternal": {
+      "https://learn.microsoft.com/en-us/windows/win32/dstorage/dstorage-portal": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/battlefield_v": {
+      "https://learn.microsoft.com/en-us/windows/win32/dstorage/using-dstorage": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/metro_exodus": {
+      "https://github.com/microsoft/directstorage/blob/main/gdeflate/gdeflate/readme.md": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/batman:_arkham_asylum": {
+      "https://learn.microsoft.com/en-us/windows/win32/direct3d11/tiled-resources": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/mafia_ii": {
+      "https://gdcvault.com/play/1025480/terrain-rendering-in-far-cry": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/team_fortress_2": {
+      "https://gdcvault.com/play/1024265/continuous-world-generation-in-no": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/counter-strike_2": {
+      "https://minecraft.wiki/w/chunk_format": {
+        "status": "protected",
+        "code": 403,
+        "note": "bot-protected / auth wall"
+      },
+      "https://minecraft.wiki/w/chunk": {
+        "status": "protected",
+        "code": 403,
+        "note": "bot-protected / auth wall"
+      },
+      "https://minecraft.wiki/w/simulation_distance": {
+        "status": "protected",
+        "code": 403,
+        "note": "bot-protected / auth wall"
+      },
+      "https://research.nvidia.com/labs/rtr/neural_texture_compression/": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/fortnite": {
+      "https://research.nvidia.com/labs/rtr/neural_texture_compression/assets/ntc_medium_size.pdf": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/v_rising": {
+      "https://shaderbits.com/blog/octahedral-impostors": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/ratchet_and_clank:_rift_apart": {
+      "https://docs.godotengine.org/en/4.4/tutorials/physics/large_world_coordinates.html": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/forspoken": {
+      "https://partner.steamgames.com/doc/sdk/updating": {
         "status": "ok",
         "code": 200,
         "note": ""
       },
-      "https://en.wikipedia.org/wiki/portal_2": {
+      "https://gdcvault.com/play/1024514/building-worlds-using": {
         "status": "ok",
         "code": 200,
         "note": ""
+      },
+      "https://github.com/microsoft/directstorage/blob/main/samples/gpudecompressionbenchmark/readme.md": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://partner.steamgames.com/doc/sdk/uploading": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://devblogs.microsoft.com/directx/directstorage-api-available-on-pc/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://github.com/zeux/meshoptimizer/discussions/986": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "https://www.cpubenchmark.net/": {
+        "status": "ok",
+        "code": 200,
+        "note": ""
+      },
+      "user_defined:catalog_dependency": {
+        "status": "declared",
+        "code": null,
+        "note": "объявленное отсутствие ссылки, не адрес"
       },
       "https://heroengine.com": {
         "status": "protected",
