@@ -11,15 +11,6 @@
 from __future__ import annotations
 
 
-def test_practice_check_is_development_not_proof(client, profile):
-    """Сверка с практикой — «в разработке», а не заявленная точность."""
-    data = client.post(
-        "/api/recommend", json={"profile": profile, "basket": []}
-    ).json()
-    assert data["practice_check"]["status"] == "in_development"
-    assert data["practice_check"]["title"] and data["practice_check"]["message"]
-
-
 def test_estimate_marks_uncertainty_and_gaps(client, profile):
     """Оборудование: уверенность ниже единицы, оговорки и пробелы названы."""
     data = client.post(

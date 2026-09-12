@@ -169,7 +169,7 @@ def http_check(url: str, timeout: int = 25, use_cache: bool = True) -> dict:
 
 def verify_packs(do_net: bool) -> dict:
     findings: dict[str, list] = defaultdict(list)
-    stats = {"packs": 0, "sources": 0, "claims": 0, "game_examples": 0,
+    stats = {"packs": 0, "sources": 0, "claims": 0,
              "derived_with_formula": 0, "derived_total": 0}
     url_index: dict[str, list[str]] = defaultdict(list)
     # Dedup is case-insensitive (a URL differing only in case is the same
@@ -286,23 +286,6 @@ def verify_packs(do_net: bool) -> dict:
                             findings["expert_estimate_without_disclosure"].append(
                                 {"pack": pname, "entity": f"{section}/{ecode}",
                                  "field": c.get("field")})
-
-                gex = edata.get("game_examples", [])
-                for g in gex:
-                    stats["game_examples"] += 1
-                    src = g.get("source")
-                    if src and src not in all_source_codes:
-                        findings["game_example_dangling_source"].append(
-                            {"pack": pname, "entity": f"{section}/{ecode}", "source": src})
-                    if not (g.get("locator") or "").strip():
-                        findings["game_example_missing_locator"].append(
-                            {"pack": pname, "entity": f"{section}/{ecode}",
-                             "game": g.get("game")})
-                games = [(g.get("game") or "").strip().lower() for g in gex]
-                games = [g for g in games if g]
-                if len(games) != len(set(games)):
-                    findings["duplicate_game_example"].append(
-                        {"pack": pname, "entity": f"{section}/{ecode}", "games": games})
 
     # ---- title/url contradiction across all packs ----
     for path in sorted(PACK_DIR.glob("pack_*.json")):
@@ -440,8 +423,6 @@ def verify_db(db_path: str, do_net: bool) -> dict:
     no_locator = [c["code"] for c in claims
                   if not (c.get("locator") or "").strip() and not _gap(c)]
 
-    p80_lt_p50 = q("select code, p50_days, p80_days from work_packages "
-                   "where p80_days < p50_days")
     # NB: dependency_edges has no `code`; rows are identified by id and their
     # endpoints are node FKs. Selecting `code` here raised OperationalError and
     # aborted the whole DB stage before it ever ran.
@@ -458,7 +439,6 @@ def verify_db(db_path: str, do_net: bool) -> dict:
     findings["derived_missing_formula_or_inputs"] = derived_bad
     findings["numeric_claim_without_source"] = numeric_no_source
     findings["claim_missing_locator"] = no_locator
-    findings["work_package_p80_lt_p50"] = p80_lt_p50
     findings["dependency_edge_without_source"] = edges_no_src
     findings["conflict_without_url"] = conflicts_no_url
     findings["method_engine_link_without_url"] = links_no_url
@@ -536,7 +516,6 @@ def main() -> int:
               f"- пакетов: **{s['packs']}**",
               f"- источников: **{s['sources']}**",
               f"- утверждений (claims): **{s['claims']}**",
-              f"- игровых примеров: **{s['game_examples']}**",
               f"- derived-утверждений с формулой и входными параметрами: "
               f"**{s['derived_with_formula']} / {s['derived_total']}**",
               f"- уникальных URL: **{p['unique_urls']}**",

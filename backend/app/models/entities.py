@@ -384,7 +384,7 @@ class ValidationIssue(Base):
 
 
 # ---------------------------------------------------------------------------
-# Доказательная база, кейсы, технологические зависимости и планирование.
+# Доказательная база и технологические зависимости.
 # ---------------------------------------------------------------------------
 # Эти сущности намеренно отделены от legacy-полей source_title/source_url и
 # implementation_cost. Старые поля остаются совместимыми с импортами и
@@ -457,54 +457,6 @@ class EvidenceClaim(Base):
     source: Mapped["EvidenceSource | None"] = relationship(back_populates="claims")
 
 
-class GameCase(Base):
-    """Публичный кейс реальной игры или инженерного демо."""
-
-    __tablename__ = "game_cases"
-    __table_args__ = (UniqueConstraint("code", name="uq_game_cases_code"), STATUS_CHECK)
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    code: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
-    title: Mapped[str] = mapped_column(String(200), nullable=False)
-    studio: Mapped[str] = mapped_column(String(200), default="")
-    release_year: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    technology: Mapped[str] = mapped_column(String(200), default="")
-    engine_code: Mapped[str] = mapped_column(String(64), default="")
-    world_type: Mapped[str] = mapped_column(String(80), default="")
-    network_mode: Mapped[str] = mapped_column(String(120), default="")
-    summary: Mapped[str] = mapped_column(Text, default="")
-    relevance: Mapped[str] = mapped_column(Text, default="")
-    transfer_limits: Mapped[str] = mapped_column(Text, default="")
-    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
-    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
-
-    evidence: Mapped[list["CaseEvidence"]] = relationship(back_populates="case", cascade="all, delete-orphan")
-
-
-class CaseEvidence(Base):
-    """Связь кейса с методом/функцией и атомарный подтверждённый факт."""
-
-    __tablename__ = "case_evidence"
-    __table_args__ = (UniqueConstraint("code", name="uq_case_evidence_code"), STATUS_CHECK)
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    code: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
-    case_id: Mapped[int] = mapped_column(ForeignKey("game_cases.id"), nullable=False)
-    function_code: Mapped[str] = mapped_column(String(64), default="")
-    method_code: Mapped[str] = mapped_column(String(64), default="")
-    fact: Mapped[str] = mapped_column(Text, nullable=False)
-    match_level: Mapped[str] = mapped_column(String(30), default="direct")
-    locator: Mapped[str] = mapped_column(String(300), default="")
-    source_id: Mapped[int | None] = mapped_column(ForeignKey("evidence_sources.id"), nullable=True)
-    basis: Mapped[str] = mapped_column(String(30), default="case_evidence")
-    transfer_limits: Mapped[str] = mapped_column(Text, default="")
-    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
-    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
-
-    case: Mapped["GameCase"] = relationship(back_populates="evidence")
-    source: Mapped["EvidenceSource | None"] = relationship()
-
-
 class TechnologyNode(Base):
     """Узел технологического графа: метод, движок, API, SDK или библиотека."""
 
@@ -545,58 +497,5 @@ class DependencyEdge(Base):
     workaround: Mapped[str] = mapped_column(Text, default="")
     #: Основание `workaround` (см. `Conflict.basis`).
     basis: Mapped[str] = mapped_column(String(30), default="")
-    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
-    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
-
-
-class WorkPackage(Base):
-    """Пакет работ с диапазоном P50/P80."""
-
-    __tablename__ = "work_packages"
-    __table_args__ = (
-        UniqueConstraint("code", name="uq_work_packages_code"), STATUS_CHECK,
-        CheckConstraint("p50_days >= 0 and p80_days >= p50_days", name="ck_work_package_bands"),
-    )
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    code: Mapped[str] = mapped_column(String(180), nullable=False, index=True)
-    method_code: Mapped[str] = mapped_column(String(64), default="", index=True)
-    name: Mapped[str] = mapped_column(String(220), nullable=False)
-    package_type: Mapped[str] = mapped_column(String(40), default="integration")
-    role: Mapped[str] = mapped_column(String(60), default="engineering")
-    min_days: Mapped[float] = mapped_column(Float, default=0.0)
-    p50_days: Mapped[float] = mapped_column(Float, default=1.0)
-    p80_days: Mapped[float] = mapped_column(Float, default=1.5)
-    parallelizable: Mapped[bool] = mapped_column(Boolean, default=True)
-    recommended_stage: Mapped[str] = mapped_column(String(20), default="prototype")
-    #: Исходный свободный текст поля `recommended_stage` из пакета, если он не
-    #: был кодом стадии. Пакеты используют одно имя поля для двух смыслов: кода
-    #: перечисления и развёрнутой рекомендации. Раньше текст молча терялся, хотя
-    #: `pack_loader.normalize_stage` прямо требует сохранить его как примечание.
-    stage_note: Mapped[str] = mapped_column(Text, default="")
-    late_factor: Mapped[float] = mapped_column(Float, default=1.0)
-    dependency_codes: Mapped[list[str]] = mapped_column(JSON, default=list)
-    basis: Mapped[str] = mapped_column(String(40), default="expert_estimate")
-    source_id: Mapped[int | None] = mapped_column(ForeignKey("evidence_sources.id"), nullable=True)
-    status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
-    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
-
-
-class TeamScenario(Base):
-    """Сценарий команды и доступности ролей."""
-
-    __tablename__ = "team_scenarios"
-    __table_args__ = (UniqueConstraint("code", name="uq_team_scenarios_code"), STATUS_CHECK)
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    code: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
-    name: Mapped[str] = mapped_column(String(120), nullable=False)
-    description: Mapped[str] = mapped_column(Text, default="")
-    team_size: Mapped[int] = mapped_column(Integer, default=1)
-    role_capacity: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
-    parallel_tracks: Mapped[int] = mapped_column(Integer, default=1)
-    communication_pct: Mapped[float] = mapped_column(Float, default=0.1)
-    unplanned_pct: Mapped[float] = mapped_column(Float, default=0.15)
-    specialist_capacity: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     status: Mapped[str] = mapped_column(String(20), default=DRAFT, index=True)
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)

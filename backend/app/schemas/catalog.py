@@ -56,8 +56,7 @@ class ProjectProfile(BaseModel):
     #: Масштаб ПРОЕКТА (производства), а не мира. Объявляемый пользователем вход:
     #: не зависит ни от одного другого поля и ни из чего не выводится. Влияет на
     #: базис памяти (стоянка движка и инструментов) — см. `PROJECT_SCALE_BASE_FACTOR`
-    #: в `services/hardware.py`. Размер команды — другая величина: она в `TeamScenario`
-    #: и влияет только на календарь разработки.
+    #: в `services/hardware.py`.
     project_scale: Literal[tuple(_values(Scale))] = "medium"
 
     # Стадия и технологии
@@ -299,21 +298,6 @@ class ImplementationBaseline(BasketRequest):
 
 class RecommendationRequest(BasketRequest):
     baseline: ImplementationBaseline | None = None
-    #: Профиль команды и учёт зависимостей для календаря в снимке отчёта.
-    #: Раньше снимок всегда считался по малой команде с включёнными
-    #: зависимостями, поэтому экспортированный календарь не совпадал с тем,
-    #: который пользователь выбрал на экране расписания.
-    team: Annotated[str, Field(min_length=1, max_length=40)] = "small_2_5"
-    include_dependencies: bool = True
-
-
-class ScheduleRequest(BaseModel):
-    """Вход для сценарного календарного плана."""
-
-    profile: ProjectProfile
-    basket: Annotated[list[str], Field(max_length=200)] = Field(default_factory=list)
-    team: Annotated[str, Field(min_length=1, max_length=40)] = "small_2_5"
-    include_dependencies: bool = True
 
 
 class TransitionOut(BaseModel):
@@ -792,29 +776,8 @@ class HardwareEstimateOut(BaseModel):
     target_assessments: list[TargetAssessmentOut] = Field(default_factory=list)
 
 
-class PracticeCheckOut(BaseModel):
-    """Блок «Сверка с практикой».
-
-    Кейсы подтверждают факт применения подхода, но не переносят FPS и не
-    превращают одну игру в эталон другой.
-    """
-
-    status: str = "case_evidence"
-    title: str = "Сверка с практикой"
-    message: str = (
-        "Публичные кейсы подтверждают применение механизмов и инженерные "
-        "компромиссы. Точность FPS и межигровая переносимость не вычисляются "
-        "без runtime-профилей и реальной валидационной выборки."
-    )
-    details: list[str] = Field(default_factory=list)
-    case_count: int = 0
-    case_codes: list[str] = Field(default_factory=list)
-    accuracy_status: str = "not_calibrated"
-    transferability: str = "not_claimed"
-
-
 # ---------------------------------------------------------------------------
-# Доказательства, кейсы, зависимости и планирование
+# Доказательства и зависимости
 # ---------------------------------------------------------------------------
 class EvidenceSourceOut(BaseModel):
     code: str
@@ -852,33 +815,6 @@ class EvidenceClaimOut(BaseModel):
     formula: str
     input_parameters: dict[str, Any] = Field(default_factory=dict)
     context: str
-
-
-class CaseEvidenceOut(BaseModel):
-    code: str
-    function_code: str
-    method_code: str
-    fact: str
-    match_level: str
-    locator: str
-    source: EvidenceSourceOut | None = None
-    basis: str
-    transfer_limits: str
-
-
-class GameCaseOut(BaseModel):
-    code: str
-    title: str
-    studio: str
-    release_year: int | None
-    technology: str
-    engine_code: str
-    world_type: str
-    network_mode: str
-    summary: str
-    relevance: str
-    transfer_limits: str
-    evidence: list[CaseEvidenceOut] = Field(default_factory=list)
 
 
 class DependencyOut(BaseModel):
@@ -929,85 +865,9 @@ class GraphChecksOut(BaseModel):
     basket: list[str] = Field(default_factory=list)
 
 
-class WorkPackageOut(BaseModel):
-    code: str
-    method_code: str
-    name: str
-    package_type: str
-    role: str
-    min_days: float
-    p50_days: float
-    p80_days: float
-    parallelizable: bool
-    recommended_stage: str
-    stage_note: str = ""
-    late_factor: float
-    dependency_codes: list[str] = Field(default_factory=list)
-    basis: str
-
-
-class EffortEstimateOut(BaseModel):
-    method_code: str
-    method_name: str
-    packages: list[WorkPackageOut] = Field(default_factory=list)
-    total: EstimateBand
-    risk_factors: list[str] = Field(default_factory=list)
-
-
-class TeamScenarioOut(BaseModel):
-    code: str
-    name: str
-    description: str
-    team_size: int
-    role_capacity: dict[str, Any] = Field(default_factory=dict)
-    parallel_tracks: int
-    communication_pct: float
-    unplanned_pct: float
-    specialist_capacity: dict[str, Any] = Field(default_factory=dict)
-
-
-class ScheduleTaskOut(BaseModel):
-    code: str
-    name: str
-    method_code: str
-    package_type: str
-    role: str
-    dependencies: list[str] = Field(default_factory=list)
-    #: Минимальная оценка нужна, чтобы показать разброс, а не только P50/P80.
-    minimum_days: float = 0.0
-    p50_days: float
-    p80_days: float
-    parallelizable: bool = True
-    recommended_stage: str = "prototype"
-    #: Исходный свободный текст стадии из пакета, если поле было не кодом:
-    #: нормализованный код без него неотличим от кода, заданного явно.
-    stage_note: str = ""
-    late_factor: float = 1.0
-    #: Основание оценки: экспертное допущение или выведенное значение.
-    basis: str = "expert_estimate"
-    start_p50: float
-    finish_p50: float
-    start_p80: float
-    finish_p80: float
-    critical: bool = False
-
-
-class ScheduleOut(BaseModel):
-    team: TeamScenarioOut
-    methods: list[str] = Field(default_factory=list)
-    effort: EstimateBand
-    calendar: EstimateBand
-    critical_path: list[str] = Field(default_factory=list)
-    tasks: list[ScheduleTaskOut] = Field(default_factory=list)
-    unresolved_dependencies: list[str] = Field(default_factory=list)
-    stage_notes: list[str] = Field(default_factory=list)
-    evidence_basis: str = "expert_estimate"
-
-
 class EvidenceSummaryOut(BaseModel):
     source_count: int = 0
     claim_count: int = 0
-    case_count: int = 0
     claims_with_sources: int = 0
     numeric_claims_published: int = 0
     numeric_claims_unknown: int = 0
@@ -1117,7 +977,6 @@ class RecommendationResult(BaseModel):
     #: Пояснения к достроенным зависимостям: что добавлено и по чьему требованию.
     required_additionally_notes: list[str] = Field(default_factory=list)
     hardware: HardwareEstimateOut | None = None
-    practice_check: "PracticeCheckOut" = Field(default_factory=lambda: PracticeCheckOut())
     evidence_summary: "EvidenceSummaryOut" = Field(default_factory=lambda: EvidenceSummaryOut())
     contributions: "ContributionsOut" = Field(default_factory=lambda: ContributionsOut())
     stage_guidance: "StageGuidanceOut" = Field(default_factory=lambda: StageGuidanceOut(
@@ -1188,6 +1047,4 @@ class ReportDataOut(BaseModel):
     recommendation: RecommendationResult
     evidence_summary: EvidenceSummaryOut
     sources: list[EvidenceSourceOut] = Field(default_factory=list)
-    cases: list[GameCaseOut] = Field(default_factory=list)
     dependencies: list[DependencyOut] = Field(default_factory=list)
-    schedule: ScheduleOut

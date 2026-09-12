@@ -19,9 +19,9 @@ from sqlalchemy.orm import Session
 
 from ..config import DATA_DIR
 from ..models.entities import (
-    CaseEvidence, Conflict, DependencyEdge, Engine, EngineTool, EvidenceClaim,
-    EvidenceSource, GameCase, GameFunction, HardwareCPU, HardwareGPU, Method,
-    MethodEngineLink, TeamScenario, TechnologyNode, ValidationIssue, WorkPackage,
+    Conflict, DependencyEdge, Engine, EngineTool, EvidenceClaim,
+    EvidenceSource, GameFunction, HardwareCPU, HardwareGPU, Method,
+    MethodEngineLink, TechnologyNode, ValidationIssue,
 )
 from ..models.enums import DevStage, Status
 from . import engines_data, functions_data, methods_data
@@ -239,7 +239,6 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
         break_dependency_cycles, dedupe_symmetric_relations, sync_dependency_graph,
     )
     from .relation_resolutions import apply_relation_resolutions
-    from .evidence_catalog import sync_work_packages
     # Граф строится после загрузки пакетов — тем же порядком, что и в полном
     # сидере. Только `sync_dependency_graph` превращает строки `conflicts` в
     # рёбра `dependency_edges`; без него новый проход загрузчика создавал связь,
@@ -248,16 +247,12 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
     graph_stats = sync_dependency_graph(db)
     graph_stats.update(break_dependency_cycles(db))
     graph_stats.update(dedupe_symmetric_relations(db))
-    # Предусловия пакетов работ пересчитываются после канонизации связей: иначе
-    # в `dependency_codes` попадают предусловия, которых в итоговом каталоге нет.
-    work_synced = sync_work_packages(db)
     # Декларации пробелов — до решений: основание решения зависит от маркера
     # источника (`user_defined:`), который ставит именно этот проход.
     gap_stats = declare_evidence_gaps(db)
     canonical = {
         **graph_stats,
         **gap_stats,
-        "work_package_dependencies_refreshed": work_synced,
         **apply_relation_resolutions(db),
     }
     return {
@@ -557,57 +552,12 @@ def validate_knowledge_base(db: Session) -> list[dict]:
         elif claim.basis == "derived" and not self_contained_derived and (source is None or not claim.locator):
             add("evidence_claim", claim.code, "warning", "У derived claim нет источника либо воспроизводимой формулы и входных параметров.")
 
-    cases = list(db.scalars(select(GameCase)))
-    case_ids = {case.id for case in cases}
-    case_code_by_id = {case.id: case.code for case in cases}
-    published_case_ids = {case.id for case in cases if case.status == PUBLISHED}
-    method_codes = {method.code for method in methods}
-    for item in db.scalars(select(CaseEvidence)):
-        if item.status == PUBLISHED and item.case_id not in case_ids:
-            add("case_evidence", item.code, "error", "Факт кейса ссылается на несуществующий кейс.")
-        # Публичный слой отдаёт только опубликованные кейсы (`repositories.game_cases`).
-        # Опубликованный факт на черновике-родителе выглядит как доказательство,
-        # у которого нет кейса: связь в базе есть, а в выдаче её не видно.
-        if (
-            item.status == PUBLISHED
-            and item.case_id in case_ids
-            and item.case_id not in published_case_ids
-        ):
-            add(
-                "game_case", case_code_by_id.get(item.case_id, str(item.case_id)), "warning",
-                "Опубликованный факт кейса опирается на кейс в статусе черновика: "
-                "при выдаче кейс не отдаётся.",
-            )
-        if item.status == PUBLISHED and item.method_code and item.method_code not in method_codes:
-            add(
-                "case_evidence", item.code, "error",
-                "Факт кейса ссылается не на код метода, а на неизвестную или функциональную запись.",
-            )
-        if item.status == PUBLISHED:
-            source = source_by_id.get(item.source_id) if item.source_id else None
-            if source is None or not item.locator:
-                add(
-                    "case_evidence", item.code, "warning",
-                    "Опубликованный факт кейса должен иметь источник и проверяемый локатор.",
-                )
-
     nodes = list(db.scalars(select(TechnologyNode)))
     node_ids = {node.id for node in nodes}
     for edge in db.scalars(select(DependencyEdge)):
         if edge.status == PUBLISHED and (edge.source_node_id not in node_ids or edge.target_node_id not in node_ids):
             add("dependency_edge", str(edge.id), "error", "Зависимость ссылается на несуществующий узел.")
 
-    for package in db.scalars(select(WorkPackage)):
-        if package.status == PUBLISHED and package.p80_days < package.p50_days:
-            add("work_package", package.code, "error", "P80 не может быть меньше P50.")
-        # Стадия — значение перечисления, а не свободный текст: иначе её нельзя
-        # ни сравнить, ни отфильтровать, и план теряет привязку к этапу.
-        if package.status == PUBLISHED and package.recommended_stage not in _DEV_STAGES:
-            add(
-                "work_package", package.code, "error",
-                f"Рекомендованная стадия «{package.recommended_stage}» не является "
-                f"кодом этапа. Допустимо: {', '.join(sorted(_DEV_STAGES))}.",
-            )
     for method in methods:
         if method.status == PUBLISHED and method.recommended_stage not in _DEV_STAGES:
             add(
@@ -615,9 +565,6 @@ def validate_knowledge_base(db: Session) -> list[dict]:
                 f"Рекомендованная стадия «{method.recommended_stage}» не является "
                 f"кодом этапа. Допустимо: {', '.join(sorted(_DEV_STAGES))}.",
             )
-    for team in db.scalars(select(TeamScenario)):
-        if team.status == PUBLISHED and (team.team_size < 1 or team.parallel_tracks < 1):
-            add("team_scenario", team.code, "error", "Сценарий команды должен иметь положительную ёмкость.")
 
     # 7. Минимальное наполнение MVP.
     if len(methods) < 40:
@@ -724,17 +671,6 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     graph_stats.update(dedupe_symmetric_relations(db))
     db.flush()
     db.commit()
-    # Предусловия пакетов работ пересчитываются КОНЦОМ всей цепочки: связи
-    # «метод требует метод» объявляются пакетами, а обязательная связь в цикле
-    # понижается до дополнения уже после построения графа. Проход, выполненный
-    # до разрыва циклов, записал бы в `dependency_codes` предусловия, которых в
-    # итоговом каталоге нет: 19 связей были бы выданы за обязательные. Здесь
-    # список зависимостей уже каноничен. Проход идемпотентен и обновляет только
-    # `dependency_codes`, не трогая остальные поля.
-    from .evidence_catalog import sync_work_packages
-    work_synced = sync_work_packages(db)
-    db.flush()
-    db.commit()
     # Декларации пробелов — ДО заполнения решений. Проход ставит конфликтам без
     # источника маркер `user_defined:catalog_dependency`, а решение о базисе
     # принимается по этому полю (`derived` — связь с источником,
@@ -774,7 +710,6 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
         "source_records_corrected": source_records_corrected,
         "engine_tool_independence_corrected": independence_corrected,
         "verified_fields_corrected": verified_fields_corrected,
-        "work_package_dependencies_refreshed": work_synced,
         **fixes_v2,
         **evidence,
         **graph_stats,

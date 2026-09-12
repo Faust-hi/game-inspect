@@ -84,8 +84,8 @@ EXPECTED_INITIAL_TABLES = frozenset({
 })
 
 LEGACY_NEW_TABLES = frozenset({
-    "evidence_sources", "evidence_claims", "game_cases", "case_evidence",
-    "technology_nodes", "dependency_edges", "work_packages", "team_scenarios",
+    "evidence_sources", "evidence_claims",
+    "technology_nodes", "dependency_edges",
 })
 
 #: Состояние последнего запуска миграций для health-check. Процесс отвечает

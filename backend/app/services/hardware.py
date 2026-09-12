@@ -83,7 +83,7 @@ from .. import repositories
 from ..models.entities import HardwareCPU, HardwareGPU
 from ..schemas.catalog import (
     ContributionItem, ContributionsOut, EstimateBand, HardwareEstimateOut,
-    MemoryComposition, NonClientMethodOut, PlatformTargetOut, PracticeCheckOut,
+    MemoryComposition, NonClientMethodOut, PlatformTargetOut,
     ProjectProfile, SubsystemBreakdown, TargetAssessmentOut, count_scale_bounds,
     level_unspecified,
 )
@@ -735,8 +735,6 @@ GPU_HEADROOM_SHARE = 0.05
 # по объёму работ. Он не выводится ни из чего и ни от чего не зависит.
 #
 # Различие с соседними осями, которое важно не потерять:
-#   * размер команды — не здесь. Он живёт в `TeamScenario` (каталог) и влияет
-#     только на календарь разработки (`planning.schedule`);
 #   * `profile.scale` — масштаб МИРА, другая ось: она множит контент, а не базис.
 #
 # Масштаб проекта влияет ровно на одну величину — базис памяти, то есть
@@ -2307,8 +2305,7 @@ def _consequences(profile: ProjectProfile, methods: list, model: FrameModel) -> 
         # Значения `late_cost` — из перечисления LateCost: low/medium/high/critical.
         # Литерал `blocking` в перечислении отсутствует, поэтому все 17 методов с
         # критической стоимостью позднего внедрения молча выпадали из
-        # предупреждения — оставались только «высокие». Тот же набор значений
-        # используется в планировщике (`planning.effort_for_methods`).
+        # предупреждения — оставались только «высокие».
         (m for m in methods if m.late_cost in {"high", "critical"}),
         key=lambda m: m.name,
     )
@@ -2917,27 +2914,4 @@ def build_contributions(
         methods=model.method_contributions,
         assumptions=model.assumptions,
         exclusions=exclusions,
-    )
-
-
-def practice_check() -> PracticeCheckOut:
-    """Блок «Сверка с практикой».
-
-    Сверка с реальными играми не выполняется: паспорта игр не загружаются,
-    показатели точности не вычисляются. Заявленная погрешность ±70% является
-    целью модели, а не подтверждённым результатом.
-    """
-    return PracticeCheckOut(
-        status="in_development",
-        title="Сверка с практикой — в разработке",
-        message=(
-            "Сверка расчёта с реальными играми не выполняется: паспорта игр "
-            "не загружаются, показатели точности не вычисляются. Заявленная "
-            "погрешность ±70% является целью модели, а не подтверждённым результатом."
-        ),
-        details=[
-            "База паспортов игр не используется и не загружается.",
-            "Показатели точности не рассчитываются: независимой калибровки нет.",
-            "Проверка модели предполагается на прототипе конкретного проекта.",
-        ],
     )

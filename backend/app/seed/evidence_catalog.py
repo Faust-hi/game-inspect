@@ -1,6 +1,6 @@
 """Seed-данные доказательного слоя.
 
-Файл содержит небольшой, но разнородный набор кейсов и зависимостей, а
+Файл содержит небольшой, но разнородный набор зависимостей, а
 реестр источников автоматически расширяется всеми ссылками, уже входящими в
 каталог. Это позволяет не обещать полное исследование только по нескольким
 демо: coverage в API показывает, какие claims ещё требуют ручной ревизии.
@@ -14,9 +14,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models.entities import (
-    CaseEvidence, DependencyEdge, Engine, EngineTool, EvidenceClaim,
-    EvidenceSource, GameCase, GameFunction, HardwareCPU, HardwareGPU, Method, TechnologyNode,
-    TeamScenario, WorkPackage,
+    DependencyEdge, Engine, EngineTool, EvidenceClaim,
+    EvidenceSource, GameFunction, HardwareCPU, HardwareGPU, Method, TechnologyNode,
 )
 from . import methods_data
 from .sources import SOURCES
@@ -577,143 +576,6 @@ def _source_records() -> list[dict[str, Any]]:
     return records
 
 
-CASE_RECORDS: list[dict[str, Any]] = [
-    {
-        "code": "left4dead_ai_director", "title": "Left 4 Dead", "studio": "Valve",
-        "release_year": 2008, "technology": "Source", "engine_code": "source",
-        "world_type": "линейные кооперативные кампании", "network_mode": "4-player co-op",
-        "summary": "AI Director модулирует драматический темп по оценке интенсивности команды.",
-        "relevance": "Прямой кейс адаптивного темпа и процедурного управления населением угроз.",
-        "transfer_limits": "Не переносит количество заражённых, FPS или сложность кампании в другой проект.",
-        "evidence": [{
-            "code": "left4dead_ai_director.pacing", "method_code": "",
-            "function_code": "advanced_npc_ai", "fact": "Система оценивает Survivor Intensity, повышает её событиями и постепенно снижает; Director регулирует pacing, а не обязательно амплитуду сложности.",
-            "match_level": "direct", "source_code": "L4D_AI_DIRECTOR",
-            "locator": "section: Adaptive Dramatic Pacing",
-            "transfer_limits": "Публичный материал описывает механизм и компромисс, но не даёт универсальной оценки CPU/FPS.",
-        }],
-    },
-    {
-        "code": "counterstrike2_subtick", "title": "Counter-Strike 2", "studio": "Valve",
-        "release_year": 2023, "technology": "Source 2", "engine_code": "source",
-        "world_type": "соревновательные арены", "network_mode": "authoritative multiplayer",
-        "summary": "Sub-tick architecture records the instant of relevant input events independently of the old tick-only framing.",
-        "relevance": "Кейс серверной временной модели, сетевой отзывчивости и требований к валидации.",
-        "transfer_limits": "Официальное описание не задаёт переносимый бюджет трафика или задержки для другой игры.",
-        "evidence": [{
-            "code": "counterstrike2_subtick.netcode", "method_code": "tickrate_budgeting",
-            "function_code": "multiplayer_netcode", "fact": "Valve описывает sub-tick updates как механизм, при котором сервер знает момент движения, выстрела или броска.",
-            "match_level": "direct", "source_code": "CS2_SUBTICK", "locator": "section: Sub-tick updates",
-            "transfer_limits": "Нельзя выводить из этого факта универсальный tick rate, latency или hardware requirement.",
-        }],
-    },
-    {
-        "code": "valorant_128_tick", "title": "VALORANT", "studio": "Riot Games",
-        "release_year": 2020, "technology": "собственная серверная инфраструктура", "engine_code": "custom",
-        "world_type": "соревновательные арены", "network_mode": "authoritative 128-tick server",
-        "summary": "Инженерный материал Riot разбирает серверную производительность и сетевую модель VALORANT.",
-        "relevance": "Кейс серверного тика, влияния latency и проверки simulation divergence.",
-        "transfer_limits": "128 tick - свойство описанного сервиса, а не универсальная рекомендация для каждой игры.",
-        "evidence": [{
-            "code": "valorant_128_tick.server", "method_code": "tickrate_budgeting",
-            "function_code": "multiplayer_netcode", "fact": "Riot связывает серверную производительность с задачами hit registration, peeker's advantage и simulation divergence.",
-            "match_level": "direct", "source_code": "RIOT_NETCODE", "locator": "sections: peeker's advantage and simulation divergence",
-            "transfer_limits": "Состав железа, сетевой маршрут и тик должны измеряться отдельно для проекта.",
-        }, {
-            "code": "valorant_128_tick.server_rate", "method_code": "tickrate_budgeting",
-            "function_code": "multiplayer_netcode", "fact": "Публичный материал Riot описывает 128-tick server performance как инженерную цель сервиса VALORANT.",
-            "match_level": "direct", "source_code": "RIOT_TICK", "locator": "section: 128-tick servers",
-            "transfer_limits": "Цель нельзя выдавать за доказанный минимум для другого числа игроков или другой симуляции.",
-        }],
-    },
-    {
-        "code": "it_takes_two_splitscreen", "title": "It Takes Two", "studio": "Hazelight",
-        "release_year": 2021, "technology": "Unreal Engine 4", "engine_code": "unreal",
-        "world_type": "линейные кооперативные сцены", "network_mode": "local/online co-op",
-        "summary": "Технический анализ Digital Foundry рассматривает split-screen и две точки зрения как часть рендер-пайплайна.",
-        "relevance": "Пример того, что локальные вьюпорты увеличивают клиентскую работу, но не равны сетевым игрокам.",
-        "transfer_limits": "Результат зависит от сцены, разрешения, качества и конкретной реализации; FPS не переносится.",
-        "evidence": [{
-            "code": "it_takes_two_splitscreen.render", "method_code": "splitscreen_render_budget",
-            "function_code": "split_screen_rendering", "fact": "Публичный технический разбор связывает кооперативный split-screen с отдельными видами и стоимостью рендеринга.",
-            "match_level": "direct", "source_code": "DF_ITTakesTWO", "locator": "section: split-screen rendering and performance analysis",
-            "transfer_limits": "Нельзя использовать сравнительный FPS анализа как норматив для другой сцены.",
-        }],
-    },
-    {
-        "code": "doom_eternal_rendering", "title": "DOOM Eternal", "studio": "id Software",
-        "release_year": 2020, "technology": "id Tech 7", "engine_code": "custom",
-        "world_type": "сегментированные боевые уровни", "network_mode": "single-player with online modes",
-        "summary": "Доклад SIGGRAPH 2020 описывает geometry caches, gore, decals, material compositing и workflow вокруг целевого frame rate.",
-        "relevance": "Кейс оптимизированного производственного графического пайплайна с явной целевой частотой.",
-        "transfer_limits": "Собственный движок, ассеты и платформенный порт делают детали непереносимыми без повторного измерения.",
-        "evidence": [{
-            "code": "doom_eternal_rendering.pipeline", "method_code": "",
-            "function_code": "rendering_architecture", "fact": "Команда id Software описывает несколько специализированных подсистем рендера и workflow, позволивших удерживать целевую частоту кадров на платформах проекта.",
-            "match_level": "direct", "source_code": "DOOM_ETERNAL", "locator": "slides: geometry caches, gore, material compositing, target frame rate",
-            "transfer_limits": "Доклад подтверждает инженерный подход, но не даёт универсального отношения ассеты -> FPS.",
-        }],
-    },
-    {
-        "code": "hunt_showdown_audio", "title": "Hunt: Showdown", "studio": "Crytek",
-        "release_year": 2019, "technology": "CryEngine", "engine_code": "cryengine",
-        "world_type": "большие PvPvE-карты", "network_mode": "competitive multiplayer",
-        "summary": "Команда Hunt описывает occlusion rays, material-dependent filtering, HRTF/CrySpatial и аудио как источник игровой читаемости.",
-        "relevance": "Кейс пространственного звука, где реализм ограничен читаемостью и измерительными правилами микса.",
-        "transfer_limits": "Число emitters, лучей и стоимость CPU/аудио-потока зависят от карты и middleware.",
-        "evidence": [{
-            "code": "hunt_showdown_audio.occlusion", "method_code": "audio_occlusion_propagation",
-            "function_code": "audio_system", "fact": "Для occlusion команда описывает проверку препятствия между emitter и listener и фильтрацию по типу поверхности.",
-            "match_level": "direct", "source_code": "HUNT_AUDIO", "locator": "sections: Occlusion and Realism, Feedback and Readability",
-            "transfer_limits": "Это подтверждение механизма, а не числовая модель трафика или FPS.",
-        }, {
-            "code": "hunt_showdown_audio.cryspatial", "method_code": "audio_occlusion_propagation",
-            "function_code": "audio_system", "fact": "Crytek описывает CrySpatial как HRTF-based 3D audio, помогающий различать направление источника.",
-            "match_level": "direct", "source_code": "HUNT_AUDIO_2025", "locator": "section: CrySpatial",
-            "transfer_limits": "Восприятие звука зависит от устройства вывода и настройки микса; результат не переносится автоматически.",
-        }],
-    },
-    {
-        "code": "ue_city_sample_open_world", "title": "Unreal Engine City Sample", "studio": "Epic Games",
-        "release_year": 2021, "technology": "Unreal Engine 5", "engine_code": "unreal",
-        "world_type": "4 km x 4 km city sample", "network_mode": "technical demo",
-        "summary": "Официальная документация City Sample связывает World Partition, Nanite, Lumen, VSM, Mass AI, Chaos и MetaSounds.",
-        "relevance": "Связанный reference-case для большого мира, массовой симуляции, процедурных данных и memory/streaming trade-offs.",
-        "transfer_limits": "Это демонстрационный проект; его polygon/asset counts и требования не являются минимальными требованиями для любой игры.",
-        "evidence": [{
-            "code": "ue_city_sample_open_world.world", "method_code": "world_partition_streaming",
-            "function_code": "open_world_streaming", "fact": "City Sample использует World Partition и on-demand loading cells для большого города.",
-            "match_level": "direct", "source_code": "UE_CITY_SAMPLE", "locator": "sections: World Partition and Big City",
-            "transfer_limits": "Размер ячейки, loading range и активная сцена требуют калибровки на своем мире.",
-        }, {
-            "code": "ue_city_sample_open_world.geometry", "method_code": "virtual_geometry_clusters",
-            "function_code": "geometry_pipeline", "fact": "Документация описывает Nanite на static meshes, высокополигональные исходники и динамическое изменение представления по видимости/детализации.",
-            "match_level": "direct", "source_code": "UE_CITY_SAMPLE", "locator": "section: Nanite Virtualized Geometry",
-            "transfer_limits": "Неподдерживаемые материалы, WPO, foliage и fallback meshes требуют отдельных проверок.",
-        }, {
-            "code": "ue_city_sample_open_world.procedural", "method_code": "",
-            "function_code": "procedural_terrain", "fact": "City Sample PCG documentation содержит процедурную конфигурацию города, PCG graphs и shape grammar assets.",
-            "match_level": "direct", "source_code": "UE_CITY_SAMPLE_PCG", "locator": "section: procedural city and PCG graph examples",
-            "transfer_limits": "Наличие PCG graph не говорит о времени генерации, cook или runtime memory другого проекта.",
-        }],
-    },
-    {
-        "code": "unity_dots_production", "title": "Unity DOTS production examples", "studio": "Unity and partner studios",
-        "release_year": 2024, "technology": "Unity DOTS / Entities", "engine_code": "unity",
-        "world_type": "large-scale multiplayer and simulation examples", "network_mode": "varies by project",
-        "summary": "Unity's official DOTS page lists production examples including V Rising, Megacity Metro and IXION.",
-        "relevance": "Кейс data-oriented подхода, parallel jobs и масштабирования симуляции на отдельных проектах.",
-        "transfer_limits": "Список showcase подтверждает применение, но не доказывает одинаковый выигрыш производительности для всех проектов.",
-        "evidence": [{
-            "code": "unity_dots_production.ecs", "method_code": "ecs_data_oriented_crowd",
-            "function_code": "crowd_simulation", "fact": "Unity описывает DOTS/Entities как стек для более масштабной обработки и приводит production examples с ECS.",
-            "match_level": "direct", "source_code": "UNITY_DOTS_PRODUCTION", "locator": "section: DOTS in Production",
-            "transfer_limits": "Переход с GameObjects на ECS имеет migration cost и зависит от контракта данных и job safety.",
-        }],
-    },
-]
-
-
 DEPENDENCY_RECORDS: list[dict[str, Any]] = [
     {"source": "tool:ue_nanite", "target": "api:directx12", "dependency_type": "runtime_api", "mandatory": True, "min_version": "SM6", "platform": "pc_windows", "scope": "runtime", "severity": 1, "source_code": "UE_FEATURE_MATRIX", "description": "Nanite requires an appropriate desktop rendering path and Shader Model 6 support in the documented path.", "workaround": "Использовать поддерживаемый rendering path или отказаться от Nanite для этой цели."},
     {"source": "tool:ue_vsm", "target": "api:directx12", "dependency_type": "runtime_api", "mandatory": True, "min_version": "SM6", "platform": "pc_windows", "scope": "runtime", "severity": 2, "source_code": "UE_FEATURE_MATRIX", "description": "Virtual Shadow Maps have rendering-path and SM6 requirements in the engine feature matrix.", "workaround": "Выбрать совместимый путь теней и отдельно проверить качество."},
@@ -722,18 +584,6 @@ DEPENDENCY_RECORDS: list[dict[str, Any]] = [
     {"source": "tool:u_dots", "target": "engine:unity", "dependency_type": "engine_tool", "mandatory": True, "min_version": "", "platform": "", "scope": "runtime", "severity": 2, "source_code": "UNITY_ENTITIES", "description": "Entities/DOTS is a Unity package and workflow, not a generic engine-independent switch.", "workaround": "Оставить GameObjects или выбрать аналогичный data-oriented слой движка."},
     {"source": "tool:u_netcode", "target": "tool:u_dots", "dependency_type": "package", "mandatory": True, "min_version": "1.0", "platform": "pc_windows,pc_linux", "scope": "server", "severity": 2, "source_code": "UNITY_NETCODE", "description": "The selected Netcode for Entities path depends on the Entities package family.", "workaround": "Проверить совместимые версии пакетов и lockfile перед интеграцией."},
     {"source": "tool:u_addressables", "target": "engine:unity", "dependency_type": "engine_tool", "mandatory": True, "min_version": "", "platform": "", "scope": "build", "severity": 1, "source_code": "UNITY_ADDRESSABLES", "description": "Addressables is a Unity asset management package and build pipeline.", "workaround": "Использовать штатный streaming/build pipeline выбранного движка."},
-]
-
-
-TEAM_RECORDS = [
-    {"code": "solo", "name": "Solo", "description": "Один специалист; узкие роли выполняются последовательно.", "team_size": 1, "role_capacity": {"design": 1, "engineering": 1, "technical_art": 1, "qa": 1, "production": 1}, "parallel_tracks": 1, "communication_pct": 0.05, "unplanned_pct": 0.25, "specialist_capacity": {}},
-    {"code": "small_2_5", "name": "Малая команда (2-5)", "description": "Два параллельных потока и общая QA/production ёмкость.", "team_size": 4, "role_capacity": {"design": 1, "engineering": 2, "technical_art": 1, "qa": 1, "production": 1}, "parallel_tracks": 2, "communication_pct": 0.12, "unplanned_pct": 0.18, "specialist_capacity": {}},
-    {"code": "mid_6_15", "name": "Средняя команда (6-15)", "description": "Специализированные роли и несколько независимых потоков.", "team_size": 10, "role_capacity": {"design": 2, "engineering": 5, "technical_art": 2, "qa": 2, "production": 1}, "parallel_tracks": 5, "communication_pct": 0.18, "unplanned_pct": 0.15, "specialist_capacity": {}},
-    {"code": "large_16_plus", "name": "Большая команда (16+)", "description": "Срок ограничивается зависимостями, интеграцией и quality gates.", "team_size": 24, "role_capacity": {"design": 3, "engineering": 10, "technical_art": 5, "qa": 4, "production": 2}, "parallel_tracks": 12, "communication_pct": 0.25, "unplanned_pct": 0.12, "specialist_capacity": {}},
-    # Шаблон «собственный состав» с явными нейтральными значениями. Это не
-    # скрытая подмена: значения помечены как экспертные допущения, а не как
-    # измеренная ёмкость конкретной студии, и переопределяются заказчиком.
-    {"code": "custom", "name": "Собственный состав", "description": "Промежуточная ёмкость под нетиповую команду; численность и роли переопределяются пользователем.", "team_size": 6, "role_capacity": {"design": 1, "engineering": 3, "technical_art": 1, "qa": 1, "production": 1}, "parallel_tracks": 3, "communication_pct": 0.15, "unplanned_pct": 0.16, "specialist_capacity": {}},
 ]
 
 
@@ -762,56 +612,6 @@ def sync_sources(db: Session) -> dict[str, EvidenceSource]:
 
 def _source_by_url(sources: dict[str, EvidenceSource], url: str) -> EvidenceSource | None:
     return next((item for item in sources.values() if item.url == url and item.status == "published"), None)
-
-
-def sync_cases(db: Session, sources: dict[str, EvidenceSource]) -> int:
-    created = 0
-    # CaseEvidence is intentionally allowed to point at a function without a
-    # method (method_code="").  A non-empty method reference, however, must be
-    # an actual catalog method.  Earlier seed data used function codes here,
-    # which looked plausible in the UI but made cases_for_methods return no
-    # cases for any real Method.
-    method_codes = {
-        item["code"] for item in methods_data.METHODS + methods_data.EXTRA_METHODS
-    }
-    for payload in CASE_RECORDS:
-        case_payload = {key: value for key, value in payload.items() if key != "evidence"}
-        case_payload["status"] = "published"
-        case = _upsert_by_code(db, GameCase, case_payload)
-        if case.id is None:
-            db.flush()
-        for item in payload.get("evidence", []):
-            method_code = item.get("method_code", "")
-            if method_code and method_code not in method_codes:
-                raise ValueError(
-                    f"Case evidence {item['code']} references unknown method "
-                    f"{method_code!r}; use an exact method code or an empty "
-                    "method_code for function-only evidence."
-                )
-            existing = db.scalar(
-                select(CaseEvidence).where(CaseEvidence.code == item["code"])
-            )
-            if existing is not None:
-                # Repair the old seed's function-as-method mismatch without
-                # overwriting a deliberate administrator edit.  The legacy
-                # value is recognizable because it equals function_code.
-                if (
-                    method_code != existing.method_code
-                    and existing.method_code == item.get("function_code", "")
-                ):
-                    existing.method_code = method_code
-                continue
-            source = sources.get(item.get("source_code", ""))
-            db.add(CaseEvidence(
-                code=item["code"], case_id=case.id,
-                function_code=item.get("function_code", ""), method_code=method_code,
-                fact=item["fact"], match_level=item.get("match_level", "direct"),
-                locator=item.get("locator", "overview"), source_id=source.id if source else None,
-                basis="case_evidence", transfer_limits=item.get("transfer_limits", ""), status="published",
-            ))
-            created += 1
-    db.flush()
-    return created
 
 
 def sync_claims(db: Session, sources: dict[str, EvidenceSource]) -> int:
@@ -974,131 +774,8 @@ def sync_nodes_and_edges(db: Session, sources: dict[str, EvidenceSource]) -> dic
     return {"technology_nodes_created": created_nodes, "dependency_edges_created": created_edges}
 
 
-def sync_work_packages(db: Session) -> int:
-    """Создать пакеты работ, задать их величину и обновить предусловия.
-
-    **Величину** оценки задаёт курируемая трудоёмкость пакета
-    (`pack_loader.curated_effort`): только она различает конвейер
-    виртуализированной геометрии (260 чел.-дней) и правку куллинга тайлмапа
-    (3 чел.-дня) — 28 различных значений в размахе 86,7×. **Распределение**
-    итога по фазам задаёт формула из `implementation_cost` и `complexity`: её
-    собственный размах — 3,02×, и как итог она не различает почти ничего, но как
-    профиль фаз она содержательна (29,3 % работы в интеграции против 12,5 % при
-    делении поровну).
-
-    Раньше публиковались обе семьи: формульная `{method}.{kind}` (802 строки) и
-    пакетная `WP_{method}_{kind}` (992 строки, итог / 8 на фазу). Они давали
-    1081,82 против 2435 чел.-дней, коррелировали всего на 0,45, а пакетная не
-    несла полей, которые читает планировщик (`min_days`, `late_factor`,
-    `parallelizable`, `dependency_codes`). Теперь семья одна: структура
-    формульной, величина курируемая.
-
-    `dependency_codes` пересчитываются и у уже существующих пакетов. Раньше
-    проход только вставлял новые строки и пропускал существующие, а связи
-    «метод требует метод» появляются позже — при загрузке пакетов. В итоге все
-    802 опубликованных пакета оставались с пустым списком предусловий, хотя 64
-    метода имеют опубликованную зависимость: планировщик не ставил первый пакет
-    метода после интеграционного пакета его предусловия.
-    """
-    created = 0
-    refreshed = 0
-    relation_dependencies: dict[str, list[str]] = {}
-    from ..models.entities import Conflict
-    from .pack_loader import curated_effort
-    curated = curated_effort()
-    for relation in db.scalars(select(Conflict).where(
-        Conflict.conflict_type == "dependency", Conflict.status == "published"
-    )):
-        relation_dependencies.setdefault(relation.a_code, []).append(relation.b_code)
-    for method in db.scalars(select(Method).where(Method.status == "published")):
-        factor = {"low": 1.08, "medium": 1.2, "high": 1.45, "critical": 1.8}.get(method.late_cost, 1.2)
-        c = max(1.0, float(method.implementation_cost or 3)); x = max(1.0, float(method.complexity or 3))
-        dependencies = list(relation_dependencies.get(method.code, []))
-        packages = [
-            ("design", "Проектирование и контракт", "design", 0.45 + c * 0.22, True),
-            ("feasibility", "Проверка реализуемости", "engineering", (0.6 + x * 0.35) if method.requires_prototype or x >= 4 else 0.0, True),
-            ("integration", "Интеграция в проект", "engineering", 0.9 + c * 0.55, False),
-            ("content", "Подготовка контента и ассетов", "technical_art", 0.35 + x * 0.3, True),
-            ("optimization", "Оптимизация и измерительный стенд", "engineering", 0.4 + x * 0.25, True),
-            ("qa", "QA и регрессия", "qa", 0.45 + x * 0.22, False),
-            ("release", "Стабилизация и документация", "production", 0.25 + c * 0.12, False),
-        ]
-        estimate = curated.get(method.code)
-        # Сумма весов формулы — знаменатель долей: курируемый итог
-        # раскладывается по фазам без остатка.
-        shape_total = sum(item[3] for item in packages if item[3] > 0) or 1.0
-        for kind, name, role, shape, parallelizable in packages:
-            if shape <= 0:
-                continue
-            share = shape / shape_total
-            if estimate is not None:
-                p50 = estimate["p50"] * share
-                p80 = estimate["p80"] * share
-                basis = estimate.get("basis", "expert_estimate")
-                stage = estimate.get("recommended_stage") or method.recommended_stage
-                stage_note = estimate.get("stage_note") or ""
-            else:
-                # Метод без курируемой оценки: формульный итог остаётся
-                # fallback, иначе работа метода пропала бы из календаря вовсе.
-                p50 = shape
-                p80 = shape * 1.5
-                basis = "expert_estimate"
-                stage = method.recommended_stage
-                stage_note = ""
-            p50 = round(p50, 4)
-            p80 = round(p80, 4)
-            min_days = round(p50 * 0.65, 4)
-            code = f"{method.code}.{kind}"
-            existing = db.scalar(select(WorkPackage).where(WorkPackage.code == code))
-            if existing is not None:
-                # Согласующий проход: величина оценки приходит из пакета, а
-                # строка уже существует в собранной базе. Без него смена семьи не
-                # доходила бы до базы — как раньше не доходил словарь ролей.
-                changed = False
-                for field, value in (
-                    ("p50_days", p50), ("p80_days", p80), ("min_days", min_days),
-                    ("role", role), ("parallelizable", parallelizable),
-                    ("late_factor", factor), ("basis", basis),
-                ):
-                    if getattr(existing, field) != value:
-                        setattr(existing, field, value)
-                        changed = True
-                if list(existing.dependency_codes or []) != dependencies:
-                    existing.dependency_codes = dependencies
-                    changed = True
-                # Курируемая стадия перекрывает каталожную только когда она
-                # есть; обоснование (`stage_note`) не затирается.
-                if estimate is not None and stage and existing.recommended_stage != stage:
-                    existing.recommended_stage = stage
-                    changed = True
-                if stage_note and not (existing.stage_note or "").strip():
-                    existing.stage_note = stage_note
-                    changed = True
-                if changed:
-                    refreshed += 1
-                continue
-            db.add(WorkPackage(
-                code=code, method_code=method.code, name=f"{method.name}: {name}",
-                package_type=kind, role=role, min_days=min_days,
-                p50_days=p50, p80_days=p80,
-                parallelizable=parallelizable, recommended_stage=stage,
-                stage_note=stage_note, late_factor=factor, dependency_codes=dependencies,
-                basis=basis, status="published",
-            )); created += 1
-    for payload in TEAM_RECORDS:
-        if not db.scalar(select(TeamScenario.id).where(TeamScenario.code == payload["code"])):
-            db.add(TeamScenario(**payload, status="published")); created += 1
-    db.flush()
-    return created + refreshed
-
-
 def sync_all(db: Session) -> dict[str, int]:
     sources = sync_sources(db)
-    cases = sync_cases(db, sources)
     claims = sync_claims(db, sources)
     graph = sync_nodes_and_edges(db, sources)
-    work = sync_work_packages(db)
-    # Ключ называет действие, а не только вставку: `sync_work_packages`
-    # пересчитывает предусловия у существующих пакетов и возвращает сумму
-    # созданных и обновлённых записей.
-    return {"evidence_sources": len(sources), "evidence_claims_created": claims, "case_evidence_created": cases, **graph, "planning_records_synced": work}
+    return {"evidence_sources": len(sources), "evidence_claims_created": claims, **graph}

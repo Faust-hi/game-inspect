@@ -19,8 +19,8 @@ from ..models.enums import (
 )
 from ..schemas.catalog import (
     ConflictOut, DependencyOut, EngineOut, EngineToolOut, EvidenceClaimOut,
-    EvidenceSourceOut, EvidenceSummaryOut, GameCaseOut, GameFunctionOut,
-    GraphChecksOut, MethodOut, StageGuidanceOut, TeamScenarioOut,
+    EvidenceSourceOut, EvidenceSummaryOut, GameFunctionOut,
+    GraphChecksOut, MethodOut, StageGuidanceOut,
 )
 from ..services import evidence as evidence_service, serializers, stage_guidance
 from ..services import graph as graph_service
@@ -169,19 +169,6 @@ def evidence_summary(db: Session = Depends(get_db)):
     return evidence_service.summary(db)
 
 
-@router.get("/cases", response_model=list[GameCaseOut], summary="Кейсы реальных игр и демо")
-def list_cases(db: Session = Depends(get_db)):
-    return evidence_service.cases_to_out(db, repositories.game_cases(db))
-
-
-@router.get("/cases/{code}", response_model=GameCaseOut, summary="Кейс игры")
-def get_case(code: str, db: Session = Depends(get_db)):
-    case = repositories.game_case(db, code)
-    if case is None:
-        raise HTTPException(404, "Кейс не найден или не опубликован")
-    return evidence_service.cases_to_out(db, [case])[0]
-
-
 @router.get("/dependencies", response_model=list[DependencyOut], summary="Технологические зависимости")
 def list_dependencies(db: Session = Depends(get_db)):
     return evidence_service.dependencies_to_out(db)
@@ -207,21 +194,6 @@ def graph_checks(
         engine_version=engine_version,
         render_api=render_api,
     )
-
-
-@router.get("/teams", response_model=list[TeamScenarioOut], summary="Сценарии состава команды")
-def list_teams(db: Session = Depends(get_db)):
-    return [
-        TeamScenarioOut(
-            code=item.code, name=item.name, description=item.description,
-            team_size=item.team_size, role_capacity=item.role_capacity or {},
-            parallel_tracks=item.parallel_tracks,
-            communication_pct=item.communication_pct,
-            unplanned_pct=item.unplanned_pct,
-            specialist_capacity=item.specialist_capacity or {},
-        )
-        for item in repositories.team_scenarios(db)
-    ]
 
 
 # ---------------------------------------------------------------------------

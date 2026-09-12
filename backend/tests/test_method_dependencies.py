@@ -2,10 +2,11 @@
 
 Дефект этого класса: правило «обязательная зависимость достраивается в набор»
 было записано дважды и по-разному. В `rules` оно существовало, но не вызывалось
-ниоткуда, а в `planning` было продублировано для расписания. Из-за расхождения
-расписание и профиль нагрузки считали разные наборы методов: у сценария S16 в
-расписании было 15 методов, а в нагрузке — 0, и «профиль нагрузки» показывал
-нейтральные 50/50 при непустой корзине.
+ниоткуда, а в модуле расписания трудоёмкости было продублировано для него одного
+(модуль с тех пор удалён). Из-за расхождения расписание и профиль нагрузки
+считали разные наборы методов: у сценария S16 в расписании было 15 методов, а в
+нагрузке — 0, и «профиль нагрузки» показывал нейтральные 50/50 при непустой
+корзине.
 
 Тесты фиксируют свойства самого правила: замыкание транзитивно, идемпотентно, не
 подставляет неизвестные методы и применяется одинаково расписанием и нагрузкой.
@@ -14,7 +15,7 @@ from __future__ import annotations
 
 from app import repositories
 from app.schemas.catalog import ProjectProfile
-from app.services import method_dependencies, planning, rules
+from app.services import method_dependencies, rules
 
 
 def _profile(**overrides) -> ProjectProfile:
@@ -180,20 +181,6 @@ def test_excluded_pair_has_no_second_type(db_session):
 
 
 # --- применение правила ---------------------------------------------------
-
-
-def test_schedule_and_load_use_the_same_method_set(db_session):
-    """Расписание и нагрузка считают один и тот же набор методов (N4).
-
-    Раньше расписание делало своё замыкание, а нагрузка не делала никакого, и
-    два представления одного проекта описывали разную работу.
-    """
-    basket = ["world_partition_streaming", "gpu_instancing_vegetation"]
-
-    scheduled, _ = planning._methods_with_dependencies(db_session, basket, include=True)
-    closure = method_dependencies.mandatory_closure(db_session, basket)
-
-    assert scheduled == closure.codes
 
 
 def test_closure_prevents_basket_collapse(db_session):

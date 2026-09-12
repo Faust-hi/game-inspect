@@ -3,16 +3,15 @@
 
 The unit tests in `backend/tests/` pin the *invariants* of the calculation model
 (scene scale changes load but not frame cost; server effects do not discount the
-player PC; team size moves the calendar but not person-days). They deliberately
-assert direction and equality, not exact values, so a legitimate model change
-does not break them.
+player PC). They deliberately assert direction and equality, not exact values,
+so a legitimate model change does not break them.
 
 That leaves a second, quieter failure mode: the research documents record the
 concrete numbers those runs produced, and nothing re-checks them. If the model
 drifts, the tests stay green while `research/category_verification.md` silently
 goes stale — exactly the defect that had to be reconciled by hand.
 
-This tool closes that gap. It rebuilds a throwaway database, runs the same three
+This tool closes that gap. It rebuilds a throwaway database, runs the same
 scenarios the research documents, and compares the results against the recorded
 values. Exact matching is intentional here: a mismatch is a signal to update the
 research document (or to explain the change), not a reason to relax the check.
@@ -74,34 +73,6 @@ SCENE_FRAME_INDEX = {"cpu": 0.2842, "gpu": 0.2131}
 
 SERVER_EXPECTED = {"cpu": 0.2842, "gpu": 0.1515}
 
-PLAN_BASKET = [
-    "world_partition_streaming", "virtual_geometry_clusters", "hardware_raytraced_gi",
-    "temporal_upscaling", "virtual_shadow_maps", "motion_matching",
-    "client_prediction_reconciliation", "tickrate_budgeting", "directstorage_io",
-    "gpu_compute_culling",
-]
-# Календарь и длина критического пути учитывают предусловия из `dependency_codes`
-# у пакетов работ: первый пакет метода ждёт интеграционный пакет того метода,
-# от которого он зависит. До 2026-09-11 это поле оставалось пустым, и путь
-# укорачивался (7 задач, меньший календарь) — зависимость между
-# `world_partition_streaming` и `async_loading_pipeline` в плане не проявлялась.
-# Величина оценки — курируемая (`effort_person_days` из research/packs/pack_*.json),
-# структура по фазам — формульная (доли `implementation_cost` и `complexity`).
-# До 2026-09-11 величину задавала только формула: 12 различных итогов на 124
-# метода и разброс 3,02×, из-за чего конвейер не отличался от точечной правки.
-# Подробнее — research/n2-recommendation-2026-09-11.md.
-PLAN_EXPECTED_CALENDAR = {
-    "solo": 678.33, "small_2_5": 453.54, "mid_6_15": 222.69, "large_16_plus": 116.31,
-}
-PLAN_EXPECTED_EFFORT = 702.00
-# Корзина разрастается обязательными предусловиями: 10 методов запроса дают 19
-# с учётом зависимостей. До 2026-09-11 их было 21: `motion_matching` требовал
-# `animation_lod_budget`, с которым у него объявлен `hard_conflict`, — снятая
-# пара убрала из плана сам метод и его собственную зависимость.
-PLAN_EXPECTED_METHODS = 19
-PLAN_EXPECTED_TASKS = 126
-PLAN_EXPECTED_CRITICAL = 9
-
 
 def _seed_scratch_database() -> None:
     Base.metadata.create_all(bind=engine)
@@ -137,14 +108,6 @@ def _hw(client: TestClient, profile: dict, basket: list[str] | None = None) -> d
     return response.json()
 
 
-def _schedule(client: TestClient, profile: dict, basket: list[str], team: str) -> dict:
-    response = client.post(
-        "/api/schedule", json={"profile": profile, "basket": basket, "team": team}
-    )
-    assert response.status_code == 200, response.text
-    return response.json()
-
-
 def run(client: TestClient, checker: Checker) -> None:
     # §2.3 — scene scale moves load/streaming, not the cost of a frame.
     small = _hw(client, {**SCENE_PROFILE, "scale": "small"})
@@ -164,17 +127,6 @@ def run(client: TestClient, checker: Checker) -> None:
         data = _hw(client, net_profile, basket)
         checker.expect(f"§2.8 {tag} cpu index", data["required_cpu_index"], SERVER_EXPECTED["cpu"], 0.001)
         checker.expect(f"§2.8 {tag} gpu index", data["required_gpu_index"], SERVER_EXPECTED["gpu"], 0.001)
-
-    # §2.10 — team size moves the calendar, never the person-days.
-    plan_profile = {**SCENE_PROFILE, "functions": ["open_world_streaming", "crowd_simulation", "multiplayer_netcode"]}
-    for team, calendar in PLAN_EXPECTED_CALENDAR.items():
-        data = _schedule(client, plan_profile, PLAN_BASKET, team)
-        checker.expect(f"§2.10 {team} effort.p50", data["effort"]["p50"], PLAN_EXPECTED_EFFORT, 0.02)
-        checker.expect(f"§2.10 {team} calendar.p50", data["calendar"]["p50"], calendar, 0.02)
-        checker.expect(f"§2.10 {team} methods", len(data["methods"]), PLAN_EXPECTED_METHODS)
-        checker.expect(f"§2.10 {team} tasks", len(data["tasks"]), PLAN_EXPECTED_TASKS)
-        checker.expect(f"§2.10 {team} critical", sum(1 for t in data["tasks"] if t["critical"]), PLAN_EXPECTED_CRITICAL)
-        checker.expect(f"§2.10 {team} unresolved", len(data["unresolved_dependencies"]), 0)
 
 
 def main() -> int:
@@ -198,7 +150,7 @@ def main() -> int:
         for issue in checker.issues:
             print(f"  - {issue['check']}: получено {issue['actual']!r}, записано {issue['expected']!r}")
         return 1
-    print("OK: движок воспроизводит числа из research/category_verification.md (§2.3, §2.8, §2.10)")
+    print("OK: движок воспроизводит числа из research/category_verification.md (§2.3, §2.8)")
     return 0
 
 

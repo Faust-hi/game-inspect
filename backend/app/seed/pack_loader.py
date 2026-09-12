@@ -1,9 +1,8 @@
 """Загрузчик исследовательских пакетов в доказательный слой.
 
-Каждый пакет — JSON с полным набором sources, claims, game_examples и
-work packages. Модуль нормализует source_type, upsert-ит источники,
-claims, кейсы и пакеты работ, не затирая существующие записи
-администратора.
+Каждый пакет — JSON с полным набором sources, claims и зависимостей между
+методами. Модуль нормализует source_type, upsert-ит источники, claims и связи
+«метод-метод», не затирая существующие записи администратора.
 """
 from __future__ import annotations
 
@@ -17,8 +16,7 @@ from sqlalchemy import select, tuple_
 from sqlalchemy.orm import Session
 
 from ..models.entities import (
-    CaseEvidence, Conflict, EvidenceClaim, EvidenceSource, GameCase, Method,
-    WorkPackage,
+    Conflict, EvidenceClaim, EvidenceSource, Method,
 )
 from ..models.enums import Status
 
@@ -330,44 +328,6 @@ def _upsert_claim(db: Session, payload: dict[str, Any], sources_map: dict[str, E
     return claim
 
 
-def _upsert_case(db: Session, payload: dict[str, Any], sources_map: dict[str, EvidenceSource]) -> GameCase | None:
-    code = payload["code"]
-    existing = db.scalar(select(GameCase).where(GameCase.code == code))
-    if existing:
-        # Согласующий проход: игровой пример несёт `world_type` и
-        # `network_mode`, но в секции методов они раньше не переносились, и
-        # запись оставалась с пустыми полями. Заполняется только пустое —
-        # курируемое значение не затирается; повторная загрузка идемпотентна.
-        for field in ("world_type", "network_mode"):
-            value = str(payload.get(field) or "").strip()
-            if value and not (getattr(existing, field) or "").strip():
-                setattr(existing, field, value[:120])
-                db.flush()
-        return existing
-    case = GameCase(
-        code=code,
-        title=payload.get("title", "")[:200],
-        studio=payload.get("studio", "")[:200],
-        release_year=payload.get("year"),
-        technology=payload.get("engine", "")[:200],
-        engine_code=payload.get("engine_code", "")[:64],
-        world_type=payload.get("world_type", "")[:80],
-        network_mode=payload.get("network_mode", "")[:120],
-        summary=payload.get("summary", "")[:4000],
-        relevance=payload.get("relevance", "")[:2000],
-        transfer_limits=payload.get("transfer_limits", "")[:2000],
-        # Статус — как у связанного факта: кейс публикуем, если игровой пример
-        # разрешился в источник. Без явного статуса тип оставлял запись
-        # черновиком, и публичный слой (`repositories.game_cases`) её не
-        # отдавал: в выдаче были видны только курируемые кейсы — 8 из 155, а
-        # 363 из 375 фактов ссылались на невидимого родителя.
-        status=PUBLISHED if sources_map.get(payload.get("source")) is not None else DRAFT,
-    )
-    db.add(case)
-    db.flush()
-    return case
-
-
 def _build_claim_code(source_code: str, entity: str, entity_code: str, field: str, idx: int) -> str:
     # A declared-absence row carries source=None on purpose (see gap_claim in
     # tools/gen_pack_tool_proofs.py). Formatting None would produce the literal
@@ -551,19 +511,18 @@ def _apply_method_meta(method: Method, mdata: dict) -> None:
 
 
 # Секции пакета, не являющиеся методами, но требующие доказательного слоя.
-# section -> (entity в evidence_claims, колонка связи в case_evidence)
-_ENTITY_SECTIONS: dict[str, tuple[str, str]] = {
-    "functions": ("game_function", "function_code"),
-    "engines": ("engine", "engine_code"),
-    "engine_tools": ("engine_tool", "engine_tool_code"),
-    "technology_nodes": ("technology_node", "node_code"),
-    "cases": ("game_case", "case_code"),
-    "platforms": ("target_platform", "platform_code"),
-    "stage_budgets": ("stage_budget", "stage_code"),
-    "network_modes": ("network_mode", "network_mode_code"),
-    "target_metrics": ("target_metric", "metric_code"),
-    "load_profiles": ("load_profile", "profile_code"),
-    "risk_factors": ("risk_factor", "risk_code"),
+# section -> entity в evidence_claims
+_ENTITY_SECTIONS: dict[str, str] = {
+    "functions": "game_function",
+    "engines": "engine",
+    "engine_tools": "engine_tool",
+    "technology_nodes": "technology_node",
+    "platforms": "target_platform",
+    "stage_budgets": "stage_budget",
+    "network_modes": "network_mode",
+    "target_metrics": "target_metric",
+    "load_profiles": "load_profile",
+    "risk_factors": "risk_factor",
 }
 
 
@@ -585,61 +544,13 @@ def _sequence(pack: dict[str, Any], key: str) -> list[Any]:
     return value if isinstance(value, list) else []
 
 
-def curated_effort() -> dict[str, dict[str, Any]]:
-    """Курируемая трудоёмкость методов из пакетов: код → величина и стадия.
-
-    Это единственный источник **величины** оценки. Формула в
-    `evidence_catalog.sync_work_packages` задаёт не итог, а **распределение**
-    итога по фазам: пакет отвечает на вопрос «сколько всего», формула — «на что
-    эта работа раскладывается». Раньше обе семьи публиковались как независимые
-    оценки одного и того же, и расхождение между ними (корреляция 0,45,
-    отношение от 0,49 до 19,3 по методам) растворялось в порядке загрузки.
-
-    Если метод описан в нескольких пакетах, величина берётся из последнего по
-    алфавиту файла — как и раньше. Совпадающие дубли безвредны; расходящиеся
-    считает `sync_packs` в `pack_effort_conflicts`, чтобы расхождение было
-    объявлено, а не выбрано молча.
-    """
-    packs, _failures = _load_packs()
-    out: dict[str, dict[str, Any]] = {}
-    for pack in packs:
-        for mcode, mdata in _mapping(pack, "methods").items():
-            if not isinstance(mdata, dict):
-                continue
-            effort = mdata.get("effort_person_days") or {}
-            if not isinstance(effort, dict) or effort.get("p50") is None:
-                continue
-            p50 = float(effort["p50"])
-            raw_p80 = effort.get("p80")
-            p80 = float(raw_p80) if raw_p80 is not None else p50 * 1.5
-            # Модель требует p80 >= p50: диапазон не может быть вывернут.
-            if p80 < p50:
-                p80 = p50
-            stage_code, stage_note = normalize_stage(mdata.get("recommended_stage"))
-            out[mcode] = {
-                "p50": p50,
-                "p80": p80,
-                "basis": effort.get("basis", "expert_estimate"),
-                "recommended_stage": stage_code,
-                "stage_note": stage_note or "",
-            }
-    return out
-
-
 def sync_packs(db: Session) -> dict[str, int]:
     packs, pack_failures = _load_packs()
     stats = {
-        "sources": 0, "claims": 0, "cases": 0, "case_evidence": 0,
-        "work_packages": 0, "relations": 0,
+        "sources": 0, "claims": 0, "relations": 0,
         # Число загруженных пакетов и число сбоев видны в статистике: по ней
         # видно, что часть доказательной базы не попала в расчёт.
         "packs_loaded": len(packs), "pack_load_failures": len(pack_failures),
-        # Оценка трудоёмкости, описанная дважды с разными значениями: это
-        # расхождение источников, а не молчаливый выбор победителя.
-        "pack_effort_conflicts": 0,
-        # Снятые строки прежней второй семьи: счётчик виден в статистике сида,
-        # чтобы удаление не выглядело молчаливым.
-        "work_packages_retired": 0,
         # Даты источников, восстановленные после прежнего среза до 20 знаков:
         # счётчик виден, чтобы исправление не выглядело молчаливым.
         "source_dates_restored": 0,
@@ -648,7 +559,6 @@ def sync_packs(db: Session) -> dict[str, int]:
     method_rows = {m.code: m for m in db.scalars(select(Method))}
     known_methods = set(method_rows)
     seen_relations: set[tuple[str, str, str]] = set()
-    effort_seen: dict[str, tuple[float, float, str]] = {}
 
     # 1. Sources
     for pack in packs:
@@ -662,7 +572,7 @@ def sync_packs(db: Session) -> dict[str, int]:
             sources_map[s["code"]] = src
             stats["sources"] += 1
 
-    # 2. Claims + Cases + Work packages
+    # 2. Claims
     for pack in packs:
         for mcode, mdata in _mapping(pack, "methods").items():
             if not isinstance(mdata, dict):
@@ -697,81 +607,6 @@ def sync_packs(db: Session) -> dict[str, int]:
                 _upsert_claim(db, payload, sources_map)
                 stats["claims"] += 1
 
-            # game examples → GameCase + CaseEvidence
-            for i, ex in enumerate(mdata.get("game_examples", [])):
-                if not isinstance(ex, dict) or not ex.get("game"):
-                    logger.warning("Пакет %s, метод %s: пример игры без названия пропущен",
-                                   pack.get("pack"), mcode)
-                    continue
-                case_code = f"CASE_{ex['game'].replace(' ', '_').replace(':', '')}_{i}"[:120]
-                case = _upsert_case(db, {
-                    "code": case_code,
-                    "title": ex["game"],
-                    "studio": ex.get("studio", ""),
-                    "year": ex.get("year"),
-                    "engine": ex.get("engine", ""),
-                    "world_type": ex.get("world_type", ""),
-                    "network_mode": ex.get("network_mode", ""),
-                    "summary": ex.get("fact", ""),
-                    "relevance": ex.get("relevance", ""),
-                    "transfer_limits": ex.get("non_transferable", ""),
-                    # Источник примера нужен для статуса кейса: кейс публикуем,
-                    # если пример разрешился в источник (см. `_upsert_case`).
-                    "source": ex.get("source"),
-                }, sources_map)
-                if case:
-                    # case evidence row
-                    src = sources_map.get(ex.get("source"))
-                    ce_code = f"CE_{case_code}_{mcode}_{i}"[:160]
-                    existing_ce = db.scalar(select(CaseEvidence).where(CaseEvidence.code == ce_code))
-                    if not existing_ce:
-                        ce = CaseEvidence(
-                            code=ce_code,
-                            case_id=case.id,
-                            method_code=mcode,
-                            fact=ex.get("fact", "")[:4000],
-                            match_level=ex.get("relevance", "partial"),
-                            locator=ex.get("locator", "")[:300],
-                            source_id=src.id if src else None,
-                            basis="case_evidence",
-                            transfer_limits=ex.get("non_transferable", "")[:2000],
-                            status=PUBLISHED if src is not None else DRAFT,
-                        )
-                        db.add(ce)
-                        stats["case_evidence"] += 1
-                    stats["cases"] += 1
-
-            # work packages
-            effort = mdata.get("effort_person_days", {})
-            if effort and effort.get("p50") is not None:
-                # Одна и та же оценка трудоёмкости может быть описана в двух
-                # пакетах с разными значениями. Победитель определяется порядком
-                # загрузки, поэтому расхождение объявляется, а не растворяется
-                # молча: при согласующем проходе в базу попадает значение
-                # последнего пакета.
-                method_p50 = float(effort["p50"])
-                method_p80 = float(effort.get("p80") if effort.get("p80") is not None
-                                   else method_p50 * 1.5)
-                seen_effort = effort_seen.get(mcode)
-                if seen_effort is not None and seen_effort[:2] != (method_p50, method_p80):
-                    logger.warning(
-                        "Метод %s: трудоёмкость задана дважды с разными значениями "
-                        "(%.2f чел.-дн. в паке %s против %.2f в паке %s): в базу попадёт последняя",
-                        mcode, seen_effort[0], seen_effort[2], method_p50, pack.get("pack"),
-                    )
-                    stats["pack_effort_conflicts"] += 1
-                effort_seen[mcode] = (method_p50, method_p80, pack.get("pack", ""))
-                # Строки пакетов работ здесь больше не создаются. Семья была
-                # второй, независимой оценкой того же самого: она не проходила
-                # через планировщик и не несла полей, которые тот читает
-                # (`min_days`, `late_factor`, `parallelizable`, `dependency_codes`),
-                # а итог делила по фазам поровну — «проектирование» и
-                # «стабилизация» метода стоили одинаково. Величину отсюда теперь
-                # берёт `evidence_catalog.sync_work_packages` через
-                # `curated_effort()`, а распределение по фазам задаёт формула.
-                # Здесь остаётся только объявление расхождения: оно не должно
-                # снова раствориться в порядке загрузки файлов.
-
             # relations → типизированные рёбра «метод-метод»
             for rel in mdata.get("relations", []):
                 src = sources_map.get(rel.get("source"))
@@ -802,9 +637,9 @@ def sync_packs(db: Session) -> dict[str, int]:
                     stats["relations"] += 1
 
     # 3. Generic non-method sections: functions, engines, engine_tools,
-    #    technology_nodes, cases and the derivation domains. Same
-    #    claim/game_example shape as methods, different entity linkage.
-    for section, (entity, link_field) in _ENTITY_SECTIONS.items():
+    #    technology_nodes and the derivation domains. Same claim shape as
+    #    methods, different entity linkage.
+    for section, entity in _ENTITY_SECTIONS.items():
         for pack in packs:
             for ecode, edata in _mapping(pack, section).items():
                 if not isinstance(edata, dict):
@@ -830,97 +665,6 @@ def sync_packs(db: Session) -> dict[str, int]:
                         "context": c.get("context", ""),
                     }, sources_map)
                     stats["claims"] += 1
-
-                for i, ex in enumerate(edata.get("game_examples", [])):
-                    if link_field in ("function_code", "method_code"):
-                        case_code = f"CASE_{ex['game'].replace(' ', '_').replace(':', '')}_{i}"[:120]
-                        case = _upsert_case(db, {
-                            "code": case_code,
-                            "title": ex["game"],
-                            "studio": ex.get("studio", ""),
-                            "year": ex.get("year"),
-                            "engine": ex.get("engine", ""),
-                            "world_type": ex.get("world_type", ""),
-                            "network_mode": ex.get("network_mode", ""),
-                            "summary": ex.get("fact", ""),
-                            "relevance": ex.get("relevance", ""),
-                            "transfer_limits": ex.get("non_transferable", ""),
-                            # Источник примера нужен для статуса кейса: кейс
-                            # публикуем, если пример разрешился в источник.
-                            "source": ex.get("source"),
-                        }, sources_map)
-                        if case:
-                            ce_code = f"CE_{case_code}_{ecode}_{i}"[:160]
-                            exists = db.scalar(
-                                select(CaseEvidence).where(CaseEvidence.code == ce_code))
-                            if not exists:
-                                src = sources_map.get(ex.get("source"))
-                                db.add(CaseEvidence(
-                                    code=ce_code,
-                                    case_id=case.id,
-                                    method_code=ecode if link_field == "method_code" else None,
-                                    function_code=ecode if link_field == "function_code" else None,
-                                    fact=ex.get("fact", "")[:4000],
-                                    match_level=ex.get("relevance", "partial"),
-                                    locator=ex.get("locator", "")[:300],
-                                    source_id=src.id if src else None,
-                                    basis="case_evidence",
-                                    transfer_limits=ex.get("non_transferable", "")[:2000],
-                                    status=PUBLISHED if src is not None else DRAFT,
-                                ))
-                                stats["case_evidence"] += 1
-                            stats["cases"] += 1
-                    else:
-                        # У этих сущностей нет колонки связи в case_evidence —
-                        # игровой пример сохраняем как claim с basis=case_evidence.
-                        src_code = ex.get("source", "UNKNOWN")
-                        _upsert_claim(db, {
-                            "code": _build_claim_code(
-                                src_code, entity, ecode, f"case:{ex.get('game','')}", i),
-                            "entity": entity,
-                            "entity_code": ecode,
-                            "field": "game_example",
-                            "claim": ex.get("fact", ""),
-                            "unit": "",
-                            "value": None,
-                            "value_range": [None, None],
-                            "source": ex.get("source"),
-                            "locator": ex.get("locator", ""),
-                            "basis": "case_evidence",
-                            "verification_state": ex.get("verification_state", "unverified"),
-                            "evidence_level": ex.get("evidence_level", "medium"),
-                            "formula": "",
-                            # `engine` and `role` are carried through so the
-                            # audit can tell a same-engine example (the tool's
-                            # own platform) from a cross-engine one (the
-                            # capability proven elsewhere). Without them the
-                            # two would be counted identically, which would
-                            # overstate tool adoption.
-                            "input_parameters": {"game": ex.get("game", ""),
-                                                 "studio": ex.get("studio", ""),
-                                                 "year": ex.get("year"),
-                                                 "engine": ex.get("engine", ""),
-                                                 "role": ex.get("role", ""),
-                                                 "proves": ex.get("proves", "")},
-                            "context": ex.get("relevance", ""),
-                        }, sources_map)
-                        stats["claims"] += 1
-
-    # Строки второй семьи (`WP_{method}_{phase}`) больше не создаются: величина
-    # оценки переехала в формульную семью, распределение по фазам задаёт формула.
-    # Уже собранные базы хранят их как черновики — невидимые для планировщика, но
-    # попадающие в счётчики. Их нужно снять: иначе объявленный пробел
-    # превращается в мусор, а после снятия объявления в аудите они снова стали бы
-    # «невидимыми без объявления».
-    retired = list(db.scalars(select(WorkPackage).where(WorkPackage.code.startswith("WP_"))))
-    if retired:
-        for row in retired:
-            db.delete(row)
-        stats["work_packages_retired"] = len(retired)
-        logger.warning(
-            "Снято %d строк второй семьи пакетов работ (WP_*): оценка переехала "
-            "в формульную семью, см. `curated_effort`", len(retired),
-        )
 
     db.flush()
     return stats

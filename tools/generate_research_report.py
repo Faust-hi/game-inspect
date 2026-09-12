@@ -139,14 +139,6 @@ DEPENDENCY_ROWS = [
 ]
 
 
-TEAM_ROWS = [
-    ("solo", "1", "1", "P50 1.05x; P80 1.31x", "critical path dominated by one person"),
-    ("small_2_5", "4", "2", "P50 1.30x; P80 1.48x", "two tracks; shared QA and production gates"),
-    ("mid_6_15", "10", "5", "P50 1.33x; P80 1.33x", "role specialization, integration remains serial"),
-    ("large_16_plus", "24", "12", "P50 1.37x; P80 1.37x", "communication grows; dependencies dominate"),
-]
-
-
 RISKS = [
     ("Evidence drift", "A page or package changes while a claim stays published.", "checked_at, version, locator, availability and review status; re-review before release."),
     ("False numerical precision", "An expert score looks like FPS or benchmark data.", "basis is explicit; measured/documented/derived are separated from expert_estimate and unknown."),
@@ -408,8 +400,7 @@ def _snapshot(db_path: Path) -> dict[str, int | None]:
     table_names = (
         "game_functions", "methods", "engines", "engine_tools", "method_engine_links",
         "conflicts", "hardware_cpu", "hardware_gpu", "evidence_sources", "evidence_claims",
-        "game_cases", "case_evidence", "technology_nodes", "dependency_edges", "work_packages",
-        "team_scenarios",
+        "technology_nodes", "dependency_edges",
     )
     result: dict[str, int | None] = {}
     if not db_path.exists():
@@ -428,119 +419,17 @@ def _count_label(value: int | None, fallback: str = "не применено") -
     return str(value) if value is not None else fallback
 
 
-def _truth_grade(db_path: Path) -> tuple[list[tuple[str, ...]], str]:
-    """Grade the evidence base by how strong the proof actually is.
-
-    The coverage percentages in this report answer "does every entity have
-    something attached to it?". They do NOT answer "how strong is that
-    something?". This block answers the second question, because a shipped
-    title on the same engine and a shipped title on a different engine are
-    very different evidence even though both are "a game example".
-    """
-    import json as _json
-    from collections import defaultdict
-
-    empty: list[tuple[str, ...]] = []
-    if not db_path.exists():
-        return empty, "_Данные недоступны: снимок базы не найден._"
-    try:
-        with sqlite3.connect(db_path) as conn:
-            conn.row_factory = sqlite3.Row
-            fam = {r["tcode"]: r["ecode"] for r in conn.execute(
-                "select t.code as tcode, e.code as ecode "
-                "from engine_tools t join engines e on e.id = t.engine_id")}
-            case_tech = {(r["title"] or "").strip().lower(): (r["technology"] or "")
-                         for r in conn.execute("select title, technology from game_cases")}
-            gaps = {(r["entity"], r["entity_code"]) for r in conn.execute(
-                "select entity, entity_code from evidence_claims "
-                "where field='adoption_evidence_gap'")}
-            direct: dict[tuple[str, str], set] = defaultdict(set)
-            proofs: dict[tuple[str, str], set] = defaultdict(set)
-            for r in conn.execute(
-                    "select entity, entity_code, input_parameters, code "
-                    "from evidence_claims where field='game_example'"):
-                try:
-                    ip = r["input_parameters"]
-                    ip = _json.loads(ip) if isinstance(ip, str) else (ip or {})
-                except Exception:
-                    ip = {}
-                game = (ip.get("game") or "").strip().lower() or f"claim:{r['code']}"
-                key = (r["entity"], r["entity_code"])
-                proofs[key].add(game)
-                role = (ip.get("role") or "").strip()
-                if not role and r["entity"] == "engine_tool":
-                    f = fam.get(r["entity_code"], "")
-                    ge = (ip.get("engine") or "").strip() or case_tech.get(game, "")
-                    if f and ge:
-                        gl = ge.lower()
-                        if f == "unity":
-                            same = "unity" in gl
-                        elif f == "unreal":
-                            same = ("unreal" in gl) or ("ue4" in gl) or ("ue5" in gl)
-                        else:
-                            same = f in gl
-                        role = "direct" if same else "cross_engine"
-                if role == "direct":
-                    direct[key].add(game)
-    except sqlite3.Error:
-        return empty, "_Данные недоступны: ошибка чтения снимка базы._"
-
-    tools = sorted(fam)
-    with_direct = [c for c in tools if direct.get(("engine_tool", c))]
-    declared = [c for c in tools if ("engine_tool", c) in gaps]
-    # "Только перекрёстный" = нет прямого примера, но перекрёстный есть.
-    # Ранее здесь стояло условие `and not declared`, из-за чего счётчик
-    # схлопывался в 0 и строка отчёта утверждала, что перекрёстных примеров
-    # нет вовсе, хотя аудит насчитывал 18 таких инструментов. Считаем честно:
-    # отсутствие прямого примера — это и есть «только перекрёстный».
-    cross_only = [c for c in tools
-                  if not direct.get(("engine_tool", c)) and proofs.get(("engine_tool", c))]
-    # Молчаливые дыры: нет прямого примера И пробел не объявлен. Целевое
-    # значение — ноль; это отдельная метрика, и её нельзя подменять предыдущей.
-    silent_holes = [c for c in tools
-                    if not direct.get(("engine_tool", c)) and ("engine_tool", c) not in gaps]
-    node_gaps = len([k for k in gaps if k[0] == "technology_node"])
-    method_gaps = len([k for k in gaps if k[0] == "method"])
-
-    rows = [
-        ("Инструмент движка: прямой пример (тот же движок)", str(len(with_direct)),
-         f"из {len(tools)}: shipped-тайтл на той же платформе, что и инструмент"),
-        ("Инструмент движка: только перекрёстный пример", str(len(cross_only)),
-         "возможность подтверждена на другом движке, adoption не подтверждён"),
-        ("Инструмент движка: adoption не подтверждён, пробел объявлен", str(len(declared)),
-         "поле adoption_evidence_gap, basis=unknown — пробел виден, а не заполнен"),
-        ("Технологические узлы с объявленным пробелом", str(node_gaps),
-         "исследовательские техники без shipped-тайтла"),
-        ("Методы с объявленным пробелом", str(method_gaps),
-         "нет второго независимого shipped-примера"),
-    ]
-    text = (
-        f"Покрытие «{len(tools)} из {len(tools)}» по игровым примерам означает лишь то, что к каждому "
-        "инструменту приложен хотя бы один shipped-тайтл, где эта возможность работает. Это более "
-        "слабое утверждение, чем «инструмент применён в показанной игре». Разделение ведётся явно:\n\n"
-        f"- **прямой пример** — тайтл на том же движке, что и инструмент ({len(with_direct)} сущностей);\n"
-        f"- **перекрёстный пример** — тайтл на другом движке: подтверждает возможность, но не adoption "
-        f"({len(cross_only)} сущностей);\n"
-        f"- **объявленный пробел** — shipped-подтверждения нет, и это зафиксировано полем "
-        f"`adoption_evidence_gap` с `basis=unknown` ({len(declared)} сущностей).\n\n"
-        "Сущностей, у которых нет прямого примера и при этом пробел не объявлен: "
-        f"**{len(silent_holes)}**. Это целевое значение — ноль: молчаливая дыра недопустима, потому что "
-        "она indistinguishable от проверенного факта."
-    )
-    return rows, text
-
-
 def _db_evidence(db_path: Path) -> dict[str, object]:
     """Считать доказательный слой из локального снимка.
 
-    Отчёт обязан перечислять источники и кейсы из базы, а не из встроенного
+    Отчёт обязан перечислять источники из базы, а не из встроенного
     списка: иначе раздел «полный список источников» расходится с тем, на что
     реально ссылаются claims, и проверить отчёт по базе невозможно.
     """
     empty: dict[str, object] = {
-        "sources": [], "cases": [], "dependency_edges": [], "teams": [],
+        "sources": [], "dependency_edges": [],
         "basis_counts": [], "type_counts": [], "claims_by_method": [],
-        "relation_counts": [], "node_counts": [], "work_packages": [],
+        "relation_counts": [], "node_counts": [],
         "functions": [], "function_counts": [], "method_kind": [],
         "method_by_category": [], "cpu": [], "gpu": [], "hw_basis": [],
         "hw_summary": [],
@@ -570,13 +459,6 @@ def _db_evidence(db_path: Path) -> dict[str, object]:
                     "select entity_code, count(*) from evidence_claims where entity='method' "
                     "group by entity_code order by 2 asc limit 15"
                 ).fetchall()
-            if "game_cases" in tables:
-                out["cases"] = conn.execute(
-                    "select code, title, coalesce(studio,''), coalesce(release_year,''), "
-                    "coalesce(technology,''), coalesce(engine_code,''), coalesce(world_type,''), "
-                    "coalesce(network_mode,''), coalesce(summary,''), coalesce(relevance,''), "
-                    "coalesce(transfer_limits,'') from game_cases order by title"
-                ).fetchall()
             if "dependency_edges" in tables and "technology_nodes" in tables:
                 out["dependency_edges"] = conn.execute(
                     "select s.code, t.code, e.dependency_type, e.mandatory, coalesce(e.min_version,''), "
@@ -593,16 +475,6 @@ def _db_evidence(db_path: Path) -> dict[str, object]:
             if "conflicts" in tables:
                 out["relation_counts"] = conn.execute(
                     "select conflict_type, count(*) from conflicts group by conflict_type order by 2 desc"
-                ).fetchall()
-            if "team_scenarios" in tables:
-                out["teams"] = conn.execute(
-                    "select code, name, team_size, parallel_tracks, communication_pct, "
-                    "unplanned_pct, coalesce(description,'') from team_scenarios order by team_size"
-                ).fetchall()
-            if "work_packages" in tables:
-                out["work_packages"] = conn.execute(
-                    "select package_type, count(*), round(min(p50_days),2), round(avg(p50_days),2), "
-                    "round(avg(p80_days),2), basis from work_packages group by package_type order by 1"
                 ).fetchall()
             if "game_functions" in tables:
                 out["functions"] = conn.execute(
@@ -820,9 +692,7 @@ def _report_rows(snapshot: dict[str, int | None], db_path: Path) -> dict[str, ob
     new_counts = [
         ("EvidenceSource", _count_label(snapshot.get("evidence_sources"), f"seed catalog: {_seed_source_count()}")),
         ("EvidenceClaim", _count_label(snapshot.get("evidence_claims"), "будет создано при seed")),
-        ("GameCase / CaseEvidence", f"{_count_label(snapshot.get('game_cases'), '8')} / {_count_label(snapshot.get('case_evidence'), 'seeded')}"),
         ("TechnologyNode / DependencyEdge", f"{_count_label(snapshot.get('technology_nodes'), 'derived from catalog')} / {_count_label(snapshot.get('dependency_edges'), '7 curated')}"),
-        ("WorkPackage / TeamScenario", f"{_count_label(snapshot.get('work_packages'), 'derived per method')} / {_count_label(snapshot.get('team_scenarios'), '4')}"),
     ]
     source_rows = []
     for code, title, publisher, kind, url, locator in SOURCES:
@@ -856,23 +726,6 @@ def _report_rows(snapshot: dict[str, int | None], db_path: Path) -> dict[str, ob
     thin_rows = [(str(code), str(count)) for code, count in ev["claims_by_method"]]
     node_rows = [(str(t), str(c)) for t, c in ev["node_counts"]]
     relation_rows = [(str(t), str(c)) for t, c in ev["relation_counts"]]
-    team_rows = [
-        (str(code), str(name), str(size), str(tracks), f"{round(comm * 100)}%", f"{round(unpl * 100)}%")
-        for code, name, size, tracks, comm, unpl, _d in ev["teams"]
-    ]
-    wp_rows = [
-        (str(ptype), str(count), str(mn), str(avg50), str(avg80), str(basis))
-        for ptype, count, mn, avg50, avg80, basis in ev["work_packages"]
-    ]
-
-    case_rows = [
-        (
-            _row(title), _row(studio), f"{_row(tech)} / {_row(year)}",
-            f"{_row(world)} · {_row(network)}", _row(summary)[:260],
-            _row(transfer)[:240],
-        )
-        for _c, title, studio, year, tech, _eng, world, network, summary, _rel, transfer in ev["cases"]
-    ]
 
     dep_rows = [
         (
@@ -943,8 +796,7 @@ def _report_rows(snapshot: dict[str, int | None], db_path: Path) -> dict[str, ob
         "full_sources": full_sources, "full_source_links": full_source_links,
         "type_rows": type_rows, "basis_rows": basis_rows, "thin_rows": thin_rows,
         "node_rows": node_rows, "relation_rows": relation_rows,
-        "team_rows": team_rows, "wp_rows": wp_rows,
-        "case_rows": case_rows, "dep_rows": dep_rows,
+        "dep_rows": dep_rows,
         "mandatory_edges": mandatory_edges, "curated_sources": curated_sources,
         "evidence_edges": evidence_edges,
         "function_rows": function_rows, "function_count_rows": function_count_rows,
@@ -963,7 +815,7 @@ def _markdown(snapshot: dict[str, int | None], db_path: Path) -> str:
     (
         revision, generated, status, _, _,
         full_sources, full_source_links, type_rows, basis_rows, thin_rows,
-        node_rows, relation_rows, team_rows, wp_rows, case_rows, dep_rows,
+        node_rows, relation_rows, dep_rows,
         mandatory_edges, curated_sources, _,
         function_rows, function_count_rows, _, method_cat_rows,
         method_kind_text, fn_total, method_total, source_total,
@@ -972,7 +824,7 @@ def _markdown(snapshot: dict[str, int | None], db_path: Path) -> str:
     ) = (
         R["revision"], R["generated"], R["status"], R["old_counts"], R["new_counts"],
         R["full_sources"], R["full_source_links"], R["type_rows"], R["basis_rows"], R["thin_rows"],
-        R["node_rows"], R["relation_rows"], R["team_rows"], R["wp_rows"], R["case_rows"], R["dep_rows"],
+        R["node_rows"], R["relation_rows"], R["dep_rows"],
         R["mandatory_edges"], R["curated_sources"], R["evidence_edges"],
         R["function_rows"], R["function_count_rows"], R["method_kind_rows"], R["method_cat_rows"],
         R["method_kind_text"], R["fn_total"], R["method_total"], R["source_total"],
@@ -1054,17 +906,6 @@ tick, сетевой latency/tick и storage задаются профилем. 
 Все {method_total} метода каталога покрыты минимум шестью claims. Большее число
 claims не означает автоматически более высокую достоверность: важны наличие
 измерений, локаторов и условий применения, а не количество строк.
-
-### 2.5 Сила доказательства: прямой пример, перекрёстный пример, объявленный пробел
-
-{_md_table(["Класс доказательства", "Сущностей", "Комментарий"], _truth_grade(db_path)[0])}
-
-{_truth_grade(db_path)[1]}
-
-Правило для всех сущностей: **отсутствие источника не считается совместимостью**.
-Если shipped-подтверждение найти не удалось, создаётся явная запись-пробел, а не
-подбирается «похожий» пример. Пробел с `basis=unknown` и `evidence_level=low`
-виден пользователю и в аудите; скрытая дыра — нет, поэтому она запрещена.
 
 ## 3. Классификация игровых функций
 
@@ -1201,36 +1042,17 @@ latency, save time, network latency, server tick и traffic не создаёт�
 если оно не введено пользователем или не подтверждено измерением. Критерий `meets`
 применяется к frame-time budget, а не к одной средней частоте кадров.
 
-## 12. Стадии и work packages
+## 12. Расчётные модели трудоёмкости
 
-{_md_table(["Тип пакета", "Пакетов", "Мин. P50", "Сред. P50", "Сред. P80", "Основание"], wp_rows)}
-
-План строится из work packages: design, feasibility/prototype, integration,
-content/assets, optimization, QA/regression, release stabilization,
-documentation/maintenance. Каждый пакет имеет min, P50, P80, роль,
-параллелизуемость, стадию, late factor, зависимости и основание. Legacy
-`implementation_cost` сохранён для совместимости, но не является основой плана.
-
-## 13. Трудоёмкость P50/P80 и календарь для разных команд
-
-### 13.1 Профили команд
-
-{_md_table(["Код", "Название", "Размер", "Параллельные потоки", "Коммуникации", "Непредвиденное"], team_rows)}
-
-P50/P80 выражены в человеко-днях и не являются отраслевым нормативом. P50 —
-наиболее вероятный сценарий при описанных допущениях; P80 — более осторожный
-сценарий с неопределённостью. Команда влияет на календарную ёмкость, но не
-уменьшает сумму person-days.
-
-### 13.2 Трёхточечная оценка
+### 12.1 Трёхточечная оценка
 
 {_md_table(["Inputs", "Calculation", "Статус"], PERT_ROWS)}
 
-### 13.3 Предел параллелизации (Amdahl)
+### 12.2 Предел параллелизации (Amdahl)
 
 {_md_table(["Workers", "Speedup", "Допущение"], AMDAHL_ROWS)}
 
-### 13.4 Critical path (пример)
+### 12.3 Critical path (пример)
 
 {_md_table(["Task", "Duration", "Predecessors", "Path result"], CRITICAL_PATH_ROWS)}
 
@@ -1239,7 +1061,7 @@ P50/P80 выражены в человеко-днях и не являются �
 critical path. Поздняя стадия не убирает метод из выдачи, а добавляет
 rework/late-risk note.
 
-## 14. Профили нагрузки
+## 13. Профили нагрузки
 
 {_md_table(["Профиль", "Состав", "Доминирующие оси", "Источники"], LOAD_ROWS)}
 
@@ -1247,9 +1069,9 @@ rework/late-risk note.
 и состава RAM/VRAM. Профиль нагрузки задаёт, какие оси доминируют и какие метрики
 обязательны к измерению до того, как система выдаст сценарную оценку.
 
-## 15. Оборудование
+## 14. Оборудование
 
-### 15.1 Покрытие и основание
+### 14.1 Покрытие и основание
 
 {_md_table(["Тип", "basis", "Записей"], hw_basis_rows)}
 
@@ -1261,29 +1083,19 @@ evidence basis и source link. Если каталог не содержит у�
 покрывающего условия, результат сообщает `exceeds_catalog` и не подставляет
 похожую карту молча.
 
-### 15.2 CPU (верхняя часть по single-thread)
+### 14.2 CPU (верхняя часть по single-thread)
 
 {_md_table(["Модель", "Single-thread", "Multi-thread", "Класс", "Benchmark", "Basis"], cpu_rows)}
 
-### 15.3 GPU (верхняя часть по raster)
+### 14.3 GPU (верхняя часть по raster)
 
 {_md_table(["Модель", "Raster", "RT", "VRAM, GB", "Класс", "Benchmark"], gpu_rows)}
 
-## 16. Реальные игровые кейсы
-
-{_md_table(["Кейс", "Студия", "Технология / год", "Сценарий", "Подтверждаемый факт / механизм", "Ограничение переноса"], case_rows)}
-
-Кейс подтверждает факт применения, устройство или компромисс. Он не переносит
-FPS, количество активных сущностей, tick rate, latency, размер команды или
-требования к железу. Поэтому карточка хранит `relevance` и `transfer_limits`, а
-`/recommend` показывает кейсы как практическую сверку со статусом
-`not_calibrated`.
-
-## 17. Риски
+## 15. Риски
 
 {_md_table(["Риск", "Почему важен", "Контроль"], RISKS)}
 
-## 18. Итоговый план внедрения
+## 16. Итоговый план внедрения
 
 1. Зафиксировать revision, входной профиль и опубликованный snapshot.
 2. Прогнать Alembic и проверить резервную копию SQLite.
@@ -1292,12 +1104,11 @@ FPS, количество активных сущностей, tick rate, latenc
 5. Для выбранной корзины закрыть prerequisites, version/API compatibility и hard conflicts.
 6. Запустить feasibility/prototype с трассами CPU/GPU/IO/network; сохранить условия измерения.
 7. Обновить raw benchmark anchors только вместе с контекстом и датой.
-8. Пересчитать P50/P80 и critical path по фактическим ролям команды.
-9. Проверить минимальную конфигурацию на Windows и Linux, затем пройти QA/regression/release gates.
+8. Проверить минимальную конфигурацию на Windows и Linux, затем пройти QA/regression/release gates.
 
-## 19. Ограничения модели, критерии приёмки и аудит
+## 17. Ограничения модели, критерии приёмки и аудит
 
-### 19.1 Ограничения
+### 17.1 Ограничения
 
 Без исходного кода, ассетов и runtime-профиля невозможно честно вывести точный
 FPS, универсальную latency, точный размер RAM/VRAM или календарную дату. Публичная
@@ -1310,7 +1121,7 @@ FPS, универсальную latency, точный размер RAM/VRAM ил
 ассетов, target platform/API, measured frame-time percentiles, memory, IO and
 network metrics, а также правило train/test split.
 
-### 19.2 Критерии приёмки
+### 17.2 Критерии приёмки
 
 - одинаковый вход, algorithm version и catalog revision дают одинаковый результат;
 - увеличение объекта/NPC count, resolution или quality не уменьшает соответствующую нагрузку;
@@ -1319,18 +1130,16 @@ network metrics, а также правило train/test split.
 - hard conflict не попадает в рабочую корзину;
 - complement не даёт числовой бонус без измерения;
 - удаление prerequisite делает метод явно неприменимым;
-- team size меняет календарь, но не person-days;
-- critical path строится по DAG, P80 >= P50;
 - отсутствие числовых данных получает `unknown`/`expert_estimate`;
 - non-PC цели не попадают в PC quantitative hardware estimate;
 - source title, authors/publisher, type, version and locator видны пользователю;
 - Markdown и PDF проходят текстовый и визуальный QA.
 
-### 19.3 Аудит покрытия каталога
+### 17.3 Аудит покрытия каталога
 
 {_md_table(["Проверка", "Значение", "Интерпретация"], audit_rows)}
 
-### 19.4 Глубокие исследовательские карточки
+### 17.4 Глубокие исследовательские карточки
 
 {deep_text}
 
@@ -1338,7 +1147,7 @@ network metrics, а также правило train/test split.
 Ссылка или showcase подтверждает только тот механизм и контекст, который указан в
 локаторе; внешний проект не превращается в эталон производительности.
 
-### 19.5 Воспроизводимые расчёты (сводка)
+### 17.5 Воспроизводимые расчёты (сводка)
 
 {calculations_text}
 
@@ -1347,28 +1156,25 @@ network metrics, а также правило train/test split.
 измерением конкретной игры. Для чисел, выведенных из документации (например,
 128 Hz), сохранены и исходный источник, и формула.
 
-### 19.6 Публичный API
+### 17.6 Публичный API
 
 - `GET /api/catalog/sources`, `/catalog/evidence`, `/catalog/evidence-summary`;
-- `GET /api/catalog/cases`, `/catalog/cases/{{code}}`;
-- `GET /api/catalog/dependencies`, `/catalog/teams`, `/catalog/graph-checks`;
-- `POST /api/schedule`;
+- `GET /api/catalog/dependencies`, `/catalog/graph-checks`;
 - `POST /api/report-data`, `GET /api/report-data`;
-- расширенные `/recommend` и `/hardware-estimate` с evidence summary, cases, P50/P80, target assessments и unresolved items.
+- расширенные `/recommend` и `/hardware-estimate` с evidence summary, target assessments и unresolved items.
 
-UI содержит экраны «Доказательства», «Кейсы игр», «Зависимости и конфликты»,
-«Трудоёмкость и календарный план»; badges показывают documented, measured,
-derived, case_evidence, expert_estimate и unknown. Все открываемые материалы
-остаются ссылками на исходный источник.
+UI содержит экраны «Доказательства», «Зависимости и конфликты»; badges показывают
+documented, measured, derived, case_evidence, expert_estimate и unknown. Все
+открываемые материалы остаются ссылками на исходный источник.
 
-## 20. Полный список источников
+## 18. Полный список источников
 
 Всего в реестре {source_total} источников; ниже — полный перечень с типом, датой
 проверки, версией, платформой, локатором и доступностью.
 
 {full_sources}
 
-### 20.1 Ссылки
+### 18.1 Ссылки
 
 {full_source_links}
 
@@ -1536,11 +1342,6 @@ def _pdf(output: Path, snapshot: dict[str, int | None], db_path: Path) -> None:
     add_heading("2.4 Методы с наименьшим числом claims", 2)
     add_table(["Метод", "Claims"], R["thin_rows"], [120 * mm, 30 * mm], compact=True)
 
-    add_heading("2.5 Сила доказательства: прямой пример, перекрёстный пример, объявленный пробел", 2)
-    add_table(["Класс доказательства", "Сущностей", "Комментарий"],
-              _truth_grade(db_path)[0], [72 * mm, 20 * mm, 68 * mm], compact=True)
-    add_text(_truth_grade(db_path)[1].replace("\n\n", " ").replace("- ", "• "), note)
-
     # ── 3 ──
     add_heading("3. Классификация игровых функций")
     add_heading("3.1 Категории и состав", 2)
@@ -1608,49 +1409,36 @@ def _pdf(output: Path, snapshot: dict[str, int | None], db_path: Path) -> None:
     add_text("frame_budget_ms = 1000 / target_fps. Сценарные цели показываются как meets, at_risk, unknown или not_modeled. Для 1% low FPS, startup, streaming latency, save time, network latency, server tick и traffic не создаётся значение без входного значения или измерения. Критерий meets применяется к frame-time budget.", note)
 
     # ── 12 ──
-    add_heading("12. Стадии и work packages")
-    add_table(["Тип пакета", "Пакетов", "Мин. P50", "Сред. P50", "Сред. P80", "Основание"], R["wp_rows"], [34 * mm, 24 * mm, 26 * mm, 28 * mm, 28 * mm, 34 * mm], compact=True)
-    add_text("План строится из work packages: design, feasibility/prototype, integration, content/assets, optimization, QA/regression, release stabilization, documentation/maintenance. Каждый пакет имеет min, P50, P80, роль, параллелизуемость, стадию, late factor, зависимости и основание. Legacy implementation_cost сохранён для совместимости, но не является основой плана.", note)
-
-    # ── 13 ──
-    add_heading("13. Трудоёмкость P50/P80 и календарь для разных команд")
-    add_heading("13.1 Профили команд", 2)
-    add_table(["Код", "Название", "Размер", "Потоки", "Коммуникации", "Непредвиденное"], R["team_rows"], [26 * mm, 40 * mm, 20 * mm, 22 * mm, 32 * mm, 34 * mm])
-    add_text("P50/P80 выражены в человеко-днях и не являются отраслевым нормативом. Команда влияет на календарную ёмкость, но не уменьшает сумму person-days.", note)
-    add_heading("13.2 Трёхточечная оценка", 2)
+    add_heading("12. Расчётные модели трудоёмкости")
+    add_heading("12.1 Трёхточечная оценка", 2)
     add_table(["Inputs", "Calculation", "Статус"], PERT_ROWS, [52 * mm, 62 * mm, 60 * mm], compact=True)
-    add_heading("13.3 Предел параллелизации (Amdahl)", 2)
+    add_heading("12.2 Предел параллелизации (Amdahl)", 2)
     add_table(["Workers", "Speedup", "Допущение"], AMDAHL_ROWS, [26 * mm, 27 * mm, 121 * mm], compact=True)
-    add_heading("13.4 Critical path (пример)", 2)
+    add_heading("12.3 Critical path (пример)", 2)
     add_table(["Task", "Duration", "Predecessors", "Path result"], CRITICAL_PATH_ROWS, [40 * mm, 22 * mm, 42 * mm, 70 * mm], compact=True)
     add_text("Календарь вычисляется по dependency DAG и доступности роли. Независимые задачи могут идти параллельно; integration, QA, release gates и узкие роли формируют critical path. Поздняя стадия добавляет rework/late-risk note, но не удаляет метод из выдачи.", note)
 
-    # ── 14 ──
-    add_heading("14. Профили нагрузки")
+    # ── 13 ──
+    add_heading("13. Профили нагрузки")
     add_table(["Профиль", "Состав", "Доминирующие оси", "Источники"], LOAD_ROWS, [32 * mm, 52 * mm, 60 * mm, 30 * mm])
 
-    # ── 15 ──
-    add_heading("15. Оборудование")
-    add_heading("15.1 Покрытие и основание", 2)
+    # ── 14 ──
+    add_heading("14. Оборудование")
+    add_heading("14.1 Покрытие и основание", 2)
     add_table(["Тип", "basis", "Записей"], R["hw_basis_rows"], [50 * mm, 70 * mm, 30 * mm], compact=True)
     add_table(["Тип", "Класс", "Записей"], R["hw_class_rows"], [50 * mm, 70 * mm, 30 * mm], compact=True)
     add_text(f"Всего: {R['hw_total']}. Индекс CPU/GPU — нормализованный anchor, а не FPS. В карточке оборудования хранятся benchmark name, raw value, context, normalization note, evidence basis и source link. Если каталог не содержит устройства, одновременно покрывающего условия, результат сообщает exceeds_catalog и не подставляет похожую карту молча.", note)
-    add_heading("15.2 CPU (верхняя часть по single-thread)", 2)
+    add_heading("14.2 CPU (верхняя часть по single-thread)", 2)
     add_table(["Модель", "Single-thread", "Multi-thread", "Класс", "Benchmark", "Basis"], R["cpu_rows"], [42 * mm, 26 * mm, 26 * mm, 16 * mm, 42 * mm, 22 * mm], compact=True)
-    add_heading("15.3 GPU (верхняя часть по raster)", 2)
+    add_heading("14.3 GPU (верхняя часть по raster)", 2)
     add_table(["Модель", "Raster", "RT", "VRAM, GB", "Класс", "Benchmark"], R["gpu_rows"], [46 * mm, 22 * mm, 20 * mm, 22 * mm, 16 * mm, 48 * mm], compact=True)
 
-    # ── 16 ──
-    add_heading("16. Реальные игровые кейсы")
-    add_table(["Кейс", "Студия", "Технология / год", "Сценарий", "Подтверждаемый факт / механизм", "Ограничение переноса"], R["case_rows"], [26 * mm, 24 * mm, 26 * mm, 30 * mm, 38 * mm, 30 * mm], compact=True)
-    add_text("Кейс подтверждает факт применения, устройство или компромисс. Он не переносит FPS, количество активных сущностей, tick rate, latency, размер команды или требования к железу. /recommend показывает кейсы как практическую сверку со статусом not_calibrated.", note)
-
-    # ── 17 ──
-    add_heading("17. Риски")
+    # ── 15 ──
+    add_heading("15. Риски")
     add_table(["Риск", "Почему важен", "Контроль"], RISKS, [38 * mm, 59 * mm, 77 * mm])
 
     # ── 18 ──
-    add_heading("18. Итоговый план внедрения")
+    add_heading("16. Итоговый план внедрения")
     add_list([
         "Зафиксировать revision, входной профиль и опубликованный snapshot.",
         "Прогнать Alembic и проверить резервную копию SQLite.",
@@ -1659,16 +1447,15 @@ def _pdf(output: Path, snapshot: dict[str, int | None], db_path: Path) -> None:
         "Для выбранной корзины закрыть prerequisites, version/API compatibility и hard conflicts.",
         "Запустить feasibility/prototype с трассами CPU/GPU/IO/network; сохранить условия измерения.",
         "Обновить raw benchmark anchors только вместе с контекстом и датой.",
-        "Пересчитать P50/P80 и critical path по фактическим ролям команды.",
         "Проверить минимальную конфигурацию на Windows и Linux, затем пройти QA/regression/release gates.",
     ])
 
-    # ── 19 ──
-    add_heading("19. Ограничения модели, критерии приёмки и аудит")
-    add_heading("19.1 Ограничения", 2)
+    # ── 17 ──
+    add_heading("17. Ограничения модели, критерии приёмки и аудит")
+    add_heading("17.1 Ограничения", 2)
     add_text("Без исходного кода, ассетов и runtime-профиля невозможно честно вывести точный FPS, универсальную latency, точный размер RAM/VRAM или календарную дату. Публичная документация и книги подтверждают устройство механизма, но не обещают его результат в другом проекте. Нормализованные hardware indices пригодны для ранжирования внутри каталога и сценарного сравнения; это не замена измерению.")
     add_text("Статус калибровки: not_calibrated. Процент точности не показывается. Чтобы изменить статус, нужна реальная выборка: одинаковый профиль, версия движка, commit ассетов, target platform/API, measured frame-time percentiles, memory, IO and network metrics, а также правило train/test split.", note)
-    add_heading("19.2 Критерии приёмки", 2)
+    add_heading("17.2 Критерии приёмки", 2)
     add_list([
         "одинаковый вход, algorithm version и catalog revision дают одинаковый результат;",
         "увеличение объекта/NPC count, resolution или quality не уменьшает соответствующую нагрузку;",
@@ -1677,23 +1464,21 @@ def _pdf(output: Path, snapshot: dict[str, int | None], db_path: Path) -> None:
         "hard conflict не попадает в рабочую корзину;",
         "complement не даёт числовой бонус без измерения;",
         "удаление prerequisite делает метод явно неприменимым;",
-        "team size меняет календарь, но не person-days;",
-        "critical path строится по DAG, P80 >= P50;",
         "отсутствие числовых данных получает unknown/expert_estimate;",
         "non-PC цели не попадают в PC quantitative hardware estimate;",
         "source title, authors/publisher, type, version and locator видны пользователю;",
         "Markdown и PDF проходят текстовый и визуальный QA.",
     ])
-    add_heading("19.3 Аудит покрытия каталога", 2)
+    add_heading("17.3 Аудит покрытия каталога", 2)
     add_table(["Проверка", "Значение", "Интерпретация"], R["audit_rows"], [62 * mm, 52 * mm, 60 * mm], compact=True)
-    add_heading("19.4 Глубокие исследовательские карточки", 2)
+    add_heading("17.4 Глубокие исследовательские карточки", 2)
     for study_title, fact, synthesis, verification, source_codes in DEEP_STUDIES:
         add_heading(study_title, 2)
         add_text(f"Факт и источник: {fact}")
         add_text(f"Синтез для DSS: {synthesis}")
         add_text(f"Проверка в проекте: {verification}")
         add_text(f"Источники: {source_codes}.", small)
-    add_heading("19.5 Воспроизводимые расчёты (сводка)", 2)
+    add_heading("17.5 Воспроизводимые расчёты (сводка)", 2)
     add_table(["Target FPS", "Frame budget, ms", "Интерпретация"], FRAME_ROWS, [28 * mm, 35 * mm, 111 * mm], compact=True)
     add_table(["Разрешение", "Pixel ratio", "База"], RESOLUTION_ROWS, [37 * mm, 28 * mm, 109 * mm], compact=True)
     add_table(["Workers", "Speedup", "Допущение"], AMDAHL_ROWS, [26 * mm, 27 * mm, 121 * mm], compact=True)
@@ -1702,18 +1487,17 @@ def _pdf(output: Path, snapshot: dict[str, int | None], db_path: Path) -> None:
     add_table(["Scenario", "Inputs", "Derived result", "Limits"], NETWORK_ROWS, [30 * mm, 50 * mm, 45 * mm, 49 * mm], compact=True)
     add_table(["Component", "Inputs", "Result", "Basis"], MEMORY_ROWS, [45 * mm, 40 * mm, 28 * mm, 61 * mm], compact=True)
     add_text("Расчёты выше получены из явно указанных входов и формул. Они показывают структуру бюджета и границы сценария, но не являются измерением конкретной игры.", note)
-    add_heading("19.6 Публичный API", 2)
+    add_heading("17.6 Публичный API", 2)
     add_list([
         "GET /api/catalog/sources, /catalog/evidence, /catalog/evidence-summary;",
-        "GET /api/catalog/cases, /catalog/cases/{code};",
-        "GET /api/catalog/dependencies, /catalog/teams, /catalog/graph-checks;",
-        "POST /api/schedule; POST /api/report-data, GET /api/report-data;",
-        "расширенные /recommend и /hardware-estimate с evidence summary, cases, P50/P80, target assessments и unresolved items.",
+        "GET /api/catalog/dependencies, /catalog/graph-checks;",
+        "POST /api/report-data, GET /api/report-data;",
+        "расширенные /recommend и /hardware-estimate с evidence summary, target assessments и unresolved items.",
     ])
-    add_text("UI содержит экраны «Доказательства», «Кейсы игр», «Зависимости и конфликты», «Трудоёмкость и календарный план»; badges показывают documented, measured, derived, case_evidence, expert_estimate и unknown.", note)
+    add_text("UI содержит экраны «Доказательства», «Зависимости и конфликты»; badges показывают documented, measured, derived, case_evidence, expert_estimate и unknown.", note)
 
-    # ── 20 ──
-    add_heading("20. Полный список источников")
+    # ── 18 ──
+    add_heading("18. Полный список источников")
     add_text(f"Всего в реестре {R['source_total']} источников. Ниже — полный перечень с типом, датой проверки, локатором и доступностью, затем активные ссылки.")
     source_registry = _db_evidence(db_path)["sources"]
     add_table(

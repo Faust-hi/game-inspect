@@ -8,9 +8,9 @@ from .. import repositories
 from ..database import get_db
 from ..schemas.catalog import (
     BasketRequest, LoadProfileOut, RecommendationResult, RecommendationRequest,
-    ProjectProfile, ReportDataOut, ScheduleOut, ScheduleRequest,
+    ProjectProfile, ReportDataOut,
 )
-from ..services import evidence, engines as engine_catalog, hardware, method_dependencies, planning, recommender
+from ..services import evidence, engines as engine_catalog, hardware, method_dependencies, recommender
 
 router = APIRouter(prefix="", tags=["Расчёт"])
 
@@ -20,8 +20,8 @@ def _basket_methods(db: Session, codes: list[str]):
 
     Возвращает `(методы, пояснения)`. Достройка нужна и на этих маршрутах:
     иначе «Профиль нагрузки» и «Оценка железа» для той же корзины считали бы
-    другой набор, чем `/recommend` и `/schedule`, — ровно то расхождение, из-за
-    которого расписание и нагрузка расходились.
+    другой набор, чем `/recommend`, — ровно то расхождение, из-за
+    которого нагрузка и рекомендации расходились.
     """
     closure = method_dependencies.mandatory_closure(db, codes)
     return repositories.methods_by_codes(db, closure.codes), closure.notes
@@ -52,40 +52,24 @@ def hardware_estimate(payload: BasketRequest, db: Session = Depends(get_db)):
     return hardware.estimate_hardware(db, payload.profile, methods)
 
 
-@router.post("/schedule", response_model=ScheduleOut, summary="Сценарный план трудоёмкости и critical path")
-def schedule(payload: ScheduleRequest, db: Session = Depends(get_db)):
-    engine_catalog.require_known(db, payload.profile.engine)
-    return planning.schedule(
-        db, payload.profile, payload.basket or [], payload.team,
-        payload.include_dependencies,
-    )
-
-
 def _report_data(
     db: Session,
     profile: ProjectProfile,
     basket: list[str],
     baseline=None,
-    team: str = "small_2_5",
-    include_dependencies: bool = True,
 ):
     """Собрать единый снимок, используемый UI и Markdown/PDF экспортом."""
     engine_catalog.require_known(db, profile.engine)
     recommendation = recommender.build_recommendations(
         db, profile, basket, baseline,
     )
-    method_codes = recommendation.accounted_method_codes or list(basket)
     return ReportDataOut(
         recommendation=recommendation,
         evidence_summary=evidence.summary(db),
         sources=[source for source in (
             evidence.source_to_out(item) for item in repositories.evidence_sources(db)
         ) if source is not None],
-        cases=evidence.cases_for_methods(db, method_codes),
         dependencies=evidence.dependencies_to_out(db),
-        # Профиль команды берётся из запроса: жёстко заданная малая команда
-        # делала календарь отчёта несовместимым с выбранным пользователем.
-        schedule=planning.schedule(db, profile, basket, team, include_dependencies),
     )
 
 
@@ -93,7 +77,6 @@ def _report_data(
 def report_data(payload: RecommendationRequest, db: Session = Depends(get_db)):
     return _report_data(
         db, payload.profile, payload.basket or [], payload.baseline,
-        payload.team, payload.include_dependencies,
     )
 
 

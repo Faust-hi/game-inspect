@@ -173,12 +173,10 @@ python -m alembic revision --autogenerate -m "описание изменени�
 Данные сида разделены по назначению: методы, функции, движки и связи описаны в
 `backend/app/seed/*_data.py`, а характеристики оборудования — в
 `backend/app/seed/data/hardware.json`. Список базовых источников находится в
-`backend/app/seed/sources.py`; дополнительный доказательный каталог, игровые
-кейсы, claims, узлы зависимостей и сценарии трудоёмкости — в
-`backend/app/seed/evidence_catalog.py`. Миграция создаёт отдельные таблицы
-`EvidenceSource`, `EvidenceClaim`, `GameCase`, `CaseEvidence`,
-`TechnologyNode`, `DependencyEdge`, `WorkPackage` и `TeamScenario`, не удаляя
-legacy-поля источников.
+`backend/app/seed/sources.py`; дополнительный доказательный каталог, claims и
+узлы зависимостей — в `backend/app/seed/evidence_catalog.py`. Миграция создаёт
+отдельные таблицы `EvidenceSource`, `EvidenceClaim`, `TechnologyNode` и
+`DependencyEdge`, не удаляя legacy-поля источников.
 
 ## Отчёт
 
@@ -269,7 +267,6 @@ cd .. && ./.dss-venv/Scripts/python.exe tools/check_research_invariants.py
 | `derived_missing_formula_or_inputs` | 0 — у каждого `derived` есть формула и входы |
 | `numeric_claim_without_source` | 0 — числа без источника не публикуются |
 | `claim_missing_locator` | 0 — у каждого утверждения есть локатор |
-| `work_package_p80_lt_p50` | 0 — P80 не меньше P50 |
 | `conflict_without_url` | 0 |
 | молчаливые дыры (`entities_unproven_and_undeclared`) | 0 — пробел либо доказан, либо объявлен |
 
@@ -296,7 +293,7 @@ shipped-подтверждения; `dependency_edge_without_source` — пла�
 Отчёт фиксирует ревизию каталога (`revision`) в шапке. Одинаковый вход, версия
 алгоритма и ревизия каталога дают одинаковый результат. Проверки детерминизма и
 обязательные инварианты модели (масштаб сцены → нагрузка, разрешение → GPU,
-NPC → CPU, RT не заменяет raster, RAM/VRAM не складываются, P80 ≥ P50)
+NPC → CPU, RT не заменяет raster, RAM/VRAM не складываются)
 покрыты `backend/tests/`.
 
 
@@ -318,36 +315,17 @@ GET  /api/catalog/sources
 GET  /api/catalog/evidence
 GET  /api/catalog/evidence/{entity}/{code}
 GET  /api/catalog/evidence-summary
-GET  /api/catalog/cases
-GET  /api/catalog/cases/{code}
 GET  /api/catalog/dependencies
-GET  /api/catalog/teams
 POST /api/recommend
 POST /api/load-profile
 POST /api/hardware-estimate
-POST /api/schedule
 POST /api/report-data
 GET  /api/report-data
 ```
 
 `/api/report-data` в GET-форме принимает профиль query-параметрами и повторяемый
 `basket` с кодами методов; POST-форма предназначена для полного JSON-профиля и
-baseline. Отчётный снимок включает рекомендации, доказательства, кейсы,
-зависимости и сценарный план.
-
-### Профили команды для `/api/schedule`
-
-| Код | Размер | Потоки | Комментарий |
-| --- | --- | --- | --- |
-| `solo` | 1 | 1 | один специалист, узкие роли последовательно |
-| `small_2_5` | 4 | 2 | общая QA/production ёмкость |
-| `custom` | 6 | 3 | нетиповая команда; значения — экспертное допущение, переопределяются |
-| `mid_6_15` | 10 | 5 | специализированные роли |
-| `large_16_plus` | 24 | 12 | срок ограничен зависимостями и quality gates |
-
-Неизвестный код не подменяется похожим профилем: он возвращается под своим
-кодом, а в описании явно сообщается о подстановке. Размер команды меняет
-календарь, но не сумму person-days.
+baseline. Отчётный снимок включает рекомендации, доказательства и зависимости.
 
 Полный контракт запросов и ответов публикуется автоматически в Swagger по
 адресу `/api/docs`. Административные маршруты находятся под `/api/admin`;

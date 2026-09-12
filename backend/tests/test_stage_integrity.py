@@ -55,36 +55,3 @@ def test_normalize_stage_handles_empty_and_none():
     assert normalize_stage(None) == ("prototype", None)
     assert normalize_stage("") == ("prototype", None)
     assert normalize_stage("   ") == ("prototype", None)
-
-
-def test_published_work_packages_carry_enum_stage(client):
-    """Все опубликованные пакеты работ имеют код стадии, а не прозу.
-
-    Проверка закрывает обязательный инвариант плана: стадия берётся из
-    перечисления, иначе фильтрация плана по этапу недостоверна.
-    """
-    response = client.post(
-        "/api/schedule",
-        json={
-            "profile": {
-                "name": "Стадии",
-                "format": "3D",
-                "world_type": "open_world",
-                "scale": "large",
-                "stage": "prototype",
-                "engine": "unreal",
-                "platforms": ["pc_windows"],
-                "functions": ["open_world_streaming"],
-                "target_resolution": "1080p",
-                "target_quality": "high",
-                "target_fps": 60,
-            },
-            "team": "small_2_5",
-            "basket": ["virtual_shadow_maps"],
-        },
-    )
-    assert response.status_code == 200, response.text
-    data = response.json()
-    assert data["tasks"], "план не должен быть пустым"
-    for task in data["tasks"]:
-        assert task["recommended_stage"] in STAGES, task

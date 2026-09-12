@@ -10,8 +10,8 @@ from sqlalchemy.orm import Session
 from .. import repositories
 from ..models.entities import EvidenceClaim, EvidenceSource
 from ..schemas.catalog import (
-    CaseEvidenceOut, EvidenceClaimOut, EvidenceSourceOut, EvidenceSummaryOut,
-    GameCaseOut, DependencyOut, PracticeCheckOut,
+    EvidenceClaimOut, EvidenceSourceOut, EvidenceSummaryOut,
+    DependencyOut,
 )
 
 
@@ -43,41 +43,6 @@ def claim_to_out(db: Session, claim: EvidenceClaim) -> EvidenceClaimOut:
     )
 
 
-def cases_to_out(db: Session, cases) -> list[GameCaseOut]:
-    result: list[GameCaseOut] = []
-    for case in cases:
-        evidence_rows = []
-        for item in repositories.case_evidence(db, case.id):
-            source = db.get(EvidenceSource, item.source_id) if item.source_id else None
-            evidence_rows.append(CaseEvidenceOut(
-                code=item.code, function_code=item.function_code,
-                method_code=item.method_code, fact=item.fact,
-                match_level=item.match_level, locator=item.locator,
-                source=source_to_out(source), basis=item.basis,
-                transfer_limits=item.transfer_limits,
-            ))
-        result.append(GameCaseOut(
-            code=case.code, title=case.title, studio=case.studio,
-            release_year=case.release_year, technology=case.technology,
-            engine_code=case.engine_code, world_type=case.world_type,
-            network_mode=case.network_mode, summary=case.summary,
-            relevance=case.relevance, transfer_limits=case.transfer_limits,
-            evidence=evidence_rows,
-        ))
-    return result
-
-
-def cases_for_methods(db: Session, method_codes: list[str]) -> list[GameCaseOut]:
-    if not method_codes:
-        return []
-    wanted = set(method_codes)
-    cases = []
-    for case in repositories.game_cases(db):
-        if any(item.method_code in wanted for item in repositories.case_evidence(db, case.id)):
-            cases.append(case)
-    return cases_to_out(db, cases)
-
-
 def dependencies_to_out(db: Session) -> list[DependencyOut]:
     """Вернуть опубликованный технологический граф с именами узлов."""
     nodes = {node.id: node for node in repositories.technology_nodes(db)}
@@ -102,47 +67,12 @@ def dependencies_to_out(db: Session) -> list[DependencyOut]:
     return result
 
 
-def practice_check(cases: list[GameCaseOut]) -> PracticeCheckOut:
-    """Показать реальные кейсы без превращения их в метрику точности."""
-    codes = [case.code for case in cases]
-    if not cases:
-        return PracticeCheckOut(
-            # Keep the existing API meaning for an empty basket: the practical
-            # cross-check is still in development.  The explicit accuracy and
-            # transferability fields below make the non-claim unambiguous.
-            status="in_development",
-            title="Сверка с практикой: подходящие кейсы не выбраны",
-            message=(
-                "В каталоге есть опубликованные кейсы, но для выбранной корзины "
-                "нет прямой связи с ними. Это не означает отсутствия практики."
-            ),
-            details=[
-                "Кейсы подтверждают механизм и инженерный компромисс, а не переносимый FPS.",
-                "Независимая runtime-калибровка и метрики точности не выполняются.",
-            ],
-            case_count=0, case_codes=[], accuracy_status="not_calibrated",
-            transferability="not_claimed",
-        )
-    details = [f"{case.title}: {case.summary}" for case in cases[:8]]
-    return PracticeCheckOut(
-        status="case_evidence", title="Сверка с практикой: механизмы подтверждены кейсами",
-        message=(
-            "Связанные кейсы показывают, что подобные механизмы применялись в "
-            "реальных играх или инженерных демо. Их показатели и ограничения "
-            "нельзя переносить в проект без собственного профилирования."
-        ),
-        details=details, case_count=len(cases), case_codes=codes,
-        accuracy_status="not_calibrated", transferability="not_claimed",
-    )
-
-
 def summary(db: Session, *, method_codes: list[str] | None = None) -> EvidenceSummaryOut:
     sources = repositories.evidence_sources(db)
     claims = repositories.evidence_claims(db)
     if method_codes:
         wanted = set(method_codes)
         claims = [claim for claim in claims if claim.entity_code in wanted]
-    cases = repositories.game_cases(db)
     claims_with_sources = sum(
         1 for claim in claims
         if claim.source_id is not None and claim.locator and claim.verification_status not in {"unverified", "rejected"}
@@ -165,7 +95,7 @@ def summary(db: Session, *, method_codes: list[str] | None = None) -> EvidenceSu
         if claim.source_id is None or claim.basis in {"expert_estimate", "unknown"}
     })
     return EvidenceSummaryOut(
-        source_count=len(sources), claim_count=len(claims), case_count=len(cases),
+        source_count=len(sources), claim_count=len(claims),
         claims_with_sources=claims_with_sources,
         numeric_claims_published=published_numeric,
         numeric_claims_unknown=unknown_numeric,

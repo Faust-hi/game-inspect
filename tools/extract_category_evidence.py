@@ -3,8 +3,7 @@
 Читает production-БД напрямую (SQLAlchemy) и выгружает для каждого параметра
 чек-листа `CATEGORY_VERIFICATION_PLAN.md`:
   * published claims с источником (code/title/url/source_type), basis,
-    formula, input_parameters, locator;
-  * игровые примеры (game_cases + case_evidence) с ролью direct/cross_engine.
+    formula, input_parameters, locator.
 
 Запуск из backend/ через .dss-venv:
     ../.dss-venv/Scripts/python.exe ../tools/extract_category_evidence.py
@@ -22,10 +21,8 @@ from sqlalchemy import select  # noqa: E402
 
 from app.database import SessionLocal  # noqa: E402
 from app.models.entities import (  # noqa: E402
-    CaseEvidence,
     EvidenceClaim,
     EvidenceSource,
-    GameCase,
 )
 
 OUT = Path("../research/_verify_cache/category_evidence.json")
@@ -58,35 +55,6 @@ def main() -> None:
     for c in claims:
         by_entity[c.entity].append(c)
 
-    # --- game cases
-    cases = {g.id: g for g in db.scalars(select(GameCase)).all()}
-    cev = db.scalars(
-        select(CaseEvidence).where(CaseEvidence.status == "published")
-    ).all()
-    # группируем case_evidence по method_code и function_code
-    cev_by_method: dict[str, list] = defaultdict(list)
-    cev_by_function: dict[str, list] = defaultdict(list)
-    for e in cev:
-        if e.method_code:
-            cev_by_method[e.method_code].append(e)
-        if e.function_code:
-            cev_by_function[e.function_code].append(e)
-
-    def cev_out(e):
-        g = cases.get(e.case_id)
-        return {
-            "case": g.code if g else None,
-            "title": g.title if g else None,
-            "studio": g.studio if g else "",
-            "year": g.release_year if g else None,
-            "engine": g.engine_code if g else "",
-            "match_level": e.match_level,
-            "role": "direct" if e.match_level == "direct" else "cross_engine",
-            "fact": e.fact,
-            "locator": e.locator,
-            "source": src_out(e.source_id),
-        }
-
     def claim_out(c):
         return {
             "code": c.code,
@@ -114,14 +82,6 @@ def main() -> None:
             code: [claim_out(c) for c in lst] for code, lst in per_code.items()
         }
 
-    # --- game examples по method/function
-    method_examples = {
-        code: [cev_out(e) for e in lst] for code, lst in cev_by_method.items()
-    }
-    function_examples = {
-        code: [cev_out(e) for e in lst] for code, lst in cev_by_function.items()
-    }
-
     # --- сводки
     summary = {
         "claims_total": len(claims),
@@ -131,15 +91,11 @@ def main() -> None:
         "source_type_counter": dict(
             Counter(s.source_type for s in srcs.values() if s.status == "published")
         ),
-        "game_cases": len(cases),
-        "case_evidence": len(cev),
     }
 
     payload = {
         "summary": summary,
         "entity_codes": entity_codes,
-        "method_examples": method_examples,
-        "function_examples": function_examples,
     }
     OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
 

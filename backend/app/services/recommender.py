@@ -470,7 +470,6 @@ def _build_recommendations(
             basket_dependencies=tail["basket_dependencies"],
             basket_synergies=tail["basket_synergies"],
             hardware=tail["hardware"],
-            practice_check=tail["practice_check"],
             evidence_summary=tail["evidence_summary"],
             contributions=tail["contributions"],
             basket_codes=basket_codes,
@@ -580,7 +579,6 @@ def _build_recommendations(
         basket_dependencies=tail["basket_dependencies"],
         basket_synergies=tail["basket_synergies"],
         hardware=tail["hardware"],
-        practice_check=tail["practice_check"],
         evidence_summary=tail["evidence_summary"],
         contributions=tail["contributions"],
         basket_codes=basket_codes,
@@ -616,8 +614,6 @@ def _tail(
     """
     relations = repositories.conflicts(db)
     estimate = hardware.estimate_hardware(db, profile, basket_methods)
-    case_codes = [method.code for method in basket_methods]
-    cases = evidence_service.cases_for_methods(db, case_codes)
     basket_conflicts, basket_dependencies, basket_synergies = basket_compatibility(
         db, basket_codes, methods_by_code
     )
@@ -627,7 +623,6 @@ def _tail(
         "basket_synergies": basket_synergies,
         "load_profile": aggregate_load(basket_methods, profile, relations=relations, estimate=estimate),
         "hardware": estimate,
-        "practice_check": evidence_service.practice_check(cases),
         "evidence_summary": evidence_service.summary(db),
         "contributions": hardware.build_contributions(
             profile, basket_methods, estimate, relations=relations,
