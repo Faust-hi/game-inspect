@@ -15,6 +15,8 @@
 """
 from __future__ import annotations
 
+import pytest
+
 from sqlalchemy import or_, select
 
 from app.models.entities import Conflict, DependencyEdge, Method
@@ -30,6 +32,7 @@ KNOWN_BASIS = frozenset({
 SYMMETRIC_TYPES = frozenset({"complement", "alternative", "hard_conflict", "risk"})
 
 
+@pytest.mark.extended
 def test_every_conflict_has_resolution_and_basis(db):
     """У каждой связи есть решение и явное основание решения."""
     rows = list(db.scalars(select(Conflict)))
@@ -40,6 +43,7 @@ def test_every_conflict_has_resolution_and_basis(db):
     assert bad == [], f"решение без корректного основания: {len(bad)}, например {bad[:5]}"
 
 
+@pytest.mark.extended
 def test_every_dependency_edge_has_workaround_and_basis(db):
     """У каждого ребра графа есть обходной путь и явное основание."""
     rows = list(db.scalars(select(DependencyEdge)))
@@ -50,6 +54,7 @@ def test_every_dependency_edge_has_workaround_and_basis(db):
     assert bad == [], f"обход без корректного основания: {len(bad)}"
 
 
+@pytest.mark.extended
 def test_method_card_metadata_is_loaded(db):
     """Варианты реализации, условия применимости и требуемые данные перенесены.
 
@@ -75,6 +80,7 @@ def test_method_card_metadata_is_loaded(db):
             )
 
 
+@pytest.mark.extended
 def test_no_symmetric_relation_is_recorded_twice(db):
     """Симметричная связь не дублируется обратной парой.
 
@@ -91,6 +97,7 @@ def test_no_symmetric_relation_is_recorded_twice(db):
     assert duplicated == [], f"симметричная связь записана дважды: {duplicated[:5]}"
 
 
+@pytest.mark.extended
 def test_symmetric_relation_declared_from_both_sides_is_one_record(db):
     """Прямая проверка загрузчика: связь с двух сторон — одна запись."""
     from app.seed.pack_loader import _upsert_relation
@@ -115,6 +122,7 @@ def test_symmetric_relation_declared_from_both_sides_is_one_record(db):
     assert second is False, "обратная пара симметричной связи не должна создаваться"
 
 
+@pytest.mark.extended
 def test_startup_sync_does_not_change_seeded_relations(db_session):
     """Стартовая синхронизация не расходится с полным заполнением.
 
@@ -134,6 +142,7 @@ def test_startup_sync_does_not_change_seeded_relations(db_session):
     )
 
 
+@pytest.mark.extended
 def test_startup_sync_leaves_no_unresolved_relations(db_session):
     """После стартовой синхронизации у каждой связи есть решение и основание."""
     from app.seed import seeder
@@ -145,6 +154,7 @@ def test_startup_sync_leaves_no_unresolved_relations(db_session):
     assert all((c.basis or "").strip() in KNOWN_BASIS for c in rows)
 
 
+@pytest.mark.critical
 def test_resolution_pass_does_not_overwrite_curated_text(db):
     """Повторный проход заполняет только пустое: правка администратора цела."""
     from app.seed.relation_resolutions import apply_relation_resolutions
@@ -161,6 +171,7 @@ def test_resolution_pass_does_not_overwrite_curated_text(db):
     assert row.basis == "documented"
 
 
+@pytest.mark.extended
 def test_method_card_api_exposes_research_metadata(client):
     """Карточка метода отдаёт варианты реализации и требуемые данные."""
     methods = client.get("/api/catalog/methods").json()
@@ -174,6 +185,7 @@ def test_method_card_api_exposes_research_metadata(client):
     assert item["required_data_and_tools"].strip()
 
 
+@pytest.mark.extended
 def test_conflicts_api_exposes_resolution_and_basis(client):
     """Экран связей получает решение и его основание, а не только причину."""
     conflicts = client.get("/api/catalog/conflicts").json()
@@ -182,6 +194,7 @@ def test_conflicts_api_exposes_resolution_and_basis(client):
     assert all(c["basis"] in KNOWN_BASIS for c in conflicts)
 
 
+@pytest.mark.extended
 def test_dependencies_api_exposes_workaround_and_basis(client):
     """Граф зависимостей отдаёт обходной путь и его основание."""
     graph = client.get("/api/catalog/dependencies").json()
@@ -191,6 +204,7 @@ def test_dependencies_api_exposes_workaround_and_basis(client):
     assert all(e["basis"] in KNOWN_BASIS for e in edges)
 
 
+@pytest.mark.extended
 def test_derived_basis_requires_a_source(db):
     """«Выведено» означает «связь с источником»: без источника так помечать нельзя.
 
@@ -214,6 +228,7 @@ def test_derived_basis_requires_a_source(db):
     assert bad_edges == [], f"рёбра помечены выведенными без источника: {len(bad_edges)}"
 
 
+@pytest.mark.extended
 def test_hardware_benchmark_claim_matches_its_row(db):
     """Производное утверждение об индексе железа не расходится со строкой.
 
@@ -242,6 +257,7 @@ def test_hardware_benchmark_claim_matches_its_row(db):
     assert checked, "не найдено ни одного утверждения об индексе железа"
 
 
+@pytest.mark.extended
 def test_seed_applies_researched_confidence(db):
     """Полное заполнение поднимает confidence методов с опубликованным источником.
 
@@ -260,6 +276,7 @@ def test_seed_applies_researched_confidence(db):
         )
 
 
+@pytest.mark.extended
 def test_relation_pass_repairs_basis_without_source(db):
     """Согласующий проход чинит основание, противоречащее наличию источника."""
     from app.seed.relation_resolutions import apply_relation_resolutions
@@ -276,6 +293,7 @@ def test_relation_pass_repairs_basis_without_source(db):
     )
 
 
+@pytest.mark.extended
 def test_repeat_seed_repairs_stale_derived_claim(db_session):
     """Повторный проход возвращает расходящееся утверждение к строке-источнику."""
     from app.models.entities import EvidenceClaim, HardwareCPU

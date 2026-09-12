@@ -10,7 +10,10 @@
 """
 from __future__ import annotations
 
+import pytest
 
+
+@pytest.mark.critical
 def test_estimate_marks_uncertainty_and_gaps(client, profile):
     """Оборудование: уверенность ниже единицы, оговорки и пробелы названы."""
     data = client.post(
@@ -21,6 +24,7 @@ def test_estimate_marks_uncertainty_and_gaps(client, profile):
     assert data["confidence_label"] in {"низкая", "средняя", "повышенная"}
 
 
+@pytest.mark.critical
 def test_beyond_catalog_is_flagged_not_hidden(client):
     """Запредельный профиль признаёт превышение каталога или низкую уверенность."""
     data = client.post("/api/hardware-estimate", json={
@@ -38,6 +42,7 @@ def test_beyond_catalog_is_flagged_not_hidden(client):
     assert data["exceeds_catalog"] or data["confidence"] < 0.7
 
 
+@pytest.mark.critical
 def test_missing_prediction_does_not_become_success(client):
     """Пропуск не улучшает результат: неизвестное — риск, а не покрытие."""
     response = client.post("/api/recommend", json={
@@ -56,6 +61,7 @@ def test_missing_prediction_does_not_become_success(client):
     }
 
 
+@pytest.mark.extended
 def test_catalog_ratio_matches_external_anchor(db):
     """Относительная мощность карт сверена с внешним якорем (не только с собой).
 
@@ -80,6 +86,7 @@ def test_catalog_ratio_matches_external_anchor(db):
     assert 1.7 <= ratio <= 2.7, ratio
 
 
+@pytest.mark.extended
 def test_chosen_basket_moves_hardware_class(client):
     """Разумная корзина опускает класс (цикл «корзина → пересчёт» не декорация)."""
     profile = {

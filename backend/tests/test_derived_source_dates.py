@@ -11,6 +11,7 @@
 """
 from __future__ import annotations
 
+import pytest
 from sqlalchemy import select
 
 from app.models.entities import (
@@ -20,6 +21,8 @@ from app.models.entities import (
 from app.seed import corrections, sources
 from app.seed.dependency_graph import tool_engine_description
 from app.seed.evidence_catalog import EXTRA_SOURCES
+
+pytestmark = pytest.mark.extended
 
 MARKER = "[expert_estimate:no_external_source]"
 

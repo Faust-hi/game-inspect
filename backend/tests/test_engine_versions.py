@@ -6,6 +6,8 @@
 """
 from __future__ import annotations
 
+import pytest
+
 
 def _post(client, path, **overrides):
     profile = {
@@ -25,6 +27,7 @@ def _post(client, path, **overrides):
     return client.post(path, json={"profile": profile, "basket": []})
 
 
+@pytest.mark.critical
 def test_unknown_engine_rejected_with_hint(client):
     """Неизвестный движок: понятный отказ со списком допустимых, а не пустой расчёт."""
     response = _post(client, "/api/recommend", engine="no_such_engine")
@@ -34,6 +37,7 @@ def test_unknown_engine_rejected_with_hint(client):
     assert any("unreal" in item for item in body["details"])
 
 
+@pytest.mark.critical
 def test_catalog_engine_accepted_without_code_change(client):
     """Движок из каталога принимается расчётом (расширение без изменения кода)."""
     for path in ("/api/recommend", "/api/load-profile", "/api/hardware-estimate"):
@@ -45,6 +49,7 @@ def test_catalog_engine_accepted_without_code_change(client):
         assert response.status_code == 200, (path, response.text)
 
 
+@pytest.mark.critical
 def test_version_cuts_builtin_tool_and_warns_in_basket(client):
     """Nanite недоступен в UE 4.27: карточка не выдаёт его за готовый, корзина — риск.
 
@@ -79,6 +84,7 @@ def test_version_cuts_builtin_tool_and_warns_in_basket(client):
     assert "engine_tool_version" in {risk["code"] for risk in basket["risks"]}
 
 
+@pytest.mark.critical
 def test_linux_with_directx_gets_no_hardware(client):
     """Linux + DirectX 12: цели без нативного пути — без референса, с явной причиной."""
     response = client.post("/api/hardware-estimate", json={
@@ -93,6 +99,7 @@ def test_linux_with_directx_gets_no_hardware(client):
     assert any("DirectX 12" in item and "Linux" in item for item in body["unmet_limits"])
 
 
+@pytest.mark.extended
 def test_directstorage_needs_windows_and_modern_api(client):
     """DirectStorage учитывается на Windows/DX12 и исключается на Linux/Vulkan.
 
@@ -133,6 +140,7 @@ def test_directstorage_needs_windows_and_modern_api(client):
     )
 
 
+@pytest.mark.extended
 def test_unlinked_methods_are_explicitly_engine_independent(client):
     """Несвязанные с инструментами методы помечены: «не нужен» ≠ «данных нет».
 
@@ -151,6 +159,7 @@ def test_unlinked_methods_are_explicitly_engine_independent(client):
     assert linked and not any(m["engine_tool_independent"] for m in linked)
 
 
+@pytest.mark.extended
 def test_recommendation_names_independence_not_gap(client):
     """В выдаче рекомендаций пустая поддержка движка помечается признаком.
 
@@ -169,6 +178,7 @@ def test_recommendation_names_independence_not_gap(client):
     assert all(i["engine_tool_independent"] for i in unsupported)
 
 
+@pytest.mark.extended
 def test_seed_validation_distinguishes_independence(db):
     """Правило целостности различает пробел и осознанное отсутствие связей.
 
@@ -216,6 +226,7 @@ def test_seed_validation_distinguishes_independence(db):
     )
 
 
+@pytest.mark.critical
 def test_independence_sync_repairs_existing_database(db):
     """Синхронизация доносит признак до существующих баз и не трогает чужое.
 

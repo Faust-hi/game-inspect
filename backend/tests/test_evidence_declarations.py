@@ -18,12 +18,15 @@
 """
 from __future__ import annotations
 
+import pytest
 from sqlalchemy import select
 
 from app.models.entities import (
     Conflict, DependencyEdge, EvidenceClaim, HardwareCPU, HardwareGPU,
     MethodEngineLink,
 )
+
+pytestmark = pytest.mark.extended
 
 #: Префикс, которым помечается плановая зависимость без внешнего источника.
 EDGE_MARKER = "[expert_estimate"

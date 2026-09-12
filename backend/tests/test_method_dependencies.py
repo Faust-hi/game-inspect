@@ -13,6 +13,8 @@
 """
 from __future__ import annotations
 
+import pytest
+
 from app import repositories
 from app.schemas.catalog import ProjectProfile
 from app.services import method_dependencies, rules
@@ -39,6 +41,7 @@ def _profile(**overrides) -> ProjectProfile:
 # --- свойства правила -----------------------------------------------------
 
 
+@pytest.mark.critical
 def test_closure_is_transitive(db_session):
     """Зависимость добавленного метода тоже достраивается.
 
@@ -54,6 +57,7 @@ def test_closure_is_transitive(db_session):
     assert closure.added["mesh_index_optimization"] == "gpu_compute_culling"
 
 
+@pytest.mark.critical
 def test_closure_is_idempotent(db_session):
     """Повторное замыкание уже расширенного набора ничего не добавляет."""
     once = method_dependencies.mandatory_closure(db_session, ["world_partition_streaming"])
@@ -64,6 +68,7 @@ def test_closure_is_idempotent(db_session):
     assert again.codes == once.codes
 
 
+@pytest.mark.critical
 def test_closure_keeps_declared_codes(db_session):
     """Исходные коды остаются в наборе: замыкание только добавляет."""
     closure = method_dependencies.mandatory_closure(db_session, ["heightmap_compression"])
@@ -72,6 +77,7 @@ def test_closure_keeps_declared_codes(db_session):
     assert set(closure.declared) <= set(closure.codes)
 
 
+@pytest.mark.critical
 def test_closure_does_not_invent_unknown_methods(db_session):
     """Неизвестный код не превращается в известный метод.
 
@@ -85,6 +91,7 @@ def test_closure_does_not_invent_unknown_methods(db_session):
     assert closure.codes == ["нет-такого-метода"]
 
 
+@pytest.mark.extended
 def test_closure_notes_explain_the_addition(db_session):
     """Пояснения называют добавленное решение и того, кто его потребовал."""
     names = {method.code: method.name for method in repositories.methods(db_session)}
@@ -97,6 +104,7 @@ def test_closure_notes_explain_the_addition(db_session):
     assert names["static_shadow_caching"] in closure.notes[0]
 
 
+@pytest.mark.extended
 def test_closure_covers_every_mandatory_method_edge(db_session):
     """Ни одно обязательное ребро method→method не остаётся необслуженным.
 
@@ -122,6 +130,7 @@ def test_closure_covers_every_mandatory_method_edge(db_session):
         assert target_code in closure.codes, f"{source_code} не достраивает {target_code}"
 
 
+@pytest.mark.extended
 def test_no_mandatory_dependency_contradicts_an_exclusion(db_session):
     """Метод не может требовать того, с чем он несовместим (N6).
 
@@ -158,6 +167,7 @@ def test_no_mandatory_dependency_contradicts_an_exclusion(db_session):
     )
 
 
+@pytest.mark.extended
 def test_excluded_pair_has_no_second_type(db_session):
     """У пары с запретом совместного применения нет второго, мягкого типа.
 
@@ -183,6 +193,7 @@ def test_excluded_pair_has_no_second_type(db_session):
 # --- применение правила ---------------------------------------------------
 
 
+@pytest.mark.critical
 def test_closure_prevents_basket_collapse(db_session):
     """Без достройки корзина схлопывается, с ней — считается.
 

@@ -17,8 +17,15 @@ from __future__ import annotations
 import pytest
 
 
-def test_health_ready_on_seeded_database(client):
-    """Готовое приложение: health ok, схема без ошибок, каталог не пуст."""
+@pytest.mark.critical
+def test_api_readiness_on_seeded_database(client):
+    """Готовность API на заполненной базе: health ok и отчёт по умолчанию.
+
+    Объединяет две повторявшиеся проверки готовности (слияние M1): состояние
+    сервиса и то, что отчёт по умолчанию считается на валидном профиле.
+    Второй запрос ловил дефект, при котором отчёт падал на профиле без
+    обязательных полей и страница показа не открывалась вовсе.
+    """
     body = client.get("/api/health").json()
     assert body["version"]
     assert body["ready"] is True
@@ -27,7 +34,13 @@ def test_health_ready_on_seeded_database(client):
     assert body["catalog"]["hardware_cpu"] > 0
     assert body["catalog"]["hardware_gpu"] > 0
 
+    report = client.get("/api/report-data")
+    assert report.status_code == 200, report.text
+    payload = report.json()
+    assert payload["recommendation"]["evidence_summary"]["calibration_status"] == "not_calibrated"
 
+
+@pytest.mark.critical
 def test_health_unavailable_on_schema_error(client, monkeypatch):
     """Сломанная схема: честный unavailable/503, а не «как готовое»."""
     from app import db_migrate
@@ -41,6 +54,7 @@ def test_health_unavailable_on_schema_error(client, monkeypatch):
     assert body["ready"] is False
 
 
+@pytest.mark.critical
 def test_fresh_sqlite_bootstraps_through_migrations(tmp_path, monkeypatch):
     """Чистая SQLite поднимается только миграциями (защита демонстрации).
 
@@ -76,6 +90,7 @@ def test_fresh_sqlite_bootstraps_through_migrations(tmp_path, monkeypatch):
         reload_settings()
 
 
+@pytest.mark.extended
 def test_published_slice_has_sources_and_no_dangling_links(client):
     """Опубликованный срез целостен: источники есть, связи не оборваны.
 
@@ -100,6 +115,7 @@ def test_published_slice_has_sources_and_no_dangling_links(client):
     assert len(hardware["gpu"]) >= 30
 
 
+@pytest.mark.critical
 def test_draft_does_not_leak_into_public_slice(client):
     """Черновик не виден в публичной выдаче (аналог утечки train→test).
 
@@ -115,6 +131,7 @@ def test_draft_does_not_leak_into_public_slice(client):
     assert client.get("/api/catalog/methods/tmp_draft_probe").status_code == 404
 
 
+@pytest.mark.critical
 def test_critical_error_is_understandable(client):
     """Критическая ошибка: понятное сообщение + код + request_id, а не молчание."""
     response = client.post("/api/hardware-estimate", json={
@@ -128,6 +145,7 @@ def test_critical_error_is_understandable(client):
     assert body["request_id"] == response.headers["x-request-id"]
 
 
+@pytest.mark.critical
 def test_unknown_api_path_is_not_served_as_page(client):
     """Неизвестный путь API — 404 JSON, а не главная страница с кодом 200.
 
@@ -150,3 +168,77 @@ def test_unknown_api_path_is_not_served_as_page(client):
 
     # Пути самого приложения по-прежнему отдаются страницей.
     assert client.get("/profile").status_code == 200
+
+
+@pytest.mark.critical
+def test_private_file_outside_dist_is_not_served(client):
+    """Приватный файл вне каталога сборки не выдаётся ни одним обходом пути.
+
+    Свойство R6 «нет доступа к приватным файлам». Цель — рабочая база
+    `backend/gamedev_dss.db`: она лежит рядом с каталогом сборки, и утечка
+    видна по сигнатуре SQLite в теле ответа.
+
+    Перебираются разные техники обхода (относительный подъём, процентное
+    кодирование сегмента, двойное кодирование, свёртка `....//`, разделитель
+    Windows, абсолютный путь). На вариант ровно один запрос: проверяются
+    и код ответа, и отсутствие утечки в теле.
+    """
+    from app.main import FRONTEND_DIST
+
+    if not FRONTEND_DIST.exists():
+        pytest.skip("нужна собранная сборка: без dist маршрут не регистрируется")
+
+    target = "backend/gamedev_dss.db"
+    variants = {
+        "относительный подъём": f"../{target}",
+        "процентное кодирование": "..%2F" + target.replace("/", "%2F"),
+        "закодированные точки": "%2e%2e%2f" + target.replace("/", "%2f"),
+        "двойное кодирование": "..%252F" + target.replace("/", "%252F"),
+        "свёртка точек": f"....//{target}",
+        "разделитель Windows": "..\\" + target.replace("/", "\\"),
+        "абсолютный путь": f"/{target}",
+    }
+    leaked: list[str] = []
+    for name, path in variants.items():
+        response = client.get(f"/{path}")
+        # Обход либо отвергается, либо отдаёт главную страницу — но не файл.
+        assert response.status_code in {200, 403, 404}, (name, response.status_code)
+        if b"SQLite format 3" in response.content:
+            leaked.append(name)
+    assert not leaked, f"утечка приватного файла через обход пути: {leaked}"
+
+    # Обычный статический файл сборки по-прежнему отдаётся: защита не должна
+    # превращаться в отказ раздавать сам frontend.
+    assert client.get("/").status_code == 200
+
+
+@pytest.mark.critical
+def test_foreign_origin_cannot_change_data(client, profile):
+    """Изменяющий запрос из чужого origin браузера отклонён (R6).
+
+    Локальное приложение обслуживает один сайт: запрос с заголовком `Origin`
+    стороннего домена означает, что страницу открыли не мы (CSRF-сценарий),
+    и изменение данных запрещено. Чтение при этом не блокируется — иначе
+    внешние ссылки на отчёт перестали бы работать.
+
+    Тест осмыслен только потому, что тот же запрос без заголовка `Origin`
+    и с локальным origin проходит: при снятии защиты он начинает падать.
+    """
+    payload = {"profile": profile, "basket": []}
+
+    local = client.post(
+        "/api/recommend", json=payload, headers={"Origin": "http://localhost:5173"}
+    )
+    assert local.status_code == 200, local.text
+
+    no_origin = client.post("/api/recommend", json=payload)
+    assert no_origin.status_code == 200, no_origin.text
+
+    foreign = client.post(
+        "/api/recommend", json=payload, headers={"Origin": "https://evil.example"}
+    )
+    assert foreign.status_code == 403, foreign.text
+    assert foreign.json()["code"] == "forbidden"
+
+    # Чтение с чужим origin не блокируется: блокируется только изменение.
+    assert client.get("/api/health", headers={"Origin": "https://evil.example"}).status_code == 200

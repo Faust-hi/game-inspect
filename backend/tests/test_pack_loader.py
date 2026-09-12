@@ -10,7 +10,11 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from app.seed import pack_loader
+
+pytestmark = pytest.mark.critical
 
 
 def test_valid_pack_is_loaded_without_failures(tmp_path, monkeypatch):

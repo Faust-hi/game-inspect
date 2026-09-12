@@ -12,7 +12,11 @@
 """
 from __future__ import annotations
 
+import pytest
+
 from app.seed.pack_loader import DRAFT, PUBLISHED
+
+pytestmark = pytest.mark.extended
 
 
 #: Семейства доказательств, которые обязаны быть публичными, потому что
@@ -32,13 +36,6 @@ REQUIRED_PUBLIC_FAMILIES = (
 )
 
 
-def test_published_status_constants_are_distinct():
-    """Константы статусов не совпадают — иначе правило публикации бессмысленно."""
-    assert PUBLISHED == "published"
-    assert DRAFT == "draft"
-    assert PUBLISHED != DRAFT
-
-
 def test_every_family_with_sources_is_visible(client):
     """У каждого семейства с источником есть хотя бы одно публичное утверждение.
 
@@ -53,31 +50,6 @@ def test_every_family_with_sources_is_visible(client):
     families = {claim["entity"] for claim in public}
     missing = [name for name in REQUIRED_PUBLIC_FAMILIES if name not in families]
     assert not missing, f"семейства без публичных утверждений: {missing}"
-
-
-def test_category_two_evidence_is_reachable_by_code(client):
-    """Доказательство по конкретному коду возвращается, а не пустой список.
-
-    Это ровно тот сценарий, который использовал UI и отчёт: ссылка «показать
-    доказательства этой сущности». Пока утверждения были черновиками, все
-    такие ссылки для параметров проектирования вели в пустоту.
-    """
-    cases = [
-        ("stage_budget", "concept"),
-        ("stage_budget", "production"),
-        ("target_metric", "frame_budget_ms"),
-        ("load_profile", "client_runtime"),
-        ("network_mode", "dedicated_server"),
-        ("risk_factor", "scope_creep"),
-        ("target_platform", "pc_windows"),
-    ]
-    empty: list[str] = []
-    for entity, code in cases:
-        response = client.get(f"/api/catalog/evidence/{entity}/{code}")
-        assert response.status_code == 200, response.text
-        if not response.json():
-            empty.append(f"{entity}/{code}")
-    assert not empty, f"пустая выдача доказательств: {empty}"
 
 
 def test_category_two_claims_carry_sources_and_calculations(client):

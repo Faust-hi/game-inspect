@@ -10,6 +10,10 @@
 """
 from __future__ import annotations
 
+import pytest
+
+pytestmark = pytest.mark.critical
+
 
 def test_recommend_ranked_with_reasons(client, profile):
     """Рекомендации отсортированы внутри функции, с причинами и критериями."""

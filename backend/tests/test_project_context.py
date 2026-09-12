@@ -5,6 +5,8 @@
 """
 from __future__ import annotations
 
+import pytest
+
 
 BASE = {
     "name": "Контекст",
@@ -31,6 +33,7 @@ def recommend(client, basket=(), **overrides):
     return response.json()
 
 
+@pytest.mark.critical
 def test_object_count_moves_result(client):
     """Поле анкеты меняет ответ, а не лежит декорацией."""
     small = client.post("/api/hardware-estimate", json={
@@ -43,6 +46,7 @@ def test_object_count_moves_result(client):
     assert large["estimated_ram_gb"] > small["estimated_ram_gb"]
 
 
+@pytest.mark.critical
 def test_stage_keeps_architecture_with_rework_mark(client):
     """Стадия — цена внедрения, а не удаление: архитектура остаётся с пометкой.
 
@@ -67,6 +71,7 @@ def test_stage_keeps_architecture_with_rework_mark(client):
     assert flagged & architecture
 
 
+@pytest.mark.extended
 def test_stage_guidance_differs_and_unknown_falls_back(client):
     """У ранней и поздней стадий своё содержание; неизвестная — прототип без 500."""
     concept = client.get(
@@ -88,6 +93,7 @@ def test_stage_guidance_differs_and_unknown_falls_back(client):
     assert unknown.json()["stage"] == "prototype"
 
 
+@pytest.mark.extended
 def test_concept_change_is_flagged(client):
     """Решение, меняющее замысел, помечено, а не подано как нейтральное."""
     data = recommend(client)
@@ -100,6 +106,7 @@ def test_concept_change_is_flagged(client):
     assert "may_change_concept" in item["flags"]
 
 
+@pytest.mark.critical
 def test_gated_network_method_needs_its_function(client):
     """Сетевой метод виден только с сетевой функцией, иначе — в исключённых с причиной."""
     without = recommend(client, functions=["open_world_streaming"])

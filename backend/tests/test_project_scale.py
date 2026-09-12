@@ -12,6 +12,8 @@
 """
 from __future__ import annotations
 
+import pytest
+
 from app.schemas.catalog import ProjectProfile
 from app.services import hardware
 
@@ -42,6 +44,7 @@ def total_ram(**overrides) -> float:
     return sum(v.get("ram", 0.0) for v in memory(**overrides).values())
 
 
+@pytest.mark.critical
 def test_default_is_medium_and_changes_nothing():
     """По умолчанию — «medium», и он должен совпадать с прежним расчётом."""
     assert ProjectProfile(**BASE).project_scale == "medium"
@@ -49,6 +52,7 @@ def test_default_is_medium_and_changes_nothing():
     assert hardware.ENGINE_BASE_RAM_GB == 2.0
 
 
+@pytest.mark.critical
 def test_levels_move_baseline_monotonically():
     """Базис растёт с уровнем: small < medium < large < very_large."""
     levels = ["small", "medium", "large", "very_large"]
@@ -60,11 +64,13 @@ def test_levels_move_baseline_monotonically():
     assert values[0] < values[-1]
 
 
+@pytest.mark.critical
 def test_unknown_level_does_not_shift_result():
     """Неизвестный уровень — не повод менять расчёт."""
     assert memory(project_scale="unknown")["engine"]["ram"] == memory()["engine"]["ram"]
 
 
+@pytest.mark.extended
 def test_content_multipliers_are_untouched():
     """Масштаб проекта двигает базис, а не множители на контент.
 
@@ -78,6 +84,7 @@ def test_content_multipliers_are_untouched():
                                    - total_ram(project_scale="small"))) < 1e-6
 
 
+@pytest.mark.extended
 def test_world_scale_and_project_scale_are_independent_axes():
     """Масштаб мира и масштаб проекта — разные оси: обе могут меняться порознь."""
     assert memory(scale="small", project_scale="very_large")["engine"]["ram"] > \

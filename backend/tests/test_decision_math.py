@@ -15,6 +15,8 @@ import pytest
 from app.services.sensitivity import analyze
 from app.services.topsis import NEUTRAL_SCORE, Criterion, topsis
 
+pytestmark = pytest.mark.critical
+
 
 def _criteria():
     return [

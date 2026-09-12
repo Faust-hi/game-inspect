@@ -9,6 +9,8 @@
 """
 from __future__ import annotations
 
+import pytest
+
 from sqlalchemy import select
 
 from app.models.entities import Conflict, DependencyEdge, GameFunction, Method, TechnologyNode
@@ -33,6 +35,7 @@ def _edge_count(db, source_code: str, target_code: str, kind: str) -> int:
 # --- противоречивые связи (N6) -------------------------------------------
 
 
+@pytest.mark.critical
 def test_contradictory_relation_is_withdrawn_with_its_edge(db_session):
     """Снятая связь исчезает вместе с ребром графа.
 
@@ -69,11 +72,13 @@ def test_contradictory_relation_is_withdrawn_with_its_edge(db_session):
     )
 
 
+@pytest.mark.extended
 def test_contradictory_relation_correction_is_idempotent(db_session):
     """Повторный проход ничего не снимает: снятое уже снято."""
     assert correct_contradictory_relations(db_session) == 0
 
 
+@pytest.mark.extended
 def test_every_declared_removal_names_a_reason():
     """Снятие связи описано текстом, а не только парой кодов.
 
@@ -88,6 +93,7 @@ def test_every_declared_removal_names_a_reason():
 # --- таксономия методов (E5) ---------------------------------------------
 
 
+@pytest.mark.critical
 def test_platform_correction_reaches_an_existing_row(db_session):
     """Список платформ исправляется и в уже существующей записи.
 
@@ -104,6 +110,7 @@ def test_platform_correction_reaches_an_existing_row(db_session):
     assert sorted(row.applicable_platforms) == sorted(new)
 
 
+@pytest.mark.critical
 def test_platform_correction_leaves_a_foreign_value_alone(db_session):
     """Осознанно изменённый список платформ не затирается."""
     code, (_old, _new) = next(iter(PLATFORM_CORRECTIONS.items()))
@@ -115,11 +122,13 @@ def test_platform_correction_leaves_a_foreign_value_alone(db_session):
     assert list(row.applicable_platforms) == ["pc_windows"], "ручная правка затрётся проходом"
 
 
+@pytest.mark.extended
 def test_taxonomy_correction_is_idempotent(db_session):
     """Повторный проход ничего не меняет."""
     assert correct_method_taxonomy(db_session) == 0
 
 
+@pytest.mark.extended
 def test_virtualized_geometry_is_a_geometry_pipeline_method(db_session):
     """Метод числится в той подсистеме, которую закрывает.
 

@@ -65,6 +65,7 @@ def with_prerequisites(*codes: str) -> list[str]:
     return list(codes)
 
 
+@pytest.mark.critical
 def test_streaming_pool_counts_only_transient_part(client):
     """Пул 8 ГБ не даёт +8 RAM / +4 VRAM поверх текстур (двойной учёт объёма)."""
     base = estimate(client)
@@ -75,6 +76,7 @@ def test_streaming_pool_counts_only_transient_part(client):
     assert 0.0 < delta_vram <= 0.3
 
 
+@pytest.mark.critical
 def test_upscaling_field_and_card_act_once(client):
     """Поле и карточка апскейлинга — одно действие, а не две скидки."""
     field_only = estimate(client, upscaling_method="fsr")
@@ -83,6 +85,7 @@ def test_upscaling_field_and_card_act_once(client):
     assert both["estimated_vram_gb"] > field_only["estimated_vram_gb"]
 
 
+@pytest.mark.critical
 def test_frame_generation_field_and_card_act_once(client):
     """Поле и карточка генерации кадров — один синтез, а не две скидки."""
     overrides = {"frame_generation": True, "base_render_fps": 60, "target_fps": 120}
@@ -107,6 +110,7 @@ def test_frame_generation_field_and_card_act_once(client):
     assert both["estimated_vram_gb"] > field_only["estimated_vram_gb"]
 
 
+@pytest.mark.critical
 def test_rt_cost_scales_with_resolution(client):
     """RT-проход дорожает с разрешением (1080p → 4K более чем вдвое)."""
     # Предусловия RT-метода требуют функций «ray_traced_effects» и
@@ -120,6 +124,7 @@ def test_rt_cost_scales_with_resolution(client):
     assert high["gpu_rt_cost"] > low["gpu_rt_cost"] * 2.0
 
 
+@pytest.mark.extended
 def test_rt_budget_reduces_introduced_pass(client):
     """Бюджет трассировки сокращает введённый проход, а не теряется."""
     functions = BASE["functions"] + ["ray_traced_effects"]
@@ -135,6 +140,7 @@ def test_rt_budget_reduces_introduced_pass(client):
     assert budgeted["gpu_rt_cost"] < plain["gpu_rt_cost"]
 
 
+@pytest.mark.critical
 def test_raster_and_rt_share_one_frame_budget(client):
     """Растр и трассировка укладываются в один бюджет кадра: работа складывается.
 
@@ -154,6 +160,7 @@ def test_raster_and_rt_share_one_frame_budget(client):
     assert data["required_gpu_index"] <= raster + rt + 0.02
 
 
+@pytest.mark.critical
 def test_two_increments_sum_but_two_savings_count_once(client):
     """Два расхода складываются; две экономии одного объёма — по максимуму.
 
@@ -192,6 +199,7 @@ def test_two_increments_sum_but_two_savings_count_once(client):
     assert saving(both_down) < saving(first) + saving(second)
 
 
+@pytest.mark.critical
 def test_mandatory_dependency_is_pulled_into_the_basket(client):
     """Обязательная зависимость достраивается, а не выбрасывает метод из расчёта.
 
@@ -210,6 +218,7 @@ def test_mandatory_dependency_is_pulled_into_the_basket(client):
     assert alone["estimated_vram_gb"] > neutral["estimated_vram_gb"], "корзина схлопнулась"
 
 
+@pytest.mark.critical
 def test_closure_additions_are_reported_and_counted(client):
     """Достроенные зависимости видны отдельной группой и входят в расчёт."""
     data = recommend(client, basket=["static_shadow_caching"])
@@ -223,6 +232,7 @@ def test_closure_additions_are_reported_and_counted(client):
     assert data["load_profile"]["vram"] != neutral["load_profile"]["vram"]
 
 
+@pytest.mark.critical
 def test_server_effect_does_not_discount_player_pc(client):
     """Сервер без графики не облегчает рендер у игрока (область эффекта)."""
     base = estimate(
@@ -238,6 +248,7 @@ def test_server_effect_does_not_discount_player_pc(client):
     assert selected["required_cpu_index"] == base["required_cpu_index"]
 
 
+@pytest.mark.extended
 def test_out_of_frame_effect_is_named_not_silent(client):
     """Эффект вне стоимости кадра назван в exclusions, а не пропущен молча."""
     notes = recommend(client, basket=["pso_precaching_warmup"])["contributions"][

@@ -6,6 +6,8 @@
 """
 from __future__ import annotations
 
+import pytest
+
 
 BASE = {
     "name": "Железо",
@@ -31,6 +33,7 @@ def estimate(client, basket=(), **overrides):
     return response.json()
 
 
+@pytest.mark.critical
 def test_higher_resolution_needs_stronger_gpu(client):
     """2160p требует больше GPU, чем 720p (цель не противоречит результату)."""
     low = estimate(client, target_resolution="720p")
@@ -38,6 +41,7 @@ def test_higher_resolution_needs_stronger_gpu(client):
     assert high["required_gpu_index"] > low["required_gpu_index"]
 
 
+@pytest.mark.critical
 def test_higher_fps_needs_more_compute(client):
     """144 FPS дороже 30 FPS по CPU и GPU (ограничение не игнорируется)."""
     low = estimate(client, target_fps=30)
@@ -46,6 +50,7 @@ def test_higher_fps_needs_more_compute(client):
     assert high["required_cpu_index"] > low["required_cpu_index"]
 
 
+@pytest.mark.critical
 def test_violated_vram_limit_blocks_and_names_bottleneck(client):
     """Нехватка памяти: предел фиксируется, узкое место — память.
 
@@ -64,6 +69,7 @@ def test_violated_vram_limit_blocks_and_names_bottleneck(client):
     assert data["bottleneck"] == "memory"
 
 
+@pytest.mark.critical
 def test_no_memory_bottleneck_without_deficit(client):
     """Без дефицита память не объявляется узким местом.
 
@@ -81,6 +87,7 @@ def test_no_memory_bottleneck_without_deficit(client):
     assert data["bottleneck"] != "memory"
 
 
+@pytest.mark.critical
 def test_alternatives_cover_estimate(client):
     """Альтернативы не слабее оценки (не советуем заведомо слабое железо)."""
     data = estimate(client)
@@ -89,6 +96,7 @@ def test_alternatives_cover_estimate(client):
         assert gpu["vram_gb"] >= data["estimated_vram_gb"]
 
 
+@pytest.mark.critical
 def test_unknown_inputs_lower_confidence_instead_of_promise(client):
     """Неизвестность — явная неопределённость, а не обещание.
 
@@ -107,6 +115,7 @@ def test_unknown_inputs_lower_confidence_instead_of_promise(client):
     assert "guaranteed_fps" not in data and "fps" not in data
 
 
+@pytest.mark.critical
 def test_zero_means_empty_not_missing(client):
     """Явный ноль дешевле неизвестности; шкала монотонна с нуля.
 
@@ -121,12 +130,14 @@ def test_zero_means_empty_not_missing(client):
     assert zero["required_cpu_index"] < one["required_cpu_index"]
 
 
+@pytest.mark.critical
 def test_beyond_model_range_is_reported(client):
     """Выход за границу модели виден в ответе, а не выдаётся за измерение."""
     data = estimate(client, npc_count=10_000_000, target_fps=240)
     assert data["applicability_limits"]
 
 
+@pytest.mark.critical
 def test_scene_scale_changes_load_not_frame_cost(client):
     """Масштаб сцены обязан менять расчёт нагрузки, но не стоимость кадра.
 
@@ -155,6 +166,7 @@ def test_scene_scale_changes_load_not_frame_cost(client):
     assert very_large["required_gpu_index"] == small["required_gpu_index"]
 
 
+@pytest.mark.extended
 def test_baseline_api_feature_does_not_empty_gpu_pool(client):
     """«Compute Shaders» — базовая возможность API, а не расширение вендора.
 
@@ -167,6 +179,7 @@ def test_baseline_api_feature_does_not_empty_gpu_pool(client):
     assert not any("Compute Shaders" in item for item in data["unmet_limits"])
 
 
+@pytest.mark.extended
 def test_feature_support_distinguishes_unknown_from_absent():
     """Возможность подтверждается по API, но неизвестность не становится отказом."""
     from app.services import hardware as hardware_service
@@ -187,6 +200,7 @@ def test_feature_support_distinguishes_unknown_from_absent():
     assert hardware_service._gpu_feature_support(ModernGPU(), "Неведомая возможность") is None
 
 
+@pytest.mark.critical
 def test_cpu_ceiling_is_named_when_requirement_exceeds_catalog(client):
     """Требование выше потолка каталога объясняется, а не отдаёт пустой ориентир."""
     data = estimate(

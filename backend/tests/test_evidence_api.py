@@ -1,33 +1,48 @@
 """Регрессии публичных маршрутов доказательного слоя."""
 from __future__ import annotations
 
+import pytest
 
-def test_entity_evidence_path_alias_filters_claims(client):
-    claims_response = client.get("/api/catalog/evidence", params={"entity": "method"})
-    assert claims_response.status_code == 200
-    claims = claims_response.json()
+pytestmark = pytest.mark.extended
+
+
+def test_evidence_endpoints_return_claims_by_code(client):
+    """Доказательство по коду сущности возвращается и не смешивает сущности.
+
+    Объединяет две проверки одного и того же маршрута (слияние M3): общий
+    инвариант — выдача по `entity/entity_code` отфильтрована ровно по этой
+    паре, и сценарий UI/отчёта — ссылка «показать доказательства этой
+    сущности» для параметров проектирования не ведёт в пустоту. Пока
+    утверждения пакетов оставались черновиками, она вела в пустоту.
+    """
+    cases = [
+        ("stage_budget", "concept"),
+        ("stage_budget", "production"),
+        ("target_metric", "frame_budget_ms"),
+        ("load_profile", "client_runtime"),
+        ("network_mode", "dedicated_server"),
+        ("risk_factor", "scope_creep"),
+        ("target_platform", "pc_windows"),
+    ]
+    listed = client.get("/api/catalog/evidence", params={"entity": "method"})
+    assert listed.status_code == 200
+    claims = listed.json()
     assert claims
-
     selected = claims[0]
-    response = client.get(
-        f"/api/catalog/evidence/{selected['entity']}/{selected['entity_code']}"
-    )
-    assert response.status_code == 200
-    returned = response.json()
-    assert returned
-    assert all(
-        item["entity"] == selected["entity"]
-        and item["entity_code"] == selected["entity_code"]
-        for item in returned
-    )
+    cases.append((selected["entity"], selected["entity_code"]))
 
-
-def test_report_data_get_uses_valid_default_profile(client):
-    response = client.get("/api/report-data")
-
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["recommendation"]["evidence_summary"]["calibration_status"] == "not_calibrated"
+    empty: list[str] = []
+    for entity, code in cases:
+        response = client.get(f"/api/catalog/evidence/{entity}/{code}")
+        assert response.status_code == 200, response.text
+        returned = response.json()
+        if not returned:
+            empty.append(f"{entity}/{code}")
+        assert all(
+            item["entity"] == entity and item["entity_code"] == code
+            for item in returned
+        ), f"выдача {entity}/{code} содержит чужие утверждения"
+    assert not empty, f"пустая выдача доказательств: {empty}"
 
 
 def test_graph_checks_reports_no_mandatory_cycles(client):

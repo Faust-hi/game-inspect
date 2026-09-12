@@ -11,6 +11,8 @@
 """
 from __future__ import annotations
 
+import pytest
+
 BASE = {
     "name": "Сообщения железа",
     "format": "3D",
@@ -50,6 +52,7 @@ class _GPU:
 
 # --- Узкое место -----------------------------------------------------------
 
+@pytest.mark.critical
 def test_bottleneck_sums_raster_and_rt():
     """Узкое место — суммарный GPU, а не его половины.
 
@@ -66,6 +69,7 @@ def test_bottleneck_sums_raster_and_rt():
     assert "GPU" in title
 
 
+@pytest.mark.critical
 def test_bottleneck_still_names_cpu_when_cpu_dominates():
     """Суммирование GPU не отменяет диагноз CPU там, где он действительно узкий."""
     from app.services import hardware as hardware_service
@@ -76,6 +80,7 @@ def test_bottleneck_still_names_cpu_when_cpu_dominates():
     assert key == "cpu_main_thread"
 
 
+@pytest.mark.extended
 def test_bottleneck_has_no_separate_raster_and_rt_stages():
     """Раздельных ключей растровой и RT-стадии больше нет.
 
@@ -89,6 +94,7 @@ def test_bottleneck_has_no_separate_raster_and_rt_stages():
     }
 
 
+@pytest.mark.critical
 def test_reported_bottleneck_matches_model_stages(client):
     """Ответ API называет стадию из модели, а не строку, которой в модели нет."""
     from app.services import hardware as hardware_service
@@ -100,6 +106,7 @@ def test_reported_bottleneck_matches_model_stages(client):
 
 # --- Причина отказа в подборе видеокарты -----------------------------------
 
+@pytest.mark.critical
 def test_pick_gpu_names_rt_reason():
     """Нет карты с трассировкой лучей — названа именно эта причина."""
     from app.services import hardware as hardware_service
@@ -112,6 +119,7 @@ def test_pick_gpu_names_rt_reason():
     assert reason == "rt"
 
 
+@pytest.mark.critical
 def test_pick_gpu_names_vram_reason():
     """Карта нужного класса есть, но объёма не хватает — названа память."""
     from app.services import hardware as hardware_service
@@ -124,6 +132,7 @@ def test_pick_gpu_names_vram_reason():
     assert reason == "vram"
 
 
+@pytest.mark.critical
 def test_pick_gpu_names_perf_reason():
     """Памяти хватает, класса не хватает — названа производительность."""
     from app.services import hardware as hardware_service
@@ -136,6 +145,7 @@ def test_pick_gpu_names_perf_reason():
     assert reason == "perf"
 
 
+@pytest.mark.extended
 def test_pick_gpu_has_no_reason_on_success():
     """Успешный подбор причины отказа не имеет."""
     from app.services import hardware as hardware_service
@@ -150,6 +160,7 @@ def test_pick_gpu_has_no_reason_on_success():
 
 # --- Сообщение и причина совпадают -----------------------------------------
 
+@pytest.mark.extended
 def test_api_filtered_pool_is_blamed_on_api(client, monkeypatch):
     """Пул отсеян по API — сообщение говорит про API.
 
@@ -168,6 +179,7 @@ def test_api_filtered_pool_is_blamed_on_api(client, monkeypatch):
     assert "обязательных возможностей" not in joined
 
 
+@pytest.mark.extended
 def test_capability_filtered_pool_names_the_capability(client, monkeypatch):
     """Пул отсеян по обязательной возможности — названа возможность, не API."""
     from app.services import hardware as hardware_service
@@ -186,6 +198,7 @@ def test_capability_filtered_pool_names_the_capability(client, monkeypatch):
     assert "не подтверждает выбранный API" not in joined
 
 
+@pytest.mark.extended
 def test_no_single_gpu_covers_all_capabilities_is_said_as_such(client, monkeypatch):
     """Каждая возможность по отдельности подтверждена, вместе — ни одной картой.
 

@@ -5,8 +5,17 @@
 """
 from __future__ import annotations
 
+import pytest
+
 from app.models.enums import DevStage
 from app.seed.pack_loader import normalize_stage
+
+# Целиком подробный контур: перечисление всех значений стадии и разбор
+# свободного текста из исследовательских пакетов. `normalize_stage` не имеет
+# вызывающих мест в приложении (пакеты работ сняты), но само перечисление
+# DevStage и поле `recommended_stage` в каталоге живут, поэтому файл
+# сохраняется в extended, а не удаляется.
+pytestmark = pytest.mark.extended
 
 
 STAGES = {stage.value for stage in DevStage}

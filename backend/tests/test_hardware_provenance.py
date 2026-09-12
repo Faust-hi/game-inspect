@@ -11,6 +11,8 @@
 """
 from __future__ import annotations
 
+import pytest
+
 from sqlalchemy import select
 
 from app.models.entities import EvidenceSource, HardwareCPU, HardwareGPU
@@ -26,6 +28,7 @@ PROVENANCE_FIELDS = (
 )
 
 
+@pytest.mark.critical
 def test_curated_provenance_survives_startup_pass(db_session):
     """Правка администратора не уничтожается стартовыми проходами."""
     row = db_session.scalars(select(HardwareCPU)).first()
@@ -47,6 +50,7 @@ def test_curated_provenance_survives_startup_pass(db_session):
     assert row.normalization_note == "Курировано вручную: сверено с PassMark."
 
 
+@pytest.mark.extended
 def test_empty_provenance_block_is_filled_whole(db_session):
     """Пробел закрывается всем блоком, а не одним числом."""
     row = db_session.scalars(select(HardwareGPU)).first()
@@ -70,6 +74,7 @@ def test_empty_provenance_block_is_filled_whole(db_session):
     assert row.benchmark_context
 
 
+@pytest.mark.extended
 def test_measured_basis_matches_a_measured_value(db_session):
     """«Измерено» означает число из словаря замеров, а не вывод из индекса."""
     measured_cpu = set(fixes_v2._MEASURED_CPU_MULTI.values())
@@ -82,6 +87,7 @@ def test_measured_basis_matches_a_measured_value(db_session):
             assert float(row.benchmark_raw_value) in measured_gpu, row.model
 
 
+@pytest.mark.extended
 def test_refresh_pass_skips_rows_that_differ_from_previous_value(db_session, monkeypatch):
     """Точечный проход срабатывает только на прежнем значении."""
     row = db_session.scalars(select(HardwareCPU)).first()
@@ -97,12 +103,14 @@ def test_refresh_pass_skips_rows_that_differ_from_previous_value(db_session, mon
     assert fixes_v2.refresh_hardware_raw_values(db_session) == 1
 
 
+@pytest.mark.extended
 def test_refresh_pass_is_noop_with_empty_registry(db_session):
     """Пустой реестр — законное состояние: обновлять нечего."""
     assert not fixes_v2.BENCHMARK_REFRESH
     assert fixes_v2.refresh_hardware_raw_values(db_session) == 0
 
 
+@pytest.mark.extended
 def test_truncated_source_date_is_restored(db_session):
     """Обрубок прежнего лимита восстанавливается целиком."""
     src = db_session.scalars(select(EvidenceSource)).first()
@@ -114,6 +122,7 @@ def test_truncated_source_date_is_restored(db_session):
     assert src.published_date == full
 
 
+@pytest.mark.extended
 def test_curated_source_date_is_not_touched(db_session):
     """Иное значение — в том числе курированное — не трогается."""
     src = db_session.scalars(select(EvidenceSource)).first()
