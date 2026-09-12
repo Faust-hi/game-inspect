@@ -2,8 +2,7 @@
   "db": "C:\\Users\\user\\Desktop\\game-inspect\\backend\\gamedev_dss.db",
   "thresholds": {
     "min_claims": 3,
-    "min_located_sources": 2,
-    "min_game_proofs": 2
+    "min_located_sources": 2
   },
   "classes": {
     "game_functions": {
@@ -11,7 +10,6 @@
       "total": 40,
       "pct_claims>=3": 100.0,
       "pct_located_sources>=2": 100.0,
-      "pct_game_proofs>=2": 100.0,
       "pct_fully_ok": 100.0,
       "total_derived_missing_formula": 0,
       "total_dangling_claims": 0,
@@ -22,8 +20,7 @@
       "total": 124,
       "pct_claims>=3": 100.0,
       "pct_located_sources>=2": 100.0,
-      "pct_game_proofs>=2": 98.4,
-      "pct_fully_ok": 98.4,
+      "pct_fully_ok": 100.0,
       "total_derived_missing_formula": 0,
       "total_dangling_claims": 0,
       "entities_declaring_gap": 2
@@ -33,7 +30,6 @@
       "total": 7,
       "pct_claims>=3": 100.0,
       "pct_located_sources>=2": 100.0,
-      "pct_game_proofs>=2": 100.0,
       "pct_fully_ok": 100.0,
       "total_derived_missing_formula": 0,
       "total_dangling_claims": 0,
@@ -44,32 +40,20 @@
       "total": 71,
       "pct_claims>=3": 98.6,
       "pct_located_sources>=2": 98.6,
-      "pct_game_proofs>=2": 98.6,
       "pct_fully_ok": 98.6,
       "total_derived_missing_formula": 0,
       "total_dangling_claims": 0,
-      "entities_declaring_gap": 22,
-      "direct_game_proofs_total": 100,
-      "entities_with_direct_proof": 52,
-      "entities_unproven_and_undeclared": 0,
-      "note": "pct_game_proofs counts shipped-title evidence for the capability, cross-engine included. entities_with_direct_proof is the stricter count: shipped titles on the SAME engine as the tool."
+      "entities_declaring_gap": 22
     },
     "technology_nodes": {
       "entity_class": "technology_nodes",
       "total": 222,
       "inherited_from_catalog": 202,
       "standalone": 20,
-      "pct_fully_ok": 96.8,
-      "standalone_pct_fully_ok": 80.0,
+      "pct_fully_ok": 99.5,
+      "standalone_pct_fully_ok": 100.0,
       "standalone_without_evidence": 0,
-      "standalone_declared_no_shipped_title_proof": 4,
-      "standalone_documented_but_unproven": 4
-    },
-    "game_cases": {
-      "entity_class": "game_cases",
-      "total": 155,
-      "pct_fully_ok": 100.0,
-      "without_any_case_evidence": 0
+      "standalone_declared_gap": 4
     },
     "method_engine_links": {
       "entity_class": "method_engine_links",
@@ -108,13 +92,6 @@
       "missing_applicability_conditions": 0,
       "missing_required_data_and_tools": 0
     },
-    "work_packages": {
-      "entity_class": "work_packages",
-      "total": 802,
-      "missing_source_or_basis": 0,
-      "p80_lt_p50": 0,
-      "no_formula_basis": 0
-    },
     "hardware_cpu": {
       "entity_class": "hardware_cpu",
       "total": 51,
@@ -136,82 +113,13 @@
   },
   "gaps": {
     "game_functions": [],
-    "methods": [
-      {
-        "code": "temporal_radiance_cache",
-        "name": "Кэш излучения с временным накоплением",
-        "claims": 9,
-        "direct_game_proofs": 0,
-        "declared_gap": true,
-        "sources": 5,
-        "located_sources": 5,
-        "fields": [
-          "adoption_evidence_gap",
-          "implementation",
-          "implementation_variants",
-          "mechanism",
-          "performance_gain"
-        ],
-        "bases": [
-          "case_evidence",
-          "documented",
-          "expert_estimate",
-          "unknown"
-        ],
-        "numeric_claims": 1,
-        "derived_no_formula": 0,
-        "dangling": 0,
-        "game_proofs": 0,
-        "ok_claims": true,
-        "ok_sources": true,
-        "ok_proofs": false
-      },
-      {
-        "code": "neural_texture_compression",
-        "name": "Нейросжатие текстур",
-        "claims": 13,
-        "direct_game_proofs": 0,
-        "declared_gap": true,
-        "sources": 5,
-        "located_sources": 5,
-        "fields": [
-          "abstract_claim",
-          "adoption_evidence_gap",
-          "implementation",
-          "mechanism",
-          "memory_reduction",
-          "no_published_decode_cost",
-          "no_shipped_title",
-          "per_material_joint_compression",
-          "per_texel_rate_reduction",
-          "performance_gain",
-          "random_access_property",
-          "resolution_gain_at_lower_memory",
-          "training_speed"
-        ],
-        "bases": [
-          "derived",
-          "documented",
-          "expert_estimate",
-          "measured",
-          "unknown"
-        ],
-        "numeric_claims": 6,
-        "derived_no_formula": 0,
-        "dangling": 0,
-        "game_proofs": 1,
-        "ok_claims": true,
-        "ok_sources": true,
-        "ok_proofs": false
-      }
-    ],
+    "methods": [],
     "engines": [],
     "engine_tools": [
       {
         "code": "ue_networking",
         "name": "Networking and Multiplayer",
         "claims": 2,
-        "direct_game_proofs": 0,
         "declared_gap": true,
         "sources": 1,
         "located_sources": 1,
@@ -226,91 +134,11 @@
         "numeric_claims": 0,
         "derived_no_formula": 0,
         "dangling": 0,
-        "game_proofs": 0,
         "ok_claims": false,
-        "ok_sources": false,
-        "ok_proofs": false
+        "ok_sources": false
       }
     ],
     "technology_nodes": [
-      {
-        "code": "method:temporal_radiance_cache",
-        "name": "Кэш излучения с временным накоплением",
-        "node_type": "method",
-        "origin": "inherited:method:temporal_radiance_cache",
-        "claims": 9,
-        "located_sources": 5,
-        "game_proofs": 0,
-        "ok_claims": true,
-        "ok_sources": true,
-        "ok_proofs": false,
-        "declared_gap": false
-      },
-      {
-        "code": "method:neural_texture_compression",
-        "name": "Нейросжатие текстур",
-        "node_type": "method",
-        "origin": "inherited:method:neural_texture_compression",
-        "claims": 13,
-        "located_sources": 5,
-        "game_proofs": 1,
-        "ok_claims": true,
-        "ok_sources": true,
-        "ok_proofs": false,
-        "declared_gap": false
-      },
-      {
-        "code": "lib:acl",
-        "name": "Animation Compression Library (ACL)",
-        "node_type": "lib",
-        "origin": "own",
-        "claims": 4,
-        "located_sources": 2,
-        "game_proofs": 0,
-        "ok_claims": true,
-        "ok_sources": true,
-        "ok_proofs": false,
-        "declared_gap": true
-      },
-      {
-        "code": "lib:meshoptimizer",
-        "name": "meshoptimizer",
-        "node_type": "lib",
-        "origin": "own",
-        "claims": 4,
-        "located_sources": 2,
-        "game_proofs": 0,
-        "ok_claims": true,
-        "ok_sources": true,
-        "ok_proofs": false,
-        "declared_gap": true
-      },
-      {
-        "code": "lib:rvo2",
-        "name": "RVO2 / ORCA library",
-        "node_type": "lib",
-        "origin": "own",
-        "claims": 4,
-        "located_sources": 2,
-        "game_proofs": 0,
-        "ok_claims": true,
-        "ok_sources": true,
-        "ok_proofs": false,
-        "declared_gap": true
-      },
-      {
-        "code": "lib:tracy",
-        "name": "Tracy Profiler",
-        "node_type": "lib",
-        "origin": "own",
-        "claims": 4,
-        "located_sources": 2,
-        "game_proofs": 0,
-        "ok_claims": true,
-        "ok_sources": true,
-        "ok_proofs": false,
-        "declared_gap": true
-      },
       {
         "code": "tool:ue_networking",
         "name": "Networking and Multiplayer",
@@ -318,27 +146,14 @@
         "origin": "inherited:engine_tool:ue_networking",
         "claims": 2,
         "located_sources": 1,
-        "game_proofs": 0,
         "ok_claims": false,
         "ok_sources": false,
-        "ok_proofs": false,
         "declared_gap": false
       }
-    ],
-    "game_cases": []
+    ]
   },
   "visibility": {
     "tables": {
-      "case_evidence": {
-        "total": 375,
-        "published": 375,
-        "invisible": 0,
-        "declared_invisible": 0,
-        "undeclared_invisible": 0,
-        "declared_draft": false,
-        "declaration": "",
-        "ok": true
-      },
       "conflicts": {
         "total": 452,
         "published": 452,
@@ -399,16 +214,6 @@
         "declaration": "",
         "ok": true
       },
-      "game_cases": {
-        "total": 155,
-        "published": 155,
-        "invisible": 0,
-        "declared_invisible": 0,
-        "undeclared_invisible": 0,
-        "declared_draft": false,
-        "declaration": "",
-        "ok": true
-      },
       "game_functions": {
         "total": 40,
         "published": 40,
@@ -459,29 +264,9 @@
         "declaration": "",
         "ok": true
       },
-      "team_scenarios": {
-        "total": 5,
-        "published": 5,
-        "invisible": 0,
-        "declared_invisible": 0,
-        "undeclared_invisible": 0,
-        "declared_draft": false,
-        "declaration": "",
-        "ok": true
-      },
       "technology_nodes": {
         "total": 222,
         "published": 222,
-        "invisible": 0,
-        "declared_invisible": 0,
-        "undeclared_invisible": 0,
-        "declared_draft": false,
-        "declaration": "",
-        "ok": true
-      },
-      "work_packages": {
-        "total": 802,
-        "published": 802,
         "invisible": 0,
         "declared_invisible": 0,
         "undeclared_invisible": 0,
@@ -1449,33 +1234,26 @@
     "dangling": [],
     "dangling_count": 0,
     "by_basis": {
-      "derived": 208,
-      "expert_estimate": 164,
       "case_evidence": 244,
       "unknown": 263,
+      "measured": 104,
+      "expert_estimate": 164,
       "documented": 1581,
-      "measured": 104
+      "derived": 208
     },
     "by_verification": {
-      "derived_from_input": 4,
-      "needs_review": 1,
-      "derived_with_context": 130,
-      "derived_from_formula": 2,
-      "derived_from_published_rate": 1,
-      "source_verified": 474,
-      "verified": 1316,
       "derived_from_dag": 1,
+      "needs_review": 1,
+      "derived_from_published_rate": 1,
+      "derived_from_input": 4,
+      "derived_with_context": 130,
+      "unverified": 503,
+      "verified": 1316,
+      "derived_from_formula": 2,
       "partially_verified": 8,
-      "scenario_only": 124,
-      "unverified": 503
+      "source_verified": 474,
+      "scenario_only": 124
     },
     "numeric_without_source": 0
-  },
-  "case_evidence": {
-    "total": 375,
-    "orphan_case_evidence": [],
-    "orphan_count": 0,
-    "missing_source": 0,
-    "missing_locator": 0
   }
 }
