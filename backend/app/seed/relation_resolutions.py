@@ -91,10 +91,6 @@ TOOL_ENGINE_TEMPLATES = frozenset(
     {TOOL_ENGINE_WORKAROUND, TOOL_ENGINE_CUSTOM_WORKAROUND}
 )
 
-#: Типы рёбер, которые берут решение из одноимённой связи «метод-метод».
-_METHOD_EDGE_TYPES = frozenset(action for action in _ACTIONS)
-
-
 def _basis_for(conflict: Conflict) -> str:
     """Основание решения: источник есть — выведено; иначе — экспертное допущение."""
     if conflict.conflict_type == ConflictType.UNKNOWN.value:

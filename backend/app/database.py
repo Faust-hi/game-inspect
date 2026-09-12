@@ -54,9 +54,6 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, expi
 class Base(DeclarativeBase):
     """Базовый класс для всех ORM-моделей."""
 
-    def to_dict(self) -> dict:
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
 
 def get_db():
     """Зависимость FastAPI: сессия БД на время запроса."""

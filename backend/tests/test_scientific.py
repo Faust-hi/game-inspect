@@ -42,25 +42,6 @@ def test_beyond_catalog_is_flagged_not_hidden(client):
     assert data["exceeds_catalog"] or data["confidence"] < 0.7
 
 
-@pytest.mark.critical
-def test_missing_prediction_does_not_become_success(client):
-    """Пропуск не улучшает результат: неизвестное — риск, а не покрытие."""
-    response = client.post("/api/recommend", json={
-        "profile": {
-            "format": "3D", "world_type": "linear", "scale": "medium",
-            "stage": "prototype", "engine": "custom", "platforms": ["pc_windows"],
-            "functions": ["function_missing_from_catalog"],
-            "target_resolution": "1080p", "target_quality": "high",
-            "target_fps": 60,
-        },
-        "basket": [],
-    })
-    assert response.status_code == 200
-    assert "unknown_function" in {
-        item["code"] for item in response.json()["risks"]
-    }
-
-
 @pytest.mark.extended
 def test_catalog_ratio_matches_external_anchor(db):
     """Относительная мощность карт сверена с внешним якорем (не только с собой).

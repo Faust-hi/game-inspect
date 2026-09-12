@@ -89,58 +89,6 @@ def _norm_source_type(raw: str) -> str:
     return _SOURCE_TYPE_MAP.get(raw.lower().strip(), "secondary")
 
 
-#: Стадии проекта, допустимые в поле `recommended_stage`.
-_VALID_STAGES = {
-    "concept", "preproduction", "prototype", "production",
-    "alpha", "beta", "release", "post_release",
-}
-
-#: Ключевые слова для разбора свободного текста о рекомендованной стадии.
-#: Часть исследовательских пакетов хранит в `recommended_stage` не код стадии,
-#: а развёрнутую рекомендацию на английском («vertical_slice, once lighting art
-#: direction is locked…»). Это осмысленный текст, но он не является значением
-#: перечисления: если подставить его в поле как есть, стадия перестаёт быть
-#: сравнимой и фильтруемой. Слова разбираются по порядку — побеждает то, что
-#: встретится первым в тексте, потому что именно оно названо основной стадией.
-_STAGE_HINTS: tuple[tuple[str, str], ...] = (
-    ("concept", "concept"),
-    ("preproduction", "preproduction"),
-    ("pre-production", "preproduction"),
-    ("vertical_slice", "prototype"),
-    ("vertical slice", "prototype"),
-    ("prototype", "prototype"),
-    ("production", "production"),
-    ("alpha", "alpha"),
-    ("beta", "beta"),
-    ("post_launch", "post_release"),
-    ("post-launch", "post_release"),
-    ("post_release", "post_release"),
-    ("release", "release"),
-)
-
-
-def normalize_stage(raw: Any) -> tuple[str, str | None]:
-    """Привести рекомендованную стадию к коду перечисления.
-
-    Возвращает пару «код стадии» и «исходный свободный текст, если он не был
-    кодом». Второй элемент не пустой только тогда, когда значение пришлось
-    разбирать: вызывающий код обязан сохранить его как примечание, а не
-    потерять. Пустое или неизвестное значение даёт `prototype` — это самое
-    раннее безопасное допущение: стадия не скрывает метод из выдачи.
-    """
-    text = str(raw or "").strip()
-    if not text:
-        return "prototype", None
-    low = text.lower()
-    if low in _VALID_STAGES:
-        return low, None
-    for needle, stage in _STAGE_HINTS:
-        if needle in low:
-            return stage, text
-    # Текст не распознан: стадия не выдумывается, но и не теряется.
-    return "prototype", text
-
-
 def _load_packs() -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
     """Загрузить пакеты и вернуть их вместе со списком сбоев.
 

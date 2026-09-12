@@ -403,16 +403,6 @@ textarea:focus {
   color: var(--accent-dark);
   font-weight: 600;
 }
-.chip-button {
-  border: 1px dashed var(--border-strong);
-  background: #fff;
-  border-radius: 999px;
-  padding: 5px 10px;
-  font-size: 12.5px;
-  color: var(--text-muted);
-}
-.chip-button:hover { border-style: solid; border-color: var(--accent); color: var(--accent); }
-
 .chip-row {
   display: flex;
   flex-wrap: wrap;
@@ -735,17 +725,6 @@ textarea:focus {
 .claim-block-assumption { border-left-color: var(--warn); }
 .claim-block-assumption .claim-block-title { color: var(--warn); }
 
-.estimate-range {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 7px;
-}
-.estimate-bad {
-  color: var(--danger);
-  font-weight: 700;
-}
-
 /* ------------------------------------------------------- граф связей */
 .graph-legend {
   display: flex;
@@ -773,25 +752,6 @@ textarea:focus {
 .graph-node-type {
   font-size: 11px;
   color: var(--text-faint);
-}
-
-.schedule-bar {
-  position: relative;
-  height: 16px;
-  background: var(--neutral-soft);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.schedule-bar span {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  border-radius: 3px;
-}
-.schedule-bar .p50 { background: var(--accent); }
-.schedule-bar .p80 {
-  background: var(--accent-soft);
-  border: 1px solid var(--accent);
 }
 
 .filter-row {

@@ -17,7 +17,6 @@ from ..models.entities import (
     DependencyEdge, Engine, EngineTool, EvidenceClaim,
     EvidenceSource, GameFunction, HardwareCPU, HardwareGPU, Method, TechnologyNode,
 )
-from . import methods_data
 from .sources import SOURCES
 
 CHECKED_AT = "2026-09-10"

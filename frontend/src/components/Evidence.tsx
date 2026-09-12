@@ -107,43 +107,6 @@ export function ClaimBlocks({
   );
 }
 
-/** Диапазон P50/P80 с проверкой монотонности. P80 < P50 — ошибка данных, не «оптимизм». */
-export function EstimateRange({
-  minimum,
-  p50,
-  p80,
-  unit,
-  basis,
-}: {
-  minimum?: number | null;
-  p50?: number | null;
-  p80?: number | null;
-  unit?: string;
-  basis?: string;
-}) {
-  const inconsistent = p50 != null && p80 != null && p80 < p50;
-  const u = unit ?? '';
-  return (
-    <span className="estimate-range">
-      {minimum != null && <span className="mono xsmall">мин {minimum}{u}</span>}
-      <span className="mono">
-        P50 {p50 ?? '—'}
-        {u}
-      </span>
-      <span className={`mono ${inconsistent ? 'estimate-bad' : ''}`}>
-        P80 {p80 ?? '—'}
-        {u}
-      </span>
-      {basis && <EvidenceBadge basis={basis} />}
-      {inconsistent && (
-        <Badge tone="danger" title="P80 меньше P50: данные внутренне противоречивы и не должны показываться как результат.">
-          P80 &lt; P50
-        </Badge>
-      )}
-    </span>
-  );
-}
-
 /** Список неучтённых или неподтверждённых факторов. Пустой список тоже важен. */
 export function UnconfirmedFactors({ items, title }: { items: string[]; title?: string }) {
   if (!items || items.length === 0) {
