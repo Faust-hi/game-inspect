@@ -628,8 +628,17 @@ _UPSCALER_POST_MS = {"auto": 0.0, "none": 0.0, "taa": 0.2, "fsr": 0.45, "dlss": 
 #: Стоимость синтеза одного промежуточного кадра генератором кадров (мс).
 FRAME_GENERATION_MS = 1.2
 
-# Сложность аудио влияет только на CPU.
-_AUDIO_CPU_LOAD = {"low": 0.00, "medium": 0.30, "high": 0.70}
+#: Уровень нагрузки аудио — **безразмерная** величина 0…1, а не миллисекунды и не
+#: гигабайты. Раньше константа называлась «нагрузка на CPU» и тратилась сразу в
+#: трёх единицах: как мс CPU, как ГБ памяти напрямую и как множитель размера
+#: установки. Из-за этого одно и то же число 0.70 означало и миллисекунды, и
+#: гигабайты, и его нельзя было пересматривать, не сломав остальные места.
+#: Теперь величина безразмерная, а перевод в единицы задаётся на месте.
+_AUDIO_LOAD_LEVEL = {"low": 0.00, "medium": 0.30, "high": 0.70}
+#: Резидентная память аудио (ГБ): постоянная часть и прирост на единицу уровня.
+#: Коэффициент 1.0 сохраняет прежнее поведение — менялось не число, а единицы.
+AUDIO_RAM_BASE_GB = 0.35
+AUDIO_RAM_GB_PER_LEVEL = 1.0
 _UNKNOWN_AUDIO_NOTE = (
     "Сложность аудио не указана: стоимость декодирования и пространственного "
     "звука не учтена в оценке."
@@ -721,10 +730,62 @@ OS_VRAM_RESERVE_GB = 0.5
 CPU_HEADROOM_SHARE = 0.10
 GPU_HEADROOM_SHARE = 0.05
 
+# --- Масштаб проекта --------------------------------------------------------
+# `project_scale` — ОБЪЯВЛЯЕМЫЙ пользователем вход: насколько крупно производство
+# по объёму работ. Он не выводится ни из чего и ни от чего не зависит.
+#
+# Различие с соседними осями, которое важно не потерять:
+#   * размер команды — не здесь. Он живёт в `TeamScenario` (каталог) и влияет
+#     только на календарь разработки (`planning.schedule`);
+#   * `profile.scale` — масштаб МИРА, другая ось: она множит контент, а не базис.
+#
+# Масштаб проекта влияет ровно на одну величину — базис памяти, то есть
+# постоянную часть, не зависящую от контента (стоянка движка, инструментов и
+# редакторских данных). Множители на контент (качество, разрешение, объём мира)
+# не трогаются: они описывают наполнение, а не производство.
+#
+# Числа — отношение медиан реальной памяти по уровням из исследования
+# `research/project-scale-2026-09-11.md` (§7.4: малый 2 ГБ, средний 8, крупный 16,
+# очень крупный 16; на исправленном эталоне крупный 14), нормализованное на
+# «средний». Это измерение на 24 играх, а не константа: при расширении выборки
+# значения обязаны быть пересмотрены — см.
+# `research/project-scale-study-audit-2026-09-12.md`, где показано, что на этой
+# выборке ось неотличима от шума.
+PROJECT_SCALE_BASE_FACTOR: dict[str, float] = {
+    "small": 0.25,
+    "medium": 1.0,
+    "large": 1.75,
+    "very_large": 2.0,
+}
+
+#: Базис памяти при «среднем» масштабе проекта: стоянка движка и инструментов.
+ENGINE_BASE_RAM_GB = 2.0
+
+
+def _project_scale_factor(profile: ProjectProfile) -> float:
+    """Множитель базиса памяти по объявленному масштабу проекта.
+
+    Неизвестное значение даёт 1.0 — поведение «среднего»: параметр объявленный,
+    и отсутствие ответа не должно менять расчёт в сторону, которую пользователь
+    не выбирал.
+    """
+    return PROJECT_SCALE_BASE_FACTOR.get(getattr(profile, "project_scale", "medium"), 1.0)
+
 def _supports_ray_tracing(gpu: HardwareGPU) -> bool:
-    """Проверяет наличие аппаратной трассировки лучей по признакам каталога."""
-    features = [str(f).lower() for f in (gpu.hw_features or [])]
-    return any("ray tracing" in f or "rt core" in f or "rtx" in f for f in features)
+    """Проверяет наличие аппаратной трассировки лучей по измеренному баллу.
+
+    Признак — `rt_score > 0`: в каталоге он есть у каждой карты с аппаратной
+    трассировкой, и только у них. Раньше проверка шла по тексту `hw_features`
+    («ray tracing», «rt core», «rtx»), и **10 карт из 49** с ненулевым баллом не
+    находились: Radeon пишут «Ray Accelerators», первые RTX — «RT». Из-за этого
+    RX 9070 XT выпадала из подбора при требуемой трассировке, и рекомендация
+    завышалась.
+
+    По тексту признаков проверять нельзя и как запасной вариант: у встроенной
+    Radeon 780M признак `rt` есть, а `rt_score` равен нулю, — карта попадала бы
+    в подбор, не имея измеренной производительности трассировки.
+    """
+    return (getattr(gpu, "rt_score", 0) or 0) > 0
 
 
 def _resolution_factor(value: str) -> float:
@@ -1176,9 +1237,9 @@ def _base_cpu_costs(
         # Явное отключение мультиплеера убирает сетевой вклад полностью.
         costs["network"] = 0.0
 
-    # Аудио.
+    # Аудио: уровень нагрузки переводится в мс CPU (1 единица уровня = 1 мс).
     if not level_unspecified(profile.audio_complexity):
-        costs["audio"] += _AUDIO_CPU_LOAD.get(profile.audio_complexity, 0.0)
+        costs["audio"] += _AUDIO_LOAD_LEVEL.get(profile.audio_complexity, 0.0)
 
     # Радиус симуляции влияет только на AI и параллельную симуляцию.
     if profile.simulation_radius_m is not None and (
@@ -1637,7 +1698,11 @@ def _memory_components(
     tex_quality = 1.0 + (quality - 1.0) * 0.8
     tex_res = 1.0 + (res - 1.0) * 0.35
     streaming = _streaming_required(profile, method_codes)
-    audio_ram = 0.35 + (_AUDIO_CPU_LOAD.get(profile.audio_complexity, 0.0) if not level_unspecified(profile.audio_complexity) else 0.0)
+    audio_level = (
+        0.0 if level_unspecified(profile.audio_complexity)
+        else _AUDIO_LOAD_LEVEL.get(profile.audio_complexity, 0.0)
+    )
+    audio_ram = AUDIO_RAM_BASE_GB + audio_level * AUDIO_RAM_GB_PER_LEVEL
 
     if profile.streaming_pool_gb is not None:
         # Пул задан явно: прибавляется только транзитная часть. Резидентная
@@ -1665,7 +1730,9 @@ def _memory_components(
             "vram": 0.0 if unified else OS_VRAM_RESERVE_GB,
         },
         "background": {"ram": BACKGROUND_RAM_RESERVE_GB, "vram": 0.0},
-        "engine": {"ram": 2.0, "vram": 0.15},
+        # Базис производства: стоянка движка и инструментов зависит от масштаба
+        # проекта, а не от наполнения мира — наполнение уже учтено в `content`.
+        "engine": {"ram": ENGINE_BASE_RAM_GB * _project_scale_factor(profile), "vram": 0.15},
         "scene": {"ram": 1.9 * content, "vram": 0.2 * content},
         "meshes": {"ram": 0.8 * content, "vram": 0.8 * content},
         # Клипы, позы и базы движений: в оперативной памяти лежит основной
@@ -2298,7 +2365,7 @@ def _install_size_parts(profile: ProjectProfile, model: FrameModel) -> list[tupl
     meshes = model.memory.get("meshes", {}).get("vram", 0.0)
     audio_load = (
         0.0 if level_unspecified(profile.audio_complexity)
-        else _AUDIO_CPU_LOAD.get(profile.audio_complexity, 0.0)
+        else _AUDIO_LOAD_LEVEL.get(profile.audio_complexity, 0.0)
     )
     return [
         ("движок, код и кэш шейдеров", INSTALL_ENGINE_BASE_GB),

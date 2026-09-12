@@ -378,88 +378,161 @@ def _cpu_single_thread_note(row: HardwareCPU, anchor_single: int) -> str:
     )
 
 
-def apply_hardware_raw_values(db: Session) -> int:
-    """Заполнить benchmark_raw_value, benchmark_context, normalization_note, evidence_basis."""
-    src = _passmark_source(db)
-    updated = 0
+def _has_raw_value(row: HardwareCPU | HardwareGPU) -> bool:
+    """Есть ли у строки записанное сырое значение бенчмарка.
+
+    Ноль и пустая строка считаются отсутствием: нормализованный индекс без
+    исходной величины непроверяем, и такая строка — тот самый пробел, который
+    этот проход закрывает.
+    """
+    return row.benchmark_raw_value not in (None, "", 0)
+
+
+def _cpu_provenance_block(row: HardwareCPU, source_id: int) -> dict[str, object]:
+    """Провенанс-блок процессора: одно число и всё, что его объясняет.
+
+    Шесть полей — не шесть независимых значений, а один блок об одном числе:
+    метка основания и ссылка на источник осмысленны только относительно
+    `benchmark_raw_value`. Поэтому блок пишется и обновляется целиком — иначе
+    получается строка, где основание заявляет замер, а число выведено обратно
+    из индекса.
+    """
     anchor_cpu_single = _ANCHORS["cpu_single"]["raw"]
     anchor_cpu_multi = _ANCHORS["cpu_multi"]["raw"]
+    raw_multi = _MEASURED_CPU_MULTI.get(row.model)
+    if raw_multi is not None:
+        basis = "measured"
+        note = (
+            f"Исходное значение (multi-thread): {raw_multi}. "
+            f"Якорь нормализации: {_ANCHORS['cpu_multi']['model']} = {anchor_cpu_multi}. "
+            f"Формула: normalized = raw / {anchor_cpu_multi} (округление до 2 знаков). "
+            "Допуск ±2% из-за округления и дневного дрейфа базы. "
+            + _cpu_single_thread_note(row, anchor_cpu_single)
+        )
+    elif (approx_multi := _APPROX_CPU_MULTI.get(row.model)) is not None:
+        raw_multi = approx_multi
+        basis = "derived"
+        note = (
+            f"Исходное значение (multi-thread): {approx_multi} — приближённая оценка по "
+            "соседним моделям линейки; прямого замера PassMark для этой модели в выборке нет. "
+            f"Якорь нормализации: {_ANCHORS['cpu_multi']['model']} = {anchor_cpu_multi}. "
+            f"Формула: normalized = raw / {anchor_cpu_multi} (округление до 2 знаков). "
+            "Допуск ±5%; для точного значения сверить с PassMark. "
+            + _cpu_single_thread_note(row, anchor_cpu_single)
+        )
+    else:
+        # derived from normalized
+        raw_multi = round(row.multi_thread_score * anchor_cpu_multi)
+        basis = "derived"
+        note = (
+            f"Исходное значение выведено: {raw_multi}. "
+            f"Формула: raw = normalized_multi × {anchor_cpu_multi} (якорь {_ANCHORS['cpu_multi']['model']}). "
+            "Допуск ±5% из-за округления индекса и дрейфа базы; для точного значения сверить с PassMark. "
+            + _cpu_single_thread_note(row, anchor_cpu_single)
+        )
+    return {
+        "benchmark_raw_value": float(raw_multi),
+        "benchmark_name": "PassMark CPU Mark (multi-thread)",
+        "benchmark_context": f"PassMark PerformanceTest V10, snapshot 2026-09-10, {row.model}",
+        "normalization_note": note,
+        "evidence_basis": basis,
+        "evidence_source_id": source_id,
+    }
+
+
+def _gpu_provenance_block(row: HardwareGPU, source_id: int) -> dict[str, object]:
+    """Провенанс-блок видеокарты. См. `_cpu_provenance_block` о неделимости блока."""
     anchor_gpu_raster = _ANCHORS["gpu_raster"]["raw"]
+    raw_raster = _MEASURED_GPU_RASTER.get(row.model)
+    if raw_raster is not None:
+        basis = "measured"
+        note = (
+            f"Исходное значение (raster): {raw_raster}. "
+            f"Якорь нормализации: {_ANCHORS['gpu_raster']['model']} = {anchor_gpu_raster}. "
+            f"Формула: normalized = raw / {anchor_gpu_raster} (округление до 2 знаков). "
+            "Допуск ±2% из-за округления и дневного дрейфа базы."
+        )
+    else:
+        raw_raster = round(row.raster_score * anchor_gpu_raster)
+        basis = "derived"
+        note = (
+            f"Исходное значение выведено: {raw_raster}. "
+            f"Формула: raw = normalized_raster × {anchor_gpu_raster} (якорь {_ANCHORS['gpu_raster']['model']}). "
+            "Допуск ±5% из-за округления индекса и дрейфа базы; для точного значения сверить с PassMark."
+        )
+    return {
+        "benchmark_raw_value": float(raw_raster),
+        "benchmark_name": "PassMark G3D Mark (raster)",
+        "benchmark_context": f"PassMark PerformanceTest V10, snapshot 2026-09-10, {row.model}",
+        "normalization_note": note,
+        "evidence_basis": basis,
+        "evidence_source_id": source_id,
+    }
 
+
+def apply_hardware_raw_values(db: Session) -> int:
+    """Заполнить провенанс бенчмарков там, где сырое значение отсутствует.
+
+    Блок из шести полей атомарный: метка основания и источник описывают одно
+    число, поэтому заполнять его по частям нельзя. Если сырое значение уже
+    записано — в том числе администратором — блок не трогается вовсе.
+    Легитимное обновление значений из `_MEASURED_*` / `_ANCHORS` выполняет
+    точечный проход `refresh_hardware_raw_values`, срабатывающий только на
+    прежнем значении.
+    """
+    src = _passmark_source(db)
+    filled = 0
     for row in db.scalars(select(HardwareCPU)):
-        raw_multi = _MEASURED_CPU_MULTI.get(row.model)
-        if raw_multi is not None:
-            row.benchmark_raw_value = float(raw_multi)
-            row.benchmark_name = "PassMark CPU Mark (multi-thread)"
-            row.benchmark_context = f"PassMark PerformanceTest V10, snapshot 2026-09-10, {row.model}"
-            row.normalization_note = (
-                f"Исходное значение (multi-thread): {raw_multi}. "
-                f"Якорь нормализации: {_ANCHORS['cpu_multi']['model']} = {anchor_cpu_multi}. "
-                f"Формула: normalized = raw / {anchor_cpu_multi} (округление до 2 знаков). "
-                "Допуск ±2% из-за округления и дневного дрейфа базы. "
-                + _cpu_single_thread_note(row, anchor_cpu_single)
-            )
-            row.evidence_basis = "measured"
-            row.evidence_source_id = src.id
-        elif (approx_multi := _APPROX_CPU_MULTI.get(row.model)) is not None:
-            row.benchmark_raw_value = float(approx_multi)
-            row.benchmark_name = "PassMark CPU Mark (multi-thread)"
-            row.benchmark_context = f"PassMark PerformanceTest V10, snapshot 2026-09-10, {row.model}"
-            row.normalization_note = (
-                f"Исходное значение (multi-thread): {approx_multi} — приближённая оценка по "
-                "соседним моделям линейки; прямого замера PassMark для этой модели в выборке нет. "
-                f"Якорь нормализации: {_ANCHORS['cpu_multi']['model']} = {anchor_cpu_multi}. "
-                f"Формула: normalized = raw / {anchor_cpu_multi} (округление до 2 знаков). "
-                "Допуск ±5%; для точного значения сверить с PassMark. "
-                + _cpu_single_thread_note(row, anchor_cpu_single)
-            )
-            row.evidence_basis = "derived"
-            row.evidence_source_id = src.id
-        else:
-            # derived from normalized
-            derived = round(row.multi_thread_score * anchor_cpu_multi)
-            row.benchmark_raw_value = float(derived)
-            row.benchmark_name = "PassMark CPU Mark (multi-thread)"
-            row.benchmark_context = f"PassMark PerformanceTest V10, snapshot 2026-09-10, {row.model}"
-            row.normalization_note = (
-                f"Исходное значение выведено: {derived}. "
-                f"Формула: raw = normalized_multi × {anchor_cpu_multi} (якорь {_ANCHORS['cpu_multi']['model']}). "
-                "Допуск ±5% из-за округления индекса и дрейфа базы; для точного значения сверить с PassMark. "
-                + _cpu_single_thread_note(row, anchor_cpu_single)
-            )
-            row.evidence_basis = "derived"
-            row.evidence_source_id = src.id
-        updated += 1
-
+        if _has_raw_value(row):
+            continue
+        for field, value in _cpu_provenance_block(row, src.id).items():
+            setattr(row, field, value)
+        filled += 1
     for row in db.scalars(select(HardwareGPU)):
-        raw_raster = _MEASURED_GPU_RASTER.get(row.model)
-        if raw_raster is not None:
-            row.benchmark_raw_value = float(raw_raster)
-            row.benchmark_name = "PassMark G3D Mark (raster)"
-            row.benchmark_context = f"PassMark PerformanceTest V10, snapshot 2026-09-10, {row.model}"
-            row.normalization_note = (
-                f"Исходное значение (raster): {raw_raster}. "
-                f"Якорь нормализации: {_ANCHORS['gpu_raster']['model']} = {anchor_gpu_raster}. "
-                f"Формула: normalized = raw / {anchor_gpu_raster} (округление до 2 знаков). "
-                "Допуск ±2% из-за округления и дневного дрейфа базы."
-            )
-            row.evidence_basis = "measured"
-            row.evidence_source_id = src.id
-        else:
-            derived = round(row.raster_score * anchor_gpu_raster)
-            row.benchmark_raw_value = float(derived)
-            row.benchmark_name = "PassMark G3D Mark (raster)"
-            row.benchmark_context = f"PassMark PerformanceTest V10, snapshot 2026-09-10, {row.model}"
-            row.normalization_note = (
-                f"Исходное значение выведено: {derived}. "
-                f"Формула: raw = normalized_raster × {anchor_gpu_raster} (якорь {_ANCHORS['gpu_raster']['model']}). "
-                "Допуск ±5% из-за округления индекса и дрейфа базы; для точного значения сверить с PassMark."
-            )
-            row.evidence_basis = "derived"
-            row.evidence_source_id = src.id
-        updated += 1
-
+        if _has_raw_value(row):
+            continue
+        for field, value in _gpu_provenance_block(row, src.id).items():
+            setattr(row, field, value)
+        filled += 1
     db.flush()
+    return filled
+
+
+#: Модель → прежнее записанное сырое значение бенчмарка. Обновление из
+#: `_MEASURED_*` / `_ANCHORS` применяется, только если строка всё ещё хранит
+#: именно это значение: значит, её не правил администратор, и пересчёт ничего
+#: не уничтожит. Пустой словарь — законное состояние: обновлять нечего, и
+#: проход не делает ничего. Запись добавляется вместе с правкой измеренного
+#: значения, чтобы изменение каталога доехало до существующей базы.
+BENCHMARK_REFRESH: dict[str, float] = {}
+
+
+def refresh_hardware_raw_values(db: Session) -> int:
+    """Пересчитать провенанс бенчмарков там, где строку не правил человек."""
+    if not BENCHMARK_REFRESH:
+        return 0
+    src = _passmark_source(db)
+    updated = 0
+    for model, previous in BENCHMARK_REFRESH.items():
+        candidates = (
+            db.scalar(select(HardwareCPU).where(HardwareCPU.model == model)),
+            db.scalar(select(HardwareGPU).where(HardwareGPU.model == model)),
+        )
+        for row in candidates:
+            if row is None or not _has_raw_value(row):
+                continue
+            if float(row.benchmark_raw_value) != float(previous):
+                continue
+            block = (
+                _cpu_provenance_block(row, src.id)
+                if isinstance(row, HardwareCPU)
+                else _gpu_provenance_block(row, src.id)
+            )
+            for field, value in block.items():
+                setattr(row, field, value)
+            updated += 1
+    if updated:
+        db.flush()
     return updated
 
 
@@ -601,6 +674,10 @@ def apply_all(db: Session) -> dict[str, int]:
         "user_defined_marked": mark_user_defined_tech(db),
         "confidence_upgraded": upgrade_low_confidence(db),
         "hardware_raw_applied": apply_hardware_raw_values(db),
+        # Точечное обновление провенанса бенчмарков: срабатывает только там,
+        # где строка всё ещё хранит прежнее измеренное значение, поэтому
+        # курированную правку не затирает. Пустой реестр — не ошибка.
+        "hardware_raw_refreshed": refresh_hardware_raw_values(db),
         "links_evidence_normalized": normalize_link_evidence(db),
         "method_taxonomy_corrected": correct_method_taxonomy(db),
     }

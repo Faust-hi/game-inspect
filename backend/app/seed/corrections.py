@@ -5,8 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models.entities import (
-    CaseEvidence, Conflict, DependencyEdge, EvidenceClaim, EvidenceSource,
-    GameCase, HardwareCPU, HardwareGPU, Method, MethodEngineLink, TechnologyNode,
+    CaseEvidence, Conflict, DependencyEdge, Engine, EngineTool, EvidenceClaim,
+    EvidenceSource, GameCase, GameFunction, HardwareCPU, HardwareGPU, Method,
+    MethodEngineLink, TechnologyNode,
 )
 from . import methods_data, sources
 
@@ -52,6 +53,10 @@ def repair_dead_source_urls(db: Session) -> int:
         (MethodEngineLink, "source_url"),
         (HardwareCPU, "source_url"),
         (HardwareGPU, "source_url"),
+        # Узел технологии ссылается на ту же страницу вендора, но через
+        # `docs_url`. Без этой пары переезд справочника Unity не доезжал до
+        # `technology_nodes`: в списке выше были только методы и железо.
+        (TechnologyNode, "docs_url"),
     ):
         for old_url, new_url in SOURCE_URL_REPLACEMENTS.items():
             for row in db.scalars(select(model).where(getattr(model, column) == old_url)):
@@ -481,6 +486,15 @@ def correct_engine_tool_independence(db: Session) -> int:
 def correct_placeholder_source_dates(db: Session) -> int:
     """Заменить подставные даты публикации на честные значения из реестра.
 
+    Дата источника живёт в **трёх** местах: сама запись реестра
+    (`evidence_sources.published_date`) и две её производные копии —
+    `methods.source_date` и `game_functions.source_date` (обе подставляются из
+    того же реестра: `methods_data.with_sources` → `data["source_date"] =
+    s["date"]`). Проход долго правил только первую: копии заполнялись один раз
+    при первичной сборке и после этого не обновлялись никогда, поэтому 96
+    методов и 33 функции продолжали показывать `2025-01-01` как дату
+    публикации, хотя каталог объявил для этих источников `n/a`.
+
     Записи каталога источников наполняются с оговоркой «существующее значение
     не перезаписывается» (см. `evidence_catalog.sync_sources`), поэтому правка
     реестра сама по себе не доезжала до уже существующих баз: 93 источника
@@ -488,8 +502,18 @@ def correct_placeholder_source_dates(db: Session) -> int:
     обновляемой документации даты нет, а 11 источников выдавали «1 января» за
     настоящий день выхода.
 
-    Заменяются только значения, которые заведомо подставные: заглушки и
-    «1 января». Осознанная правка администратора с настоящей датой не трогается.
+    Заменяются только значения, которые заведомо подставные: заглушка «1 января»,
+    литерал из `_PLACEHOLDER_DATES`, пустое поле и — отдельный случай — любая
+    конкретная дата у источника, для которого реестр **прямо объявил** `n/a`.
+    Последнее не оговорка, а суть правила: у постоянно обновляемой документации
+    даты публикации не существует, поэтому конкретное число здесь — либо
+    заглушка, либо дата проверки ссылки, выданная за публикацию. Настоящая дата
+    у источника с объявленной датой не трогается: сравнивается с реестром.
+
+    Производные копии опознаются по `source_url`: ключа источника (`source_key`)
+    в строке нет — `with_sources` его вынимает. Один адрес реестра из 160 делят
+    две записи с разными датами (`counter-strike.net/cs2`); такой адрес не
+    разрешается вовсе — выбрать одну из двух дат значило бы выдумать.
     """
     # Оба реестра: `sources.SOURCES` (базовый) и `EXTRA_SOURCES` из каталога
     # доказательств. Источники второго реестра не попадали бы в сводку только
@@ -497,16 +521,24 @@ def correct_placeholder_source_dates(db: Session) -> int:
     from .evidence_catalog import EXTRA_SOURCES
     registry = {**sources.SOURCES, **EXTRA_SOURCES}
 
-    updated = 0
-    for row in db.scalars(select(EvidenceSource)):
-        current = (row.published_date or "").strip()
-        if not current:
+    # Адрес → объявленная дата. Неоднозначные адреса собираются отдельно: по
+    # ним замена не делается, но факт неоднозначности не растворяется молча.
+    by_url: dict[str, str] = {}
+    ambiguous_urls: set[str] = set()
+    for record in registry.values():
+        url = (record.get("url") or "").strip()
+        date = (record.get("date") or "").strip()
+        if not url or not date:
             continue
-        record = registry.get(row.code)
-        expected = (record or {}).get("date", "").strip()
-        if not expected or expected == current:
+        if url in by_url and by_url[url] != date:
+            ambiguous_urls.add(url)
             continue
-        placeholder = bool(_YEAR_ONLY_DATE.match(current)) or current in _PLACEHOLDER_DATES
+        by_url[url] = date
+
+    def _is_placeholder(current: str, expected: str) -> bool:
+        """Хранимое значение заведомо не настоящая дата публикации."""
+        if not current or expected == current:
+            return False
         # Реестр прямо объявляет отсутствие даты публикации (`n/a`). Значит любая
         # конкретная дата в базе недостоверна: у обновляемой документации даты
         # публикации не существует, и конкретное число здесь — либо заглушка,
@@ -514,10 +546,153 @@ def correct_placeholder_source_dates(db: Session) -> int:
         # именно этот класс: две страницы dev.epicgames.com показывали
         # `2026-09-01`/`2026-09-07`, тогда как соседние страницы того же вендора
         # помечены `n/a`.
-        undated_declared = expected == "n/a"
-        if not placeholder and not undated_declared:
+        return (
+            bool(_YEAR_ONLY_DATE.match(current))
+            or current in _PLACEHOLDER_DATES
+            or expected == "n/a"
+        )
+
+    updated = 0
+
+    # 1. Записи реестра. Пустое поле здесь не заполняется: его закрывает
+    # `sync_sources` по тому же реестру (правило «заполняется только пустое»),
+    # и второй проход по тому же значению был бы лишним.
+    for row in db.scalars(select(EvidenceSource)):
+        current = (row.published_date or "").strip()
+        if not current:
             continue
-        row.published_date = expected
+        expected = ((registry.get(row.code) or {}).get("date") or "").strip()
+        if _is_placeholder(current, expected):
+            row.published_date = expected
+            updated += 1
+
+    # 2. Производные копии. У них прохода «заполнить пустое» нет вовсе, поэтому
+    # пустое поле здесь закрывается: реестр значение объявляет, а пустое поле
+    # проект относит к другой категории (`missing_published_date`) — то есть
+    # «дата неизвестна», тогда как у этих источников она объявлена как
+    # отсутствующая. Четыре метода так и держали пустое при объявленном `n/a`.
+    for model in (Method, GameFunction):
+        for row in db.scalars(select(model)):
+            url = (row.source_url or "").strip()
+            if not url or url in ambiguous_urls:
+                continue
+            expected = by_url.get(url, "")
+            current = (row.source_date or "").strip()
+            if not expected:
+                continue
+            if current == expected:
+                continue
+            if not current or _is_placeholder(current, expected):
+                row.source_date = expected
+                updated += 1
+
+    if updated:
+        db.flush()
+    return updated
+
+
+def refresh_tool_engine_notes(db: Session) -> int:
+    """Дописать оговорку о пользовательской технологии уже созданным рёбрам.
+
+    Ребро «инструмент → движок» создаётся один раз, и его описание с тех пор не
+    пересобирается: каталог добавил к фразе оговорку «и помечен как
+    пользовательская технология», но семь рёбер, созданных раньше, её не
+    получили — оговорка объясняет, почему у ребра нет публичного источника.
+
+    Описание пересобирается тем же шаблоном (`dependency_graph.
+    tool_engine_description`), а замена делается только когда хранимый текст
+    содержит **прежний** вид фразы: запись, поправленную человеком, проход не
+    трогает.
+    """
+    from .dependency_graph import tool_engine_description
+
+    nodes = {node.id: node.code for node in db.scalars(select(TechnologyNode))}
+    tools = {tool.code: tool for tool in db.scalars(select(EngineTool))}
+    engines = {engine.code: engine for engine in db.scalars(select(Engine))}
+
+    updated = 0
+    for edge in db.scalars(
+        select(DependencyEdge).where(DependencyEdge.dependency_type == "engine")
+    ):
+        src = nodes.get(edge.source_node_id, "")
+        dst = nodes.get(edge.target_node_id, "")
+        if not src.startswith("tool:") or not dst.startswith("engine:"):
+            continue
+        tool = tools.get(src[len("tool:"):])
+        engine = engines.get(dst[len("engine:"):])
+        if tool is None or engine is None or not tool.is_user_defined:
+            continue
+        old_text = tool_engine_description(tool.name, engine.name, is_user_defined=False)
+        new_text = tool_engine_description(tool.name, engine.name, is_user_defined=True)
+        stored = edge.description or ""
+        if old_text in stored and new_text not in stored:
+            edge.description = stored.replace(old_text, new_text)
+            updated += 1
+    if updated:
+        db.flush()
+    return updated
+
+
+#: Записи источников, которые каталог привёл к согласованному виду, а база
+#: сохранила в прежнем, самопротиворечивом. Ключ — код записи, значение —
+#: **прежний** набор полей: проход срабатывает, только если хранится ровно он.
+#: Иначе запись не трогается — её мог поправить человек.
+#:
+#: `SRC-RND-048` — якорь метода `splitscreen_render_budget` для поля
+#: `impact.gpu`. Разбор Digital Foundry по It Takes Two отдал 404 (2026-09-11),
+#: адрес заменили на страницу Wikipedia, а сам метод перенаправили на два
+#: проверенных источника. Запись осталась прежней и противоречит себе: заголовок
+#: Digital Foundry стоит на URL Wikipedia, локатор сообщает о 404, а дата —
+#: обрубок прежнего среза до 20 знаков. Ссылается на неё одно утверждение с
+#: `basis='unknown'` — объявленный пробел «опубликованных цифр не нашлось»,
+#: поэтому запись не удаляется, а приводится в согласованный вид.
+SOURCE_RECORD_LEGACY: dict[str, dict[str, str]] = {
+    "SRC-RND-048": {
+        "title": "It Takes Two tech analysis (Digital Foundry)",
+        "locator": "n/a - server returned '404 Not Found'",
+        "published_date": "2021 (URL in catalog",
+    },
+}
+
+
+def correct_source_records(db: Session) -> int:
+    """Перенести в существующую базу записи источников, починенные каталогом.
+
+    `pack_loader._upsert_source` при существующей строке возвращает её как есть,
+    не трогая ни одного поля: правка администратора важнее каталога. Обратная
+    сторона — **ни один** ремонт записи источника до уже собранной базы не
+    доезжает, и она расходится со свежей установкой. Проход закрывает этот
+    случай, сохраняя защиту: замена идёт только при точном совпадении прежнего
+    набора полей (`SOURCE_RECORD_LEGACY`), а новые значения берутся из пакета
+    тем же разбором, что и при первичной загрузке.
+
+    `notes` и `status` не трогаются: это поля администратора.
+    """
+    from .pack_loader import _load_packs, _sequence, source_record_values
+
+    wanted = set(SOURCE_RECORD_LEGACY)
+    if not wanted:
+        return 0
+
+    packs, _failures = _load_packs()
+    records: dict[str, dict] = {}
+    for pack in packs:
+        for payload in _sequence(pack, "sources"):
+            if isinstance(payload, dict) and payload.get("code") in wanted:
+                records[payload["code"]] = payload
+
+    updated = 0
+    for code, legacy in SOURCE_RECORD_LEGACY.items():
+        row = db.scalar(select(EvidenceSource).where(EvidenceSource.code == code))
+        payload = records.get(code)
+        if row is None or payload is None:
+            continue
+        if any((getattr(row, field) or "") != value for field, value in legacy.items()):
+            # Запись уже отличается от прежней: её правил человек либо она уже
+            # приведена — в обоих случаях вмешиваться нельзя.
+            continue
+        for field, value in source_record_values(payload).items():
+            setattr(row, field, value)
         updated += 1
     if updated:
         db.flush()
@@ -539,6 +714,9 @@ def declare_evidence_gaps(db: Session) -> dict[str, int]:
       помечается `source_url='user_defined:catalog_dependency'`;
     * ребро графа без источника — плановая зависимость пакетов работ;
       помечается префиксом `[expert_estimate:no_external_source]` в описании;
+    * ребро «инструмент → движок» с инструментом собственной реализации —
+      описание дополняется оговоркой о пользовательской технологии: она и
+      объясняет отсутствие публичного источника;
     * игровой кейс, оставшийся черновиком при переносе из пакетов, —
       публикуется, если подтверждён опубликованным фактом с источником.
 
@@ -568,6 +746,11 @@ def declare_evidence_gaps(db: Session) -> dict[str, int]:
             row.description = f"{marker} {row.description or ''}".strip()
             edges_declared += 1
 
+    # Оговорка о пользовательской технологии в описании ребра «инструмент →
+    # движок»: она объявляет, почему публичного источника нет. Каталог добавил
+    # её позже самих рёбер, и семь записей остались без объяснения.
+    tool_notes_refreshed = refresh_tool_engine_notes(db)
+
     # Сырые значения бенчмарков: нормализованные индексы были записаны без
     # исходной величины, из-за чего нормализация непроверяема.
     hardware_raw = apply_hardware_raw_values(db)
@@ -587,6 +770,7 @@ def declare_evidence_gaps(db: Session) -> dict[str, int]:
         "links_evidence_normalized": links_normalized,
         "conflicts_declared": conflicts_declared,
         "dependency_edges_declared": edges_declared,
+        "tool_engine_notes_refreshed": tool_notes_refreshed,
         "hardware_raw_values": hardware_raw,
         "source_urls_repaired": urls_repaired,
         "game_cases_published": cases_published,

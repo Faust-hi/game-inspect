@@ -28,6 +28,7 @@ export const DEFAULT_PROFILE: ProjectProfile = {
   format: '3D',
   world_type: 'open_world',
   scale: 'large',
+  project_scale: 'medium',
   stage: 'prototype',
   engine: 'unreal',
   engine_version: null,

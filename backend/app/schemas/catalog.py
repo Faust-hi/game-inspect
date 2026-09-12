@@ -53,6 +53,12 @@ class ProjectProfile(BaseModel):
     format: Literal[tuple(_values(GameFormat))] = "3D"
     world_type: Literal[tuple(_values(WorldType))] = "open_world"
     scale: Literal[tuple(_values(Scale))] = "large"
+    #: Масштаб ПРОЕКТА (производства), а не мира. Объявляемый пользователем вход:
+    #: не зависит ни от одного другого поля и ни из чего не выводится. Влияет на
+    #: базис памяти (стоянка движка и инструментов) — см. `PROJECT_SCALE_BASE_FACTOR`
+    #: в `services/hardware.py`. Размер команды — другая величина: она в `TeamScenario`
+    #: и влияет только на календарь разработки.
+    project_scale: Literal[tuple(_values(Scale))] = "medium"
 
     # Стадия и технологии
     stage: Literal[tuple(_values(DevStage))] = "prototype"

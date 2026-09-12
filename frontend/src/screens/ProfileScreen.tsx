@@ -69,6 +69,22 @@ export function ProfileScreen() {
             />
           </Field>
 
+          <Field
+            label="Масштаб проекта"
+            hint={
+              'Объём производства: сколько продукт делает и продолжает делать. '
+              + 'Задаётся вручную и не зависит от других полей. Влияет только на базис '
+              + 'памяти — стоянку движка и инструментов; объём мира учитывается отдельно, '
+              + 'полем «Масштаб мира».'
+            }
+          >
+            <Select
+              value={profile.project_scale ?? 'medium'}
+              options={enums.scales}
+              onChange={(value) => updateProfile({ project_scale: value })}
+            />
+          </Field>
+
           <Field label="Игровой движок">
             <Select
               value={profile.engine}
@@ -269,39 +285,15 @@ export function ProfileScreen() {
 
       <Card
         title="Обязательные ограничения"
-        hint="Заполняйте только те ограничения, которые действительно заданы: они работают как жёсткий фильтр."
+        hint="Решения, которые их нарушают, исключаются из подбора. Заполняйте только действительно заданные."
       >
         <div className="grid grid-4">
-          <Field label="Предел RAM, ГБ">
-            <NumberInput
-              value={profile.ram_limit_gb ?? null}
-              min={1}
-              placeholder="не задан"
-              onChange={(value) => updateProfile({ ram_limit_gb: value })}
-            />
-          </Field>
-          <Field label="Предел VRAM, ГБ">
-            <NumberInput
-              value={profile.vram_limit_gb ?? null}
-              min={1}
-              placeholder="не задан"
-              onChange={(value) => updateProfile({ vram_limit_gb: value })}
-            />
-          </Field>
           <Field label="Предел размера игры, ГБ">
             <NumberInput
               value={profile.size_limit_gb ?? null}
               min={1}
               placeholder="не задан"
               onChange={(value) => updateProfile({ size_limit_gb: value })}
-            />
-          </Field>
-          <Field label="Срок, недель">
-            <NumberInput
-              value={profile.deadline_weeks ?? null}
-              min={1}
-              placeholder="не задан"
-              onChange={(value) => updateProfile({ deadline_weeks: value })}
             />
           </Field>
         </div>
@@ -328,6 +320,38 @@ export function ProfileScreen() {
             </span>
           </div>
         </Field>
+      </Card>
+
+      <Card
+        title="Пределы для проверки"
+        hint="Не фильтруют решения: система сравнивает с ними требуемое железо и показывает расхождение как предупреждение."
+      >
+        <div className="grid grid-4">
+          <Field label="Предел RAM, ГБ">
+            <NumberInput
+              value={profile.ram_limit_gb ?? null}
+              min={1}
+              placeholder="не задан"
+              onChange={(value) => updateProfile({ ram_limit_gb: value })}
+            />
+          </Field>
+          <Field label="Предел VRAM, ГБ">
+            <NumberInput
+              value={profile.vram_limit_gb ?? null}
+              min={1}
+              placeholder="не задан"
+              onChange={(value) => updateProfile({ vram_limit_gb: value })}
+            />
+          </Field>
+          <Field label="Срок, недель">
+            <NumberInput
+              value={profile.deadline_weeks ?? null}
+              min={1}
+              placeholder="не задан"
+              onChange={(value) => updateProfile({ deadline_weeks: value })}
+            />
+          </Field>
+        </div>
       </Card>
 
       <Card

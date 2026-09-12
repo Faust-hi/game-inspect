@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<title>Пол памяти модели и область применимости — 2026-09-12</title>
+<style>
+ body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#f8fafc;color:#0f172a;
+      margin:0;padding:28px 22px 60px;line-height:1.5}
+ .wrap{max-width:1060px;margin:0 auto}
+ h1{font-size:23px;margin:0 0 6px} h2{font-size:17px;margin:34px 0 10px}
+ .sub{color:#475569;font-size:13.5px;margin:0 0 22px}
+ .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;margin:14px 0}
+ .kpi{display:flex;flex-wrap:wrap;gap:26px;margin:6px 0 4px}
+ .kpi div{min-width:150px} .kpi b{display:block;font-size:21px} .kpi span{color:#64748b;font-size:12.5px}
+ table{border-collapse:collapse;font-size:13.5px;width:100%}
+ th,td{text-align:left;padding:6px 10px;border-bottom:1px solid #e2e8f0}
+ th{color:#475569;font-weight:600} code{background:#f1f5f9;padding:1px 5px;border-radius:4px}
+ .note{color:#64748b;font-size:12.5px}
+</style></head><body><div class="wrap">
+<h1>Пол памяти модели и область применимости</h1>
+<p class="sub">2026-09-12 · 25 сценариев · <code>hardware.build_model</code> · данные
+<code>tmp/model_floor_probe.json</code> · БД проекта не открывалась</p>
+
+<div class="card"><div class="kpi">
+ <div><b>6.69 ГБ</b><span>пол RAM при «среднем» масштабе проекта</span></div>
+ <div><b>56 %</b><span>медианная доля постоянной части в выводе</span></div>
+ <div><b>1.07</b><span>медиана k (реал/модель) для игр с 2013 г., рекомендуемая память</span></div>
+ <div><b>8.3×</b><span>завышение для игр до 2013 г., та же цель</span></div>
+</div></div>
+
+<h2>1. Из чего состоит вывод: постоянная часть против контентной</h2>
+<p class="note">Каждый столбец — один сценарий, отсортирован по модели. Красная линия —
+теоретический пол: значение при обнулённом контенте, пустых функциях, 720p/low.</p>
+<div class="card"><svg viewBox="0 0 1000 723" width="100%" style="max-width:1000px;background:#ffffff">
+<line x1="214.0" y1="32" x2="214.0" y2="671" stroke="#e2e8f0" stroke-width="1"/>
+<text x="214.0" y="691" fill="#475569" font-size="11.5" text-anchor="middle">0</text>
+<line x1="332.7" y1="32" x2="332.7" y2="671" stroke="#e2e8f0" stroke-width="1"/>
+<text x="332.7" y="691" fill="#475569" font-size="11.5" text-anchor="middle">3</text>
+<line x1="451.3" y1="32" x2="451.3" y2="671" stroke="#e2e8f0" stroke-width="1"/>
+<text x="451.3" y="691" fill="#475569" font-size="11.5" text-anchor="middle">6</text>
+<line x1="570.0" y1="32" x2="570.0" y2="671" stroke="#e2e8f0" stroke-width="1"/>
+<text x="570.0" y="691" fill="#475569" font-size="11.5" text-anchor="middle">9</text>
+<line x1="688.7" y1="32" x2="688.7" y2="671" stroke="#e2e8f0" stroke-width="1"/>
+<text x="688.7" y="691" fill="#475569" font-size="11.5" text-anchor="middle">12</text>
+<line x1="807.3" y1="32" x2="807.3" y2="671" stroke="#e2e8f0" stroke-width="1"/>
+<text x="807.3" y="691" fill="#475569" font-size="11.5" text-anchor="middle">15</text>
+<line x1="926.0" y1="32" x2="926.0" y2="671" stroke="#e2e8f0" stroke-width="1"/>
+<text x="926.0" y="691" fill="#475569" font-size="11.5" text-anchor="middle">18</text>
+<text x="570" y="715" fill="#475569" font-size="13" text-anchor="middle">оперативная память, ГБ</text>
+<line x1="478.7" y1="32" x2="478.7" y2="671" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5 4"/>
+<text x="484.7" y="26" fill="#dc2626" font-size="11.5">пол 6.69 ГБ</text>
+<rect x="214.0" y="50" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="50" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="50" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="50" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="50" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="50" width="3.7" height="14" fill="#7C3AED"/>
+<rect x="478.7" y="50" width="49.9" height="14" fill="#93c5fd"/>
+<rect x="528.6" y="50" width="21.0" height="14" fill="#60a5fa"/>
+<rect x="549.6" y="50" width="11.8" height="14" fill="#3b82f6"/>
+<rect x="561.4" y="50" width="14.4" height="14" fill="#1d4ed8"/>
+<rect x="575.9" y="50" width="17.8" height="14" fill="#1e3a8a"/>
+<text x="202" y="61" fill="#334155" font-size="11.5" text-anchor="end">F.E.A.R. (2005)</text>
+<text x="600.6" y="61" fill="#0f172a" font-size="11.5">9.6</text>
+<rect x="214.0" y="75" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="75" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="75" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="75" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="75" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="75" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="481.0" y="75" width="52.8" height="14" fill="#93c5fd"/>
+<rect x="533.8" y="75" width="22.2" height="14" fill="#60a5fa"/>
+<rect x="556.1" y="75" width="12.5" height="14" fill="#3b82f6"/>
+<rect x="568.6" y="75" width="11.6" height="14" fill="#1d4ed8"/>
+<rect x="580.2" y="75" width="17.2" height="14" fill="#1e3a8a"/>
+<text x="202" y="86" fill="#334155" font-size="11.5" text-anchor="end">Counter-Strike 2</text>
+<text x="604.4" y="86" fill="#0f172a" font-size="11.5">9.7</text>
+<rect x="214.0" y="100" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="100" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="100" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="100" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="100" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="100" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="481.0" y="100" width="52.8" height="14" fill="#93c5fd"/>
+<rect x="533.8" y="100" width="22.2" height="14" fill="#60a5fa"/>
+<rect x="556.1" y="100" width="12.5" height="14" fill="#3b82f6"/>
+<rect x="568.6" y="100" width="11.6" height="14" fill="#1d4ed8"/>
+<rect x="580.2" y="100" width="17.2" height="14" fill="#1e3a8a"/>
+<text x="202" y="111" fill="#334155" font-size="11.5" text-anchor="end">VALORANT</text>
+<text x="604.4" y="111" fill="#0f172a" font-size="11.5">9.7</text>
+<rect x="214.0" y="125" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="125" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="125" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="125" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="125" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="125" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="481.0" y="125" width="52.8" height="14" fill="#93c5fd"/>
+<rect x="533.8" y="125" width="22.2" height="14" fill="#60a5fa"/>
+<rect x="556.1" y="125" width="12.5" height="14" fill="#3b82f6"/>
+<rect x="568.6" y="125" width="19.6" height="14" fill="#1d4ed8"/>
+<rect x="588.2" y="125" width="25.1" height="14" fill="#1e3a8a"/>
+<text x="202" y="136" fill="#334155" font-size="11.5" text-anchor="end">Portal 2 (2011)</text>
+<text x="620.3" y="136" fill="#0f172a" font-size="11.5">10.1</text>
+<rect x="214.0" y="150" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="150" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="150" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="150" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="150" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="150" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="481.0" y="150" width="71.9" height="14" fill="#93c5fd"/>
+<rect x="552.9" y="150" width="30.3" height="14" fill="#60a5fa"/>
+<rect x="583.2" y="150" width="17.0" height="14" fill="#3b82f6"/>
+<rect x="600.3" y="150" width="15.8" height="14" fill="#1d4ed8"/>
+<rect x="616.1" y="150" width="23.4" height="14" fill="#1e3a8a"/>
+<text x="202" y="161" fill="#334155" font-size="11.5" text-anchor="end">Brotato</text>
+<text x="646.5" y="161" fill="#0f172a" font-size="11.5">10.8</text>
+<rect x="214.0" y="175" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="175" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="175" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="175" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="175" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="175" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="481.0" y="175" width="73.9" height="14" fill="#93c5fd"/>
+<rect x="554.9" y="175" width="31.1" height="14" fill="#60a5fa"/>
+<rect x="586.0" y="175" width="17.5" height="14" fill="#3b82f6"/>
+<rect x="603.5" y="175" width="21.4" height="14" fill="#1d4ed8"/>
+<rect x="624.9" y="175" width="29.2" height="14" fill="#1e3a8a"/>
+<text x="202" y="186" fill="#334155" font-size="11.5" text-anchor="end">Left 4 Dead (2008)</text>
+<text x="661.1" y="186" fill="#0f172a" font-size="11.5">11.1</text>
+<rect x="214.0" y="200" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="200" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="200" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="200" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="200" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="200" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="481.0" y="200" width="73.5" height="14" fill="#93c5fd"/>
+<rect x="554.5" y="200" width="30.9" height="14" fill="#60a5fa"/>
+<rect x="585.4" y="200" width="17.4" height="14" fill="#3b82f6"/>
+<rect x="602.8" y="200" width="27.2" height="14" fill="#1d4ed8"/>
+<rect x="630.0" y="200" width="34.9" height="14" fill="#1e3a8a"/>
+<text x="202" y="211" fill="#334155" font-size="11.5" text-anchor="end">It Takes Two</text>
+<text x="671.9" y="211" fill="#0f172a" font-size="11.5">11.4</text>
+<rect x="214.0" y="225" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="225" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="225" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="225" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="225" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="225" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="481.0" y="225" width="73.5" height="14" fill="#93c5fd"/>
+<rect x="554.5" y="225" width="30.9" height="14" fill="#60a5fa"/>
+<rect x="585.4" y="225" width="17.4" height="14" fill="#3b82f6"/>
+<rect x="602.8" y="225" width="27.2" height="14" fill="#1d4ed8"/>
+<rect x="630.0" y="225" width="34.9" height="14" fill="#1e3a8a"/>
+<text x="202" y="236" fill="#334155" font-size="11.5" text-anchor="end">Uncharted 4: A Thief's End</text>
+<text x="671.9" y="236" fill="#0f172a" font-size="11.5">11.4</text>
+<rect x="214.0" y="250" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="250" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="250" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="250" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="250" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="250" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="481.0" y="250" width="83.7" height="14" fill="#93c5fd"/>
+<rect x="564.7" y="250" width="35.2" height="14" fill="#60a5fa"/>
+<rect x="599.9" y="250" width="19.8" height="14" fill="#3b82f6"/>
+<rect x="619.8" y="250" width="31.0" height="14" fill="#1d4ed8"/>
+<rect x="650.8" y="250" width="39.8" height="14" fill="#1e3a8a"/>
+<text x="202" y="261" fill="#334155" font-size="11.5" text-anchor="end">DOOM Eternal</text>
+<text x="697.6" y="261" fill="#0f172a" font-size="11.5">12.0</text>
+<rect x="214.0" y="275" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="275" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="275" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="275" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="275" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="275" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="506.7" y="275" width="73.5" height="14" fill="#93c5fd"/>
+<rect x="580.2" y="275" width="30.9" height="14" fill="#60a5fa"/>
+<rect x="611.1" y="275" width="17.4" height="14" fill="#3b82f6"/>
+<rect x="628.5" y="275" width="27.2" height="14" fill="#1d4ed8"/>
+<rect x="655.7" y="275" width="34.9" height="14" fill="#1e3a8a"/>
+<text x="202" y="286" fill="#334155" font-size="11.5" text-anchor="end">BeamNG.drive</text>
+<text x="697.7" y="286" fill="#0f172a" font-size="11.5">12.1</text>
+<rect x="214.0" y="300" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="300" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="300" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="300" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="300" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="300" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="506.7" y="300" width="76.3" height="14" fill="#93c5fd"/>
+<rect x="583.0" y="300" width="32.1" height="14" fill="#60a5fa"/>
+<rect x="615.1" y="300" width="18.1" height="14" fill="#3b82f6"/>
+<rect x="633.2" y="300" width="28.3" height="14" fill="#1d4ed8"/>
+<rect x="661.5" y="300" width="36.3" height="14" fill="#1e3a8a"/>
+<text x="202" y="311" fill="#334155" font-size="11.5" text-anchor="end">V Rising</text>
+<text x="704.8" y="311" fill="#0f172a" font-size="11.5">12.2</text>
+<rect x="214.0" y="325" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="325" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="325" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="325" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="325" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="325" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="506.7" y="325" width="82.1" height="14" fill="#93c5fd"/>
+<rect x="588.8" y="325" width="34.6" height="14" fill="#60a5fa"/>
+<rect x="623.4" y="325" width="19.4" height="14" fill="#3b82f6"/>
+<rect x="642.8" y="325" width="23.8" height="14" fill="#1d4ed8"/>
+<rect x="666.6" y="325" width="32.4" height="14" fill="#1e3a8a"/>
+<text x="202" y="336" fill="#334155" font-size="11.5" text-anchor="end">Teardown</text>
+<text x="706.0" y="336" fill="#0f172a" font-size="11.5">12.3</text>
+<rect x="214.0" y="350" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="350" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="350" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="350" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="350" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="350" width="9.5" height="14" fill="#7C3AED"/>
+<rect x="484.6" y="350" width="82.1" height="14" fill="#93c5fd"/>
+<rect x="566.6" y="350" width="34.6" height="14" fill="#60a5fa"/>
+<rect x="601.2" y="350" width="19.4" height="14" fill="#3b82f6"/>
+<rect x="620.6" y="350" width="37.1" height="14" fill="#1d4ed8"/>
+<rect x="657.7" y="350" width="53.5" height="14" fill="#1e3a8a"/>
+<text x="202" y="361" fill="#334155" font-size="11.5" text-anchor="end">Alan Wake 2</text>
+<text x="718.2" y="361" fill="#0f172a" font-size="11.5">12.6</text>
+<rect x="214.0" y="375" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="375" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="375" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="375" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="375" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="375" width="9.5" height="14" fill="#7C3AED"/>
+<rect x="510.3" y="375" width="79.0" height="14" fill="#93c5fd"/>
+<rect x="589.3" y="375" width="33.3" height="14" fill="#60a5fa"/>
+<rect x="622.6" y="375" width="18.7" height="14" fill="#3b82f6"/>
+<rect x="641.3" y="375" width="29.3" height="14" fill="#1d4ed8"/>
+<rect x="670.6" y="375" width="43.8" height="14" fill="#1e3a8a"/>
+<text x="202" y="386" fill="#334155" font-size="11.5" text-anchor="end">Hunt: Showdown</text>
+<text x="721.3" y="386" fill="#0f172a" font-size="11.5">12.6</text>
+<rect x="214.0" y="400" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="400" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="400" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="400" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="400" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="400" width="9.5" height="14" fill="#7C3AED"/>
+<rect x="484.6" y="400" width="102.6" height="14" fill="#93c5fd"/>
+<rect x="587.2" y="400" width="43.2" height="14" fill="#60a5fa"/>
+<rect x="630.4" y="400" width="24.3" height="14" fill="#3b82f6"/>
+<rect x="654.7" y="400" width="38.0" height="14" fill="#1d4ed8"/>
+<rect x="692.7" y="400" width="56.8" height="14" fill="#1e3a8a"/>
+<text x="202" y="411" fill="#334155" font-size="11.5" text-anchor="end">Split Fiction</text>
+<text x="756.5" y="411" fill="#0f172a" font-size="11.5">13.5</text>
+<rect x="214.0" y="425" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="425" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="425" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="425" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="425" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="425" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="506.7" y="425" width="109.1" height="14" fill="#93c5fd"/>
+<rect x="615.8" y="425" width="45.9" height="14" fill="#60a5fa"/>
+<rect x="661.7" y="425" width="25.8" height="14" fill="#3b82f6"/>
+<rect x="687.5" y="425" width="31.6" height="14" fill="#1d4ed8"/>
+<rect x="719.1" y="425" width="43.0" height="14" fill="#1e3a8a"/>
+<text x="202" y="436" fill="#334155" font-size="11.5" text-anchor="end">Star Wars: The Old Republic (2011)</text>
+<text x="769.1" y="436" fill="#0f172a" font-size="11.5">13.9</text>
+<rect x="214.0" y="450" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="450" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="450" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="450" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="450" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="450" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="506.7" y="450" width="102.3" height="14" fill="#93c5fd"/>
+<rect x="609.1" y="450" width="43.1" height="14" fill="#60a5fa"/>
+<rect x="652.2" y="450" width="24.2" height="14" fill="#3b82f6"/>
+<rect x="676.4" y="450" width="37.9" height="14" fill="#1d4ed8"/>
+<rect x="714.3" y="450" width="48.7" height="14" fill="#1e3a8a"/>
+<text x="202" y="461" fill="#334155" font-size="11.5" text-anchor="end">Horizon Zero Dawn</text>
+<text x="770.0" y="461" fill="#0f172a" font-size="11.5">13.9</text>
+<rect x="214.0" y="475" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="475" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="475" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="475" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="475" width="9.9" height="14" fill="#5eead4"/>
+<rect x="475.1" y="475" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="481.0" y="475" width="120.2" height="14" fill="#93c5fd"/>
+<rect x="601.2" y="475" width="50.6" height="14" fill="#60a5fa"/>
+<rect x="651.8" y="475" width="28.5" height="14" fill="#3b82f6"/>
+<rect x="680.3" y="475" width="44.5" height="14" fill="#1d4ed8"/>
+<rect x="724.8" y="475" width="57.2" height="14" fill="#1e3a8a"/>
+<text x="202" y="486" fill="#334155" font-size="11.5" text-anchor="end">Ashes of the Singularity</text>
+<text x="789.0" y="486" fill="#0f172a" font-size="11.5">14.4</text>
+<rect x="214.0" y="500" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="500" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="500" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="500" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="500" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="500" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="506.7" y="500" width="114.1" height="14" fill="#93c5fd"/>
+<rect x="620.8" y="500" width="48.0" height="14" fill="#60a5fa"/>
+<rect x="668.8" y="500" width="27.0" height="14" fill="#3b82f6"/>
+<rect x="695.9" y="500" width="42.3" height="14" fill="#1d4ed8"/>
+<rect x="738.1" y="500" width="54.3" height="14" fill="#1e3a8a"/>
+<text x="202" y="511" fill="#334155" font-size="11.5" text-anchor="end">Fortnite</text>
+<text x="799.4" y="511" fill="#0f172a" font-size="11.5">14.6</text>
+<rect x="214.0" y="525" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="525" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="525" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="525" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="525" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="525" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="506.7" y="525" width="114.1" height="14" fill="#93c5fd"/>
+<rect x="620.8" y="525" width="48.0" height="14" fill="#60a5fa"/>
+<rect x="668.8" y="525" width="27.0" height="14" fill="#3b82f6"/>
+<rect x="695.9" y="525" width="42.3" height="14" fill="#1d4ed8"/>
+<rect x="738.1" y="525" width="54.3" height="14" fill="#1e3a8a"/>
+<text x="202" y="536" fill="#334155" font-size="11.5" text-anchor="end">Red Faction: Guerrilla (2009)</text>
+<text x="799.4" y="536" fill="#0f172a" font-size="11.5">14.6</text>
+<rect x="214.0" y="550" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="550" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="550" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="550" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="550" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="550" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="506.7" y="550" width="136.9" height="14" fill="#93c5fd"/>
+<rect x="643.6" y="550" width="57.6" height="14" fill="#60a5fa"/>
+<rect x="701.3" y="550" width="32.4" height="14" fill="#3b82f6"/>
+<rect x="733.7" y="550" width="30.1" height="14" fill="#1d4ed8"/>
+<rect x="763.8" y="550" width="44.5" height="14" fill="#1e3a8a"/>
+<text x="202" y="561" fill="#334155" font-size="11.5" text-anchor="end">Minecraft (2011)</text>
+<text x="815.4" y="561" fill="#0f172a" font-size="11.5">15.0</text>
+<rect x="214.0" y="575" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="575" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="575" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="575" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="575" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="575" width="9.5" height="14" fill="#7C3AED"/>
+<rect x="510.3" y="575" width="123.1" height="14" fill="#93c5fd"/>
+<rect x="633.4" y="575" width="51.8" height="14" fill="#60a5fa"/>
+<rect x="685.2" y="575" width="29.2" height="14" fill="#3b82f6"/>
+<rect x="714.4" y="575" width="45.6" height="14" fill="#1d4ed8"/>
+<rect x="760.0" y="575" width="68.2" height="14" fill="#1e3a8a"/>
+<text x="202" y="586" fill="#334155" font-size="11.5" text-anchor="end">Microsoft Flight Simulator</text>
+<text x="835.2" y="586" fill="#0f172a" font-size="11.5">15.5</text>
+<rect x="214.0" y="600" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="600" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="600" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="600" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="600" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="600" width="5.9" height="14" fill="#7C3AED"/>
+<rect x="506.7" y="600" width="136.9" height="14" fill="#93c5fd"/>
+<rect x="643.6" y="600" width="57.6" height="14" fill="#60a5fa"/>
+<rect x="701.3" y="600" width="32.4" height="14" fill="#3b82f6"/>
+<rect x="733.7" y="600" width="50.7" height="14" fill="#1d4ed8"/>
+<rect x="784.4" y="600" width="65.1" height="14" fill="#1e3a8a"/>
+<text x="202" y="611" fill="#334155" font-size="11.5" text-anchor="end">No Man's Sky</text>
+<text x="856.6" y="611" fill="#0f172a" font-size="11.5">16.1</text>
+<rect x="214.0" y="625" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="625" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="625" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="625" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="625" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="625" width="9.5" height="14" fill="#7C3AED"/>
+<rect x="510.3" y="625" width="134.9" height="14" fill="#93c5fd"/>
+<rect x="645.2" y="625" width="56.8" height="14" fill="#60a5fa"/>
+<rect x="702.0" y="625" width="31.9" height="14" fill="#3b82f6"/>
+<rect x="733.9" y="625" width="60.9" height="14" fill="#1d4ed8"/>
+<rect x="794.8" y="625" width="87.9" height="14" fill="#1e3a8a"/>
+<text x="202" y="636" fill="#334155" font-size="11.5" text-anchor="end">Cyberpunk 2077</text>
+<text x="889.7" y="636" fill="#0f172a" font-size="11.5">16.9</text>
+<rect x="214.0" y="650" width="118.7" height="14" fill="#475569"/>
+<rect x="332.7" y="650" width="39.6" height="14" fill="#94a3b8"/>
+<rect x="372.2" y="650" width="79.1" height="14" fill="#BA7517"/>
+<rect x="451.3" y="650" width="13.8" height="14" fill="#0d9488"/>
+<rect x="465.2" y="650" width="35.6" height="14" fill="#5eead4"/>
+<rect x="500.8" y="650" width="9.5" height="14" fill="#7C3AED"/>
+<rect x="510.3" y="650" width="157.6" height="14" fill="#93c5fd"/>
+<rect x="667.9" y="650" width="66.4" height="14" fill="#60a5fa"/>
+<rect x="734.2" y="650" width="37.3" height="14" fill="#3b82f6"/>
+<rect x="771.6" y="650" width="58.4" height="14" fill="#1d4ed8"/>
+<rect x="830.0" y="650" width="87.2" height="14" fill="#1e3a8a"/>
+<text x="202" y="661" fill="#334155" font-size="11.5" text-anchor="end">Unreal Engine City Sample</text>
+<text x="924.2" y="661" fill="#0f172a" font-size="11.5">17.8</text>
+</svg></div>
+<div class="card"><span style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0"><i style="width:14px;height:10px;background:#475569;display:inline-block"></i>резерв ОС (3.0)</span><span style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0"><i style="width:14px;height:10px;background:#94a3b8;display:inline-block"></i>фон (1.0)</span><span style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0"><i style="width:14px;height:10px;background:#BA7517;display:inline-block"></i>движок и инструменты</span><span style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0"><i style="width:14px;height:10px;background:#0d9488;display:inline-block"></i>аудио</span><span style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0"><i style="width:14px;height:10px;background:#5eead4;display:inline-block"></i>стриминг</span><span style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0"><i style="width:14px;height:10px;background:#7C3AED;display:inline-block"></i>буферы кадра</span><span style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0"><i style="width:14px;height:10px;background:#93c5fd;display:inline-block"></i>сцена</span><span style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0"><i style="width:14px;height:10px;background:#60a5fa;display:inline-block"></i>геометрия</span><span style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0"><i style="width:14px;height:10px;background:#3b82f6;display:inline-block"></i>анимация</span><span style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0"><i style="width:14px;height:10px;background:#1d4ed8;display:inline-block"></i>текстуры</span><span style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0"><i style="width:14px;height:10px;background:#1e3a8a;display:inline-block"></i>зеркало в ОЗУ</span></div>
+
+<h2>2. Пол по уровням объявленного масштаба проекта</h2>
+<div class="card"><table>
+<tr><th>масштаб проекта</th><th>пол RAM</th><th>из них движок и инструменты</th><th>пол VRAM</th></tr>
+<tr><td>малый</td><td>5.19 ГБ</td><td>0.50 ГБ</td><td>1.92 ГБ</td></tr><tr><td>средний</td><td>6.69 ГБ</td><td>2.00 ГБ</td><td>1.92 ГБ</td></tr><tr><td>крупный</td><td>8.19 ГБ</td><td>3.50 ГБ</td><td>1.92 ГБ</td></tr><tr><td>очень крупный</td><td>8.69 ГБ</td><td>4.00 ГБ</td><td>1.92 ГБ</td></tr>
+</table>
+<p class="note">Остальные 4.69 ГБ пола не зависят от масштаба проекта: резерв ОС 3.00,
+фон 1.00, аудио 0.35, стриминг 0.25, буферы кадра 0.09. Пол VRAM от масштаба проекта
+не зависит вообще.</p></div>
+
+<h2>3. Область применимости: где модель совпадает с реальностью</h2>
+<p class="note">k = реальная память / оценка модели. Точка выше зелёной линии — модель
+занижает, ниже — завышает. Серые точки — цель «минимальная память», синие —
+«рекомендуемая».</p>
+<div class="card"><svg viewBox="0 0 1000 340" width="100%" style="max-width:1000px;background:#ffffff">
+<line x1="62" y1="286.0" x2="970" y2="286.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="54" y="290.0" fill="#475569" font-size="11" text-anchor="end">0.0</text>
+<line x1="62" y1="245.0" x2="970" y2="245.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="54" y="249.0" fill="#475569" font-size="11" text-anchor="end">0.2</text>
+<line x1="62" y1="204.0" x2="970" y2="204.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="54" y="208.0" fill="#475569" font-size="11" text-anchor="end">0.5</text>
+<line x1="62" y1="163.0" x2="970" y2="163.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="54" y="167.0" fill="#475569" font-size="11" text-anchor="end">0.8</text>
+<line x1="62" y1="122.0" x2="970" y2="122.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="54" y="126.0" fill="#475569" font-size="11" text-anchor="end">1.0</text>
+<line x1="62" y1="81.0" x2="970" y2="81.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="54" y="85.0" fill="#475569" font-size="11" text-anchor="end">1.2</text>
+<line x1="62" y1="40.0" x2="970" y2="40.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="54" y="44.0" fill="#475569" font-size="11" text-anchor="end">1.5</text>
+<text x="62.0" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2004</text>
+<text x="144.5" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2006</text>
+<text x="227.1" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2008</text>
+<text x="309.6" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2010</text>
+<text x="392.2" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2012</text>
+<text x="474.7" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2014</text>
+<text x="557.3" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2016</text>
+<text x="639.8" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2018</text>
+<text x="722.4" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2020</text>
+<text x="804.9" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2022</text>
+<text x="887.5" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2024</text>
+<text x="970.0" y="308" fill="#475569" font-size="11.5" text-anchor="middle">2026</text>
+<text x="516" y="330" fill="#475569" font-size="13" text-anchor="middle">год выхода игры</text>
+<line x1="62" y1="122.0" x2="970" y2="122.0" stroke="#16a34a" stroke-width="1.6"/>
+<text x="966" y="116.0" fill="#16a34a" font-size="11.5" text-anchor="end">k = 1: модель = реальность</text>
+<line x1="433.5" y1="40" x2="433.5" y2="286" stroke="#dc2626" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="439.5" y="54" fill="#dc2626" font-size="11.5">2013</text>
+<circle cx="227.1" cy="271.3" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="227.1" cy="271.3" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="846.2" cy="150.6" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="350.9" cy="253.5" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="763.6" cy="170.9" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="763.6" cy="55.8" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="928.7" cy="92.2" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="928.7" cy="92.2" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="763.6" cy="40.0" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="598.5" cy="196.3" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="598.5" cy="196.3" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="722.4" cy="218.3" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="722.4" cy="218.3" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="722.4" cy="177.1" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="722.4" cy="177.1" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="722.4" cy="169.6" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="722.4" cy="130.8" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="557.3" cy="204.3" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="722.4" cy="201.5" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="722.4" cy="117.0" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="722.4" cy="179.0" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="722.4" cy="179.0" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="516.0" cy="68.2" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="516.0" cy="40.0" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="557.3" cy="217.5" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="557.3" cy="103.3" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="598.5" cy="191.5" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="598.5" cy="96.9" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="846.2" cy="77.2" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="846.2" cy="77.2" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="103.3" cy="268.9" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="557.3" cy="170.9" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="557.3" cy="55.8" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="268.4" cy="274.8" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="268.4" cy="263.6" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="350.9" cy="198.7" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="350.9" cy="111.4" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="681.1" cy="182.3" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="681.1" cy="130.4" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="804.9" cy="125.1" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="804.9" cy="125.1" r="5.4" fill="#2563eb" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="846.2" cy="225.0" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<circle cx="350.9" cy="215.0" r="5.4" fill="#94a3b8" fill-opacity="0.85" stroke="#ffffff" stroke-width="1.2"/>
+<text x="103.3" y="257.2" fill="#475569" font-size="11.5">медиана k = 0.12</text>
+<text x="474.7" y="101.1" fill="#475569" font-size="11.5">медиана k = 1.07</text>
+</svg></div>
+
+<div class="card"><table>
+<tr><th>цель сравнения</th><th>эпоха</th><th>n</th><th>медиана k</th><th>смысл</th></tr>
+<tr><td rowspan="2">минимальная память</td><td>до 2012</td>
+ <td>5</td><td>0.20</td>
+ <td>модель завышает в 5.0 раза</td></tr>
+<tr><td>с 2013</td><td>18</td><td>0.66</td>
+ <td>модель завышает в 1.5 раза</td></tr>
+<tr><td rowspan="2">рекомендуемая память</td><td>до 2012</td>
+ <td>4</td><td>0.12</td>
+ <td>модель завышает в 8.3 раза</td></tr>
+<tr><td>с 2013</td><td>16</td><td>1.07</td>
+ <td><b>совпадение: расхождение 7 %</b></td></tr>
+</table></div>
+
+<p class="note">Стенд: <code>tmp/model_floor_probe.py</code> · генератор:
+<code>tmp/build_floor_chart.py</code> · эталон требований с источниками:
+<code>tmp/spec_refs.py</code> · профили: <code>tmp/run_scenarios.py</code>.</p>
+</div></body></html>

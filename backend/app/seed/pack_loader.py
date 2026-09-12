@@ -171,6 +171,53 @@ def _load_packs() -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
     return packs, failures
 
 
+def _restore_full_date(src: EvidenceSource, full: str) -> bool:
+    """Восстановить дату, обрезанную прежним лимитом колонки.
+
+    Пакеты несут дату вместе с оговоркой куратора, а прежняя версия загрузчика
+    срезала её до 20 знаков — обрубок на середине слова, причём терялась не
+    только дата, но и оговорка. Проход срабатывает **только на прежнем
+    значении**: если хранится ровно то, что дал бы старый срез, дату не правил
+    человек, и её можно восстановить целиком. Любое иное значение — в том
+    числе курированное — не трогается.
+    """
+    stored = src.published_date or ""
+    if not stored or not full:
+        return False
+    if len(full) <= len(stored):
+        return False
+    if full[: len(stored)] != stored:
+        return False
+    src.published_date = full[:80]
+    return True
+
+
+def source_record_values(payload: dict[str, Any]) -> dict[str, Any]:
+    """Поля строки источника по записи пакета.
+
+    Одно место для разбора записи: тем же разбором пользуется согласующий
+    проход (`corrections.correct_source_records`), который переносит в уже
+    существующую базу запись, приведённую каталогом к согласованному виду.
+    Вторая копия разбора разошлась бы с первой на первом же изменении.
+    """
+    return {
+        "title": payload.get("title", "")[:300],
+        "authors": payload.get("author_or_publisher", "")[:300],
+        "publisher": payload.get("author_or_publisher", "")[:200],
+        "source_type": _norm_source_type(payload.get("source_type", "secondary")),
+        # Дата публикации хранится целиком, вместе с оговоркой куратора:
+        # прежний срез до 20 знаков обрезал значение на середине слова.
+        "published_date": payload.get("published_date", "")[:80],
+        "checked_at": payload.get("verified_date", "2026-09-10")[:30],
+        "url": payload.get("url", "")[:800],
+        "version": payload.get("engine_or_api_version", "")[:80],
+        "platform": payload.get("platform", "")[:120],
+        "locator": payload.get("locator", "overview")[:300],
+        "availability": payload.get("availability", "available")[:30],
+        "applicability": payload.get("applicability_note", "")[:2000],
+    }
+
+
 def _upsert_source(db: Session, payload: dict[str, Any]) -> EvidenceSource:
     code = payload["code"]
     existing = db.scalar(select(EvidenceSource).where(EvidenceSource.code == code))
@@ -178,18 +225,6 @@ def _upsert_source(db: Session, payload: dict[str, Any]) -> EvidenceSource:
         return existing
     src = EvidenceSource(
         code=code,
-        title=payload.get("title", "")[:300],
-        authors=payload.get("author_or_publisher", "")[:300],
-        publisher=payload.get("author_or_publisher", "")[:200],
-        source_type=_norm_source_type(payload.get("source_type", "secondary")),
-        published_date=payload.get("published_date", "")[:20],
-        checked_at=payload.get("verified_date", "2026-09-10")[:30],
-        url=payload.get("url", "")[:800],
-        version=payload.get("engine_or_api_version", "")[:80],
-        platform=payload.get("platform", "")[:120],
-        locator=payload.get("locator", "overview")[:300],
-        availability=payload.get("availability", "available")[:30],
-        applicability=payload.get("applicability_note", "")[:2000],
         notes="",
         # Источник из курируемого пакета — это запись реестра, а не черновик:
         # у неё уже есть код, тип и локатор. Оставленный по умолчанию черновик
@@ -198,6 +233,7 @@ def _upsert_source(db: Session, payload: dict[str, Any]) -> EvidenceSource:
         # ровно как нарушение требования «запись без обязательного источника не
         # публикуется», хотя источник в базе был.
         status=PUBLISHED,
+        **source_record_values(payload),
     )
     db.add(src)
     db.flush()
@@ -604,6 +640,9 @@ def sync_packs(db: Session) -> dict[str, int]:
         # Снятые строки прежней второй семьи: счётчик виден в статистике сида,
         # чтобы удаление не выглядело молчаливым.
         "work_packages_retired": 0,
+        # Даты источников, восстановленные после прежнего среза до 20 знаков:
+        # счётчик виден, чтобы исправление не выглядело молчаливым.
+        "source_dates_restored": 0,
     }
     sources_map: dict[str, EvidenceSource] = {}
     method_rows = {m.code: m for m in db.scalars(select(Method))}
@@ -618,6 +657,8 @@ def sync_packs(db: Session) -> dict[str, int]:
                 logger.warning("Пак %s: запись источника без кода пропущена", pack.get("pack"))
                 continue
             src = _upsert_source(db, s)
+            if _restore_full_date(src, s.get("published_date", "")):
+                stats["source_dates_restored"] += 1
             sources_map[s["code"]] = src
             stats["sources"] += 1
 

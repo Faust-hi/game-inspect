@@ -48,6 +48,8 @@ export interface ProjectProfile {
   format: string;
   world_type: string;
   scale: string;
+  /** Масштаб проекта (производства), а не мира. Объявляется пользователем. */
+  project_scale: string;
   stage: string;
   engine: string;
   engine_version?: string | null;

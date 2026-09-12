@@ -29,7 +29,8 @@ from .corrections import (
     correct_contradictory_relations, correct_effect_scopes, correct_engine_tool_independence,
     correct_legacy_conflict_types,
     correct_method_sources, correct_placeholder_source_dates, correct_relation_types,
-    correct_shadow_relation, correct_source_publication, correct_splitscreen_dependency,
+    correct_shadow_relation, correct_source_publication, correct_source_records,
+    correct_splitscreen_dependency,
     declare_evidence_gaps,
 )
 
@@ -223,6 +224,7 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
         "contradictory_relations_removed": correct_contradictory_relations(db),
         "method_sources_corrected": correct_method_sources(db),
         "source_dates_corrected": correct_placeholder_source_dates(db),
+        "source_records_corrected": correct_source_records(db),
         "verified_fields_corrected": correct_existing(db),
     }
     pack_stats = sync_packs(db)
@@ -672,6 +674,10 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
     # `sync_sources` не перезаписывает уже заполненное поле, поэтому без явного
     # прохода унаследованная база сохраняла прежние заглушки.
     source_dates_corrected = correct_placeholder_source_dates(db)
+    # Записи источников, починенные каталогом: `_upsert_source` существующую
+    # строку не обновляет, поэтому без этого прохода свежая установка и уже
+    # собранная база расходились бы по содержанию записи.
+    source_records_corrected = correct_source_records(db)
     independence_corrected = correct_engine_tool_independence(db)
     from .verified_corrections import correct_existing
     verified_fields_corrected = correct_existing(db)
@@ -765,6 +771,7 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
         "method_sources_corrected": sources_corrected,
         "sources_published": sources_published,
         "source_dates_corrected": source_dates_corrected,
+        "source_records_corrected": source_records_corrected,
         "engine_tool_independence_corrected": independence_corrected,
         "verified_fields_corrected": verified_fields_corrected,
         "work_package_dependencies_refreshed": work_synced,

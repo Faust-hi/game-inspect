@@ -221,6 +221,21 @@ TECH_REQUIREMENTS: list[dict[str, Any]] = [
 ]
 
 
+def tool_engine_description(tool_name: str, engine_name: str, *, is_user_defined: bool) -> str:
+    """Описание ребра «инструмент → движок».
+
+    Единственное место, где эта фраза собирается: её пересобирает и согласующий
+    проход (`corrections.refresh_tool_engine_notes`), иначе шаблон жил бы в двух
+    копиях и они разошлись бы. Оговорка про пользовательскую технологию
+    появилась позже самого ребра, поэтому прежний вид получается тем же вызовом
+    с `is_user_defined=False` — по нему и опознаётся ненавистная запись.
+    """
+    return (
+        f"Инструмент «{tool_name}» существует только внутри движка {engine_name}"
+        + (" и помечен как пользовательская технология." if is_user_defined else ".")
+    )
+
+
 def sync_dependency_graph(db: Session) -> dict[str, int]:
     """Достроить узлы и рёбра графа зависимостей."""
     created_nodes = created_edges = 0
@@ -360,9 +375,8 @@ def sync_dependency_graph(db: Session) -> dict[str, int]:
             severity=1,
             scope=tool.tool_type or "runtime",
             source_url=tool.docs_url or engine.docs_url or "",
-            description=(
-                f"Инструмент «{tool.name}» существует только внутри движка {engine.name}"
-                + (" и помечен как пользовательская технология." if tool.is_user_defined else ".")
+            description=tool_engine_description(
+                tool.name, engine.name, is_user_defined=bool(tool.is_user_defined)
             ),
             workaround=(
                 TOOL_ENGINE_WORKAROUND

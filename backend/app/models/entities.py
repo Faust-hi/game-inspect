@@ -407,7 +407,11 @@ class EvidenceSource(Base):
     authors: Mapped[str] = mapped_column(String(300), default="")
     publisher: Mapped[str] = mapped_column(String(200), default="")
     source_type: Mapped[str] = mapped_column(String(40), default="secondary")
-    published_date: Mapped[str] = mapped_column(String(20), default="")
+    # Дата публикации хранится вместе с оговоркой куратора: в пакетах
+    # встречаются значения вида «2019-09-17 (последний акт обновления)».
+    # Ширина 20 обрезала их на середине слова, поэтому колонка расширена, а
+    # срез в загрузчике пакетов снят.
+    published_date: Mapped[str] = mapped_column(String(80), default="")
     checked_at: Mapped[str] = mapped_column(String(30), default="")
     url: Mapped[str] = mapped_column(String(800), default="")
     version: Mapped[str] = mapped_column(String(80), default="")
