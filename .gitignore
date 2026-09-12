@@ -69,3 +69,7 @@ research/_verify_cache/
 *.bak.pdf
 *.bak.docx
 *.bak.pptx
+
+# Архив ценных, но не применяемых в проекте материалов (волна 7).
+# Всё вне report/ — рабочий проект. Содержимое report/ остаётся в истории git.
+report/
