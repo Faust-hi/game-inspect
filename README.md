@@ -231,7 +231,7 @@ cd backend && cp gamedev_dss.db gamedev-dss.bak-$(date +%Y%m%d-%H%M%S).db
 from app.database import SessionLocal; from app.seed.pack_loader import sync_packs;\
 db=SessionLocal(); print(sync_packs(db)); db.commit()"
 
-# 3. Аудит покрытия (≥3 claims, ≥2 источника с локатором, ≥2 игровых примера)
+# 3. Аудит покрытия (≥3 claims, ≥2 источника с локатором)
 cd .. && ./.dss-venv/Scripts/python.exe tools/audit_evidence.py
 
 # 4. Полная HTTP-проверка всех URL (паки + БД, ~1 мин)
@@ -333,15 +333,25 @@ baseline. Отчётный снимок включает рекомендаци�
 
 ## Проверки
 
-Backend:
+Backend. Обычный запуск выполняет только обязательные сценарии (маркер
+`critical`); подробные (маркер `extended`) идут отдельной командой:
 
 ```bash
 cd backend
-python -m pytest -q
+python -m pytest -q                          # только critical
+python -m pytest -m "critical or extended"   # весь сохранённый набор
 # Схема, собранная миграциями с нуля, обязана совпадать с моделями:
 # иначе `alembic check` показывает расхождение (индексы, NOT NULL).
 alembic upgrade head && alembic check
 ```
+
+Часть обязательных проверок раздаёт собранный frontend, поэтому `frontend/dist`
+должен существовать — иначе они пропускаются. В CI сборка готовится заранее.
+
+Тесты работают с временной SQLite и не трогают рабочую базу. Они проверяют
+согласованность модели (связи, отсутствие двойного учёта, воспроизводимость
+расчёта), а не соответствие конкретным реальным играм: сверка с реальностью —
+отдельный стенд в `tmp/compare_with_reality.py`.
 
 Frontend:
 
@@ -359,6 +369,8 @@ Playwright сам запускает временный backend на порту 
 npm run test:e2e
 ```
 
-CI дополнительно проверяет синтаксис shell-скриптов, устанавливает зависимости
-из lock-файлов, запускает Linux smoke-сценарий с проверкой готовности и
-остановки сервисов, выполняет миграции и production-сборку frontend.
+CI при push и в каждом PR выполняет проверку типов, тесты frontend,
+production-сборку, обязательные тесты backend и миграции. Вручную
+(`workflow_dispatch`) запускаются полный набор backend, браузерный сценарий
+Playwright и Linux smoke-сценарий с проверкой готовности и остановки сервисов.
+Расписаний и автоматического запуска перед выпуском нет.
