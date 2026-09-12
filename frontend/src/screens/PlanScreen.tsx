@@ -1,6 +1,5 @@
 /** Экран 11. Итоговый план проекта. Одновременно является печатной формой отчёта. */
-import { useEffect, useMemo, useState } from 'react';
-import { api } from '../api';
+import { useMemo } from 'react';
 import { useStore } from '../store';
 import { TransitionDetails } from '../components/ImplementationTransition';
 import {
@@ -17,7 +16,7 @@ import {
 } from '../components/ui';
 import { impactsOf, methodsByCode as buildMethodMap, selectedMethods } from '../catalogUtils';
 import { ConflictEntry, DependencyEntry, SynergyEntry } from '../components/Compatibility';
-import type { Method, Schedule } from '../types';
+import type { Method } from '../types';
 import { HardwareWarnings } from '../components/HardwareWarnings';
 
 /** Порядок внедрения: от архитектуры к настройкам. */
@@ -56,10 +55,6 @@ const STAGE_ORDER: Record<string, number> = {
 
 export function PlanScreen() {
   const { profile, basket, result, catalog, calculating } = useStore();
-  const [team, setTeam] = useState('small_2_5');
-  const [schedule, setSchedule] = useState<Schedule | null>(null);
-  const [scheduleLoading, setScheduleLoading] = useState(false);
-  const [scheduleError, setScheduleError] = useState<string | null>(null);
 
   // Автоматический расчёт выполняет каркас приложения (App.useEnsureResult).
 
@@ -82,21 +77,6 @@ export function PlanScreen() {
       (a, b) => LEVEL_ORDER.indexOf(a[0]) - LEVEL_ORDER.indexOf(b[0]),
     );
   }, [selected]);
-
-  useEffect(() => {
-    if (!result) {
-      setSchedule(null);
-      return;
-    }
-    let active = true;
-    setScheduleLoading(true);
-    setScheduleError(null);
-    void api.schedule(profile, result.basket_codes ?? basket, team)
-      .then(next => { if (active) setSchedule(next); })
-      .catch(cause => { if (active) setScheduleError(cause instanceof Error ? cause.message : 'План недоступен'); })
-      .finally(() => { if (active) setScheduleLoading(false); });
-    return () => { active = false; };
-  }, [profile, basket, result, team]);
 
   if (calculating) return <Loading text="Формирование итогового плана…" />;
 
@@ -125,59 +105,6 @@ export function PlanScreen() {
           <Metric label="Исходные трудозатраты" value={totalCost} hint="сумма баллов каталога; переход оценён отдельно" />
           <Metric label="Рисков" value={result.risks.length} />
         </div>
-      </Card>
-
-      <Card
-        title="Календарный план и critical path"
-        hint="P50/P80 — сценарная оценка в человеко-днях и рабочих днях. Ёмкость команды меняет календарь, но не уменьшает общий объём работ."
-        actions={
-          <select className="select" value={team} onChange={event => setTeam(event.target.value)}>
-            <option value="solo">Solo</option>
-            <option value="small_2_5">Малая команда (2–5)</option>
-            <option value="mid_6_15">Средняя команда (6–15)</option>
-            <option value="large_16_plus">Большая команда (16+)</option>
-          </select>
-        }
-      >
-        {scheduleLoading && <Loading text="Пересчёт календаря…" />}
-        {scheduleError && <Callout tone="warn">{scheduleError}</Callout>}
-        {!scheduleLoading && schedule && (
-          <>
-            <div className="stat-grid">
-              <Metric label="Effort P50" value={`${schedule.effort.p50 ?? 0} чел.-дн.`} hint={`P80: ${schedule.effort.p80 ?? 0}`} />
-              <Metric label="Calendar P50" value={`${schedule.calendar.p50 ?? 0} дн.`} hint={`P80: ${schedule.calendar.p80 ?? 0}`} />
-              <Metric label="Задач" value={schedule.tasks.length} />
-              <Metric label="Critical path" value={schedule.critical_path.length} />
-            </div>
-            {schedule.unresolved_dependencies.length > 0 && (
-              <Callout tone="danger" title="Незакрытые зависимости">
-                <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
-                  {schedule.unresolved_dependencies.map(item => <li key={item}>{item}</li>)}
-                </ul>
-              </Callout>
-            )}
-            <p className="xsmall faint" style={{ marginTop: 10 }}>
-              {schedule.team.name}: {schedule.team.description} Коэффициенты коммуникации и незапланированной работы — экспертный сценарий; срок не является обещанием релиза.
-            </p>
-            {schedule.tasks.length > 0 && (
-              <div style={{ overflowX: 'auto', marginTop: 10 }}>
-                <table className="table">
-                  <thead><tr><th>Пакет</th><th>Роль</th><th>P50</th><th>P80</th><th>Зависимости</th></tr></thead>
-                  <tbody>{schedule.tasks.map(task => (
-                    <tr key={task.code}>
-                      <td className="small"><strong>{task.name}</strong>{task.critical && <Badge tone="danger">critical</Badge>}<div className="xsmall faint">{task.package_type}</div></td>
-                      <td className="small">{task.role}</td>
-                      <td className="small mono">{task.start_p50}–{task.finish_p50}</td>
-                      <td className="small mono">{task.start_p80}–{task.finish_p80}</td>
-                      <td className="small">{task.dependencies.length ? task.dependencies.join(', ') : '—'}</td>
-                    </tr>
-                  ))}</tbody>
-                </table>
-              </div>
-            )}
-          </>
-        )}
-        {!scheduleLoading && !schedule && !scheduleError && <Empty>Для плана нужна выполненная корзина решений.</Empty>}
       </Card>
 
       {result.transitions?.some(item => item.status === 'removal') && <Card title="Вывод прежних решений из реализации">
@@ -392,16 +319,6 @@ export function PlanScreen() {
           </div>
         </Card>
       )}
-
-      <Card
-        title="Сверка с практикой"
-        hint="Сопоставление с реальными кейсами. Их показатели не переносятся в проект: независимая калибровка не выполнялась."
-      >
-        <Callout tone="info">
-          {result.practice_check.title}
-        </Callout>
-        <p className="small muted">{result.practice_check.message}</p>
-      </Card>
 
       {result.contributions.parameters.length > 0 && (
         <Card title="Вклад параметров анкеты" hint="На сколько параметр меняет стоимость кадра; бюджет кадра — в миллисекундах.">

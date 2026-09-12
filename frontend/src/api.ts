@@ -10,16 +10,13 @@ import type {
   EvidenceSource,
   EvidenceSummary,
   GameFunction,
-  GameCase,
   GraphChecks,
   Method,
   ProjectProfile,
   RecommendationResult,
   ReportData,
-  Schedule,
   SeedReport,
   StageGuidance,
-  TeamScenario,
   ValidationIssue,
 } from './types';
 
@@ -131,7 +128,6 @@ export const api = {
     return request<EvidenceClaim[]>(`/catalog/evidence${query.toString() ? `?${query}` : ''}`);
   },
   evidenceSummary: () => request<EvidenceSummary>('/catalog/evidence-summary'),
-  cases: () => request<GameCase[]>('/catalog/cases'),
   dependencies: () => request<Dependency[]>('/catalog/dependencies'),
   graphChecks: (options?: { basket?: string[]; engine?: string; engineVersion?: string; renderApi?: string }) => {
     const query = new URLSearchParams();
@@ -141,7 +137,6 @@ export const api = {
     if (options?.renderApi) query.set('render_api', options.renderApi);
     return request<GraphChecks>(`/catalog/graph-checks${query.toString() ? `?${query}` : ''}`);
   },
-  teams: () => request<TeamScenario[]>('/catalog/teams'),
   stageGuidance: (stage: string) =>
     request<StageGuidance>(`/catalog/stage-guidance?stage=${encodeURIComponent(stage)}`),
 
@@ -150,12 +145,6 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ profile, basket, ...(baseline ? { baseline } : {}) }),
       signal,
-    }),
-
-  schedule: (profile: ProjectProfile, basket: string[], team = 'small_2_5', includeDependencies = true) =>
-    request<Schedule>('/schedule', {
-      method: 'POST',
-      body: JSON.stringify({ profile, basket, team, include_dependencies: includeDependencies }),
     }),
 
   reportData: (profile: ProjectProfile, basket: string[], baseline?: ImplementationBaseline | null) =>

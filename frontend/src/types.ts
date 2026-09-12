@@ -146,7 +146,7 @@ export interface MethodVariant {
   /** Как именно метод может быть построен (например, «Global distance field»). */
   name: string;
   description: string;
-  /** Основание варианта: documented / measured / case_evidence / expert_estimate / unknown. */
+  /** Основание варианта: documented / measured / expert_estimate / unknown. */
   basis: string;
   /** Коды источников, подтверждающих вариант. */
   evidence: string[];
@@ -499,17 +499,6 @@ export interface Contributions {
   exclusions: string[];
 }
 
-export interface PracticeCheck {
-  status: string;
-  title: string;
-  message: string;
-  details: string[];
-  case_count?: number;
-  case_codes?: string[];
-  accuracy_status?: string;
-  transferability?: string;
-}
-
 /** Предупреждение или предложение, привязанное к стадии проекта. */
 export interface StageNote {
   code: string;
@@ -551,7 +540,6 @@ export interface RecommendationResult {
   basket_dependencies: BasketConflict[];
   basket_synergies: BasketConflict[];
   hardware: HardwareEstimate | null;
-  practice_check: PracticeCheck;
   contributions: Contributions;
   stage_guidance?: StageGuidance | null;
   meta: Record<string, unknown>;
@@ -598,33 +586,6 @@ export interface EvidenceClaim {
   context: string;
 }
 
-export interface CaseEvidence {
-  code: string;
-  function_code: string;
-  method_code: string;
-  fact: string;
-  match_level: string;
-  locator: string;
-  source?: EvidenceSource | null;
-  basis: string;
-  transfer_limits: string;
-}
-
-export interface GameCase {
-  code: string;
-  title: string;
-  studio: string;
-  release_year: number | null;
-  technology: string;
-  engine_code: string;
-  world_type: string;
-  network_mode: string;
-  summary: string;
-  relevance: string;
-  transfer_limits: string;
-  evidence: CaseEvidence[];
-}
-
 export interface Dependency {
   code: string;
   source_code: string;
@@ -667,7 +628,6 @@ export interface GraphChecks {
 export interface EvidenceSummary {
   source_count: number;
   claim_count: number;
-  case_count: number;
   claims_with_sources: number;
   numeric_claims_published: number;
   numeric_claims_unknown: number;
@@ -676,60 +636,11 @@ export interface EvidenceSummary {
   calibration_status: string;
 }
 
-export interface TeamScenario {
-  code: string;
-  name: string;
-  description: string;
-  team_size: number;
-  role_capacity: Record<string, unknown>;
-  parallel_tracks: number;
-  communication_pct: number;
-  unplanned_pct: number;
-  specialist_capacity: Record<string, unknown>;
-}
-
-export interface ScheduleTask {
-  code: string;
-  name: string;
-  method_code: string;
-  package_type: string;
-  role: string;
-  dependencies: string[];
-  minimum_days: number;
-  p50_days: number;
-  p80_days: number;
-  parallelizable: boolean;
-  recommended_stage: string;
-  /** Исходный текст стадии из пакета, если поле было не кодом. */
-  stage_note?: string;
-  late_factor: number;
-  basis: string;
-  start_p50: number;
-  finish_p50: number;
-  start_p80: number;
-  finish_p80: number;
-  critical: boolean;
-}
-
-export interface Schedule {
-  team: TeamScenario;
-  methods: string[];
-  effort: EstimateBand;
-  calendar: EstimateBand;
-  critical_path: string[];
-  tasks: ScheduleTask[];
-  unresolved_dependencies: string[];
-  stage_notes: string[];
-  evidence_basis: string;
-}
-
 export interface ReportData {
   recommendation: RecommendationResult;
   evidence_summary: EvidenceSummary;
   sources: EvidenceSource[];
-  cases: GameCase[];
   dependencies: Dependency[];
-  schedule: Schedule;
 }
 
 export interface ValidationIssue {

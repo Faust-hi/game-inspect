@@ -1,17 +1,15 @@
-/** Реестр источников, кейсов и технологических зависимостей. */
+/** Реестр источников и технологических зависимостей. */
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
-import { useStore } from '../store';
-import { Badge, Callout, Card, Empty, Loading, Metric, SourceLink, Tabs } from '../components/ui';
-import type { Dependency, EvidenceClaim, EvidenceSource, EvidenceSummary, GameCase } from '../types';
+import { Badge, Callout, Card, Loading, Metric, SourceLink, Tabs } from '../components/ui';
+import type { Dependency, EvidenceClaim, EvidenceSource, EvidenceSummary } from '../types';
 
-type EvidenceTab = 'cases' | 'claims' | 'dependencies' | 'sources';
+type EvidenceTab = 'claims' | 'dependencies' | 'sources';
 
 /** Предел числа строк утверждений в таблице: реестр целиком в DOM не помещается. */
 const CLAIM_ROW_LIMIT = 120;
 
 const TABS = [
-  { key: 'cases', label: 'Кейсы' },
   { key: 'claims', label: 'Claims' },
   { key: 'dependencies', label: 'Зависимости' },
   { key: 'sources', label: 'Источники' },
@@ -19,7 +17,7 @@ const TABS = [
 
 function basisTone(basis: string): 'ok' | 'info' | 'warn' | 'danger' | 'neutral' {
   if (basis === 'documented' || basis === 'measured') return 'ok';
-  if (basis === 'derived' || basis === 'case_evidence') return 'info';
+  if (basis === 'derived') return 'info';
   if (basis === 'expert_estimate' || basis === 'unknown') return 'warn';
   return 'neutral';
 }
@@ -33,7 +31,6 @@ function EvidenceSummaryCard({ summary }: { summary: EvidenceSummary }) {
       <div className="stat-grid">
         <Metric label="Источников" value={summary.source_count} />
         <Metric label="Claims" value={summary.claim_count} />
-        <Metric label="Кейсов" value={summary.case_count} />
         <Metric label="Claims с источником" value={summary.claims_with_sources} hint={summary.coverage_label} />
         <Metric label="Числовых опубликовано" value={summary.numeric_claims_published} />
         <Metric label="Числовых неизвестно" value={summary.numeric_claims_unknown} />
@@ -51,39 +48,6 @@ function EvidenceSummaryCard({ summary }: { summary: EvidenceSummary }) {
         </details>
       )}
     </Card>
-  );
-}
-
-function CaseCard({ item, selected }: { item: GameCase; selected: boolean }) {
-  return (
-    <div className="method-row">
-      <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', flexWrap: 'wrap' }}>
-        <strong>{item.title}</strong>
-        {item.release_year && <span className="xsmall faint">{item.release_year}</span>}
-        {selected && <Badge tone="ok">связан с корзиной</Badge>}
-        <Badge tone="neutral">{item.studio}</Badge>
-      </div>
-      <div className="xsmall faint" style={{ marginTop: 3 }}>
-        {item.technology} · {item.world_type} · {item.network_mode}
-      </div>
-      <p className="small muted" style={{ marginTop: 6 }}>{item.summary}</p>
-      <p className="small" style={{ marginTop: 6 }}><strong>Зачем в системе:</strong> {item.relevance}</p>
-      <div className="xsmall faint" style={{ marginTop: 6 }}>
-        <strong>Предел переноса:</strong> {item.transfer_limits}
-      </div>
-      {item.evidence.map(fact => (
-        <div key={fact.code} className="subtle-box" style={{ marginTop: 9 }}>
-          <div className="xsmall" style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
-            <Badge tone={fact.match_level === 'direct' ? 'ok' : 'warn'}>{fact.match_level}</Badge>
-            <span>{fact.fact}</span>
-          </div>
-          <div className="xsmall faint" style={{ marginTop: 5 }}>
-            {fact.locator || 'локатор не указан'}
-            {fact.source && <> · <SourceLink url={fact.source.url} title={fact.source.title} /></>}
-          </div>
-        </div>
-      ))}
-    </div>
   );
 }
 
@@ -130,12 +94,10 @@ function SourceRow({ item }: { item: EvidenceSource }) {
 }
 
 export function EvidenceScreen() {
-  const { result } = useStore();
-  const [tab, setTab] = useState<EvidenceTab>('cases');
+  const [tab, setTab] = useState<EvidenceTab>('claims');
   const [summary, setSummary] = useState<EvidenceSummary | null>(null);
   const [sources, setSources] = useState<EvidenceSource[]>([]);
   const [claims, setClaims] = useState<EvidenceClaim[]>([]);
-  const [cases, setCases] = useState<GameCase[]>([]);
   const [dependencies, setDependencies] = useState<Dependency[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -145,13 +107,12 @@ export function EvidenceScreen() {
     let active = true;
     setLoading(true);
     setError(null);
-    void Promise.all([api.evidenceSummary(), api.sources(), api.evidence(), api.cases(), api.dependencies()])
-      .then(([nextSummary, nextSources, nextClaims, nextCases, nextDependencies]) => {
+    void Promise.all([api.evidenceSummary(), api.sources(), api.evidence(), api.dependencies()])
+      .then(([nextSummary, nextSources, nextClaims, nextDependencies]) => {
         if (!active) return;
         setSummary(nextSummary);
         setSources(nextSources);
         setClaims(nextClaims);
-        setCases(nextCases);
         setDependencies(nextDependencies);
       })
       .catch((cause: unknown) => {
@@ -162,9 +123,6 @@ export function EvidenceScreen() {
   }, []);
 
   const normalizedQuery = query.trim().toLowerCase();
-  const selectedCases = useMemo(() => new Set(result?.practice_check.case_codes ?? []), [result]);
-  const visibleCases = useMemo(() => cases.filter(item => !normalizedQuery ||
-    `${item.title} ${item.studio} ${item.technology} ${item.summary}`.toLowerCase().includes(normalizedQuery)), [cases, normalizedQuery]);
   const visibleClaims = useMemo(() => claims.filter(item => !normalizedQuery ||
     `${item.entity_code} ${item.field} ${item.claim} ${item.context}`.toLowerCase().includes(normalizedQuery)), [claims, normalizedQuery]);
   const visibleDependencies = useMemo(() => dependencies.filter(item => !normalizedQuery ||
@@ -172,7 +130,7 @@ export function EvidenceScreen() {
   const visibleSources = useMemo(() => sources.filter(item => !normalizedQuery ||
     `${item.title} ${item.publisher} ${item.source_type} ${item.code}`.toLowerCase().includes(normalizedQuery)), [sources, normalizedQuery]);
 
-  if (loading) return <Loading text="Загрузка источников, кейсов и зависимостей…" />;
+  if (loading) return <Loading text="Загрузка источников и зависимостей…" />;
   if (error) return <Callout tone="danger" title="Доказательная база недоступна">{error}</Callout>;
 
   return (
@@ -180,11 +138,10 @@ export function EvidenceScreen() {
       {summary && <EvidenceSummaryCard summary={summary} />}
       <Card
         title="Доказательства и переносимость"
-        hint="Кейсы показывают применение механизма. Они не являются паспортами производительности проекта и не доказывают точность FPS-прогноза."
+        hint="Источник подтверждает механизм только вместе с локатором; экспертные числовые оценки не выдаются за измерения."
         actions={<input className="input" style={{ minWidth: 220 }} value={query} onChange={event => setQuery(event.target.value)} placeholder="Поиск по реестру" />}
       >
         <Tabs tabs={TABS} active={tab} onChange={value => setTab(value as EvidenceTab)} />
-        {tab === 'cases' && (visibleCases.length === 0 ? <Empty>Подходящих кейсов не найдено.</Empty> : visibleCases.map(item => <CaseCard key={item.code} item={item} selected={selectedCases.has(item.code)} />))}
         {tab === 'claims' && (
           <div style={{ overflowX: 'auto' }}>
             {/* Реестр не помещается в DOM целиком; об усечении нужно сообщать,

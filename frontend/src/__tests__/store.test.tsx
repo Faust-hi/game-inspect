@@ -65,7 +65,6 @@ function makeResult(inputKey: string): RecommendationResult {
     basket_dependencies: [],
     basket_synergies: [],
     hardware: null,
-    practice_check: { status: 'in_development', title: 'Сверка с практикой — в разработке', message: '', details: [] },
     contributions: { parameters: [], methods: [], assumptions: [], exclusions: [] },
     meta: {},
     input_key: inputKey,

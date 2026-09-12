@@ -14,9 +14,7 @@ import { PlanScreen } from './screens/PlanScreen';
 import { RisksScreen } from './screens/RisksScreen';
 import { AdminScreen } from './screens/AdminScreen';
 import { EvidenceScreen } from './screens/EvidenceScreen';
-import { CasesScreen } from './screens/CasesScreen';
 import { DependenciesScreen } from './screens/DependenciesScreen';
-import { ScheduleScreen } from './screens/ScheduleScreen';
 
 /** Этапы работы с проектом (экраны раздела 7 плана, упрощённый MVP). */
 type StepKey =
@@ -25,9 +23,7 @@ type StepKey =
   | 'functions'
   | 'solutions'
   | 'evidence'
-  | 'cases'
   | 'dependencies'
-  | 'schedule'
   | 'risks'
   | 'basket'
   | 'load'
@@ -46,9 +42,7 @@ const STEPS: StepDef[] = [
   { key: 'functions', label: 'Игровые функции', hint: 'Что должно работать в игре' },
   { key: 'solutions', label: 'Варианты реализации', hint: 'Подбор и ранжирование решений' },
   { key: 'evidence', label: 'Доказательства', hint: 'Источники, утверждения и локаторы' },
-  { key: 'cases', label: 'Кейсы игр', hint: 'Подтверждённые примеры применения и предел переноса' },
   { key: 'dependencies', label: 'Зависимости и конфликты', hint: 'Граф технологий, проверки и связи методов' },
-  { key: 'schedule', label: 'Трудоёмкость и план', hint: 'Пакеты работ, critical path, P50/P80 и профиль команды' },
   { key: 'risks', label: 'Риски проекта', hint: 'Что может стать проблемой на текущей стадии' },
   { key: 'basket', label: 'Корзина решений', hint: 'Выбранный набор и совместимость' },
   { key: 'load', label: 'Профиль нагрузки', hint: 'Сводное влияние набора' },
@@ -100,9 +94,7 @@ export function App() {
       functions: true,
       solutions: hasFunctions,
       evidence: true,
-      cases: true,
       dependencies: true,
-      schedule: hasFunctions,
       risks: hasResult,
       basket: hasFunctions,
       load: hasResult,
@@ -160,12 +152,8 @@ export function App() {
         return <SolutionsScreen onCompare={setCompareCodes} />;
       case 'evidence':
         return <EvidenceScreen />;
-      case 'cases':
-        return <CasesScreen />;
       case 'dependencies':
         return <DependenciesScreen />;
-      case 'schedule':
-        return <ScheduleScreen />;
       case 'risks':
         return <RisksScreen />;
       case 'basket':
