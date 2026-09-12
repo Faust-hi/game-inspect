@@ -1122,9 +1122,25 @@ def basket_compatibility(
             basis=getattr(row, "basis", "") or "",
         )
 
+    # Симметричные связи хранятся двумя строками (A→B и B→A). Показывать обе
+    # нельзя: пользователь видит две «разные» связи там, где связь одна.
+    # `overlap` в этот набор не входил, поэтому 11 зеркальных пар давали по две
+    # строки в синергиях корзины.
+    symmetric_types = {
+        ConflictType.COMPLEMENT.value, ConflictType.ALTERNATIVE.value,
+        ConflictType.HARD_CONFLICT.value, ConflictType.RISK.value,
+        ConflictType.OVERLAP.value,
+    }
+    seen_symmetric: set[tuple[str, str]] = set()
+
     for row in repositories.conflicts(db):
         pair_in_basket = row.a_code in basket and row.b_code in basket
         ctype = row.conflict_type
+        if ctype in symmetric_types:
+            key = (row.a_code, row.b_code) if row.a_code <= row.b_code else (row.b_code, row.a_code)
+            if key in seen_symmetric:
+                continue
+            seen_symmetric.add(key)
         if ctype == ConflictType.HARD_CONFLICT.value:
             if pair_in_basket:
                 conflicts.append(item(

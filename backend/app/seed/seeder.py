@@ -29,6 +29,7 @@ from .corrections import (
     correct_contradictory_relations, correct_effect_scopes, correct_engine_tool_independence,
     correct_legacy_conflict_types,
     correct_method_sources, correct_placeholder_source_dates, correct_relation_types,
+    correct_reversed_physics_dependencies,
     correct_shadow_relation, correct_source_publication, correct_source_records,
     correct_splitscreen_dependency,
     declare_evidence_gaps,
@@ -245,6 +246,11 @@ def sync_function_taxonomy(db: Session) -> dict[str, int]:
     # но ребра у неё не было, и `graph_checks` её не видел, тогда как сборка с
     # нуля ребро получала. Два входа в одну базу обязаны давать одно состояние.
     graph_stats = sync_dependency_graph(db)
+    # Перевёрнутые обязательные связи снимаются **до** разрыва циклов: пока они
+    # на месте, разрыв понижает верное ребро, а не перевёрнутое.
+    graph_stats["reversed_physics_dependencies_corrected"] = (
+        correct_reversed_physics_dependencies(db)
+    )
     graph_stats.update(break_dependency_cycles(db))
     graph_stats.update(dedupe_symmetric_relations(db))
     # Декларации пробелов — до решений: основание решения зависит от маркера
@@ -656,6 +662,11 @@ def seed_all(db: Session, validate: bool = True, overwrite: bool = False) -> dic
         break_dependency_cycles, dedupe_symmetric_relations, sync_dependency_graph,
     )
     graph_stats = sync_dependency_graph(db)
+    # Перевёрнутые обязательные связи снимаются до разрыва циклов: пока они на
+    # месте, разрыв понижает верное ребро, а не перевёрнутое.
+    graph_stats["reversed_physics_dependencies_corrected"] = (
+        correct_reversed_physics_dependencies(db)
+    )
     graph_stats.update(break_dependency_cycles(db))
     # Повторная загрузка пакетов добавляет связи «метод-метод», часть которых
     # образует взаимные предусловия. Обязательное ребро в цикле неразрешимо —

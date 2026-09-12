@@ -302,7 +302,7 @@ _RELATION_SEVERITY: dict[str, int] = {
 #: одно отношение, записанное дважды. Для них повторная запись в обратном
 #: порядке считается дубликатом. «dependency» и «overlap» направленные:
 #: порядок сторон задаёт смысл, поэтому обратная пара — другое отношение.
-_SYMMETRIC_RELATIONS = frozenset({"complement", "alternative", "hard_conflict", "risk"})
+_SYMMETRIC_RELATIONS = frozenset({"complement", "alternative", "hard_conflict", "risk", "overlap"})
 
 
 def _upsert_relation(

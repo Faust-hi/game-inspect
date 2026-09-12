@@ -267,7 +267,8 @@ export function HardwareScreen() {
         )}
 
         <div className="stat-grid" style={{ marginTop: 16 }}>
-          <Metric label="Класс GPU" value={hw.gpu_class} hint="из 5" />          <Metric label="Класс CPU" value={hw.cpu_class} hint="из 5" />
+          {hw.gpu_class !== null && <Metric label="Класс GPU" value={hw.gpu_class} hint="из 5" />}
+          {hw.cpu_class !== null && <Metric label="Класс CPU" value={hw.cpu_class} hint="из 5" />}
           <Metric label="Оценка VRAM" value={`${hw.estimated_vram_gb} ГБ`} />
           <Metric label="Оценка RAM" value={`${hw.estimated_ram_gb} ГБ`} />
           <Metric

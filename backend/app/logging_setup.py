@@ -30,8 +30,3 @@ def configure_logging(force: bool = False) -> None:
     # Шумные библиотеки: оставляем только предупреждения и выше.
     for name in ("uvicorn.access", "sqlalchemy.engine", "watchfiles"):
         logging.getLogger(name).setLevel(logging.WARNING)
-
-
-def log_event(logger: logging.Logger, level: int, message: str, **fields) -> None:
-    """Пишет запись с дополнительными полями."""
-    logger.log(level, message, extra={"extra_fields": fields or None})

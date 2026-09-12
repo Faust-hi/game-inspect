@@ -431,8 +431,8 @@ export interface HardwareEstimate {
   required_cpu_index: number;
   estimated_vram_gb: number;
   estimated_ram_gb: number;
-  gpu_class: number;
-  cpu_class: number;
+  gpu_class: number | null;
+  cpu_class: number | null;
   reference_gpu: HardwareGPU | null;
   reference_cpu: HardwareCPU | null;
   alternative_gpus: HardwareGPU[];

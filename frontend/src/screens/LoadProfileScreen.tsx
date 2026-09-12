@@ -59,12 +59,18 @@ export function LoadProfileScreen() {
 
   const methodsByCode = useMemo(() => buildMethodMap(catalog.methods), [catalog.methods]);
 
-  const selected = useMemo(
-    () => (result?.selected_methods ?? selectedMethods(basket, methodsByCode))
+  const selected = useMemo(() => {
+    // Профиль нагрузки — по всему учтённому набору (объявленные решения плюс
+    // достроенные обязательные зависимости). Иначе решения, без которых
+    // корзина не работает, не влияли бы на показанную нагрузку.
+    const declared = result?.selected_methods ?? selectedMethods(basket, methodsByCode);
+    const additionally = (result?.required_additionally ?? []).filter(
+      extra => !declared.some(method => method.code === extra.code),
+    );
+    return [...declared, ...additionally]
       .filter(method => (result?.accounted_method_codes?.includes(method.code) ?? true)
-        && !['server', 'development', 'offline'].includes(method.effect_scope)),
-    [basket, methodsByCode, result],
-  );
+        && !['server', 'development', 'offline'].includes(method.effect_scope));
+  }, [basket, methodsByCode, result]);
 
   if (calculating) return <Loading text="Расчёт профиля нагрузки…" />;
 

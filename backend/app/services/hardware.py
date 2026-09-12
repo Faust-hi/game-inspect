@@ -634,7 +634,11 @@ FRAME_GENERATION_MS = 1.2
 #: установки. Из-за этого одно и то же число 0.70 означало и миллисекунды, и
 #: гигабайты, и его нельзя было пересматривать, не сломав остальные места.
 #: Теперь величина безразмерная, а перевод в единицы задаётся на месте.
-_AUDIO_LOAD_LEVEL = {"low": 0.00, "medium": 0.30, "high": 0.70}
+#: Безразмерный уровень нагрузки аудио-подсистемы. «low» раньше стоял на 0.00 и
+#: был численно неотличим от «не задано»: пользователь выбирал низкую сложность
+#: и не получал ни влияния, ни оговорки. Низкая сложность — это не отсутствие
+#: работы, поэтому уровень задан малым, но ненулевым.
+_AUDIO_LOAD_LEVEL = {"low": 0.15, "medium": 0.30, "high": 0.70}
 #: Резидентная память аудио (ГБ): постоянная часть и прирост на единицу уровня.
 #: Коэффициент 1.0 сохраняет прежнее поведение — менялось не число, а единицы.
 AUDIO_RAM_BASE_GB = 0.35
@@ -978,6 +982,20 @@ def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_
         "оценка может завышать требования лёгких игр.",
         "Объём буферов рендера и доля CPU-копий ресурсов заданы экспертно; "
         "резидентная и пиковая память отдельно не измерены.",
+        # Нижняя граница памяти — объявленное допущение, а не измерение: к оценке
+        # контента всегда добавляется постоянный пол (ОС, фон, движок, аудио,
+        # стриминг, буферы рендера), поэтому лёгкие проекты систематически
+        # завышены. Состав пола выводится отдельно в `memory_composition`.
+        "Память не может быть ниже постоянного пола (ОС, фон, движок, аудио, стриминг, буферы рендера); "
+        "для лёгких проектов это систематически завышает оценку.",
+        # Движок в числовой модели присутствует только постоянным расходом памяти
+        # и единичными методами с явной привязкой; остальное — отбор и текст.
+        "Движок влияет на отбор решений и связи инструментов; в числовой оценке он учтён "
+        "постоянным расходом памяти и единичными методами с явной привязкой к движку.",
+        # Область применимости калибровки: сопоставление с реальными требованиями
+        # выполнено на играх с 2013 года; более ранние вне области.
+        "Согласие с реальными требованиями проверено на играх с 2013 года; для более ранних проектов "
+        "оценка систематически завышена.",
     ]
     if "runtime_security" in profile.functions:
         gaps.append("Накладные расходы античита/проверок целостности не измерены. Численная оценка их не включает; нужен замер конкретного SDK, а не универсальная поправка FPS.")
@@ -987,11 +1005,32 @@ def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_
         gaps.append("Новые технические подсистемы из партий: направления эффектов описаны по документации, величины CPU/GPU и памяти являются экспертными сценариями, без калибровки по играм.")
     streaming = _streaming_required(profile, method_codes)
     if profile.render_api == "auto":
-        gaps.append("Не указан графический API/RHI: стоимость render thread и совместимость не определены.")
+        # `auto` — не «неизвестно»: для цели Windows он разрешается в DX12, и
+        # его стоимость render thread применяется. Прежняя оговорка утверждала
+        # обратное — что стоимость не определена, — и противоречила числу.
+        gaps.append(
+            "Графический API/RHI не указан: для Windows принят DX12, его стоимость render thread и применена. "
+            "Явный выбор API может изменить оценку."
+        )
     if profile.memory_model == "auto":
         gaps.append("Не указана модель памяти RAM/VRAM: unified memory и GC не учтены явно.")
+    if profile.memory_model == "managed":
+        # Значение есть в перечислении, но отдельного ветвления не имеет: расход
+        # на сборку мусора моделируется методом `managed_gc_alloc_budget`, а не
+        # полем профиля. Раньше выбор «managed» молча совпадал с «dedicated».
+        gaps.append(
+            "Модель памяти «managed» учтена как выделенная: отдельного коэффициента на сборку мусора "
+            "поле профиля не задаёт — его несёт решение `managed_gc_alloc_budget`."
+        )
     if profile.memory_model == "unified":
         gaps.append(_UNIFIED_MEMORY_GAP)
+    if profile.format in {"2D", "2.5D"}:
+        # Формат влияет на отбор решений, но не на стоимость кадра: базис
+        # рассчитан по 3D-профилю. Раньше это нигде не объявлялось.
+        gaps.append(
+            "Формат проекта (2D/2.5D) влияет на набор решений, но не на базовую стоимость кадра: "
+            "она рассчитана по 3D-профилю."
+        )
     if profile.scale == "unknown":
         gaps.append("Не указан масштаб мира: нагрузка контента взята по нейтральному уровню.")
     if profile.object_count is None and profile.object_count_level == "unknown":
@@ -1017,7 +1056,14 @@ def _modeling_gaps(profile: ProjectProfile, method_codes: set[str], recommended_
     if level_unspecified(profile.audio_complexity) and "audio_system" in profile.functions:
         gaps.append(_UNKNOWN_AUDIO_NOTE)
     if profile.multiplayer and profile.network_topology == "auto":
-        gaps.append("Не указана сетевая схема: P2P, client-server, dedicated и lockstep имеют разную цену.")
+        # Прежняя формулировка обещала разную цену всем четырём схемам, хотя
+        # численно различаются только P2P и lockstep: у client-server и dedicated
+        # ветвления в модели нет. Обещание, которого расчёт не выполняет, —
+        # то же, что поле без эффекта.
+        gaps.append(
+            "Не указана сетевая схема. Численную разницу дают P2P и lockstep; "
+            "client-server и dedicated в модели не различаются — их стоимость взята как у схемы по умолчанию."
+        )
     if profile.target_resolution in {"1440p", "1600p", "2160p", "4k"} and profile.upscaling_method == "auto":
         gaps.append("Не указан upscaler: итоговая GPU-нагрузка для высокого разрешения может отличаться.")
     if "split_screen_rendering" in profile.functions and profile.local_view_count is None:
@@ -1062,11 +1108,15 @@ def _local_views(profile: ProjectProfile) -> int:
     Локальные виды — это не сетевые игроки: кооператив на одном экране
     повторяет подготовку рендера и геометрию, но не сетевой трафик.
     """
+    # Поле имеет смысл только при выбранной функции split-screen: интерфейс
+    # скрывает и очищает его без неё. Раньше расчёт подсистем читал поле
+    # безусловно, а оценка draw calls — только под функцией, из-за чего один и
+    # тот же вход по-разному влиял на разные части одной оценки.
+    if "split_screen_rendering" not in profile.functions:
+        return 1
     if profile.local_view_count is not None:
         return max(1, int(profile.local_view_count))
-    if "split_screen_rendering" in profile.functions:
-        return 2
-    return 1
+    return 2
 
 
 def _fmt(value: float) -> str:
@@ -2469,6 +2519,10 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
         streaming=_streaming_required(profile, method_codes),
     )
     recommended_storage = _recommended_storage(profile, method_codes)
+    # Draw-call ориентир считается от объёма МИРА (как и требует спека: масштаб
+    # сцены меняет нагрузку и ориентир, но не стоимость кадра). Пользовательский
+    # `draw_call_budget` задан на КАДР, поэтому сравнение приблизительное — это
+    # объявлено в оговорке, а не выдаётся за точное измерение.
     estimated_draw_calls = _estimated_draw_calls(profile, model.world_content, method_codes)
     modeling_gaps = _modeling_gaps(profile, method_codes, recommended_storage)
     # Оговорки совместимых целей: движок и версия требуют проверки, это не
@@ -2555,8 +2609,11 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
         required_cpu_index=round(max(st_index, mt_index), 4),
         estimated_vram_gb=float(vram_gb),
         estimated_ram_gb=float(ram_gb),
-        gpu_class=reference_gpu.perf_class if reference_gpu else 5,
-        cpu_class=reference_cpu.perf_class if reference_cpu else 5,
+        # Нет подходящей записи в каталоге — класс не выдумывается: раньше здесь
+        # подставлялось 5 («сильнейший класс»), и экран показывал «5 из 5» рядом
+        # с сообщением, что конфигурация не найдена.
+        gpu_class=reference_gpu.perf_class if reference_gpu else None,
+        cpu_class=reference_cpu.perf_class if reference_cpu else None,
         reference_gpu=serializers.gpu_out(reference_gpu) if reference_gpu else None,
         reference_cpu=serializers.cpu_out(reference_cpu) if reference_cpu else None,
         alternative_gpus=[serializers.gpu_out(g) for g in picked["alt_gpus"]],
@@ -2666,7 +2723,9 @@ def _pick_references(
     if profile.draw_call_budget is not None and estimated_draw_calls > profile.draw_call_budget:
         caveats.append(
             f"Оценочно требуется около {estimated_draw_calls:,} draw calls при бюджете "
-            f"{profile.draw_call_budget:,}. Это риск превышения бюджета, а не измеренное число вызовов.".replace(",", " ")
+            f"{profile.draw_call_budget:,}. Это риск превышения бюджета, а не измеренное число вызовов. "
+            "Ориентир считается от объёма мира, а бюджет задан на кадр: сравнение приблизительное "
+            "и служит поводом проверить кадр на прототипе, а не готовым вердиктом.".replace(",", " ")
         )
 
     api_compatible = [g for g in gpus if _supports_profile_gpu(g, profile)]

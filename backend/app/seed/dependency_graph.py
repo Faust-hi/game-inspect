@@ -553,7 +553,9 @@ def _follow_edge_demotion(
 #: Типы связей без направления: «A дополняет B» и «B дополняет A» — одно
 #: отношение, а не два. Уникальность в базе задана тройкой с направлением,
 #: поэтому обе записи могут сосуществовать, хотя описывают одну связь.
-_SYMMETRIC_CONFLICT_TYPES = frozenset({"complement", "alternative", "hard_conflict", "risk"})
+#: `overlap` («перекрытие эффектов») симметричен по смыслу, но раньше в набор не
+#: входил: 11 зеркальных пар давали по две строки в синергиях корзины.
+_SYMMETRIC_CONFLICT_TYPES = frozenset({"complement", "alternative", "hard_conflict", "risk", "overlap"})
 
 
 def dedupe_symmetric_relations(db: Session) -> dict[str, int]:

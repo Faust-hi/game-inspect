@@ -60,11 +60,17 @@ export function PlanScreen() {
 
   const methodsByCode = useMemo(() => buildMethodMap(catalog.methods), [catalog.methods]);
 
-  const selected = useMemo(
-    () => (result?.selected_methods ?? selectedMethods(basket, methodsByCode))
-      .filter(method => result?.accounted_method_codes?.includes(method.code) ?? true),
-    [basket, methodsByCode, result],
-  );
+  const selected = useMemo(() => {
+    // Итоговый план — весь учтённый набор: объявленные решения плюс обязательные
+    // зависимости, достроенные движком. Раньше брались только объявленные, и
+    // методы, без которых выбранные решения не работают, в план не попадали.
+    const declared = result?.selected_methods ?? selectedMethods(basket, methodsByCode);
+    const additionally = (result?.required_additionally ?? []).filter(
+      extra => !declared.some(method => method.code === extra.code),
+    );
+    return [...declared, ...additionally]
+      .filter(method => result?.accounted_method_codes?.includes(method.code) ?? true);
+  }, [basket, methodsByCode, result]);
 
   const grouped = useMemo(() => {
     const byLevel = new Map<string, Method[]>();
@@ -269,8 +275,8 @@ export function PlanScreen() {
         <Card title="Референсное оборудование">
           <HardwareWarnings hardware={hw} />
           <div className="stat-grid">
-            <Metric label="Класс GPU" value={hw.gpu_class} hint="из 5" />
-            <Metric label="Класс CPU" value={hw.cpu_class} hint="из 5" />
+            {hw.gpu_class !== null && <Metric label="Класс GPU" value={hw.gpu_class} hint="из 5" />}
+            {hw.cpu_class !== null && <Metric label="Класс CPU" value={hw.cpu_class} hint="из 5" />}
             <Metric label="VRAM" value={`${hw.estimated_vram_gb} ГБ`} />
             <Metric label="RAM" value={`${hw.estimated_ram_gb} ГБ`} />
           </div>

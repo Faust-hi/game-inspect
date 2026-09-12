@@ -5316,18 +5316,6 @@
      "source": "SRC-AIS-041"
     },
     {
-     "code": "cloth_constraint_simulation",
-     "type": "dependency",
-     "note": "Spring-based cloth stretches and explodes under variable deltas; it needs a stable step.",
-     "source": "SRC-AIS-046"
-    },
-    {
-     "code": "raycast_vehicle_physics",
-     "type": "dependency",
-     "note": "Suspension feel is timestep-dependent; without a fixed step, handling changes with framerate.",
-     "source": "SRC-AIS-044"
-    },
-    {
      "code": "destruction_geometry_cache",
      "type": "risk",
      "note": "A cache baked at one timestep and replayed at another will pop or drift; bake and runtime must agree.",

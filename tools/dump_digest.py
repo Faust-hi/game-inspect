@@ -4,7 +4,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-d = json.load(open("../research/_verify_cache/category_evidence.json", encoding="utf-8"))
+#: Кэш верификации лежит в `report/` (перенесён при очистке дерева). Путь
+#: считается от расположения скрипта, а не от текущего каталога: раньше здесь
+#: был относительный `../research/_verify_cache`, и после переноса скрипт падал
+#: с FileNotFoundError, а запись шла в несуществующий каталог.
+CACHE = Path(__file__).resolve().parents[1] / "report" / "_verify_cache"
+
+d = json.load(open(CACHE / "category_evidence.json", encoding="utf-8"))
 ec = d["entity_codes"]
 mx = d["method_examples"]
 fx = d["function_examples"]
@@ -64,6 +70,7 @@ for ent in ["stage_budget", "target_platform", "network_mode", "target_metric",
     out.append(f"\n---- {ent} ----")
     dump(ent, limit=6)
 
-Path("../research/_verify_cache/digest.txt").write_text("\n".join(out), encoding="utf-8")
+CACHE.mkdir(parents=True, exist_ok=True)
+(CACHE / "digest.txt").write_text("\n".join(out), encoding="utf-8")
 print("lines:", len(out))
-print("written digest.txt")
+print("written", CACHE / "digest.txt")

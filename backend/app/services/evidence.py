@@ -67,12 +67,17 @@ def dependencies_to_out(db: Session) -> list[DependencyOut]:
     return result
 
 
-def summary(db: Session, *, method_codes: list[str] | None = None) -> EvidenceSummaryOut:
+def summary(db: Session) -> EvidenceSummaryOut:
+    """Сводка по всей доказательной базе.
+
+    Отбор по коду решения не поддерживается намеренно: экран «Состояние
+    доказательной базы» показывает базу целиком, scoped-сводка ни одному
+    потребителю не требуется. Раньше здесь был параметр `method_codes`, который
+    не передавал ни один вызывающий: он был заготовкой под учёт кейсов, а кейсы
+    вырезаны из проекта.
+    """
     sources = repositories.evidence_sources(db)
     claims = repositories.evidence_claims(db)
-    if method_codes:
-        wanted = set(method_codes)
-        claims = [claim for claim in claims if claim.entity_code in wanted]
     claims_with_sources = sum(
         1 for claim in claims
         if claim.source_id is not None and claim.locator and claim.verification_status not in {"unverified", "rejected"}

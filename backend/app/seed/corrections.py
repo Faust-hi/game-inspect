@@ -724,3 +724,141 @@ def declare_evidence_gaps(db: Session) -> dict[str, int]:
         "hardware_raw_values": hardware_raw,
         "source_urls_repaired": urls_repaired,
     }
+
+
+#: Перевёрнутые обязательные связи карточки `fixed_timestep_physics`.
+#: Карточка объявляла `cloth_constraint_simulation` и `raycast_vehicle_physics`
+#: своими зависимостями, тогда как по смыслу — и по их собственным карточкам —
+#: это они зависят от фиксированного шага. Из-за перевёрнутого ребра возникал
+#: цикл `fixed_timestep_physics ↔ raycast_vehicle_physics`, и автоматический
+#: разрыв цикла понижал **верное** ребро `raycast_vehicle_physics →
+#: fixed_timestep_physics` (жертва выбиралась по алфавиту кодов). Итог: достройка
+#: корзины тянула неприменимый метод, каскад снимал выбранный метод
+#: пользователя, и корзина обнулялась — 22 из 108 применимых методов не влияли
+#: ни на профиль нагрузки, ни на подбор железа.
+_REVERSED_PHYSICS_DEPENDENCIES: tuple[tuple[str, str], ...] = (
+    ("fixed_timestep_physics", "cloth_constraint_simulation"),
+    ("fixed_timestep_physics", "raycast_vehicle_physics"),
+)
+
+#: Встречная (верная) связь, понижённая автоматическим разрывом цикла.
+_DEMOTED_PHYSICS_DEPENDENCY = ("raycast_vehicle_physics", "fixed_timestep_physics")
+
+#: Начало текста, которым разрыв цикла помечает понижённую связь.
+_DEMOTION_MARKER = "Связь понижена из обязательной зависимости"
+
+#: Описание верной связи — то же, что объявляет карточка метода.
+_DEMOTED_PHYSICS_NOTE = (
+    "Suspension feel and stability are timestep-dependent; without a fixed step, "
+    "handling changes with framerate."
+)
+
+
+def _method_node_id(db: Session, code: str) -> int | None:
+    return db.scalar(select(TechnologyNode.id).where(TechnologyNode.code == f"method:{code}"))
+
+
+def _drop_mandatory_edge(db: Session, a_code: str, b_code: str) -> bool:
+    src, dst = _method_node_id(db, a_code), _method_node_id(db, b_code)
+    if src is None or dst is None:
+        return False
+    edge = db.scalar(select(DependencyEdge).where(
+        DependencyEdge.source_node_id == src,
+        DependencyEdge.target_node_id == dst,
+        DependencyEdge.dependency_type == "dependency",
+    ))
+    if edge is None:
+        return False
+    db.delete(edge)
+    return True
+
+
+def _restore_mandatory_edge(db: Session, a_code: str, b_code: str) -> bool:
+    """Вернуть обязательное ребро `a → b` и снять устаревшее «дополнение».
+
+    Ребро могло быть удалено автоматическим разрывом цикла, а могло быть уже
+    пересоздано построением графа из исправленных связей — тогда достаточно
+    снять с него признак понижения. Уникальность задана тройкой
+    (источник, цель, тип), поэтому перевести «дополнение» в «зависимость» без
+    проверки нельзя: верная зависимость может уже существовать.
+    """
+    src, dst = _method_node_id(db, a_code), _method_node_id(db, b_code)
+    if src is None or dst is None:
+        return False
+    changed = False
+    edge = db.scalar(select(DependencyEdge).where(
+        DependencyEdge.source_node_id == src,
+        DependencyEdge.target_node_id == dst,
+        DependencyEdge.dependency_type == "dependency",
+    ))
+    if edge is None:
+        db.add(DependencyEdge(
+            source_node_id=src, target_node_id=dst,
+            dependency_type="dependency", mandatory=1, severity=3,
+            description=_DEMOTED_PHYSICS_NOTE, basis="derived", status="published",
+        ))
+        changed = True
+    elif not edge.mandatory:
+        edge.mandatory = 1
+        edge.severity = 3
+        changed = True
+    # Устаревшая запись «дополнение» от автоматического понижения больше не нужна:
+    # пара уже описана верной обязательной связью.
+    stale = db.scalar(select(DependencyEdge).where(
+        DependencyEdge.source_node_id == src,
+        DependencyEdge.target_node_id == dst,
+        DependencyEdge.dependency_type == "complement",
+    ))
+    if stale is not None:
+        db.delete(stale)
+        changed = True
+    return changed
+
+
+def correct_reversed_physics_dependencies(db: Session) -> int:
+    """Снять перевёрнутые обязательные связи и вернуть понижённую встречную.
+
+    Проход срабатывает **только на точное прежнее значение**: известная пара
+    концов у перевёрнутой обязательной связи и текст автоматического понижения у
+    встречной. Ничего другого не трогает и идемпотентен — повторный прогон даёт
+    ноль. Данные пака исправлены там же (`research/packs/pack_ai_sim.json`),
+    чтобы сборка с нуля не воспроизводила дефект.
+    """
+    corrected = 0
+    for a_code, b_code in _REVERSED_PHYSICS_DEPENDENCIES:
+        row = db.scalar(select(Conflict).where(
+            Conflict.a_code == a_code, Conflict.b_code == b_code,
+            Conflict.conflict_type == "dependency",
+        ))
+        if row is not None:
+            db.delete(row)
+            corrected += 1
+        if _drop_mandatory_edge(db, a_code, b_code):
+            corrected += 1
+
+    a_code, b_code = _DEMOTED_PHYSICS_DEPENDENCY
+    demoted = db.scalar(select(Conflict).where(
+        Conflict.a_code == a_code, Conflict.b_code == b_code,
+        Conflict.conflict_type == "complement",
+    ))
+    if demoted is not None and (demoted.resolution or "").startswith(_DEMOTION_MARKER):
+        already = db.scalar(select(Conflict.id).where(
+            Conflict.a_code == a_code, Conflict.b_code == b_code,
+            Conflict.conflict_type == "dependency",
+        ))
+        if already is None:
+            # Верной связи ещё нет — вернуть понижённую запись.
+            demoted.conflict_type = "dependency"
+            demoted.severity = 3
+            demoted.resolution = ""
+        else:
+            # Верная связь уже объявлена (её вернул загрузчик пакетов, который
+            # только добавляет): остаётся снять устаревшую запись понижения,
+            # иначе та же пара показана и как зависимость, и как дополнение.
+            db.delete(demoted)
+        corrected += 1
+        if _restore_mandatory_edge(db, a_code, b_code):
+            corrected += 1
+    if corrected:
+        db.flush()
+    return corrected

@@ -25,7 +25,10 @@ from app.models.entities import (  # noqa: E402
     EvidenceSource,
 )
 
-OUT = Path("../research/_verify_cache/category_evidence.json")
+#: Кэш верификации лежит в `report/` (перенесён при очистке дерева). Путь
+#: считается от расположения скрипта, а не от текущего каталога: относительный
+#: `../research/_verify_cache` после переноса создавал пустой каталог-дубль.
+OUT = Path(__file__).resolve().parents[1] / "report" / "_verify_cache" / "category_evidence.json"
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 

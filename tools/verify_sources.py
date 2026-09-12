@@ -33,7 +33,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB = ROOT / "backend" / "gamedev_dss.db"
 PACK_DIR = ROOT / "research" / "packs"
-CACHE = ROOT / "research" / "_verify_cache"
+#: Кэш HTTP-проверок лежит в `report/` — каталог перенесён туда при очистке
+#: дерева. Раньше здесь стоял `research/_verify_cache`, и проверка создавала
+#: второй, пустой каталог-дубль вместо использования существующего кэша.
+CACHE = ROOT / "report" / "_verify_cache"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/125.0 Safari/537.36")
 
