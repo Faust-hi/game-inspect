@@ -42,9 +42,7 @@ if errorlevel 1 (
 )
 
 rem --- 3. Frontend dependencies (lock-first, same as CI) -----------------------
-rem Existing node_modules is NOT proof of matching dependencies, so install
-rem from the lock file instead of trusting it.
-echo [3/5] Installing frontend dependencies...
+echo [3/5] Checking frontend dependencies...
 where node >nul 2>nul
 if errorlevel 1 (
     echo ERROR: Node.js not found.
@@ -59,16 +57,28 @@ if %NODE_MAJOR% LSS 22 (
     echo ERROR: Node.js %NODE_MAJOR% found; Node.js 22 or newer is required.
     goto :fail
 )
-pushd "%ROOT%frontend"
-if exist "package-lock.json" (
-    call npm ci
+rem A folder named node_modules is NOT proof of a working toolchain: an
+rem interrupted install leaves the folder behind with packages missing.
+rem The reverse is also true and matters more: re-running `npm ci` over an
+rem existing tree performs a bulk delete, and if the environment blocks that
+rem delete the tree ends up half removed while the folder still exists. So the
+rem toolchain is checked by a real build tool, and installation runs only when
+rem it is actually missing.
+if exist "%ROOT%frontend\node_modules\.bin\vite.cmd" (
+    echo [3/5] Frontend dependencies already installed, skipping npm ci.
 ) else (
-    call npm install
-)
-popd
-if not exist "%ROOT%frontend\node_modules" (
-    echo ERROR: failed to install frontend dependencies.
-    goto :fail
+    pushd "%ROOT%frontend"
+    if exist "package-lock.json" (
+        call npm ci
+    ) else (
+        call npm install
+    )
+    popd
+    if not exist "%ROOT%frontend\node_modules\.bin\vite.cmd" (
+        echo ERROR: frontend toolchain is incomplete ^(node_modules\.bin\vite.cmd missing^).
+        echo Delete the frontend\node_modules folder and run this file again.
+        goto :fail
+    )
 )
 
 rem --- 4. Launch services -----------------------------------------------------
