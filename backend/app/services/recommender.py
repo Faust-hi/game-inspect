@@ -614,8 +614,12 @@ def _tail(
     """
     relations = repositories.conflicts(db)
     estimate = hardware.estimate_hardware(db, profile, basket_methods)
+    # `basket_methods` — набор, по которому считается проект: корзина вместе с
+    # достроенными обязательными зависимостями. Проверка совместимости обязана
+    # знать об этом наборе, иначе она объявит незакрытой ту зависимость, которую
+    # замыкание только что закрыло.
     basket_conflicts, basket_dependencies, basket_synergies = basket_compatibility(
-        db, basket_codes, methods_by_code
+        db, basket_codes, methods_by_code, satisfied_codes={m.code for m in basket_methods}
     )
     return {
         "basket_conflicts": basket_conflicts,
@@ -1100,7 +1104,8 @@ def _ratio(value: float, base: float) -> float:
 
 
 def basket_compatibility(
-    db: Session, basket_codes: list[str], methods_by_code: dict[str, Method]
+    db: Session, basket_codes: list[str], methods_by_code: dict[str, Method],
+    satisfied_codes: set[str] | None = None,
 ) -> tuple[list[BasketConflictOut], list[BasketConflictOut], list[BasketConflictOut]]:
     """Проверить корзину и вернуть три самостоятельные категории связей.
 
@@ -1110,11 +1115,19 @@ def basket_compatibility(
     набора. Категории разделены: конфликты, зависимости, усиления.
     Теперь используются новые типы: HARD_CONFLICT, RISK, ALTERNATIVE,
     DEPENDENCY, COMPLEMENT, OVERLAP, UNKNOWN.
+
+    `satisfied_codes` — набор, по которому реально считается проект: корзина
+    пользователя вместе с достроенными обязательными зависимостями. Без него
+    проверка совместимости и достройка зависимостей противоречили друг другу:
+    замыкание добавляло зависимость, а здесь она в тот же момент объявлялась
+    незакрытой, и корзина с автоматически закрытой зависимостью блокировалась
+    как несовместимая. По умолчанию проверяется сама корзина.
     """
     conflicts: list[BasketConflictOut] = []
     dependencies: list[BasketConflictOut] = []
     synergies: list[BasketConflictOut] = []
     basket = set(basket_codes)
+    satisfied = basket if satisfied_codes is None else satisfied_codes
 
     def item(row, conflict_type: str, label: str, description: str, resolution: str) -> BasketConflictOut:
         a = methods_by_code.get(row.a_code)
@@ -1157,8 +1170,10 @@ def basket_compatibility(
                     row.description or "Одно решение опирается на другое.",
                     row.resolution or "Сохранять оба решения в плане.",
                 ))
-            elif row.a_code in basket and row.b_code not in basket:
+            elif row.a_code in basket and row.b_code not in satisfied:
                 # Зависимость не закрыта: решение в корзине не сработает в одиночку.
+                # Если зависимость уже достроена замыканием, это не конфликт, а
+                # факт, который показывается отдельной группой `required_additionally`.
                 b = methods_by_code.get(row.b_code)
                 required_name = b.name if b is not None else row.b_code
                 conflicts.append(item(

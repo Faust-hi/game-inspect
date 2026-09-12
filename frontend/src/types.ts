@@ -528,6 +528,10 @@ export interface RecommendationResult {
   transitions?: ImplementationTransition[];
   catalog_revision?: string | null;
   selected_methods?: Method[];
+  /** Обязательные зависимости, достроенные системой к корзине пользователя. */
+  required_additionally?: Method[];
+  /** Человекочитаемое объяснение каждой достроенной зависимости. */
+  required_additionally_notes?: string[];
   accounted_method_codes?: string[];
   basket_codes?: string[];
   profile: ProjectProfile;

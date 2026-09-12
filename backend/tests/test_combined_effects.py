@@ -219,6 +219,54 @@ def test_mandatory_dependency_is_pulled_into_the_basket(client):
 
 
 @pytest.mark.critical
+def test_closed_dependency_is_not_reported_as_unmet(client):
+    """Достроенная зависимость не объявляется незакрытой.
+
+    Замыкание (`services.method_dependencies`) и проверка совместимости
+    (`recommender.basket_compatibility`) описывают один и тот же факт, и раньше
+    они противоречили друг другу: первое добавляло зависимость, второе в тот же
+    момент сообщало, что она отсутствует. Корзина с автоматически закрытой
+    зависимостью попадала в блокирующие связи, и «зафиксировать основу» для неё
+    было нельзя, хотя заявленный набор учтён целиком.
+
+    Второе утверждение — инвариант, на котором держится гейт в интерфейсе:
+    каждый заявленный метод обязан быть среди учтённых. Равенство длин этот
+    инвариант не выражает (см. соседний тест про выпавший метод).
+    """
+    data = recommend(client, basket=["world_partition_streaming"])
+
+    assert data["required_additionally"], "предпосылка теста неверна: зависимость не достроена"
+    blocking = [
+        item for item in data["basket_conflicts"] if item["conflict_type"] != "risk"
+    ]
+    assert blocking == [], f"достроенная зависимость объявлена незакрытой: {blocking}"
+
+    missing = set(data["basket_codes"]) - set(data["accounted_method_codes"])
+    assert missing == set(), f"заявленные решения вне расчёта: {sorted(missing)}"
+
+
+@pytest.mark.critical
+def test_dropped_method_breaks_the_basket_subset_invariant(client):
+    """Выпавший из расчёта метод виден, даже когда длины списков совпали.
+
+    На `scale="small"` заявленный метод отсекается правилами, а взамен
+    достраивается зависимость — длины `accounted_method_codes` и корзины
+    совпадают, и проверка «длины равны» пропускала такую корзину как корректную.
+    Настоящий инвариант — вложенность, и он нарушен.
+    """
+    data = recommend(client, basket=["world_partition_streaming"], scale="small")
+
+    declared = set(data["basket_codes"])
+    accounted = set(data["accounted_method_codes"])
+    assert declared - accounted, (
+        "предпосылка теста неверна: при scale=small заявленный метод не выпадает"
+    )
+    assert len(declared) == len(accounted), (
+        "предпосылка теста неверна: длины должны совпасть, иначе случай не показателен"
+    )
+
+
+@pytest.mark.critical
 def test_closure_additions_are_reported_and_counted(client):
     """Достроенные зависимости видны отдельной группой и входят в расчёт."""
     data = recommend(client, basket=["static_shadow_caching"])

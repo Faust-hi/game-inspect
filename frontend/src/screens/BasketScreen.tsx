@@ -50,13 +50,47 @@ export function BasketScreen() {
 
   const totalCost = selected.reduce((sum, m) => sum + m.implementation_cost, 0);
 
+  // Гейт «зафиксировать основу» проверяет САМО свойство, а не его прокси:
+  // каждый заявленный метод должен попасть в расчёт. Проверка длины списка
+  // (было `accounted.length !== basket.length`) ложна в обе стороны — она
+  // блокирует корзину с достроенной зависимостью и, наоборот, пропускает
+  // корзину, из которой метод выпал, если взамен достроился другой.
+  const accountedCodes = useMemo(
+    () => new Set(result?.accounted_method_codes ?? []),
+    [result],
+  );
+  const droppedFromCalculation = basket.filter((code) => !accountedCodes.has(code));
+  const blockingConflicts = (result?.basket_conflicts ?? []).filter(
+    (item) => item.conflict_type !== 'risk',
+  );
+  const canSaveBaseline =
+    Boolean(result) && !calculating && droppedFromCalculation.length === 0 && blockingConflicts.length === 0;
+
   return (
     <>
       <Card title="Реализованная основа проекта">
         <p className="small muted">Зафиксируйте корзину после реализации решений. Следующие изменения будут оцениваться относительно этой основы. Черновые изменения корзины её не заменяют. Данные сохраняются в текущем сеансе браузера.</p>
         {baseline && <p>Зафиксировано решений: {baseline.basket.length}. Стадия: {stageNames[baseline.profile.stage] ?? baseline.profile.stage}.</p>}
-        <button className="btn btn-primary" disabled={calculating || !result || result.basket_conflicts.some(item => item.conflict_type !== 'risk') || result.accounted_method_codes?.length !== basket.length}
+        <button className="btn btn-primary" disabled={!canSaveBaseline}
           onClick={saveBaseline}>Зафиксировать корзину как реализованную</button>
+        {result && !canSaveBaseline && (
+          <p className="small muted" style={{ marginTop: 6 }}>
+            Зафиксировать нельзя:{' '}
+            {[
+              blockingConflicts.length > 0
+                ? `в наборе есть блокирующая связь (${blockingConflicts.length})`
+                : null,
+              droppedFromCalculation.length > 0
+                ? `вне расчёта остались решения: ${droppedFromCalculation
+                    .map((code) => methodsByCode[code]?.name ?? code)
+                    .join(', ')}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join('; ')}
+            .
+          </p>
+        )}
         {result?.transitions?.map(item => <div key={item.method_code} style={{ marginTop: 12 }}>
           <strong>{methodsByCode[item.method_code]?.name ?? item.method_code}</strong>
           <TransitionDetails item={item} />
@@ -123,6 +157,31 @@ export function BasketScreen() {
           </div>
         ))}
       </Card>
+
+      {result && (result.required_additionally?.length ?? 0) > 0 && (
+        <Card
+          title="Достроено автоматически"
+          hint="Обязательные зависимости выбранных решений. Они входят в расчёт, но ваш выбор не заменяют."
+        >
+          {(result.required_additionally ?? []).map((method) => (
+            <div key={method.code} className="method-row">
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', flexWrap: 'wrap' }}>
+                  <strong>{method.name}</strong>
+                  <Badge tone="info">{method.level_label}</Badge>
+                </div>
+                <p className="small muted" style={{ marginTop: 4 }}>{method.summary}</p>
+              </div>
+              <button className="btn btn-sm" onClick={() => setOpenCode(method.code)}>
+                Карточка
+              </button>
+            </div>
+          ))}
+          {(result.required_additionally_notes ?? []).map((note, index) => (
+            <p key={index} className="xsmall faint" style={{ marginTop: 6 }}>{note}</p>
+          ))}
+        </Card>
+      )}
 
       {result && result.basket_conflicts.length > 0 && (
         <Card

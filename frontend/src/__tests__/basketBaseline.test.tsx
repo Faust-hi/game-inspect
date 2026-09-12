@@ -42,3 +42,25 @@ it('блокирует фиксацию, если часть решений не
   render(<BasketScreen />);
   expect((screen.getByRole('button', { name: 'Зафиксировать корзину как реализованную' }) as HTMLButtonElement).disabled).toBe(true);
 });
+
+it('разрешает фиксацию, когда обязательная зависимость достроена системой', () => {
+  // Раньше гейт сравнивал длины: корзина ['a'] при accounted = ['a', 'b']
+  // блокировалась навсегда, хотя весь выбор пользователя учтён, а 'b' — это
+  // достроенная зависимость, а не потеря.
+  state.result.basket_conflicts[0].conflict_type = 'risk';
+  state.result.accounted_method_codes = ['a', 'b'];
+  render(<BasketScreen />);
+  const save = screen.getByRole('button', { name: 'Зафиксировать корзину как реализованную' }) as HTMLButtonElement;
+  expect(save.disabled).toBe(false);
+});
+
+it('блокирует фиксацию, когда заявленное решение выпало при совпадении длин', () => {
+  // Ложно-разрешённый случай того же гейта: длины совпали (1 = 1), но 'a' вне
+  // расчёта, а вместо него учтён другой метод. Проверка длины такой случай
+  // пропускала, и основа фиксировалась без решения пользователя.
+  state.result.basket_conflicts[0].conflict_type = 'risk';
+  state.result.accounted_method_codes = ['b'];
+  render(<BasketScreen />);
+  const save = screen.getByRole('button', { name: 'Зафиксировать корзину как реализованную' }) as HTMLButtonElement;
+  expect(save.disabled).toBe(true);
+});
