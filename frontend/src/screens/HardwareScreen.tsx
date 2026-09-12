@@ -15,6 +15,7 @@ const ASSESSMENT_TONE: Record<string, 'ok' | 'warn' | 'danger' | 'info'> = {
   at_risk: 'warn',
   unknown: 'warn',
   not_modeled: 'info',
+  applied: 'info',
 };
 
 const ASSESSMENT_LABEL: Record<string, string> = {
@@ -22,6 +23,7 @@ const ASSESSMENT_LABEL: Record<string, string> = {
   at_risk: 'под риском',
   unknown: 'неизвестно',
   not_modeled: 'не моделируется',
+  applied: 'учтена в расчёте',
 };
 
 /**
@@ -198,14 +200,19 @@ export function HardwareScreen() {
           </div>
         )}
 
-        {hw.unmet_limits.length > 0 && (
+        {/* Вердикт читается из отдельного поля, но список не игнорируется:
+            если данные разойдутся, нарушение всё равно будет показано, а не
+            скрыто за положительным вердиктом. */}
+        {(hw.constraints_satisfied === false || hw.unmet_limits.length > 0) && (
           <div style={{ marginTop: 12 }}>
             <Callout tone="danger" title="Заданные пределы не выполнены">
-              <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
-                {hw.unmet_limits.map((limit) => (
-                  <li key={limit}>{limit}</li>
-                ))}
-              </ul>
+              {hw.unmet_limits.length > 0 && (
+                <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+                  {hw.unmet_limits.map((limit) => (
+                    <li key={limit}>{limit}</li>
+                  ))}
+                </ul>
+              )}
               <div style={{ marginTop: 8 }}>
                 Конфигурация ниже приведена как ориентир: в заданный бюджет она не укладывается.
               </div>

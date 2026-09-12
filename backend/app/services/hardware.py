@@ -1125,7 +1125,16 @@ def _applicability_limits(profile: ProjectProfile) -> list[str]:
 
 
 def _target_assessments(profile: ProjectProfile) -> list[TargetAssessmentOut]:
-    """Зафиксировать пользовательские цели без выдуманного runtime-замера."""
+    """Зафиксировать пользовательские цели без выдуманного runtime-замера.
+
+    Цели разделены по признаку «участвует ли цель в расчёте». `target_fps`
+    задаёт бюджет кадра (1000/FPS) и через него влияет на требуемую
+    производительность, поэтому объявлять его «не моделируется» неправда —
+    пользователь читает этот статус рядом с числом, посчитанным из той же цели.
+    Он получает статус `applied`: учтён в расчёте, но достижение цели на
+    найденной конфигурации не проверяется. Остальные цели в модели не участвуют
+    и честно остаются `not_modeled`.
+    """
     definitions = (
         ("target_fps", "Целевой FPS", profile.target_fps, "FPS"),
         ("target_1_percent_low_fps", "1% low FPS", profile.target_1_percent_low_fps, "FPS"),
@@ -1140,7 +1149,21 @@ def _target_assessments(profile: ProjectProfile) -> list[TargetAssessmentOut]:
     for metric, label, target, unit in definitions:
         if target is None:
             continue
-        scope = "runtime-профиля кадра" if metric in {"target_fps", "target_1_percent_low_fps"} else "runtime-профиля подсистемы"
+        if metric == "target_fps":
+            out.append(TargetAssessmentOut(
+                metric=metric, label=label, target=float(target), unit=unit,
+                status="applied", estimated=None, basis="not_calibrated",
+                note=(
+                    "Цель учтена в расчёте: задаёт бюджет кадра 1000/FPS и влияет на требуемую "
+                    "производительность. Достижение цели на найденной конфигурации не проверяется — "
+                    "для этого нужен runtime-профиль кадра."
+                ),
+            ))
+            continue
+        scope = (
+            "runtime-профиля кадра" if metric == "target_1_percent_low_fps"
+            else "runtime-профиля подсистемы"
+        )
         out.append(TargetAssessmentOut(
             metric=metric, label=label, target=float(target), unit=unit,
             status="not_modeled", estimated=None, basis="not_calibrated",
@@ -2568,6 +2591,7 @@ def estimate_hardware(db: Session, profile: ProjectProfile, methods: list) -> Ha
         estimated_draw_calls=estimated_draw_calls,
         modeling_gaps=modeling_gaps,
         unmet_limits=picked["unmet"],
+        constraints_satisfied=not picked["unmet"],
         applicability_limits=applicability_limits,
         non_client_methods=non_client_methods,
         targets=target_out,

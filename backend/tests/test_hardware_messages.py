@@ -223,3 +223,51 @@ def test_no_single_gpu_covers_all_capabilities_is_said_as_such(client, monkeypat
     joined = " ".join(data["unmet_limits"])
     assert "одновременно подтверждает все" in joined
     assert "нет GPU с подтверждённой поддержкой обязательных возможностей" not in joined
+
+
+@pytest.mark.critical
+def test_violated_limit_is_a_structural_verdict_not_only_text(client):
+    """Нарушенный предел виден машинно, а не только строкой в списке.
+
+    `exceeds_catalog` отвечает на вопрос «покрывает ли каталог требование» и
+    при нарушенных пределах профиля остаётся `False`: карта в каталоге есть.
+    Поэтому потребитель, читавший этот флаг как «конфигурация подходит»,
+    получал утвердительный ответ там, где заданный бюджет не соблюдён.
+    Вердикт по пределам вынесен в отдельное поле и не подменяет собой
+    покрытие каталога. Числа при этом не клампятся: требуемую память нельзя
+    уменьшить указом, меняется только вердикт.
+    """
+    ok = estimate(client)
+    assert ok["constraints_satisfied"] is True
+    assert ok["unmet_limits"] == []
+
+    violated = estimate(client, ram_limit_gb=4, vram_limit_gb=2)
+    assert violated["constraints_satisfied"] is False
+    assert violated["unmet_limits"], "пределы нарушены, но список пуст"
+    # Покрытие каталога — другой вопрос, и он не должен меняться от пределов.
+    assert violated["exceeds_catalog"] is False
+    # Числа не клампятся: меняется вердикт, а не требуемая память.
+    assert violated["estimated_ram_gb"] == ok["estimated_ram_gb"]
+    assert violated["estimated_vram_gb"] == ok["estimated_vram_gb"]
+    assert violated["required_gpu_index"] == ok["required_gpu_index"]
+
+
+@pytest.mark.critical
+def test_target_fps_is_reported_as_applied_not_as_unmodelled(client):
+    """`target_fps` участвует в расчёте и не может называться «не моделируется».
+
+    Цель задаёт бюджет кадра (1000/FPS) и через него влияет на требуемую
+    производительность, поэтому статус `not_modeled` рядом с числом,
+    посчитанным из этой же цели, — неправда. Цели, которые в модель не входят,
+    остаются `not_modeled`: их нельзя выдавать за учтённые.
+    """
+    data = estimate(client, target_fps=60, target_1_percent_low_fps=30, max_startup_seconds=5)
+    statuses = {item["metric"]: item["status"] for item in data["target_assessments"]}
+
+    assert statuses["target_fps"] == "applied"
+    assert statuses["target_1_percent_low_fps"] == "not_modeled"
+    assert statuses["max_startup_seconds"] == "not_modeled"
+
+    # Предпосылка: цель действительно меняет расчёт, иначе статус `applied` лжив.
+    slower = estimate(client, target_fps=120)
+    assert slower["required_gpu_index"] > data["required_gpu_index"]

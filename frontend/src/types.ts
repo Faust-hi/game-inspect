@@ -443,6 +443,8 @@ export interface HardwareEstimate {
   caveats: string[];
   required_hw_features: string[];
   exceeds_catalog: boolean;
+  /** Структурный вердикт по заданным пределам (RAM/VRAM и обязательные возможности). */
+  constraints_satisfied: boolean;
   /** Явный список невыполненных обязательных ограничений (пределы памяти, RT). */
   unmet_limits: string[];
   /** Выход входов за область применимости модели (насыщение шкал, платформы). */

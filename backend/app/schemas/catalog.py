@@ -700,7 +700,7 @@ class TargetAssessmentOut(BaseModel):
     label: str
     target: float | None = None
     unit: str = ""
-    status: str = "unknown"  # meets | at_risk | unknown | not_modeled
+    status: str = "unknown"  # meets | at_risk | unknown | not_modeled | applied
     estimated: float | None = None
     basis: str = "unknown"
     note: str = ""
@@ -732,6 +732,17 @@ class HardwareEstimateOut(BaseModel):
     # обязательные аппаратные возможности. Раньше они растворялись в caveats,
     # и интерфейс показывал конфигурацию как подходящую.
     unmet_limits: list[str] = Field(default_factory=list)
+    # Структурный вердикт по этим ограничениям. Отвечает на вопрос «подходит ли
+    # найденная конфигурация при заданных пределах» и отвечает на него одним
+    # значением, а не разбором текста `unmet_limits`.
+    #
+    # Отдельное поле нужно потому, что `exceeds_catalog` отвечает на другой
+    # вопрос — «покрывает ли каталог требование», — и до этого поля его читали
+    # как «подходящая конфигурация найдена». Пределы профиля (RAM 4 ГБ, VRAM 2 ГБ)
+    # оставляли `exceeds_catalog=False` при непустом `unmet_limits`, то есть
+    # машинный потребитель получал «всё в порядке» там, где конфигурация
+    # нереализуема на целевой машине.
+    constraints_satisfied: bool = True
     # Выход входов за область применимости численной модели. Внутри этой
     # области результат перестаёт различать значения, поэтому насыщение шкалы
     # нельзя выдавать за одинаковую реальную нагрузку.
