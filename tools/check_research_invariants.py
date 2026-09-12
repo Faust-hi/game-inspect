@@ -51,7 +51,8 @@ from app.database import Base, SessionLocal, engine  # noqa: E402
 from app.main import app  # noqa: E402
 from app.seed import seeder  # noqa: E402
 
-# Recorded results — see research/category_verification.md §2.3, §2.8, §2.10.
+# Recorded results — see research/category_verification.md §2.3, §2.8.
+# §2.10 (планирование трудоёмкости) вырезан из проекта в волне 7 и здесь не сверяется.
 SCENE_PROFILE = {
     "name": "Инвариант масштаба сцены",
     "format": "3D",

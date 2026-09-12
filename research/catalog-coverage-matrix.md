@@ -1,6 +1,6 @@
 # Матрица покрытия каталога и provenance
 
-Снимок: `C:\Users\user\Desktop\game-inspect\backend\gamedev_dss.db`. Матрица создана генератором отчёта `efa8962`.
+Снимок: `C:\Users\user\Desktop\game-inspect\backend\gamedev_dss.db`. Матрица создана генератором отчёта `7968863`.
 
 Это аудит полноты полей, а не утверждение, что 124 метода уже прошли глубокую предметную рецензию. `yes` означает заполненное поле каталога; доказательность механизма/числа проверяется в EvidenceClaim.
 
@@ -743,7 +743,6 @@
 | baked_occlusion_culling | hierarchical_lod | alternative | 1 | yes | For open worlds HLOD, not PVS, is the mechanism for reducing what is drawn at distance. |
 | baked_occlusion_culling | virtual_geometry_clusters | alternative | 1 | yes | Nanite's two-phase HZB occlusion solves the same problem dynamically, including for moving objects; it supersedes baked PVS wherever Nanite is usable. |
 | baked_occlusion_culling | world_partition_streaming | hard_conflict | 3 | yes | Documented: precomputed visibility 'Does not handle streaming levels efficiently. All data is stored in the persistent Level.' Baked PVS and a partitioned streamed world are effectively mutually exclusive. |
-| behaviour_tree_update_budget | agent_update_budget | overlap | 1 | yes | Both bound per-frame agent work; this method is the decision-logic slice, agent_update_budget is the whole-agent slice including movement/animation. |
 | behaviour_tree_update_budget | ecs_data_oriented_crowd | alternative | 1 | yes | Restructuring agents into a data-oriented ECS can remove the need for throttling by making per-agent evaluation cheap; it is a much larger change. |
 | behaviour_tree_update_budget | npc_perception_budget | complement | 1 | yes | Perception is usually the more expensive per-agent subsystem; both are throttled from the same significance value. |
 | bindless_uber_shaders | meshlet_pipeline_adoption | complement | 1 | yes | Both are parts of the same GPU-driven pipeline; mesh shading removes the index-buffer barrier and bindless removes the material barrier to merging draws. |
@@ -782,7 +781,6 @@
 | crowd_2d_instancing | crowd_instancing_impostors | overlap | 1 | yes | Same batching idea; crowd_2d_instancing is the sprite/quad case, crowd_instancing_impostors is the 3D mesh/impostor case. |
 | crowd_2d_instancing | ecs_data_oriented_crowd | complement | 1 | yes | Data-oriented storage makes writing the instance buffer a single linear pass. |
 | crowd_2d_instancing | flipbook_particles | complement | 1 | yes | Flipbook frame index as per-instance data is the shared mechanism for cheap per-agent animation. |
-| crowd_instancing_impostors | crowd_2d_instancing | overlap | 1 | yes | Same batching principle applied to sprite quads rather than 3D meshes/impostors. |
 | crowd_instancing_impostors | ecs_data_oriented_crowd | complement | 1 | yes | Data-oriented agent storage is what makes writing instance buffers cheap at crowd scale. |
 | crowd_instancing_impostors | hair_cards_lod | overlap | 1 | yes | Both replace expensive per-element geometry (strands / skinned meshes) with card approximations at distance; Epic documents cards as the traditional real-time fallback. |
 | data_driven_ability_system | ability_visual_effect_budget | complement | 1 | yes | Gameplay Cues are the join between the ability system and VFX; because cues are tag-matched and unreliable, an unbounded cue set is an unbounded VFX budget. |
@@ -813,7 +811,6 @@
 | directstorage_io | async_loading_pipeline | complement | 2 | yes | DirectStorage может обслуживать запросы асинхронного загрузчика. |
 | directstorage_io | async_loading_pipeline | dependency | 3 | yes | DirectStorage only pays off if the loading layer can keep many requests in flight; the two must be designed together. |
 | directstorage_io | build_size_startup_budgets | complement | 1 | yes | Cheaper decompression changes the tradeoff between storing assets compressed and reading them raw, which is an install-size decision as much as a load-time one. |
-| directstorage_io | differential_patch_pipeline | overlap | 1 | yes | Both concern moving bytes from disk into the game efficiently; one optimises the delivery, the other the per-load path, and both are affected by how assets are packed and compressed. |
 | directstorage_io | terrain_generation_streaming_budget | dependency | 3 | yes | When a streamed or generated world is IO-bound, the achievable bytes per second is the ceiling on the streaming budget. |
 | directstorage_io | virtual_texturing | complement | 2 | yes | Очереди I/O могут подавать тайлы виртуальных текстур. |
 | distance_field_shadows | build_size_startup_budgets | complement | 1 | yes | Generated distance fields are cooked data: they add to install size and to the atlas memory budget in the same way compressed textures do. |
@@ -832,7 +829,6 @@
 | ecs_data_oriented_crowd | multithreaded_physics_jobs | complement | 1 | yes | Both rely on a job system and on declaring read/write access for safe parallelism. |
 | fixed_timestep_physics | cloth_constraint_simulation | complement | 1 | yes | Spring-based cloth stretches and explodes under variable deltas; it needs a stable step. |
 | fixed_timestep_physics | multithreaded_physics_jobs | complement | 1 | yes | A fixed step makes the physics tick a predictable unit of work, which is what makes it schedulable and async-safe. |
-| fixed_timestep_physics | raycast_vehicle_physics | dependency | 3 | yes | Suspension feel is timestep-dependent; without a fixed step, handling changes with framerate. |
 | flipbook_particles | gpu_particle_simulation | alternative | 1 | yes | The bake is the fallback when GPU simulation is unaffordable on the target device; Epic frames it exactly this way. |
 | flipbook_particles | particle_pooling | complement | 1 | yes | Flipbook emitters are usually the cheap, numerous ones, so they benefit most from pooling and instance caps. |
 | flipbook_particles | screen_space_water_simple | overlap | 1 | yes | Both replace a real simulation with a cheaper approximation that holds up only under constrained viewing conditions. |
@@ -882,10 +878,7 @@
 | gpu_skinning_compute | animation_lod_budget | complement | 1 | yes | Skin Cache removes per-vertex deformation cost; the animation budget allocator removes evaluation cost. You normally need both for crowds, because the cache does not make animation evaluation cheaper. |
 | gpu_skinning_compute | motion_matching | risk | 2 | yes | Motion matching jumps between arbitrary frames, so poses can change abruptly; if the skin cache budget is exceeded the fallback path makes quality non-deterministic under exactly the conditions where motion matching is most visible. |
 | gpu_skinning_compute | normal_bake_retopology_pipeline | risk | 2 | yes | Retopology decisions set vertex counts and influence counts, which directly set Skin Cache VRAM occupancy and the 4/8/12-influence path a mesh takes. |
-| hair_cards_lod | cloth_baked_animation | overlap | 1 | yes | Both are bake-away-the-simulation strategies selected by distance/importance. |
-| hair_cards_lod | crowd_instancing_impostors | overlap | 1 | yes | Both are 'replace expensive geometry with a cheap textured proxy at distance' and share the pop-mitigation problem. |
 | hair_cards_lod | hair_strand_simulation | complement | 1 | yes | Cards are the LOD fallback for strands; a complete hair solution is strands-near + cards-far, not one or the other. |
-| hair_strand_simulation | cloth_constraint_simulation | overlap | 1 | yes | Both are per-entity soft-body solves with LOD and budget controls; the discipline transfers, the solvers do not. |
 | hair_strand_simulation | crowd_instancing_impostors | alternative | 1 | yes | For distant characters, an impostor/card proxy is a cheaper answer than a strand budget that scales with character count. |
 | hair_strand_simulation | fixed_timestep_physics | risk | 2 | yes | Strand physics is a spring system; variable timesteps produce jitter and stretching. |
 | hair_strand_simulation | hair_cards_lod | alternative | 2 | yes | Альтернативные представления одного LOD волос; разные LOD могут использовать разные представления. |
@@ -1000,7 +993,7 @@
 | quality_tier_scalability | post_effect_selective | complement | 1 | yes | Post-process quality is one of the tiered groups. |
 | quality_tier_scalability | splitscreen_render_budget | complement | 1 | yes | Epic explicitly names split screen as a reason to scale graphics. |
 | raycast_vehicle_physics | collision_layer_matrix | complement | 1 | yes | Vehicle raycasts should test only drivable surfaces; layer filtering is the cheapest way to guarantee that. |
-| raycast_vehicle_physics | fixed_timestep_physics | complement | 1 | yes | Suspension feel and stability are timestep-dependent; without a fixed step, handling changes with framerate. |
+| raycast_vehicle_physics | fixed_timestep_physics | dependency | 3 | yes | Suspension feel and stability are timestep-dependent; without a fixed step, handling changes with framerate. |
 | raycast_vehicle_physics | multithreaded_physics_jobs | complement | 1 | yes | Unreal documents async physics support for Chaos Vehicles specifically to improve determinism, which matters for replicated vehicles. |
 | raycast_vehicle_physics | vehicle_simulation_lod | complement | 1 | yes | A cheap raycast model is what makes it affordable to run many vehicles and to simulate distant ones at reduced fidelity. |
 | rt_effect_resolution_budget | selective_ray_traced_effects | dependency | 3 | yes | There is nothing to budget until an RT effect exists. |
@@ -1023,10 +1016,8 @@
 | screen_space_gi | hardware_raytraced_gi | complement | 1 | yes | Epic ships SSGI as an additional trace source inside Lumen rather than as a replacement for it. |
 | screen_space_gi | irradiance_volume_probes | alternative | 1 | yes | Probe volumes cover off-screen information that SSGI structurally cannot. |
 | screen_space_gi | quality_tier_scalability | complement | 1 | yes | SSGI is an obvious low-tier substitute for world-space GI. |
-| screen_space_gi | screen_space_contact_shadows | overlap | 1 | yes | Same screen-space-family technique and the same artefact class. |
 | screen_space_gi | temporal_upscaling | dependency | 3 | yes | Метод «screen_space_gi» требует предварительного метода «temporal_upscaling». |
 | screen_space_water_simple | crowd_instancing_impostors | overlap | 1 | yes | Same philosophy: a cheap proxy selected by distance/importance, judged entirely by whether the transition is noticeable. |
-| screen_space_water_simple | flipbook_particles | overlap | 1 | yes | Both replace a real simulation with a cheap, camera-facing approximation that holds up only under constrained viewing conditions. |
 | screenspace_light_shafts | froxel_volumetric_fog | complement | 1 | yes | If volumetrics exist, shafts should come from them rather than from a separate hack. |
 | screenspace_light_shafts | post_effect_selective | dependency | 3 | yes | Shafts are one of the passes to be tiered and down-res'd. |
 | screenspace_light_shafts | volumetric_half_resolution | complement | 1 | yes | Shafts tolerate low resolution well. |
@@ -1036,7 +1027,6 @@
 | selective_ray_traced_effects | full_path_tracing_pipeline | alternative | 1 | yes | Selective RT is the incremental path; full PT is the all-in path. |
 | selective_ray_traced_effects | hardware_raytraced_gi | overlap | 1 | yes | RTGI is one of the selectable effects. |
 | selective_ray_traced_effects | rt_effect_resolution_budget | complement | 1 | yes | Half-res + caching is how a selective RT effect becomes affordable. |
-| shadow_caster_2d_limits | light_range_attenuation_lod | overlap | 1 | yes | Both reduce how many sources/casters participate at distance. |
 | shadow_caster_2d_limits | post_effect_selective | overlap | 1 | yes | Same discipline: cap per-effect cost rather than globally. |
 | shadow_caster_2d_limits | quality_tier_scalability | complement | 1 | yes | Filter mode and Max Distance are obvious per-tier knobs. |
 | skeletal_2d_deform | animation_lod_budget | overlap | 1 | yes | Spine's round-robin subset update is a hand-rolled equivalent of an animation update-rate budget; the 3D engines ship it as a plugin (Animation Budget Allocator) and the 2D tool leaves it to you. |
@@ -1117,7 +1107,6 @@
 | virtual_geometry_clusters | directstorage_io | complement | 1 | yes | Page streaming plus hardware LZ is the intended IO path; Nanite's own slide says hardware LZ is 'On its way to PC with DirectStorage'. |
 | virtual_geometry_clusters | gpu_compute_culling | dependency | 3 | yes | Cluster hierarchy culling and two-phase HZB occlusion are the foundation Nanite is built on. |
 | virtual_geometry_clusters | gpu_instancing_vegetation | hard_conflict | 3 | yes | Nanite is 'Not great with aggregates' such as grass, leaves and hair, so foliage still needs an instancing/atlasing path rather than virtualised geometry. |
-| virtual_geometry_clusters | hierarchical_lod | overlap | 1 | yes | Both give you far-field geometry cheaply; Nanite's per-cluster LOD removes much of the need for baked HLOD proxies on rigid opaque geometry. |
 | virtual_geometry_clusters | impostors_billboards | complement | 1 | yes | Nanite's own solution to tiny instances is 'Visibility buffer imposters' (12x12 directions, 40.5 KB per mesh, always resident) - impostors are the escape hatch when the DAG root is reached. |
 | virtual_geometry_clusters | mesh_index_optimization | dependency | 3 | yes | Метод «virtual_geometry_clusters» требует предварительного метода «mesh_index_optimization». |
 | virtual_shadow_maps | distance_field_shadows | complement | 1 | yes | 'Distance Field Shadows are not replaced and can be used in tandem with VSMs'. |
@@ -1130,7 +1119,6 @@
 | virtual_texturing | terrain_clipmap | complement | 1 | yes | Clipmaps handle terrain geometry; VT handles terrain surfacing - a shipped terrain needs both. |
 | virtual_texturing | virtual_geometry_clusters | complement | 1 | yes | Nanite's author states geometry virtualisation is 'conceptually similar to virtual texturing' but harder, because geometry detail directly affects render cost and geometry is not trivially filterable. |
 | volumetric_half_resolution | froxel_volumetric_fog | dependency | 3 | yes | Метод «volumetric_half_resolution» требует предварительного метода «froxel_volumetric_fog». |
-| volumetric_half_resolution | post_effect_selective | overlap | 1 | yes | Both reduce per-effect cost; half-res is the finer-grained tool. |
 | volumetric_half_resolution | variable_rate_shading | alternative | 1 | yes | VRS reduces shading rate spatially instead of reducing buffer resolution - different artefact profile, similar goal. |
 | voxel_cone_tracing | deferred_forward_plus_choice | dependency | 3 | yes | Метод «voxel_cone_tracing» требует предварительного метода «deferred_forward_plus_choice». |
 | voxel_cone_tracing | froxel_volumetric_fog | overlap | 1 | yes | Both need a volumetric scene representation; sharing is possible but couples two systems' resolution budgets. |

@@ -79,6 +79,27 @@ def stage_pressure(profile_stage: str, method_stage: str) -> float:
     return max(0.0, min(1.0, (current - recommended) / 4.0))
 
 
+#: Предел сборки, ниже которого проект считается «стеснённым» (ГБ). Прежде порог
+#: был магической двойкой внутри условия (`size_limit_gb < 2`), а схема допускает
+#: предел до 4096 ГБ — для любого реального проекта правило молчало.
+TIGHT_BUILD_LIMIT_GB = 8.0
+
+
+def disk_severity(limit_gb: float | None) -> float:
+    """Критичность дефицита диска (0..1) по заданному пределу сборки.
+
+    Было `0.4 if size_limit_gb else 0.25` — ступенька на ФАКТЕ НАЛИЧИЯ поля:
+    предел «4096 ГБ» поднимал критичность так же, как «2 ГБ», то есть щедрый
+    предел делал проект строже к диску. Здесь критичность падает по мере
+    ослабления предела: 0.4 при пределе ≤ TIGHT_BUILD_LIMIT_GB, 0.25 при ≥ 256 ГБ.
+    """
+    if limit_gb is None:
+        return 0.25
+    span = 256.0 - TIGHT_BUILD_LIMIT_GB
+    ratio = max(0.0, min(1.0, (limit_gb - TIGHT_BUILD_LIMIT_GB) / span))
+    return round(0.4 - 0.15 * ratio, 3)
+
+
 def resource_severity(profile: ProjectProfile) -> dict[str, float]:
     """Насколько критичен дефицит каждого ресурса (0 — не критичен, 1 — критичен).
 
@@ -97,7 +118,7 @@ def resource_severity(profile: ProjectProfile) -> dict[str, float]:
         "gpu": get(profile.gpu_budget),
         "ram": get(profile.ram_budget),
         "vram": get(profile.vram_budget),
-        "disk": 0.4 if profile.size_limit_gb else 0.25,
+        "disk": disk_severity(profile.size_limit_gb),
         "network": 0.8 if profile.multiplayer else 0.1,
     }
 
@@ -157,11 +178,22 @@ def evaluate(method: Method, profile: ProjectProfile) -> Applicability:
             f"Сложность внедрения {method.complexity} превышает допустимую {profile.complexity_tolerance}."
         )
 
-    # Ограничение по объёму сборки: метод критично увеличивает размер.
-    if profile.size_limit_gb is not None and profile.size_limit_gb < 2 and method.impact_disk >= 2:
-        result.excluded_reasons.append(
-            "Метод существенно увеличивает размер сборки, что нарушает заданный предел."
-        )
+    # Ограничение по объёму сборки. Порог выведен из заданного предела: ниже
+    # TIGHT_BUILD_LIMIT_GB проект считается стеснённым и метод с критичным
+    # приростом объёма исключается. Для более щедрых пределов метод не проходит
+    # молча, а несёт явное условие — прежняя магическая двойка оставляла предел
+    # «50 ГБ» без всякой реакции, хотя пользователь задал реальное ограничение.
+    if profile.size_limit_gb is not None and method.impact_disk >= 2:
+        if profile.size_limit_gb <= TIGHT_BUILD_LIMIT_GB:
+            result.excluded_reasons.append(
+                "Метод существенно увеличивает размер сборки при заданном пределе "
+                f"{profile.size_limit_gb:g} ГБ."
+            )
+        else:
+            result.conditions.append(
+                f"Проверить прирост размера сборки: заданный предел "
+                f"{profile.size_limit_gb:g} ГБ, метод существенно увеличивает объём."
+            )
 
     # Requirements of the reviewed mechanisms, also used when accounting a
     # selected basket. Text-only conditions must not admit an offline server.

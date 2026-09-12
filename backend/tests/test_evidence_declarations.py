@@ -26,12 +26,16 @@ from app.models.entities import (
     MethodEngineLink,
 )
 
-pytestmark = pytest.mark.extended
+# Маркеры заданы у каждого теста явно, а не на уровне модуля: проверка висячих
+# опубликованных утверждений обязана идти в повседневном наборе (это провенанс —
+# то, чем проект защищается), остальные остаются подробными. Модульный маркер
+# не позволял их различить.
 
 #: Префикс, которым помечается плановая зависимость без внешнего источника.
 EDGE_MARKER = "[expert_estimate"
 
 
+@pytest.mark.extended
 def test_user_defined_links_are_declared(db_session):
     """Связка без URL обязана нести явную пометку user_defined."""
     links = db_session.scalars(select(MethodEngineLink)).all()
@@ -45,6 +49,7 @@ def test_user_defined_links_are_declared(db_session):
     assert undeclared == [], f"связки без URL и без пометки: {len(undeclared)}"
 
 
+@pytest.mark.extended
 def test_conflicts_without_url_are_declared(db_session):
     """Конфликт без URL обязан нести декларацию, а не пустое поле."""
     conflicts = db_session.scalars(select(Conflict)).all()
@@ -53,6 +58,7 @@ def test_conflicts_without_url_are_declared(db_session):
     assert missing == [], f"конфликты без источника и без декларации: {len(missing)}"
 
 
+@pytest.mark.extended
 def test_dependency_edges_without_source_are_declared(db_session):
     """Ребро графа без источника обязано быть объявлено экспертной оценкой."""
     edges = db_session.scalars(select(DependencyEdge)).all()
@@ -64,6 +70,7 @@ def test_dependency_edges_without_source_are_declared(db_session):
     assert undeclared == [], f"рёбра без источника и без декларации: {len(undeclared)}"
 
 
+@pytest.mark.extended
 def test_hardware_rows_carry_raw_benchmark_value(db_session):
     """Нормализованный индекс без исходной величины непроверяем."""
     for model in (HardwareCPU, HardwareGPU):
@@ -73,6 +80,7 @@ def test_hardware_rows_carry_raw_benchmark_value(db_session):
         assert empty == [], f"{model.__tablename__} без сырого значения: {len(empty)}"
 
 
+@pytest.mark.critical
 def test_no_dangling_published_claim(db_session):
     """Публичное утверждение либо имеет источник, либо самообосновано.
 
@@ -97,6 +105,7 @@ def test_no_dangling_published_claim(db_session):
     assert dangling == [], f"висячие утверждения: {dangling[:10]}"
 
 
+@pytest.mark.extended
 def test_cpu_notes_record_single_thread_provenance(db_session):
     """Провенанс CPU покрывает оба индекса, а не только multi-thread.
 

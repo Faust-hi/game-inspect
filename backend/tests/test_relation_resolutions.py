@@ -32,7 +32,7 @@ KNOWN_BASIS = frozenset({
 SYMMETRIC_TYPES = frozenset({"complement", "alternative", "hard_conflict", "risk"})
 
 
-@pytest.mark.extended
+@pytest.mark.critical
 def test_every_conflict_has_resolution_and_basis(db):
     """У каждой связи есть решение и явное основание решения."""
     rows = list(db.scalars(select(Conflict)))

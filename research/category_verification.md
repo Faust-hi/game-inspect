@@ -14,6 +14,22 @@
 > собственными расчётами). Каждый раздел заканчивается сверкой с планом.
 > Все числа — из production-БД, перепроверены запросом; самоотчёты не принимались.
 
+> **СОСТОЯНИЕ НА 2026-09-12 (сверено прямым запросом к БД).** Часть счётчиков ниже —
+> исторические снимки сессий 2026-09-11, и переписывать их не следует. Но с тех пор
+> из проекта **вырезаны** игровые кейсы и планирование трудоёмкости (волна 7):
+> таблицы `game_cases`, `case_evidence`, `work_packages`, `team_scenarios`, сервис
+> `services/planning.py` и маршруты `/api/catalog/cases`, `/api/catalog/teams`,
+> `POST /api/schedule`. Поэтому числа `game_cases 155`, `case_evidence 375`,
+> `work_packages 1794` и весь **§2.10 на текущей БД не воспроизводятся** — они
+> относятся к состоянию до вырезания. Утверждения с `basis='case_evidence'`
+> (244) сохранены с полным провенансом.
+>
+> Актуальные счётчики production-БД: `conflicts` **440**, `dependency_edges`
+> **914**, `methods` **124**, `game_functions` **40**, `engines` **7**,
+> `evidence_sources` **936**, `evidence_claims` **2564** (published **2540**).
+> Тесты: backend **89** обязательных и **76** подробных (165 всего),
+> frontend **33**, браузерных сценариев **2**.
+
 ---
 
 ## 0. ВЕРИФИКАЦИЯ ФУНДАМЕНТА (§B.5 HANDOFF)
@@ -538,6 +554,12 @@ i9-14900K (1,00); GPU: GTX 1050 Ti (0,13) → RTX 40-серия.
 
 ## 2.10 Итоговый план (`work_packages`, 802)
 
+> **ВЫРЕЗАНО (волна 7).** Планирование трудоёмкости и таблица `work_packages`
+> удалены из проекта: сервиса `services/planning.py` и маршрута `POST /api/schedule`
+> больше нет. Раздел сохранён как история исследования; на текущей БД он **не
+> воспроизводится**, и живая проверка инвариантов его не использует (сверяются
+> §2.3 и §2.8).
+
 **Ключевые выводы.** 802 пакета работ, все с `basis=expert_estimate`; сумма
 P50 = 2435,0 чел-дней, P80 = 4513,0, минимум 1582,8; 430 параллелизуемых.
 Стадии: prototype 369, production 262, preproduction 151, concept 13,
@@ -665,27 +687,32 @@ multiplayer, open_world, large. Планировщик раскрыл корзи
 |---|---|---|---|
 | 1 | `method_engine_links`: 111 связок без URL и без пометки | инструменты собственной реализации (`custom`) помечены `is_user_defined`; 111 связок → `evidence_status='user_defined'` + локатор | `pct_ok 100 %`, `undeclared_missing_url 0` |
 | 2 | `conflicts`: 30 строк без URL | `source_url='user_defined:catalog_dependency'` (связь выведена из каталога, не из документа) | `missing_url 0`, `undeclared 0` |
-| 3 | `dependency_edges`: 24 ребра без декларации | префикс `[expert_estimate:no_external_source]` в описании (плановая зависимость) | `declared_expert_estimate 154`, `undeclared 0` |
+| 3 | `dependency_edges`: рёбра без внешнего источника | префикс `[expert_estimate:no_external_source]` в описании (плановая зависимость) | `declared_expert_estimate 151`, `undeclared 0` |
 | 4 | `hardware_cpu`/`gpu`: `benchmark_raw_value` пуст (51/79) | `apply_hardware_raw_values` вызвана после создания железа; 130 строк заполнены (measured или derived от нормализованного индекса). Побочно регистрируется реестровый источник `PASSMARK_2026_09` → sources 935 → **936** | `missing_benchmark_raw_value 0` |
 | 5 | 3 «висячих» derived-claim (`research:*`) | аудит приведён к правилу спеки (строка 412): `derived` с `formula`+`input_parameters` самообоснован, а не «висячая ссылка» | `dangling claims 0` |
 
 ## 5.2 Закрепление (чтобы не вернулось)
 
-- **Регрессионный тест** `backend/tests/test_evidence_declarations.py` (5 тестов):
+- **Регрессионный тест** `backend/tests/test_evidence_declarations.py` (6 тестов):
   связки без URL, конфликты без URL, рёбра без источника, сырые значения
-  бенчмарков, отсутствие висячих публичных утверждений.
-- **Mutation-проба:** при отключении `declare_evidence_gaps` 4 из 5 тестов падают
-  (невхолостую), затем изменение откатано.
+  бенчмарков, отсутствие висячих публичных утверждений, происхождение
+  однопоточных оценок CPU.
+- **Mutation-проба:** при отключении `declare_evidence_gaps` падают 4 проверки
+  набора (невхолостую), затем изменение откатано. Проба выполнена, когда в наборе
+  было пять тестов; шестая добавлена позже.
 - **Воспроизводимость:** пересборка БД с нуля (`seed_all` на чистой БД) даёт те же
   декларации нативно — 111 `user_defined`, 0 конфликтов без URL, 0 рёбер без
   декларации, 0 пустых сырых значений; `validation_issues = 0`.
-- **Тесты:** 86 → **91 passed**. Граф: 0 ошибок, 0 mandatory-циклов.
+- **Тесты (сверено прогоном 2026-09-12):** backend — 89 обязательных и 76
+  подробных (165 всего), frontend — 33, браузерных сценариев — 2. Граф: 0 ошибок,
+  0 mandatory-циклов.
 
 ## 5.3 Оставшиеся честные ограничения (не пробелы данных)
 
-1. **`sources.missing_published_date = 28`** — у 28 источников нет даты
-   публикации; дата не выдумывается (принцип #3). Часть — «living documentation»
-   (декларировано отдельно). Информационная метрика, не влияющая на выводы.
+1. **`sources.missing_published_date = 0`** — даты проставлены у всех 936
+   источников БД и у всех 647 источников паков (сверено 2026-09-12). Ранее
+   отсутствовали у 28; дата не выдумывается (принцип #3). Информационная метрика,
+   не влияющая на выводы.
 2. **Объявленные пробелы adoption (честно, не скрыты):** метод
    `temporal_radiance_cache` (0 игровых примеров), `neural_texture_compression`
    (`no_shipped_title`), 21 инструмент движка (`adoption_evidence_gap`),
@@ -700,15 +727,19 @@ multiplayer, open_world, large. Планировщик раскрыл корзи
 # 6. МЕТОДИКА И ВОСПРОИЗВОДИМОСТЬ
 
 - Извлечение: `tools/extract_category_evidence.py` →
-  `research/_verify_cache/category_evidence.json` (2539 published claims,
-  375 case_evidence, 123 метода и 40 функций с примерами).
+  `research/_verify_cache/category_evidence.json` (2540 published claims,
+  244 case_evidence, 124 метода и 40 функций с примерами). Числа сверены с БД
+  2026-09-12.
 - Дайджест: `tools/dump_digest.py` → `research/_verify_cache/digest.txt`.
-- Живые инварианты (2.3, 2.8, 2.10) пересчитаны через сервисы
-  `planning.schedule` / `hardware.estimate_hardware` на production-БД.
+- Живые инварианты (2.3, 2.8, 2.10) пересчитаны через сервис оценки
+  оборудования (`hardware.estimate_hardware`) на production-БД. Прежняя ссылка на
+  `planning.schedule` недействительна: планирование трудоёмкости вырезано из
+  проекта (волна 7), и инварианты к нему не относятся.
 - Аудит покрытия: `tools/audit_evidence.py` → `research/audit_evidence.json`.
 - Исправление деклараций: `backend/app/seed/corrections.py::declare_evidence_gaps`
   (вызывается последней в `seed_all`); регрессия —
-  `backend/tests/test_evidence_declarations.py` (5 тестов, mutation-проверены).
+  `backend/tests/test_evidence_declarations.py` (6 тестов, mutation-проба
+  проведена).
 - **Правило:** ни одно число не взято из самоотчёта — только прямой запрос к БД,
   прогон сервиса или тест.
 
