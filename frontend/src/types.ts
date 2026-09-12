@@ -80,7 +80,6 @@ export interface ProjectProfile {
   ram_limit_gb?: number | null;
   vram_limit_gb?: number | null;
   size_limit_gb?: number | null;
-  deadline_weeks?: number | null;
   complexity_tolerance?: number | null;
   priority: string;
   cpu_budget?: string | null;

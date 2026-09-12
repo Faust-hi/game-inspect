@@ -253,21 +253,34 @@ def test_violated_limit_is_a_structural_verdict_not_only_text(client):
 
 
 @pytest.mark.critical
-def test_target_fps_is_reported_as_applied_not_as_unmodelled(client):
-    """`target_fps` участвует в расчёте и не может называться «не моделируется».
+def test_target_fps_is_applied_and_no_unmodelled_goals_remain(client):
+    """Единственная цель сборки участвует в расчёте; необеспеченных целей нет.
 
-    Цель задаёт бюджет кадра (1000/FPS) и через него влияет на требуемую
-    производительность, поэтому статус `not_modeled` рядом с числом,
-    посчитанным из этой же цели, — неправда. Цели, которые в модель не входят,
-    остаются `not_modeled`: их нельзя выдавать за учтённые.
+    `target_fps` задаёт бюджет кадра (1000/FPS) и через него влияет на требуемую
+    производительность, поэтому статус `not_modeled` рядом с числом, посчитанным
+    из этой же цели, был неправдой — теперь `applied`.
+
+    Цели, для которых модели нет (1% low, время запуска и сохранения, задержка
+    стриминга, сетевая задержка и трафик, серверный tick), из профиля убраны:
+    объявлять пробел для данных, которых система не собирает и не считает,
+    значит создавать вид функции, которой нет. Тест держит это решение —
+    возврат поля в схему уронит проверку.
     """
-    data = estimate(client, target_fps=60, target_1_percent_low_fps=30, max_startup_seconds=5)
-    statuses = {item["metric"]: item["status"] for item in data["target_assessments"]}
+    from app.schemas.catalog import ProjectProfile
 
-    assert statuses["target_fps"] == "applied"
-    assert statuses["target_1_percent_low_fps"] == "not_modeled"
-    assert statuses["max_startup_seconds"] == "not_modeled"
+    data = estimate(client, target_fps=60)
+    statuses = {item["metric"]: item["status"] for item in data["target_assessments"]}
+    assert statuses == {"target_fps": "applied"}
 
     # Предпосылка: цель действительно меняет расчёт, иначе статус `applied` лжив.
     slower = estimate(client, target_fps=120)
     assert slower["required_gpu_index"] > data["required_gpu_index"]
+
+    for gone in (
+        "target_1_percent_low_fps", "max_startup_seconds", "max_streaming_latency_ms",
+        "max_save_seconds", "target_network_latency_ms", "target_server_tick_hz",
+        "max_network_kbps", "deadline_weeks",
+    ):
+        assert gone not in ProjectProfile.model_fields, (
+            f"поле {gone} вернулось в профиль: для него нет ни анкеты, ни модели"
+        )

@@ -1125,51 +1125,30 @@ def _applicability_limits(profile: ProjectProfile) -> list[str]:
 
 
 def _target_assessments(profile: ProjectProfile) -> list[TargetAssessmentOut]:
-    """Зафиксировать пользовательские цели без выдуманного runtime-замера.
+    """Зафиксировать цель сборки без выдуманного runtime-замера.
 
-    Цели разделены по признаку «участвует ли цель в расчёте». `target_fps`
-    задаёт бюджет кадра (1000/FPS) и через него влияет на требуемую
-    производительность, поэтому объявлять его «не моделируется» неправда —
-    пользователь читает этот статус рядом с числом, посчитанным из той же цели.
-    Он получает статус `applied`: учтён в расчёте, но достижение цели на
-    найденной конфигурации не проверяется. Остальные цели в модели не участвуют
-    и честно остаются `not_modeled`.
+    Осталась одна цель — `target_fps`. Она участвует в расчёте: задаёт бюджет
+    кадра (1000/FPS) и через него влияет на требуемую производительность,
+    поэтому её статус `applied` («учтена в расчёте»), а не `not_modeled`.
+    Достижение цели на найденной конфигурации при этом не проверяется: для
+    этого нужен runtime-профиль кадра.
+
+    Остальные цели (1% low, время запуска и сохранения, задержка стриминга,
+    сетевая задержка, серверный tick, сетевой трафик) из профиля убраны: модель
+    для них не построена, а в анкету они не попадали — объявлять пробел для
+    данных, которых в системе не бывает, смысла нет.
     """
-    definitions = (
-        ("target_fps", "Целевой FPS", profile.target_fps, "FPS"),
-        ("target_1_percent_low_fps", "1% low FPS", profile.target_1_percent_low_fps, "FPS"),
-        ("max_startup_seconds", "Максимальное время запуска", profile.max_startup_seconds, "с"),
-        ("max_streaming_latency_ms", "Максимальная задержка стриминга", profile.max_streaming_latency_ms, "мс"),
-        ("max_save_seconds", "Максимальное время сохранения", profile.max_save_seconds, "с"),
-        ("target_network_latency_ms", "Целевая сетевая задержка", profile.target_network_latency_ms, "мс"),
-        ("target_server_tick_hz", "Целевой серверный tick", profile.target_server_tick_hz, "Гц"),
-        ("max_network_kbps", "Максимальный сетевой трафик", profile.max_network_kbps, "кбит/с"),
-    )
-    out: list[TargetAssessmentOut] = []
-    for metric, label, target, unit in definitions:
-        if target is None:
-            continue
-        if metric == "target_fps":
-            out.append(TargetAssessmentOut(
-                metric=metric, label=label, target=float(target), unit=unit,
-                status="applied", estimated=None, basis="not_calibrated",
-                note=(
-                    "Цель учтена в расчёте: задаёт бюджет кадра 1000/FPS и влияет на требуемую "
-                    "производительность. Достижение цели на найденной конфигурации не проверяется — "
-                    "для этого нужен runtime-профиль кадра."
-                ),
-            ))
-            continue
-        scope = (
-            "runtime-профиля кадра" if metric == "target_1_percent_low_fps"
-            else "runtime-профиля подсистемы"
-        )
-        out.append(TargetAssessmentOut(
-            metric=metric, label=label, target=float(target), unit=unit,
-            status="not_modeled", estimated=None, basis="not_calibrated",
-            note=f"Цель зафиксирована; оценка требует конкретного {scope}, импорт профиля не выполняется.",
-        ))
-    return out
+    if profile.target_fps is None:
+        return []
+    return [TargetAssessmentOut(
+        metric="target_fps", label="Целевой FPS", target=float(profile.target_fps), unit="FPS",
+        status="applied", estimated=None, basis="not_calibrated",
+        note=(
+            "Цель учтена в расчёте: задаёт бюджет кадра 1000/FPS и влияет на требуемую "
+            "производительность. Достижение цели на найденной конфигурации не проверяется — "
+            "для этого нужен runtime-профиль кадра."
+        ),
+    )]
 
 
 def _non_client_out(methods: list) -> list[NonClientMethodOut]:

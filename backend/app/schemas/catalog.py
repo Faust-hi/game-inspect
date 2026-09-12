@@ -111,22 +111,26 @@ class ProjectProfile(BaseModel):
     physics_tick_hz: Annotated[float | None, Field(ge=15, le=480, allow_inf_nan=False)] = None
     audio_complexity: LevelValue | None = None
 
-    # Необязательные проверяемые цели. Отсутствие значения означает
-    # `unknown`, а не нулевую нагрузку и не автоматически выполненную цель.
-    target_1_percent_low_fps: Annotated[int | None, Field(ge=1, le=480)] = None
-    max_startup_seconds: Annotated[float | None, Field(gt=0, le=600)] = None
-    max_streaming_latency_ms: Annotated[int | None, Field(gt=0, le=60000)] = None
-    max_save_seconds: Annotated[float | None, Field(gt=0, le=600)] = None
-    target_network_latency_ms: Annotated[int | None, Field(gt=0, le=2000)] = None
-    target_server_tick_hz: Annotated[float | None, Field(gt=0, le=1000)] = None
-    max_network_kbps: Annotated[float | None, Field(gt=0, le=1000000)] = None
-
     # Обязательные ограничения
     ram_limit_gb: Annotated[float | None, Field(gt=0, le=512)] = None
     vram_limit_gb: Annotated[float | None, Field(gt=0, le=256)] = None
     size_limit_gb: Annotated[float | None, Field(gt=0, le=4096)] = None
-    deadline_weeks: Annotated[int | None, Field(ge=0, le=1040)] = None
     complexity_tolerance: Annotated[int | None, Field(ge=1, le=5)] = None
+
+    # Убраны семь «проверяемых целей» (1% low, время запуска, задержка стриминга,
+    # время сохранения, сетевая задержка, серверный tick, сетевой трафик) и
+    # `deadline_weeks`.
+    #
+    # Причина: они были объявлены как пользовательский ввод, но в анкету не
+    # попали ни разу — их нельзя было задать из интерфейса. Сама модель для них
+    # не построена: часть требует данных, которых у системы нет (распределение
+    # времени кадра, RTT, серверная стоимость), часть — производственная величина
+    # вырезанного планирования. Держать в схеме поля, которые нельзя ввести и
+    # нельзя посчитать, значит создавать вид функции, которой нет.
+    #
+    # Цель `target_fps` оставлена: она действительно задаёт бюджет кадра и
+    # влияет на расчёт; её статус в `target_assessments` — `applied`, а не
+    # «не моделируется».
 
     # Приоритет при ранжировании
     priority: Literal[tuple(_values(Priority))] = "balanced"

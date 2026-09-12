@@ -59,7 +59,6 @@ export const DEFAULT_PROFILE: ProjectProfile = {
   ram_limit_gb: null,
   vram_limit_gb: null,
   size_limit_gb: null,
-  deadline_weeks: null,
   complexity_tolerance: null,
   priority: 'balanced',
   cpu_budget: null,

@@ -285,10 +285,13 @@ export function ProfileScreen() {
 
       <Card
         title="Обязательные ограничения"
-        hint="Решения, которые их нарушают, исключаются из подбора. Заполняйте только действительно заданные."
+        hint="Допустимая сложность исключает решения выше указанной. Предел размера сравнивается с оценочным объёмом сборки. Заполняйте только действительно заданные."
       >
         <div className="grid grid-4">
-          <Field label="Предел размера игры, ГБ">
+          <Field
+            label="Предел размера игры, ГБ"
+            hint="Сравнивается с оценочным объёмом установки: расхождение показывается как предупреждение, а при очень жёстком пределе решения, увеличивающие размер, исключаются"
+          >
             <NumberInput
               value={profile.size_limit_gb ?? null}
               min={1}
@@ -341,14 +344,6 @@ export function ProfileScreen() {
               min={1}
               placeholder="не задан"
               onChange={(value) => updateProfile({ vram_limit_gb: value })}
-            />
-          </Field>
-          <Field label="Срок, недель">
-            <NumberInput
-              value={profile.deadline_weeks ?? null}
-              min={1}
-              placeholder="не задан"
-              onChange={(value) => updateProfile({ deadline_weeks: value })}
             />
           </Field>
         </div>
